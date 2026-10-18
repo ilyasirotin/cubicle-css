@@ -28,3 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   spinner), with their AGENTS.md rules and catalogue rows.
 - Catalogue "Layout & grids" section: live application shell in a size-container frame, stack,
   cluster and grid demos with snippets and reference tables.
+- `scripts/verify-browser.mjs`: captures rest, hover, focus and active screenshots of every distinct
+  interactive demo control, checks text contrast in each pointer state and the focus ring, and
+  checks that every button has an accessible name.

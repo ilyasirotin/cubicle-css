@@ -3,7 +3,8 @@
 // Setup (once):   cd scripts && npm install && npx playwright install chromium
 // Run:            node scripts/verify-browser.mjs [docs/index.html] [--css dist/cubicle.min.css]
 //                 --css serves the given file in place of dist/cubicle.css (to check the minified build).
-// Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored).
+// Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
+//                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -154,6 +155,68 @@ for (const [fg, bg, need] of PAIRS) {
   const label = bg.replace(/color-mix\(in srgb, var\((--[a-z-]+)\) (\d+)\%, var\((--[a-z-]+)\)\)/, 'mix($1 $2% + $3)');
   check(r >= need, `contrast ${fg} on ${label} >= ${need}`, r.toFixed(2));
 }
+
+// 7. Live states of every distinct interactive control in the catalogue demos:
+//    rest, hover, keyboard focus and active are captured, text contrast is measured
+//    in each pointer state and the focus ring is checked. Contrast uses the bottom
+//    background colour of the element (or its nearest painted ancestor); gradient
+//    overlays such as --cb-grad-btn are ignored. Disabled and busy controls are skipped.
+const readContrastColors = (el) => {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  const rgba = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data]; };
+  let bg = [255, 255, 255, 255];
+  for (let n = el; n; n = n.parentElement) {
+    const c = rgba(getComputedStyle(n).backgroundColor);
+    if (c[3] > 0) { bg = c; break; }
+  }
+  return { fg: rgba(getComputedStyle(el).color).slice(0, 3), bg: bg.slice(0, 3) };
+};
+
+const controls7 = await page.$$('.docs-demo :is(button, a[href], input, select, textarea, summary):not([disabled], [aria-disabled="true"], [aria-busy="true"])');
+const seenKeys = new Set();
+for (const el of controls7) {
+  const key = await el.evaluate((n) => `${n.tagName.toLowerCase()}${[...n.classList].map((c) => `.${c}`).join('')}${n.hasAttribute('aria-pressed') ? `[aria-pressed=${n.getAttribute('aria-pressed')}]` : ''}`);
+  if (seenKeys.has(key)) continue;
+  seenKeys.add(key);
+  const slug = key.replace(/[^a-z0-9-]+/gi, '-').replace(/^-|-$/g, '');
+
+  await el.scrollIntoViewIfNeeded();
+  const shot = async (state) => {
+    const b = await el.boundingBox();
+    await page.screenshot({ path: `${shots}/state-${slug}-${state}.png`, clip: { x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: b.height + 16 } });
+  };
+  const contrast = async () => { const { fg, bg } = await el.evaluate(readContrastColors); return ratio(fg, bg); };
+  const box = await el.boundingBox();
+  const centre = [box.x + box.width / 2, box.y + box.height / 2];
+  const ratios = {};
+
+  await page.mouse.move(2, 2); await page.waitForTimeout(100);
+  ratios.rest = await contrast(); await shot('rest');
+
+  await page.mouse.move(...centre); await page.waitForTimeout(100);
+  ratios.hover = await contrast(); await shot('hover');
+
+  await page.mouse.down(); await page.waitForTimeout(100);
+  ratios.active = await contrast(); await shot('active');
+  await el.evaluate((n) => n.addEventListener('click', (e) => e.preventDefault(), { once: true }));
+  await page.mouse.up(); await page.mouse.move(2, 2);
+
+  await el.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+  const ring = await el.evaluate((n) => { const cs = getComputedStyle(n); return n.matches(':focus-visible') && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none'; });
+  await shot('focus');
+  await el.evaluate((n) => n.blur());
+
+  const low = Object.entries(ratios).filter(([, r]) => r < 4.5);
+  check(!low.length && ring, `states of ${key}: contrast >= 4.5 at rest/hover/active, focus ring visible`,
+    `${Object.entries(ratios).map(([s, r]) => `${s} ${r.toFixed(2)}`).join(', ')}${ring ? '' : ', NO FOCUS RING'}`);
+}
+
+// 8. Every button and button-styled link has an accessible name (text or aria-label).
+const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
+  .filter((e) => !(e.getAttribute('aria-label') ?? '').trim() && !e.textContent.trim())
+  .map((e) => e.outerHTML.slice(0, 80)));
+check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
 
 await browser.close();
 
