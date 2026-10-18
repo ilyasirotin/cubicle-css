@@ -17,7 +17,7 @@ Modern flat design often blurs the line between static text and interactive cont
 * **Buttons & Triggers:** Must have a subtle raised appearance using a dedicated surface token (`--cb-bg-btn`), dual-tone borders (lighter top/left edge `--cb-border-main`, darker bottom/right edge `--cb-border-strong`), and crisp multi-layered box-shadows (`--cb-shadow-outset`) coupled with a micro-gradient (`--cb-grad-btn`).
 * **Active/Pressed States:** Physically shift (`translate: 0 1px`) and invert the lighting model (`--cb-shadow-pressed`, no gradient) so the user feels the mechanical click.
 * **Inputs & Wells:** Text fields, selects, code blocks, and log viewers must appear slightly recessed into the page (`--cb-shadow-inset` and darker top border `--cb-border-strong`) with a crisp `1px` border.
-* **Corners:** Strictly utilitarian. Use sharp corners (`0px`) or micro-radii (`2px` to `3px` max) to maintain a serious, engineered feel. Never use pill-shaped buttons or large rounded cards (`8px+`).
+* **Corners:** Strictly utilitarian. Use sharp corners (`0px`) or micro-radii (`2px` to `3px` max) to maintain a serious, engineered feel. Never use pill-shaped buttons or large rounded cards (`8px+`). The only exception is round status indicators (LED dots, the busy spinner), which use `--cb-radius-round` and never apply to controls or containers.
 
 ### 2.2. Color Palette & Contrast
 * **Cool Industrial Steel Foundation:** The UI relies on structured layers of cool slate and steel grays (`#e4e7ec` canvas, `#f4f6f8` surfaces, `#eaedf2` buttons, `#d5dae2` headers) to separate panels, toolbars, and workspaces without relying on heavy drop shadows.
@@ -76,7 +76,7 @@ When designing or modifying components, adhere to these domain-specific UX patte
 
 ## 5. UI/UX Anti-Patterns (Strictly Forbidden)
 * **NO Glassmorphism / Neomorphism:** No blurry translucent backgrounds (`backdrop-filter: blur`), glowing neon borders, or soft, low-contrast extruded plastic shadows.
-* **NO Bouncy or Slow Animations:** Transitions must be instantaneous (`50ms` max). Enterprise tools must feel snappy and immediate.
+* **NO Bouncy or Slow Animations:** Transitions must be instantaneous (`50ms` max). Enterprise tools must feel snappy and immediate. Continuous busy indicators are the only looping motion: they rotate in discrete steps over `--cb-duration-spin` and stop under `prefers-reduced-motion: reduce`.
 * **NO Ambiguous "Ghost" Inputs:** Never use borderless inputs that only show an underline on hover/focus.
 * **NO Marketing/Consumer Bloat:** Do not build hero banners, pricing cards, testimonial carousels, or oversized promotional typography.
 
@@ -174,6 +174,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
     --cb-radius-none: 0px;
     --cb-radius-sm: 2px;           /* Default for buttons, inputs, badges */
     --cb-radius-md: 3px;           /* Maximum allowed radius (panels, modals) */
+    --cb-radius-round: 50%;        /* Indicators only: LED dots, spinner */
 
     --cb-space-1: 0.25rem;         /* 4px  - tight inline gap */
     --cb-space-2: 0.5rem;          /* 8px  - standard cell/input padding */
@@ -194,6 +195,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
 
     /* 8. Motion & Focus */
     --cb-duration: 50ms;           /* Instantaneous mechanical feedback */
+    --cb-duration-spin: 800ms;     /* One stepped revolution of the busy spinner */
     --cb-focus-ring: 2px solid var(--cb-accent);
     --cb-focus-offset: 1px;
   }

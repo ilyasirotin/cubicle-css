@@ -326,6 +326,11 @@
   .docs-tile--radius-sm { border-radius: var(--cb-radius-sm); }
   .docs-tile--radius-md { border-radius: var(--cb-radius-md); }
 
+  .docs-tile--radius-round {
+    inline-size: 2rem;
+    border-radius: var(--cb-radius-round);
+  }
+
   .docs-tile--focus-ring {
     background: var(--cb-bg-raised);
     border: var(--cb-focus-ring);

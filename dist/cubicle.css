@@ -118,6 +118,7 @@
     --cb-radius-none: 0px;
     --cb-radius-sm: 2px;           /* Default for buttons, inputs, badges */
     --cb-radius-md: 3px;           /* Maximum allowed radius (panels, modals) */
+    --cb-radius-round: 50%;        /* Indicators only: LED dots, spinner */
 
     --cb-space-1: 0.25rem;         /* 4px  - tight inline gap */
     --cb-space-2: 0.5rem;          /* 8px  - standard cell/input padding */
@@ -138,6 +139,7 @@
 
     /* 2.8 Motion & focus */
     --cb-duration: 50ms;           /* Instantaneous mechanical feedback */
+    --cb-duration-spin: 800ms;     /* One stepped revolution of the busy spinner */
     --cb-focus-ring: 2px solid var(--cb-accent);
     --cb-focus-offset: 1px;
   }
