@@ -1,0 +1,10 @@
+{
+  "name": "cubicle-dev-tools",
+  "private": true,
+  "type": "module",
+  "description": "Development-only tools for Cubicle (browser checks, local minified build). Not part of the shipped kit.",
+  "devDependencies": {
+    "playwright": "^1.56.0",
+    "lightningcss-cli": "^1.30.0"
+  }
+}
