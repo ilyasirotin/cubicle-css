@@ -1,0 +1,175 @@
+/*!
+ * Cubicle — a dense, tactile CSS framework for enterprise consoles
+ * (IAM portals, VPN admin panels, infrastructure dashboards).
+ * MIT License. Single hand-written file; no build step required.
+ */
+
+/* ==========================================================================
+   Table of Contents
+   --------------------------------------------------------------------------
+   0. Layer order
+   1. Reset ........... box model, body margin, form-control font inheritance
+   2. Tokens .......... colour, depth, geometry, spacing, type, motion
+   3. Base ............ document typography, links, monospace, focus ring
+   ========================================================================== */
+
+
+/* ==========================================================================
+   0. Layer order
+   Host applications override any layer with unlayered CSS, no !important.
+   ========================================================================== */
+
+@layer reset, tokens, base, layout, components, utilities;
+
+
+/* ==========================================================================
+   1. Reset
+   Kept minimal and zero-specificity: Cubicle styles host markup only
+   through cb-* classes.
+   ========================================================================== */
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  /* Form controls do not inherit typography by default. */
+  :where(button, input, select, textarea) {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+
+/* ==========================================================================
+   2. Tokens
+   The only place where raw colours, shadows, radii and durations appear.
+   Derived states use color-mix(in srgb, ...) on these tokens.
+   ========================================================================== */
+
+@layer tokens {
+  :root {
+    /* 2.1 Surfaces & backgrounds (cool industrial steel / slate gray) */
+    --cb-bg-canvas: #e4e7ec;       /* Main workspace background (cool steel) */
+    --cb-bg-surface: #f4f6f8;      /* Panels, cards, table bodies */
+    --cb-bg-raised: #ffffff;       /* Inputs, active tabs, modals */
+    --cb-bg-btn: #eaedf2;          /* Dedicated tactile button surface */
+    --cb-bg-recessed: #dce1e8;     /* Wells, code blocks, readonly/disabled fields */
+    --cb-bg-header: #d5dae2;       /* Panel headers, table heads, topbars */
+    --cb-bg-zebra: #edf0f4;        /* Alternating table row tint */
+    --cb-bg-hover: #e2e8f0;        /* Crisp row/item hover highlight */
+    --cb-bg-selected: #cfe0f5;     /* Selected table row / active tree node */
+
+    /* 2.2 Typography & ink (cool deep slate) */
+    --cb-text-main: #11161d;       /* Primary high-contrast ink */
+    --cb-text-muted: #4b5563;      /* Secondary labels, metadata, hints */
+    --cb-text-disabled: #8892a0;   /* Disabled control text */
+    --cb-text-inverse: #f8fafc;    /* Text on dark/semantic buttons */
+
+    /* 2.3 Structural borders (crisp metallic edges) */
+    --cb-border-subtle: #cbd2dc;   /* Table cell dividers, internal lines */
+    --cb-border-main: #9aa3b2;     /* Standard panel, input, and button borders */
+    --cb-border-strong: #646f80;   /* Active control frames, bottom bevel edge */
+
+    /* 2.4 Semantic status & actions (desaturated enterprise tones) */
+    --cb-accent: #1e4b85;          /* Muted steel navy for primary actions & focus */
+    --cb-ok: #166534;              /* Deep forest green (Online, Active, Valid) */
+    --cb-warn: #9a4a06;            /* Industrial ochre/amber (Pending, Degraded) */
+    --cb-danger: #991b1b;          /* Deep crimson (Revoked, Offline, Destructive) */
+    --cb-info: #075985;            /* Technical slate-blue (System notice) */
+
+    /* 2.5 Tactile depth & lighting (crisp micro-bevel, subtle 3D volume) */
+    --cb-shadow-outset:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      inset 1px 0 0 0 rgba(255, 255, 255, 0.45),
+      inset 0 -1px 0 0 rgba(15, 23, 42, 0.16),
+      0 1px 1px 0 rgba(15, 23, 42, 0.08);
+    --cb-shadow-outset-dark:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.35),
+      0 1px 1px 0 rgba(15, 23, 42, 0.12);
+    --cb-shadow-inset:
+      inset 0 1px 2px 0 rgba(15, 23, 42, 0.14),
+      0 1px 0 0 rgba(255, 255, 255, 0.8);
+    --cb-shadow-pressed:
+      inset 0 1px 3px 0 rgba(15, 23, 42, 0.26),
+      inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+    --cb-shadow-float:
+      0 4px 12px -2px rgba(15, 23, 42, 0.18),
+      0 0 0 1px var(--cb-border-strong);
+
+    --cb-grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(15, 23, 42, 0.03) 100%);
+    --cb-grad-btn: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 55%, rgba(15, 23, 42, 0.05) 100%);
+    --cb-grad-btn-dark: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(0, 0, 0, 0.12) 100%);
+
+    /* 2.6 Geometry, spacing & density */
+    --cb-radius-none: 0px;
+    --cb-radius-sm: 2px;           /* Default for buttons, inputs, badges */
+    --cb-radius-md: 3px;           /* Maximum allowed radius (panels, modals) */
+
+    --cb-space-1: 0.25rem;         /* 4px  - tight inline gap */
+    --cb-space-2: 0.5rem;          /* 8px  - standard cell/input padding */
+    --cb-space-3: 0.75rem;         /* 12px - panel padding */
+    --cb-space-4: 1rem;            /* 16px - section separation */
+    --cb-space-5: 1.5rem;          /* 24px - major layout gap */
+
+    /* 2.7 Typography scale & stacks */
+    --cb-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --cb-font-mono: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, monospace;
+
+    --cb-text-xs: 0.75rem;         /* 12px - badges, table headers, micro-labels */
+    --cb-text-sm: 0.8125rem;       /* 13px - base dense UI text */
+    --cb-text-md: 0.875rem;        /* 14px - comfortable reading / primary inputs */
+    --cb-text-lg: 1rem;            /* 16px - panel titles, modal headers */
+    --cb-line-tight: 1.25;
+    --cb-line-base: 1.4;
+
+    /* 2.8 Motion & focus */
+    --cb-duration: 50ms;           /* Instantaneous mechanical feedback */
+    --cb-focus-ring: 2px solid var(--cb-accent);
+    --cb-focus-offset: 1px;
+  }
+}
+
+
+/* ==========================================================================
+   3. Base
+   Document level only. Headings, tables and form controls stay untouched
+   here; components opt in through cb-* classes.
+   ========================================================================== */
+
+@layer base {
+  /* Light palette only: keep native scrollbars and pickers light as well. */
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--cb-bg-canvas);
+    color: var(--cb-text-main);
+    font: var(--cb-text-sm) / var(--cb-line-base) var(--cb-font-sans);
+  }
+
+  :where(a) {
+    color: var(--cb-accent);
+    text-decoration: underline;
+  }
+
+  /* font-size: 1em cancels the UA shrink applied to monospace text. */
+  :where(code, kbd, samp, pre) {
+    font-family: var(--cb-font-mono);
+    font-size: 1em;
+  }
+
+  /* The single focus indicator for every interactive element. */
+  :focus-visible {
+    outline: var(--cb-focus-ring);
+    outline-offset: var(--cb-focus-offset);
+  }
+}
