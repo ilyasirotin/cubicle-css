@@ -10,7 +10,7 @@
    0. Layer order
    1. Reset ........... box model, body margin, form-control font inheritance
    2. Tokens .......... colour, depth, geometry, spacing, type, motion
-   3. Base ............ document typography, links, monospace, focus ring
+   3. Base ............ document typography, links, monospace (no ligatures), focus ring
    4. Layout
       4.1 Application shell .. .cb-app top / side / main / status regions
       4.2 Scroll model ....... fixed frame
@@ -173,10 +173,12 @@
     text-decoration: underline;
   }
 
-  /* font-size: 1em cancels the UA shrink applied to monospace text. */
+  /* font-size: 1em cancels the UA shrink applied to monospace text. Ligatures are
+     off so technical strings (--flags, ->, !=, -----BEGIN) read character by character. */
   :where(code, kbd, samp, pre) {
     font-family: var(--cb-font-mono);
     font-size: 1em;
+    font-variant-ligatures: none;
   }
 
   /* The single focus indicator for every interactive element. */

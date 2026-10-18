@@ -38,6 +38,7 @@
 
   .docs-topbar__meta {
     font-family: var(--cb-font-mono);
+    font-variant-ligatures: none;
     font-size: var(--cb-text-xs);
     color: var(--cb-text-muted);
   }
@@ -188,6 +189,7 @@
     padding: var(--cb-space-1) var(--cb-space-2);
     font-family: var(--cb-font-mono);
     font-size: var(--cb-text-xs);
+    font-variant-ligatures: none;
     background: var(--cb-bg-raised);
     border: 1px solid var(--cb-border-main);
     border-radius: var(--cb-radius-sm);
@@ -364,7 +366,7 @@
   .docs-bar--space-5 { --_w: var(--cb-space-5); }
 
   .docs-type--sans { font-family: var(--cb-font-sans); }
-  .docs-type--mono { font-family: var(--cb-font-mono); }
+  .docs-type--mono { font-family: var(--cb-font-mono); font-variant-ligatures: none; }
   .docs-type--xs { font-size: var(--cb-text-xs); }
   .docs-type--sm { font-size: var(--cb-text-sm); }
   .docs-type--md { font-size: var(--cb-text-md); }
