@@ -51,14 +51,16 @@ if (layerAt < 0) {
   }
 }
 
-// Documented tokens: name -> value (null when the row has no value cell).
+// Documented tokens: name -> every value written for it (a token may appear in several tables).
 const documented = new Map();
 for (const [, row] of readFileSync(docsFile, 'utf8').matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)) {
   const codes = [...row.matchAll(/<code\b[^>]*>([\s\S]*?)<\/code>/g)].map((m) => squash(unescape(m[1])));
   codes.forEach((text, i) => {
     if (!/^--cb-[a-z0-9-]+$/.test(text)) return;
     const next = codes[i + 1];
-    documented.set(text, next !== undefined && !/^--cb-[a-z0-9-]+$/.test(next) ? next : null);
+    const values = documented.get(text) ?? [];
+    if (next !== undefined && !/^--cb-[a-z0-9-]+$/.test(next)) values.push(next);
+    documented.set(text, values);
   });
 }
 
@@ -74,10 +76,12 @@ if (documented.size && !stale.length) check(true, `all ${documented.size} docume
 
 // 3. Documented values
 let compared = 0;
-for (const [n, value] of documented) {
-  if (value === null || !declared.has(n)) continue;
-  compared++;
-  if (!same(value, declared.get(n))) check(false, `${n} value in the catalogue matches the stylesheet`, `docs ${JSON.stringify(value)} vs css ${JSON.stringify(declared.get(n))}`);
+for (const [n, values] of documented) {
+  if (!declared.has(n)) continue;
+  for (const value of values) {
+    compared++;
+    if (!same(value, declared.get(n))) check(false, `${n} value in the catalogue matches the stylesheet`, `docs ${JSON.stringify(value)} vs css ${JSON.stringify(declared.get(n))}`);
+  }
 }
 if (compared && !results.some((r) => !r.ok && r.name.endsWith('matches the stylesheet'))) {
   check(true, `all ${compared} documented values match the stylesheet`);
