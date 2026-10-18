@@ -1,0 +1,97 @@
+// Cubicle token integrity check. Development tool only; not part of the shipped kit.
+//
+// Setup:          none (Node built-ins only).
+// Run:            node scripts/check-tokens.mjs [docs/index.html] [--css dist/cubicle.css]
+// Convention:     inside any <tr> of the catalogue, a <code> whose whole text is a token name
+//                 (--cb-name) documents that token; the next <code> in the same row, if any,
+//                 is its documented value. Rows without a value cell count for presence only.
+// Checks:         1. every token declared in @layer tokens is documented in the catalogue;
+//                 2. every documented token exists in the stylesheet;
+//                 3. every documented value equals the declared value (whitespace-normalised);
+//                 4. every var(--cb-*) used in the stylesheet and docs/docs.css is declared.
+// Exit code:      0 when every check passes, 1 otherwise.
+
+import { readFileSync } from 'node:fs';
+import { resolve, dirname, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const args = process.argv.slice(2);
+const cssFlag = args.indexOf('--css');
+const cssFile = resolve(root, cssFlag >= 0 ? args.splice(cssFlag, 2)[1] ?? '' : 'dist/cubicle.css');
+const docsFile = resolve(root, args[0] ?? 'docs/index.html');
+const docsCssFile = resolve(root, 'docs/docs.css');
+
+const results = [];
+const check = (ok, name, detail = '') => results.push({ ok, name, detail });
+
+const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
+const squash = (s) => s.replace(/\s+/g, ' ').trim();
+const unescape = (s) => s
+  .replaceAll('&lt;', '<').replaceAll('&gt;', '>')
+  .replaceAll('&quot;', '"').replaceAll('&#39;', "'")
+  .replaceAll('&amp;', '&');
+const same = (a, b) => (/^#[0-9a-f]+$/i.test(a) ? a.toLowerCase() === b.toLowerCase() : a === b);
+
+// 0. Declared tokens: the body of @layer tokens { ... }.
+const css = stripComments(readFileSync(cssFile, 'utf8'));
+const declared = new Map();
+const layerAt = css.search(/@layer\s+tokens\s*\{/);
+if (layerAt < 0) {
+  check(false, '@layer tokens block found', relative(root, cssFile));
+} else {
+  const open = css.indexOf('{', layerAt);
+  let depth = 0, end = open;
+  for (; end < css.length; end++) {
+    if (css[end] === '{') depth++;
+    if (css[end] === '}' && --depth === 0) break;
+  }
+  for (const [, name, value] of css.slice(open, end).matchAll(/(--cb-[a-z0-9-]+)\s*:\s*([^;]+);/g)) {
+    declared.set(name, squash(value));
+  }
+}
+
+// Documented tokens: name -> value (null when the row has no value cell).
+const documented = new Map();
+for (const [, row] of readFileSync(docsFile, 'utf8').matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)) {
+  const codes = [...row.matchAll(/<code\b[^>]*>([\s\S]*?)<\/code>/g)].map((m) => squash(unescape(m[1])));
+  codes.forEach((text, i) => {
+    if (!/^--cb-[a-z0-9-]+$/.test(text)) return;
+    const next = codes[i + 1];
+    documented.set(text, next !== undefined && !/^--cb-[a-z0-9-]+$/.test(next) ? next : null);
+  });
+}
+
+// 1. Declared -> documented
+const undocumented = [...declared.keys()].filter((n) => !documented.has(n));
+for (const n of undocumented) check(false, `${n} is documented in the catalogue`);
+if (declared.size && !undocumented.length) check(true, `all ${declared.size} declared tokens are documented`);
+
+// 2. Documented -> declared
+const stale = [...documented.keys()].filter((n) => !declared.has(n));
+for (const n of stale) check(false, `documented ${n} exists in the stylesheet`);
+if (documented.size && !stale.length) check(true, `all ${documented.size} documented tokens exist in the stylesheet`);
+
+// 3. Documented values
+let compared = 0;
+for (const [n, value] of documented) {
+  if (value === null || !declared.has(n)) continue;
+  compared++;
+  if (!same(value, declared.get(n))) check(false, `${n} value in the catalogue matches the stylesheet`, `docs ${JSON.stringify(value)} vs css ${JSON.stringify(declared.get(n))}`);
+}
+if (compared && !results.some((r) => !r.ok && r.name.endsWith('matches the stylesheet'))) {
+  check(true, `all ${compared} documented values match the stylesheet`);
+}
+
+// 4. var() references
+for (const file of [cssFile, docsCssFile]) {
+  const refs = new Set([...stripComments(readFileSync(file, 'utf8')).matchAll(/var\(\s*(--cb-[a-z0-9-]+)/g)].map((m) => m[1]));
+  const unknown = [...refs].filter((n) => !declared.has(n));
+  for (const n of unknown) check(false, `var(${n}) in ${relative(root, file)} is declared`);
+  if (!unknown.length) check(true, `all ${refs.size} var(--cb-*) references in ${relative(root, file)} are declared`);
+}
+
+const failed = results.filter((r) => !r.ok);
+for (const r of results) console.log(`${r.ok ? 'ok  ' : 'FAIL'}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}`);
+console.log(`\n${results.length - failed.length}/${results.length} checks passed. Files: ${relative(root, cssFile)}, ${relative(root, docsFile)}`);
+process.exit(failed.length ? 1 : 0);

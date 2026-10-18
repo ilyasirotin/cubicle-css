@@ -211,7 +211,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
 - `docs/example.html` — sample IAM/infra console screen; serves as in-context showcase and integration test.
 - `docs/docs.css` — documentation-only layout styles; never shipped.
 - `reference/` — frozen design/spec inputs (see `reference/README.md`); read-only; git-ignored.
-- `scripts/` — dev tools: `verify-browser.mjs`, `build-min.sh`, `check-snippets.mjs`; never shipped.
+- `scripts/` — dev tools: `verify-browser.mjs`, `build-min.sh`, `check-snippets.mjs`, `check-tokens.mjs`; never shipped.
 - `.claude/` — Claude Code setup: settings, hooks, skills.
 - `.claude/plans/` — Claude's implementation plans. Store every plan in this directory.
 - `README.md`, `LICENSE` (MIT), `CHANGELOG.md` (Keep a Changelog, SemVer), `CONTRIBUTING.md`, `AGENTS.md`.
@@ -237,6 +237,7 @@ This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicl
   3. An escaped copy-paste HTML snippet inside `<pre><code>` that is byte-for-byte identical to the live markup above it.
   4. A compact reference table of accepted modifiers and state attributes.
 - **Snippet Integrity:** `scripts/check-snippets.mjs` parses `docs/index.html`, compares every live demo against its `<pre><code>` block, and fails on any mismatch. Note: While Cubicle ships a `cb-secret` / copy pattern for application UIs (API keys, hashes), documentation code snippets themselves remain plain `<pre><code>` blocks without JS copy buttons.
+- **Token Integrity:** `scripts/check-tokens.mjs` fails when a token in `@layer tokens` is missing from the catalogue, a documented token or value differs from the stylesheet, or a `var(--cb-*)` reference names an undeclared token.
 
 ---
 

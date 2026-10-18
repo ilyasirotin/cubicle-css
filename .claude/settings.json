@@ -8,6 +8,7 @@
       "Bash(git commit *)",
       "Bash(node scripts/verify-browser.mjs *)",
       "Bash(node scripts/check-snippets.mjs *)",
+      "Bash(node scripts/check-tokens.mjs *)",
       "Bash(bash scripts/build-min.sh *)",
       "WebFetch(domain:developer.mozilla.org)",
       "WebFetch(domain:caniuse.com)",

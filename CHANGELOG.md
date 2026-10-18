@@ -18,3 +18,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/index.html` and `docs/docs.css`: catalogue shell with skip link, sticky navigation,
   Principles, and token reference (colour, depth and shadow, radius, motion and focus, spacing,
   typography) with a base typography demo.
+- `scripts/check-tokens.mjs`: zero-dependency check that every token in `@layer tokens` is
+  documented in the catalogue with the same value, and that every `var(--cb-*)` reference resolves.
