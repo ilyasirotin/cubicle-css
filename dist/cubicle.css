@@ -19,6 +19,8 @@
       4.5 Grid ............... .cb-grid container-relative columns
    5. Components
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
+      5.2 Form controls ...... .cb-input, .cb-select, .cb-check, .cb-choice,
+                               .cb-field, .cb-input-group, .cb-range
    ========================================================================== */
 
 
@@ -120,7 +122,7 @@
     --cb-radius-none: 0px;
     --cb-radius-sm: 2px;           /* Default for buttons, inputs, badges */
     --cb-radius-md: 3px;           /* Maximum allowed radius (panels, modals) */
-    --cb-radius-round: 50%;        /* Indicators only: LED dots, spinner */
+    --cb-radius-round: 50%;        /* LED dots, spinner, radio buttons only */
 
     --cb-space-1: 0.25rem;         /* 4px  - tight inline gap */
     --cb-space-2: 0.5rem;          /* 8px  - standard cell/input padding */
@@ -501,5 +503,439 @@
       position: relative;
       z-index: 1;
     }
+  }
+
+  /* 5.2 Form controls ----------------------------------------------------- */
+
+  /* Recessed well: inset shadow and a darker top edge. Inputs, textareas and
+     selects share the paint; states only swap the private properties. */
+  :is(.cb-input, .cb-select) {
+    --_h: 1.625rem;
+    --_bg: var(--cb-bg-raised);
+    --_ink: var(--cb-text-main);
+    --_border: var(--cb-border-main);
+    --_border-top: var(--cb-border-strong);
+    --_shadow: var(--cb-shadow-inset);
+
+    min-block-size: var(--_h);
+    padding: 0 var(--cb-space-2);
+    font-size: var(--cb-text-md);
+    line-height: var(--cb-line-tight);
+    color: var(--_ink);
+    background-color: var(--_bg);
+    border: 1px solid var(--_border);
+    border-block-start-color: var(--_border-top);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--_shadow);
+    transition: border-color var(--cb-duration);
+
+    &::placeholder {
+      color: var(--cb-text-muted);
+      opacity: 1;
+    }
+
+    &:hover {
+      --_border: var(--cb-border-strong);
+    }
+
+    /* Read-only values are data to copy, not to edit: recessed and monospace. */
+    &[readonly] {
+      --_bg: var(--cb-bg-recessed);
+      font-family: var(--cb-font-mono);
+      font-variant-ligatures: none;
+    }
+
+    &:is([aria-invalid="true"], :user-invalid) {
+      --_bg: color-mix(in srgb, var(--cb-danger) 4%, var(--cb-bg-raised));
+      --_border: var(--cb-danger);
+      --_border-top: var(--cb-danger);
+    }
+
+    &:disabled {
+      --_bg: var(--cb-bg-recessed);
+      --_ink: var(--cb-text-disabled);
+      --_border: var(--cb-border-main);
+      --_border-top: var(--cb-border-main);
+      --_shadow: none;
+      cursor: not-allowed;
+    }
+  }
+
+  textarea.cb-input {
+    min-block-size: 5lh;
+    padding-block: var(--cb-space-1);
+    line-height: var(--cb-line-base);
+    resize: vertical;
+  }
+
+  /* Chevron: two gradient triangles in the current ink over the current fill,
+     so every state recolours it without extra rules. */
+  .cb-select {
+    appearance: none;
+    padding-inline-end: 1.5rem;
+    background:
+      linear-gradient(45deg, var(--_bg) 50%, var(--_ink) 50%) right 0.75rem center / 0.3125rem 0.3125rem no-repeat,
+      linear-gradient(135deg, var(--_ink) 50%, var(--_bg) 50%) right 0.4375rem center / 0.3125rem 0.3125rem no-repeat,
+      var(--_bg);
+
+    &:is([multiple], [size]) {
+      padding-block: var(--cb-space-1);
+      padding-inline-end: var(--cb-space-2);
+      background: var(--_bg);
+    }
+  }
+
+  :is(.cb-input--sm, .cb-select--sm) {
+    --_h: 1.25rem;
+    padding-inline-start: var(--cb-space-1);
+    font-size: var(--cb-text-xs);
+  }
+
+  .cb-input--sm {
+    padding-inline-end: var(--cb-space-1);
+  }
+
+  /* File picker: a raised key sunk into the well. A class cannot reach the
+     ::file-selector-button pseudo-element, so it repeats the .cb-btn paint
+     from the same tokens. */
+  .cb-input[type="file"] {
+    padding-inline-start: 0;
+  }
+
+  .cb-input::file-selector-button {
+    block-size: calc(var(--_h) - 0.375rem);
+    margin: 0 var(--cb-space-2) 0 0.125rem;
+    padding: 0 var(--cb-space-2);
+    font: inherit;
+    font-size: var(--cb-text-sm);
+    font-weight: 500;
+    color: var(--cb-text-main);
+    background: var(--cb-grad-btn), var(--cb-bg-btn);
+    border: 1px solid;
+    border-color: var(--cb-border-main) var(--cb-border-strong) var(--cb-border-strong) var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-outset);
+    cursor: pointer;
+  }
+
+  .cb-input::file-selector-button:hover {
+    background: var(--cb-grad-btn), color-mix(in srgb, var(--cb-bg-btn) 50%, var(--cb-bg-raised));
+  }
+
+  .cb-input::file-selector-button:active {
+    background: var(--cb-bg-btn);
+    box-shadow: var(--cb-shadow-pressed);
+    translate: 0 1px;
+  }
+
+  .cb-input:disabled::file-selector-button {
+    color: var(--cb-text-disabled);
+    background: var(--cb-bg-btn);
+    border-color: var(--cb-border-main);
+    box-shadow: none;
+    translate: none;
+    cursor: not-allowed;
+  }
+
+  /* Checkbox and radio: a small recessed well on the native input. The mark is
+     CSS geometry (clip-path) on ::before, so the standard focus ring is kept. */
+  .cb-check {
+    --_bg: var(--cb-bg-raised);
+    --_border: var(--cb-border-main);
+    --_border-top: var(--cb-border-strong);
+    --_mark: var(--cb-text-inverse);
+    --_shadow: var(--cb-shadow-inset);
+
+    appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex: none;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    margin: 0;
+    background-color: var(--_bg);
+    border: 1px solid var(--_border);
+    border-block-start-color: var(--_border-top);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--_shadow);
+    cursor: pointer;
+    transition-property: background-color, border-color;
+    transition-duration: var(--cb-duration);
+
+    &::before {
+      content: "";
+      inline-size: 0.5rem;
+      block-size: 0.5rem;
+      background: var(--_mark);
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+      scale: 0;
+    }
+
+    &[type="radio"] {
+      border-radius: var(--cb-radius-round);
+    }
+
+    &[type="radio"]::before {
+      inline-size: 0.375rem;
+      block-size: 0.375rem;
+      clip-path: none;
+      border-radius: var(--cb-radius-round);
+    }
+
+    &[type="checkbox"]:indeterminate::before {
+      clip-path: inset(38% 0);
+    }
+
+    &:hover {
+      --_border: var(--cb-border-strong);
+    }
+
+    /* :where() keeps radios out (an unchecked radio group is :indeterminate)
+       without raising specificity above the :disabled rule below. */
+    &:is(:checked, :where([type="checkbox"]):indeterminate) {
+      --_bg: var(--cb-accent);
+      --_border: color-mix(in srgb, var(--cb-accent) 60%, var(--cb-text-main));
+      --_border-top: color-mix(in srgb, var(--cb-accent) 60%, var(--cb-text-main));
+      --_shadow: none;
+
+      &::before {
+        scale: 1;
+      }
+    }
+
+    &:is([aria-invalid="true"], :user-invalid) {
+      --_border: var(--cb-danger);
+      --_border-top: var(--cb-danger);
+    }
+
+    &:disabled {
+      --_bg: var(--cb-bg-recessed);
+      --_border: var(--cb-border-main);
+      --_border-top: var(--cb-border-main);
+      --_mark: var(--cb-text-disabled);
+      --_shadow: none;
+      cursor: not-allowed;
+    }
+  }
+
+  .cb-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--cb-space-2);
+    cursor: pointer;
+
+    &:has(:disabled) {
+      color: var(--cb-text-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  /* Field: label, control, hint and error stacked with a tight rhythm. */
+  .cb-field {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: var(--cb-space-1);
+
+    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range) {
+      align-self: stretch;
+    }
+
+    /* The input already announces "required"; the alt text hides the
+       asterisk from screen readers where supported. */
+    &:has(:required) > .cb-field__label::after {
+      content: "*";
+      content: "*" / "";
+      margin-inline-start: 0.25em;
+      color: var(--cb-danger);
+    }
+
+    /* Errors show only while a control is invalid (server or native). */
+    &:not(:has(:is([aria-invalid="true"], :user-invalid))) > .cb-field__error {
+      display: none;
+    }
+  }
+
+  .cb-field__label {
+    font-size: var(--cb-text-sm);
+    font-weight: 600;
+  }
+
+  .cb-field__hint,
+  .cb-field__error {
+    margin: 0;
+    font-size: var(--cb-text-xs);
+  }
+
+  .cb-field__hint {
+    color: var(--cb-text-muted);
+  }
+
+  .cb-field__error {
+    font-weight: 500;
+    color: var(--cb-danger);
+  }
+
+  /* Horizontal field: label column on the left. The field is its own
+     container, so it stacks inside any narrow panel, not only on phones. */
+  .cb-field--horizontal {
+    --_label: 11rem;
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: var(--_label) minmax(0, 1fr);
+    justify-items: start;
+    gap: var(--cb-space-1) var(--cb-space-3);
+
+    & > * {
+      grid-column: 2;
+    }
+
+    & > .cb-field__label {
+      grid-column: 1;
+      display: flex;
+      align-items: center;
+      min-block-size: 1.625rem;
+    }
+
+    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range) {
+      justify-self: stretch;
+    }
+
+    /* Centre a lone checkbox row on the label line. */
+    & > .cb-choice {
+      min-block-size: 1.625rem;
+    }
+  }
+
+  @container (width < 28rem) {
+    .cb-field--horizontal > *,
+    .cb-field--horizontal > .cb-field__label {
+      grid-column: 1 / -1;
+    }
+
+    .cb-field--horizontal > .cb-field__label {
+      min-block-size: auto;
+    }
+  }
+
+  /* Input group: controls, buttons and addons attached on shared 1px seams. */
+  .cb-input-group {
+    display: flex;
+
+    & > * {
+      border-radius: var(--cb-radius-none);
+    }
+
+    & > :first-child {
+      border-start-start-radius: var(--cb-radius-sm);
+      border-end-start-radius: var(--cb-radius-sm);
+    }
+
+    & > :last-child {
+      border-start-end-radius: var(--cb-radius-sm);
+      border-end-end-radius: var(--cb-radius-sm);
+    }
+
+    & > * + * {
+      margin-inline-start: -1px;
+    }
+
+    & > :is(.cb-input, .cb-select) {
+      flex: 1;
+      min-inline-size: 0;
+    }
+
+    & > :is(:hover, :focus-visible) {
+      position: relative;
+      z-index: 1;
+    }
+
+    &:has(:is([aria-invalid="true"], :user-invalid)) > .cb-input-group__addon {
+      border-color: var(--cb-danger);
+    }
+  }
+
+  .cb-input-group__addon {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--cb-space-2);
+    font-family: var(--cb-font-mono);
+    font-size: var(--cb-text-sm);
+    font-variant-ligatures: none;
+    white-space: nowrap;
+    color: var(--cb-text-muted);
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+  }
+
+  /* Range: a recessed track and a raised key. No W3C pseudo-elements exist for
+     the track and thumb, so each engine gets its own rules (a selector list
+     mixing them would be dropped whole by the other engine). */
+  .cb-range {
+    appearance: none;
+    inline-size: 100%;
+    min-block-size: 1.625rem;
+    margin: 0;
+    background: none;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .cb-range::-webkit-slider-runnable-track {
+    block-size: 0.5rem;
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+    border-block-start-color: var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  .cb-range::-moz-range-track {
+    box-sizing: border-box;
+    block-size: 0.5rem;
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+    border-block-start-color: var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  .cb-range::-webkit-slider-thumb {
+    appearance: none;
+    box-sizing: border-box;
+    inline-size: 0.625rem;
+    block-size: 1.125rem;
+    margin-block-start: -0.375rem;
+    background: var(--cb-grad-btn), var(--cb-bg-btn);
+    border: 1px solid;
+    border-color: var(--cb-border-main) var(--cb-border-strong) var(--cb-border-strong) var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-outset);
+  }
+
+  .cb-range::-moz-range-thumb {
+    box-sizing: border-box;
+    inline-size: 0.625rem;
+    block-size: 1.125rem;
+    background: var(--cb-grad-btn), var(--cb-bg-btn);
+    border: 1px solid;
+    border-color: var(--cb-border-main) var(--cb-border-strong) var(--cb-border-strong) var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-outset);
+  }
+
+  .cb-range:disabled::-webkit-slider-thumb {
+    background: var(--cb-bg-recessed);
+    border-color: var(--cb-border-main);
+    box-shadow: none;
+  }
+
+  .cb-range:disabled::-moz-range-thumb {
+    background: var(--cb-bg-recessed);
+    border-color: var(--cb-border-main);
+    box-shadow: none;
   }
 }

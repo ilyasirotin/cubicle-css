@@ -17,7 +17,7 @@ Modern flat design often blurs the line between static text and interactive cont
 * **Buttons & Triggers:** Must have a subtle raised appearance using a dedicated surface token (`--cb-bg-btn`), dual-tone borders (lighter top/left edge `--cb-border-main`, darker bottom/right edge `--cb-border-strong`), and crisp multi-layered box-shadows (`--cb-shadow-outset`) coupled with a micro-gradient (`--cb-grad-btn`).
 * **Active/Pressed States:** Physically shift (`translate: 0 1px`) and invert the lighting model (`--cb-shadow-pressed`, no gradient) so the user feels the mechanical click.
 * **Inputs & Wells:** Text fields, selects, code blocks, and log viewers must appear slightly recessed into the page (`--cb-shadow-inset` and darker top border `--cb-border-strong`) with a crisp `1px` border.
-* **Corners:** Strictly utilitarian. Use sharp corners (`0px`) or micro-radii (`2px` to `3px` max) to maintain a serious, engineered feel. Never use pill-shaped buttons or large rounded cards (`8px+`). The only exception is round status indicators (LED dots, the busy spinner), which use `--cb-radius-round` and never apply to controls or containers.
+* **Corners:** Strictly utilitarian. Use sharp corners (`0px`) or micro-radii (`2px` to `3px` max) to maintain a serious, engineered feel. Never use pill-shaped buttons or large rounded cards (`8px+`). The only exceptions are round status indicators (LED dots, the busy spinner) and radio buttons, which use `--cb-radius-round`; no other control or container may be round.
 
 ### 2.2. Color Palette & Contrast
 * **Cool Industrial Steel Foundation:** The UI relies on structured layers of cool slate and steel grays (`#e4e7ec` canvas, `#f4f6f8` surfaces, `#eaedf2` buttons, `#d5dae2` headers) to separate panels, toolbars, and workspaces without relying on heavy drop shadows.
@@ -88,7 +88,7 @@ When designing or modifying components, adhere to these domain-specific UX patte
 - **Strict Token Discipline:** No hardcoded colour, border-radius, transition duration, or box-shadow outside of `:root` tokens. Derived states (e.g., semantic badge backgrounds or hover tints) must use native `color-mix(in srgb, ...)` referencing base tokens rather than ballooning the token list.
 - **Selector Hygiene:** No ID selectors, no `!important`, and no inline styles in documentation examples.
 - **Self-Contained Assets:** No third-party icons, external images, CDNs, or remote `@import` rules. Indicators (arrows, status dots, tree lines, checkmarks) use pure CSS geometry, inline SVG data-URIs where strictly necessary, or standard Unicode primitives.
-- **Standards-First CSS:** No vendor-prefixed properties. Engine-specific pseudo-elements are allowed only where no W3C standard way exists (currently `<meter>` bar/optimum and `<details>` marker) and must carry an explanatory comment.
+- **Standards-First CSS:** No vendor-prefixed properties. Engine-specific pseudo-elements are allowed only where no W3C standard way exists (currently `<meter>` bar/optimum, `<details>` marker, and `<input type="range">` track/thumb) and must carry an explanatory comment.
 - **Semantic Transparency:** No component may be constructed that cannot be understood from its HTML markup alone.
 - **HTMX & Framework Interoperability:** Components must rely on semantic HTML attributes (`disabled`, `readonly`, `open`, `aria-current`, `aria-selected`, `aria-invalid`, `aria-busy`, `aria-pressed`) so server-driven updates (HTMX swaps) and frontend frameworks work out of the box without requiring JS class-toggling wrappers.
 
@@ -174,7 +174,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
     --cb-radius-none: 0px;
     --cb-radius-sm: 2px;           /* Default for buttons, inputs, badges */
     --cb-radius-md: 3px;           /* Maximum allowed radius (panels, modals) */
-    --cb-radius-round: 50%;        /* Indicators only: LED dots, spinner */
+    --cb-radius-round: 50%;        /* LED dots, spinner, radio buttons only */
 
     --cb-space-1: 0.25rem;         /* 4px  - tight inline gap */
     --cb-space-2: 0.5rem;          /* 8px  - standard cell/input padding */
@@ -253,6 +253,7 @@ Target **Baseline "Widely Available"** in modern evergreen browsers. Approved an
 - `font-variant-numeric: tabular-nums` for all numeric readouts, tables, IP addresses, and metrics
 - Logical properties (`inline-size`, `padding-inline`, `margin-block`) where beneficial for clean layout math
 - Container queries and container query length units (`cqb`) where a component must size itself to its container rather than the viewport (e.g., the `.cb-app` fixed frame, which falls back to the small viewport height when no size container exists)
+- `:user-invalid` alongside `aria-invalid="true"`, so native constraint validation (`required`, `pattern`, `type="email"`) is shown only after the user has interacted with a field
 
 ---
 

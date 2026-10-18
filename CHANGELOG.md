@@ -35,5 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   variants `--primary`, `--danger` (tinted, inline), `--danger-solid` (modal confirmations);
   sizes `--sm` and `--icon`; states `disabled`, `aria-disabled`, `aria-pressed` (sunk, no travel)
   and `aria-busy` (stepped spinner that stops under reduced motion); attached `.cb-btn-group`.
+- `dist/cubicle.css` form controls: recessed `.cb-input` (text, textarea, file) and `.cb-select`
+  with `readonly` (recessed monospace), `disabled`, `aria-invalid` / `:user-invalid` states and
+  `--sm` size; custom `.cb-check` checkbox (with indeterminate) and round radio; `.cb-choice`
+  labels; `.cb-field` with label, hint, error (shown only while invalid) and an automatic
+  required marker; container-collapsing `.cb-field--horizontal`; `.cb-input-group` with addons;
+  `.cb-range`. AGENTS.md now allows round radios, range engine pseudo-elements and `:user-invalid`.
 - Catalogue "Buttons" section: variants, states, sizes and icon buttons in a dense row, button
   groups, with snippets and a reference table of modifiers and state attributes.
