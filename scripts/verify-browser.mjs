@@ -1,14 +1,15 @@
 // Cubicle browser verification. Development tool only; not part of the shipped kit.
 //
 // Setup (once):   cd scripts && npm install && npx playwright install chromium
-// Run:            node scripts/verify-browser.mjs [docs/index.html] [--css dist/cubicle.min.css]
-//                 --css serves the given file in place of dist/cubicle.css (to check the minified build).
+// Run:            node scripts/verify-browser.mjs [docs/index.html] [--css dist/cubicle.min.css] [--js dist/cubicle.min.js]
+//                 --css / --js serve the given file in place of dist/cubicle.css / dist/cubicle.js
+//                 (to check the minified build).
 // Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -16,6 +17,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const cssFlag = args.indexOf('--css');
 const css_override = cssFlag >= 0 ? resolve(root, args.splice(cssFlag, 2)[1] ?? '') : null;
+const jsFlag = args.indexOf('--js');
+const js_override = jsFlag >= 0 ? resolve(root, args.splice(jsFlag, 2)[1] ?? '') : null;
 const page_path = resolve(root, args[0] ?? 'docs/index.html');
 const shots = resolve(root, 'tmp/shots');
 mkdirSync(shots, { recursive: true });
@@ -24,15 +27,19 @@ const results = [];
 const check = (ok, name, detail = '') => results.push({ ok, name, detail });
 
 const browser = await chromium.launch();
-const context = await browser.newContext({ colorScheme: 'light', viewport: { width: 1360, height: 900 } });
+const contextOptions = { colorScheme: 'light', viewport: { width: 1360, height: 900 } };
+const context = await browser.newContext({ ...contextOptions, permissions: ['clipboard-read', 'clipboard-write'], acceptDownloads: true });
 const page = await context.newPage();
+
+const applyOverrides = async (p) => {
+  if (css_override) await p.route(/\/dist\/cubicle\.css$/, (route) => route.fulfill({ path: css_override, contentType: 'text/css' }));
+  if (js_override) await p.route(/\/dist\/cubicle\.js$/, (route) => route.fulfill({ path: js_override, contentType: 'text/javascript' }));
+};
 
 const problems = [];
 page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) problems.push(m.text()); });
 page.on('pageerror', (e) => problems.push(e.message));
-if (css_override) {
-  await page.route(/\/dist\/cubicle\.css$/, (route) => route.fulfill({ path: css_override, contentType: 'text/css' }));
-}
+await applyOverrides(page);
 await page.goto(pathToFileURL(page_path).href);
 
 // 1. No console errors
@@ -238,6 +245,97 @@ const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
   .filter((e) => !(e.getAttribute('aria-label') ?? '').trim() && !e.textContent.trim())
   .map((e) => e.outerHTML.slice(0, 80)));
 check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
+
+// 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
+//    the plain-HTTP copy fallback, and hiding of script-only actions without JavaScript.
+//    Every part starts from a fresh page so earlier clicks do not leak state.
+const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download]';
+if (await page.locator(ACTIONS).count()) {
+  const fresh = async (ctx = context, before) => {
+    const p = await ctx.newPage();
+    if (before) await before(p);
+    await applyOverrides(p);
+    await p.goto(pathToFileURL(page_path).href);
+    return p;
+  };
+  const valueOf = (p, id) => p.evaluate((i) => {
+    const e = document.getElementById(i);
+    return e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement ? e.value : e.textContent;
+  }, id);
+  const ids = (p, attr) => p.$$eval(`[${attr}]`, (bs, a) => bs.map((b) => b.getAttribute(a)), attr);
+
+  // A broken or missing script must show up as failed checks, not as a crash.
+  const attempt = async (name, fn) => {
+    try { await fn(); } catch (e) { check(false, name, String(e.message).split('\n')[0]); }
+  };
+
+  const p = await fresh();
+  const marked = await p.evaluate(() => document.documentElement.hasAttribute('data-cb-js'));
+  check(marked, 'cubicle.js marks the root with data-cb-js');
+
+  if (marked) await attempt('script behaviours run without errors', async () => {
+    for (const id of await ids(p, 'data-cb-copy')) {
+      const btn = p.locator(`[data-cb-copy="${id}"]`);
+      await btn.scrollIntoViewIfNeeded(); await btn.click(); await p.waitForTimeout(100);
+      const got = await p.evaluate(() => navigator.clipboard.readText());
+      const flagged = await btn.evaluate((b) => b.hasAttribute('data-cb-copied'));
+      const live = await p.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '');
+      check(got === await valueOf(p, id) && flagged && /copied/i.test(live), `copy #${id}: clipboard holds the value, button and live region confirm`,
+        `clipboard ${got === await valueOf(p, id) ? 'ok' : 'MISMATCH'}, data-cb-copied ${flagged}, live "${live}"`);
+    }
+
+    for (const id of await ids(p, 'data-cb-reveal')) {
+      const btn = p.locator(`[data-cb-reveal="${id}"]`);
+      const state = async () => `${await p.$eval(`#${id}`, (e) => e.type)}/${await btn.getAttribute('aria-pressed')}`;
+      const before = await state(); await btn.click(); const shown = await state(); await btn.click(); const after = await state();
+      check(before === 'password/false' && shown === 'text/true' && after === 'password/false', `reveal #${id} toggles type and aria-pressed`, `${before} -> ${shown} -> ${after}`);
+    }
+
+    const timed = await p.$$eval('[data-cb-reveal][data-cb-reveal-timeout]', (bs) => bs.map((b) => [b.getAttribute('data-cb-reveal'), Number(b.getAttribute('data-cb-reveal-timeout'))]));
+    for (const [id, seconds] of timed) {
+      const pc = await fresh(context, (q) => q.clock.install());
+      await pc.locator(`[data-cb-reveal="${id}"]`).click();
+      const shown = await pc.$eval(`#${id}`, (e) => e.type);
+      await pc.clock.fastForward(seconds * 1000 + 100);
+      const later = await pc.$eval(`#${id}`, (e) => e.type);
+      check(shown === 'text' && later === 'password', `reveal #${id} masks again after ${seconds}s`, `${shown} -> ${later}`);
+      await pc.close();
+    }
+
+    for (const id of await ids(p, 'data-cb-download')) {
+      const btn = p.locator(`[data-cb-download="${id}"]`);
+      await btn.scrollIntoViewIfNeeded();
+      const [download] = await Promise.all([p.waitForEvent('download'), btn.click()]);
+      const content = readFileSync(await download.path(), 'utf8');
+      const name = await btn.getAttribute('data-cb-filename');
+      check(download.suggestedFilename() === name && content === await valueOf(p, id), `download #${id} saves ${name} with the value`,
+        `${download.suggestedFilename()}, ${content.length} chars`);
+    }
+
+    // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
+    const copyId = (await ids(p, 'data-cb-copy'))[0];
+    if (copyId) {
+      await p.evaluate(() => navigator.clipboard.writeText('sentinel'));
+      const ph = await fresh(context, (q) => q.addInitScript(() => Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true })));
+      await ph.locator(`[data-cb-copy="${copyId}"]`).click(); await ph.waitForTimeout(100);
+      const got = await p.evaluate(() => navigator.clipboard.readText());
+      check(got === await valueOf(ph, copyId), `copy #${copyId} falls back when the async clipboard is missing`, got === 'sentinel' ? 'clipboard unchanged' : '');
+      await ph.close();
+    }
+  });
+  await p.close();
+
+  // Without JavaScript the actions are hidden and the values stay visible.
+  const noJs = await browser.newContext({ ...contextOptions, javaScriptEnabled: false });
+  const pn = await fresh(noJs);
+  const r = await pn.evaluate((sel) => {
+    const buttons = [...document.querySelectorAll(sel)];
+    const targets = buttons.map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download')));
+    return { hidden: buttons.every((b) => getComputedStyle(b).display === 'none'), visible: targets.every((t) => t && getComputedStyle(t).display !== 'none') };
+  }, ACTIONS);
+  check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
+  await noJs.close();
+}
 
 await browser.close();
 

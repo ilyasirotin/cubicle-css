@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   results through a live region. CSS hides script-only actions until `html[data-cb-js]`, tints
   copied buttons, and adds the multi-line `.cb-secret` well with an attached toolbar.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
+- `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
+  the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only
+  actions without JavaScript.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,

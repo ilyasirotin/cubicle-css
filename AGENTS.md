@@ -227,7 +227,7 @@ Using Cubicle never requires a build step. For development and release verificat
 This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicle.js` exists) using `lightningcss` (CSS) and `terser` (JS), pinned dev dependencies in `scripts/package.json`.
 - Run it **without browser downgrade targets**: no vendor prefixes may be injected, and modern syntax (`@layer`, native nesting, `color-mix()`) must remain intact as written.
 - Minified outputs are git-ignored and never committed to the repository.
-- A minified file is trusted only after `node scripts/verify-browser.mjs --css dist/cubicle.min.css` passes against it.
+- A minified file is trusted only after `node scripts/verify-browser.mjs --css dist/cubicle.min.css --js dist/cubicle.min.js` passes against it.
 - Do not introduce bundlers, Sass/PostCSS preprocessors, or file-watcher daemons.
 
 ### Documentation & Catalogue (`docs/`)
