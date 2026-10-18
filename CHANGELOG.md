@@ -24,3 +24,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `__status`) as a fixed frame that fills the viewport or its size container and stacks the
   sidebar below 800px; layout primitives `.cb-stack` (`--tight`, `--loose`), `.cb-cluster`
   (`--end`, `--between`) and container-relative `.cb-grid` (`--2`, `--3`, `--4`).
+- Catalogue "Layout & grids" section: live application shell in a size-container frame, stack,
+  cluster and grid demos with snippets and reference tables.
