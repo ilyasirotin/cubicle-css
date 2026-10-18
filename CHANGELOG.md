@@ -34,4 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dist/cubicle.css` buttons: `.cb-btn` raised key with asymmetric bevel and 1px press travel;
   variants `--primary`, `--danger` (tinted, inline), `--danger-solid` (modal confirmations);
   sizes `--sm` and `--icon`; states `disabled`, `aria-disabled`, `aria-pressed` (sunk, no travel)
-  and `aria-busy` (stepped spinner, still under reduced motion); attached `.cb-btn-group`.
+  and `aria-busy` (stepped spinner that stops under reduced motion); attached `.cb-btn-group`.
+- Catalogue "Buttons" section: variants, states, sizes and icon buttons in a dense row, button
+  groups, with snippets and a reference table of modifiers and state attributes.

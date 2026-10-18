@@ -193,6 +193,20 @@
     border-radius: var(--cb-radius-sm);
   }
 
+  /* Row caption inside state demos. */
+  .docs-label {
+    min-inline-size: 7rem;
+    font-size: var(--cb-text-xs);
+    color: var(--cb-text-muted);
+  }
+
+  /* Imitates a dense table row (13px text, 4px cell padding) to show fit. */
+  .docs-row {
+    padding: var(--cb-space-1) var(--cb-space-2);
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-subtle);
+  }
+
   .docs-demo + .docs-snippet {
     border-radius: 0 0 var(--cb-radius-md) var(--cb-radius-md);
   }

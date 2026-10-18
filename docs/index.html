@@ -37,6 +37,10 @@
         <li><a class="docs-nav__link" href="#layout-cluster">Cluster</a></li>
         <li><a class="docs-nav__link" href="#layout-grid">Grid</a></li>
       </ul>
+      <p class="docs-nav__label">Components</p>
+      <ul class="docs-nav__list">
+        <li><a class="docs-nav__link" href="#buttons">Buttons</a></li>
+      </ul>
     </nav>
 
     <main id="main" class="docs-main">
@@ -513,6 +517,173 @@
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-grid--2</code></td><td class="docs-table__td">Up to 2</td><td class="docs-table__td">Paired settings, primary / standby</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-grid--3</code></td><td class="docs-table__td">Up to 3</td><td class="docs-table__td">Configuration groups</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-grid--4</code></td><td class="docs-table__td">Up to 4</td><td class="docs-table__td">Dashboard counters</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="buttons" aria-labelledby="buttons-title">
+        <h2 class="docs-h2" id="buttons-title">Buttons</h2>
+        <p class="docs-text">Raised keys that trigger an action: light top-left edge, dark bottom-right
+          edge, and a 1px mechanical travel when pressed.</p>
+
+        <h3 class="docs-h3" id="buttons-variants">Variants</h3>
+        <p class="docs-text">Hover, press or <kbd>Tab</kbd> to the buttons to see the live states.
+          Tinted <code>--danger</code> is for inline destructive actions in dense tables; solid
+          <code>--danger-solid</code> is reserved for critical confirmations in dialogs.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <button class="cb-btn" type="button">Refresh</button>
+            <button class="cb-btn cb-btn--primary" type="button">Save policy</button>
+            <button class="cb-btn cb-btn--danger" type="button">Revoke</button>
+            <button class="cb-btn cb-btn--danger-solid" type="button">Delete tenant</button>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Refresh&lt;/button&gt;
+  &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot;&gt;Save policy&lt;/button&gt;
+  &lt;button class=&quot;cb-btn cb-btn--danger&quot; type=&quot;button&quot;&gt;Revoke&lt;/button&gt;
+  &lt;button class=&quot;cb-btn cb-btn--danger-solid&quot; type=&quot;button&quot;&gt;Delete tenant&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="buttons-states">States</h3>
+        <p class="docs-text">States come from standard attributes, so server-rendered or HTMX-swapped
+          markup needs no extra classes.</p>
+        <div class="docs-demo">
+          <div class="cb-stack cb-stack--tight">
+            <div class="cb-cluster">
+              <span class="docs-label">disabled</span>
+              <button class="cb-btn" type="button" disabled>Refresh</button>
+              <button class="cb-btn cb-btn--primary" type="button" disabled>Save policy</button>
+              <button class="cb-btn cb-btn--danger" type="button" disabled>Revoke</button>
+              <button class="cb-btn cb-btn--danger-solid" type="button" disabled>Delete tenant</button>
+            </div>
+            <div class="cb-cluster">
+              <span class="docs-label">aria-disabled</span>
+              <a class="cb-btn" href="#buttons" aria-disabled="true">Export audit log</a>
+            </div>
+            <div class="cb-cluster">
+              <span class="docs-label">aria-pressed</span>
+              <button class="cb-btn" type="button" aria-pressed="false">Show inactive</button>
+              <button class="cb-btn" type="button" aria-pressed="true">Show revoked</button>
+            </div>
+            <div class="cb-cluster">
+              <span class="docs-label">aria-busy</span>
+              <button class="cb-btn" type="button" aria-busy="true">Syncing LDAP</button>
+              <button class="cb-btn cb-btn--primary" type="button" aria-busy="true">Issuing certificate</button>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span class=&quot;docs-label&quot;&gt;disabled&lt;/span&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; disabled&gt;Refresh&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot; disabled&gt;Save policy&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--danger&quot; type=&quot;button&quot; disabled&gt;Revoke&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--danger-solid&quot; type=&quot;button&quot; disabled&gt;Delete tenant&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span class=&quot;docs-label&quot;&gt;aria-disabled&lt;/span&gt;
+    &lt;a class=&quot;cb-btn&quot; href=&quot;#buttons&quot; aria-disabled=&quot;true&quot;&gt;Export audit log&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span class=&quot;docs-label&quot;&gt;aria-pressed&lt;/span&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Show inactive&lt;/button&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; aria-pressed=&quot;true&quot;&gt;Show revoked&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span class=&quot;docs-label&quot;&gt;aria-busy&lt;/span&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; aria-busy=&quot;true&quot;&gt;Syncing LDAP&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot; aria-busy=&quot;true&quot;&gt;Issuing certificate&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="buttons-sizes">Sizes &amp; icon buttons</h3>
+        <p class="docs-text"><code>--sm</code> fits inside a dense table row. Icon buttons are square,
+          use a Unicode glyph, and always carry an <code>aria-label</code>.</p>
+        <div class="docs-demo">
+          <div class="cb-stack cb-stack--tight">
+            <div class="cb-cluster">
+              <button class="cb-btn" type="button">Default</button>
+              <button class="cb-btn cb-btn--sm" type="button">Small</button>
+              <button class="cb-btn cb-btn--icon" type="button" aria-label="Refresh">↻</button>
+              <button class="cb-btn cb-btn--sm cb-btn--icon" type="button" aria-label="Copy key">⧉</button>
+            </div>
+            <div class="cb-cluster cb-cluster--between docs-row">
+              <code>wg-edge-01 10.8.0.1/24</code>
+              <span class="cb-cluster">
+                <button class="cb-btn cb-btn--sm" type="button">Rotate key</button>
+                <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Revoke</button>
+                <button class="cb-btn cb-btn--sm cb-btn--icon cb-btn--danger" type="button" aria-label="Remove peer">✕</button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Default&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Small&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Refresh&quot;&gt;↻&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Copy key&quot;&gt;⧉&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-cluster cb-cluster--between docs-row&quot;&gt;
+    &lt;code&gt;wg-edge-01 10.8.0.1/24&lt;/code&gt;
+    &lt;span class=&quot;cb-cluster&quot;&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Rotate key&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Revoke&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--icon cb-btn--danger&quot; type=&quot;button&quot; aria-label=&quot;Remove peer&quot;&gt;✕&lt;/button&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="buttons-group">Button group</h3>
+        <p class="docs-text">Related actions attached edge to edge. With <code>aria-pressed</code> the
+          group works as a toolbar of toggles.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <div class="cb-btn-group" role="group" aria-label="Service control">
+              <button class="cb-btn" type="button">Start</button>
+              <button class="cb-btn" type="button">Stop</button>
+              <button class="cb-btn" type="button">Restart</button>
+            </div>
+            <div class="cb-btn-group" role="group" aria-label="Time range">
+              <button class="cb-btn" type="button" aria-pressed="false">Day</button>
+              <button class="cb-btn" type="button" aria-pressed="true">Week</button>
+              <button class="cb-btn" type="button" aria-pressed="false">Month</button>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;div class=&quot;cb-btn-group&quot; role=&quot;group&quot; aria-label=&quot;Service control&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Start&lt;/button&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Stop&lt;/button&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Restart&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-btn-group&quot; role=&quot;group&quot; aria-label=&quot;Time range&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Day&lt;/button&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; aria-pressed=&quot;true&quot;&gt;Week&lt;/button&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Month&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th class="docs-table__th" scope="col">Class / attribute</th><th class="docs-table__th" scope="col">Effect</th><th class="docs-table__th" scope="col">Use</th></tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn</code></td><td class="docs-table__td">Raised steel key</td><td class="docs-table__td">Default action</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn--primary</code></td><td class="docs-table__td">Navy fill, inverse ink</td><td class="docs-table__td">The single main action of a form or dialog</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn--danger</code></td><td class="docs-table__td">Crimson-tinted steel</td><td class="docs-table__td">Inline destructive actions in tables and lists</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn--danger-solid</code></td><td class="docs-table__td">Solid crimson fill</td><td class="docs-table__td">Critical confirmation in a dialog</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn--sm</code></td><td class="docs-table__td">20px high, 12px text</td><td class="docs-table__td">Row actions in dense tables</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn--icon</code></td><td class="docs-table__td">Square, no inline padding</td><td class="docs-table__td">Glyph-only actions; requires <code>aria-label</code></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-btn-group</code></td><td class="docs-table__td">Attached buttons, shared seams</td><td class="docs-table__td">Related actions or a toggle toolbar; add <code>role="group"</code> and a label</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>disabled</code></td><td class="docs-table__td">Flat, muted, not focusable</td><td class="docs-table__td">Unavailable action on a <code>&lt;button&gt;</code></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-disabled="true"</code></td><td class="docs-table__td">Flat, muted, stays focusable, ignores pointer</td><td class="docs-table__td">Links, or buttons that must stay in the tab order; the app must also ignore keyboard activation</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-pressed="true"</code></td><td class="docs-table__td">Sunk on the selected tint, no travel</td><td class="docs-table__td">Toggle that is on; <code>"false"</code> when off</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-busy="true"</code></td><td class="docs-table__td">Stepped spinner before the label</td><td class="docs-table__td">Action in progress; add <code>disabled</code> if it must not repeat</td></tr>
             </tbody>
           </table>
         </div>
