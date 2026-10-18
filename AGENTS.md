@@ -90,7 +90,7 @@ When designing or modifying components, adhere to these domain-specific UX patte
 - **Self-Contained Assets:** No third-party icons, external images, CDNs, or remote `@import` rules. Indicators (arrows, status dots, tree lines, checkmarks) use pure CSS geometry, inline SVG data-URIs where strictly necessary, or standard Unicode primitives.
 - **Standards-First CSS:** No vendor-prefixed properties. Engine-specific pseudo-elements are allowed only where no W3C standard way exists (currently `<meter>` bar/optimum, `<details>` marker, and `<input type="range">` track/thumb) and must carry an explanatory comment.
 - **Semantic Transparency:** No component may be constructed that cannot be understood from its HTML markup alone.
-- **HTMX & Framework Interoperability:** Components must rely on semantic HTML attributes (`disabled`, `readonly`, `open`, `aria-current`, `aria-selected`, `aria-invalid`, `aria-busy`, `aria-pressed`) so server-driven updates (HTMX swaps) and frontend frameworks work out of the box without requiring JS class-toggling wrappers.
+- **HTMX & Framework Interoperability:** Components must rely on semantic HTML attributes (`disabled`, `readonly`, `open`, `aria-current`, `aria-selected`, `aria-invalid`, `aria-busy`, `aria-pressed`) so server-driven updates (HTMX swaps) and frontend frameworks work out of the box without requiring JS class-toggling wrappers. Optional behaviour in `dist/cubicle.js` hooks onto `data-cb-*` attributes through one delegated listener, so swapped markup needs no re-initialisation; until the script runs, script-only controls stay hidden.
 
 ---
 

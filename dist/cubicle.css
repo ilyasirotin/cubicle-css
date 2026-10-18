@@ -23,6 +23,7 @@
                                .cb-field, .cb-input-group, .cb-range
       5.3 Fieldsets & panels . .cb-fieldset; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, collapsible
+      5.4 Secret & copy boxes  script-only actions, copied feedback, .cb-secret
    ========================================================================== */
 
 
@@ -741,7 +742,7 @@
     align-items: start;
     gap: var(--cb-space-1);
 
-    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range) {
+    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret) {
       align-self: stretch;
     }
 
@@ -802,7 +803,7 @@
       min-block-size: 1.625rem;
     }
 
-    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range) {
+    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret) {
       justify-self: stretch;
     }
 
@@ -1099,5 +1100,130 @@
   details.cb-panel:not([open]) > .cb-panel__head {
     border-block-end: 0;
     border-radius: calc(var(--cb-radius-md) - 1px);
+  }
+
+  /* 5.4 Secret & copy boxes ----------------------------------------------- */
+
+  /* Script-only actions stay hidden until cubicle.js marks the root, so a page
+     without the script shows the value (still selectable) and no dead buttons.
+     Markup swapped in later is covered too; nothing needs re-initialising. */
+  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download]) {
+    display: none;
+  }
+
+  /* Visually hidden but announced: the live region and copy buffer of cubicle.js. */
+  [data-cb-sr] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Copy confirmation, set by cubicle.js for a moment. */
+  .cb-btn[data-cb-copied] {
+    --_bg: color-mix(in srgb, var(--cb-ok) 12%, var(--cb-bg-btn));
+    --_bg-hover: color-mix(in srgb, var(--cb-ok) 12%, var(--cb-bg-btn));
+    --_ink: var(--cb-ok);
+    --_border-top: color-mix(in srgb, var(--cb-ok) 35%, var(--cb-border-main));
+    --_border-bot: color-mix(in srgb, var(--cb-ok) 45%, var(--cb-border-strong));
+
+    &:not(.cb-btn--icon)::before {
+      content: "✓";
+      content: "✓" / "";
+    }
+  }
+
+  /* Multi-line secret (certificates, configs, keys): a recessed monospace well
+     with an attached toolbar on the end side. It measures its own width and
+     moves the toolbar under the well when narrow, so it needs a definite width:
+     like any inline-size container it collapses in shrink-to-fit contexts
+     (.cb-field stretches it). Single-line secrets use .cb-input-group with a
+     readonly .cb-input. */
+  .cb-secret {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .cb-secret__value {
+    margin: 0;
+    max-block-size: 16lh;
+    overflow: auto;
+    padding: var(--cb-space-2);
+    font-family: var(--cb-font-mono);
+    font-size: var(--cb-text-sm);
+    font-variant-ligatures: none;
+    line-height: var(--cb-line-base);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+    border-block-start-color: var(--cb-border-strong);
+    border-start-start-radius: var(--cb-radius-sm);
+    border-end-start-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  .cb-secret__actions {
+    display: flex;
+    flex-direction: column;
+    margin-inline-start: -1px;
+
+    & > .cb-btn {
+      border-radius: var(--cb-radius-none);
+    }
+
+    & > .cb-btn:first-child {
+      border-start-end-radius: var(--cb-radius-sm);
+    }
+
+    & > .cb-btn:last-child {
+      border-end-end-radius: var(--cb-radius-sm);
+    }
+
+    & > .cb-btn + .cb-btn {
+      margin-block-start: -1px;
+    }
+
+    & > .cb-btn:is(:hover, :focus-visible) {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  @container (width < 24rem) {
+    .cb-secret > * {
+      grid-column: 1 / -1;
+    }
+
+    .cb-secret__value {
+      border-start-end-radius: var(--cb-radius-sm);
+      border-end-start-radius: var(--cb-radius-none);
+    }
+
+    .cb-secret__actions {
+      flex-direction: row;
+      margin-block-start: -1px;
+      margin-inline-start: 0;
+    }
+
+    .cb-secret__actions > .cb-btn {
+      flex: 1;
+    }
+
+    .cb-secret__actions > .cb-btn + .cb-btn {
+      margin-block-start: 0;
+      margin-inline-start: -1px;
+    }
+
+    .cb-secret__actions > .cb-btn:first-child {
+      border-start-end-radius: var(--cb-radius-none);
+      border-end-start-radius: var(--cb-radius-sm);
+    }
   }
 }

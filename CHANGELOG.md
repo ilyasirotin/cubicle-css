@@ -41,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   labels; `.cb-field` with label, hint, error (shown only while invalid) and an automatic
   required marker; container-collapsing `.cb-field--horizontal`; `.cb-input-group` with addons;
   `.cb-range`. AGENTS.md now allows round radios, range engine pseudo-elements and `:user-invalid`.
+- `dist/cubicle.js` (optional, dependency-free) and secret boxes: delegated `data-cb-copy`,
+  `data-cb-reveal` (with `data-cb-reveal-timeout` re-masking) and `data-cb-download` actions that
+  work on swapped markup; copy falls back to a hidden buffer on plain-HTTP pages and announces
+  results through a live region. CSS hides script-only actions until `html[data-cb-js]`, tints
+  copied buttons, and adds the multi-line `.cb-secret` well with an attached toolbar.
+- `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
