@@ -224,7 +224,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
 ### Local Build
 Using Cubicle never requires a build step. For development and release verification, there is a single command:
 `bash scripts/build-min.sh`
-This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicle.js` exists) using `lightningcss`, a pinned dev dependency in `scripts/package.json`.
+This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicle.js` exists) using `lightningcss` (CSS) and `terser` (JS), pinned dev dependencies in `scripts/package.json`.
 - Run it **without browser downgrade targets**: no vendor prefixes may be injected, and modern syntax (`@layer`, native nesting, `color-mix()`) must remain intact as written.
 - Minified outputs are git-ignored and never committed to the repository.
 - A minified file is trusted only after `node scripts/verify-browser.mjs --css dist/cubicle.min.css` passes against it.

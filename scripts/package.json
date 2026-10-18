@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Development-only tools for Cubicle (browser checks, local minified build). Not part of the shipped kit.",
   "devDependencies": {
+    "lightningcss-cli": "^1.30.0",
     "playwright": "^1.56.0",
-    "lightningcss-cli": "^1.30.0"
+    "terser": "^5.51.2"
   }
 }
