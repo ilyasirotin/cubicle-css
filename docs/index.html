@@ -6,6 +6,7 @@
   <title>Cubicle — Component Catalogue</title>
   <link rel="stylesheet" href="../dist/cubicle.css">
   <link rel="stylesheet" href="docs.css">
+  <script src="../dist/cubicle.js" defer></script>
 </head>
 <body>
   <a class="docs-skip" href="#main">Skip to content</a>
@@ -41,6 +42,7 @@
       <ul class="docs-nav__list">
         <li><a class="docs-nav__link" href="#buttons">Buttons</a></li>
         <li><a class="docs-nav__link" href="#fields">Inputs &amp; fields</a></li>
+        <li><a class="docs-nav__link" href="#secrets">Secret boxes</a></li>
         <li><a class="docs-nav__link" href="#panels">Fieldsets &amp; panels</a></li>
       </ul>
     </nav>
@@ -1085,6 +1087,153 @@
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-invalid="true"</code></td><td class="docs-table__td">Any control</td><td class="docs-table__td">Crimson border and tint; error shown (server validation)</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>:user-invalid</code></td><td class="docs-table__td">Any control</td><td class="docs-table__td">Same look after the user interacts (native constraints)</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>indeterminate</code> (property)</td><td class="docs-table__td">Checkbox</td><td class="docs-table__td">Bar mark for a partial selection; set from script</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="secrets" aria-labelledby="secrets-title">
+        <h2 class="docs-h2" id="secrets-title">Secret boxes</h2>
+        <p class="docs-text">Read-only technical values (tokens, keys, certificates, configs) in recessed
+          monospace wells with attached copy, reveal and save actions.</p>
+
+        <h3 class="docs-h3" id="secrets-single">Single-line</h3>
+        <p class="docs-text">A readonly <code>.cb-input</code> inside <code>.cb-input-group</code>. A
+          masked value uses <code>type="password"</code>; the Show toggle reveals it and, with
+          <code>data-cb-reveal-timeout</code>, masks it again.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <div class="cb-field">
+              <label class="cb-field__label" for="s-token">API token</label>
+              <div class="cb-input-group">
+                <input class="cb-input" id="s-token" type="password" readonly value="cbk_live_7Hq2vX9pL4mN8rT1sW6yZ3aB5cD0eF" aria-describedby="s-token-hint">
+                <button class="cb-btn" type="button" data-cb-reveal="s-token" data-cb-reveal-timeout="30" aria-pressed="false">Show</button>
+                <button class="cb-btn" type="button" data-cb-copy="s-token">Copy</button>
+              </div>
+              <p class="cb-field__hint" id="s-token-hint">Shown for 30 seconds, then masked again.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="s-pubkey">WireGuard public key</label>
+              <div class="cb-input-group">
+                <input class="cb-input" id="s-pubkey" type="text" readonly value="hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=">
+                <button class="cb-btn" type="button" data-cb-copy="s-pubkey">Copy</button>
+              </div>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="s-peer">Peer ID</label>
+              <div class="cb-input-group">
+                <input class="cb-input cb-input--sm" id="s-peer" type="text" readonly value="peer_01HF7Y3K9Q2W">
+                <button class="cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-copy="s-peer" aria-label="Copy peer ID">⧉</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;s-token&quot;&gt;API token&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;s-token&quot; type=&quot;password&quot; readonly value=&quot;cbk_live_7Hq2vX9pL4mN8rT1sW6yZ3aB5cD0eF&quot; aria-describedby=&quot;s-token-hint&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-reveal=&quot;s-token&quot; data-cb-reveal-timeout=&quot;30&quot; aria-pressed=&quot;false&quot;&gt;Show&lt;/button&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-copy=&quot;s-token&quot;&gt;Copy&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;s-token-hint&quot;&gt;Shown for 30 seconds, then masked again.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;s-pubkey&quot;&gt;WireGuard public key&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;s-pubkey&quot; type=&quot;text&quot; readonly value=&quot;hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-copy=&quot;s-pubkey&quot;&gt;Copy&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;s-peer&quot;&gt;Peer ID&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;input class=&quot;cb-input cb-input--sm&quot; id=&quot;s-peer&quot; type=&quot;text&quot; readonly value=&quot;peer_01HF7Y3K9Q2W&quot;&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-copy=&quot;s-peer&quot; aria-label=&quot;Copy peer ID&quot;&gt;⧉&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="secrets-multi">Multi-line</h3>
+        <p class="docs-text">Long values wrap anywhere instead of overflowing; the toolbar moves under the
+          well when the box is narrower than 24rem.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2">
+            <div class="cb-field">
+              <span class="cb-field__label" id="s-ca-label">CA certificate</span>
+              <div class="cb-secret">
+                <pre class="cb-secret__value" id="s-ca" aria-labelledby="s-ca-label">-----BEGIN CERTIFICATE-----&#10;MIIBszCCAVmgAwIBAgIUb3Jw0Kx9P1cQm8yVt4sLr2nWd7EwCgYIKoZIzj0EAwIw&#10;EjEQMA4GA1UEAwwHY29ycC1jYTAeFw0yNjEwMTkwMDAwMDBaFw0zNjEwMTYwMDAw&#10;-----END CERTIFICATE-----</pre>
+                <div class="cb-secret__actions">
+                  <button class="cb-btn cb-btn--sm" type="button" data-cb-copy="s-ca" aria-label="Copy CA certificate">Copy</button>
+                  <button class="cb-btn cb-btn--sm" type="button" data-cb-download="s-ca" data-cb-filename="ca.pem" aria-label="Save CA certificate">Save</button>
+                </div>
+              </div>
+            </div>
+            <div class="cb-field">
+              <span class="cb-field__label" id="s-conf-label">Client configuration</span>
+              <div class="cb-secret">
+                <pre class="cb-secret__value" id="s-conf" aria-labelledby="s-conf-label">[Interface]&#10;Address = 10.8.0.11/32&#10;PrivateKey = (generated on device)&#10;DNS = 10.8.0.53&#10;&#10;[Peer]&#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&#10;Endpoint = vpn.corp.example.net:51820&#10;AllowedIPs = 10.8.0.0/24, 10.20.0.0/16</pre>
+                <div class="cb-secret__actions">
+                  <button class="cb-btn cb-btn--sm" type="button" data-cb-copy="s-conf" aria-label="Copy client configuration">Copy</button>
+                  <button class="cb-btn cb-btn--sm" type="button" data-cb-download="s-conf" data-cb-filename="wg0.conf" aria-label="Save client configuration">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;span class=&quot;cb-field__label&quot; id=&quot;s-ca-label&quot;&gt;CA certificate&lt;/span&gt;
+    &lt;div class=&quot;cb-secret&quot;&gt;
+      &lt;pre class=&quot;cb-secret__value&quot; id=&quot;s-ca&quot; aria-labelledby=&quot;s-ca-label&quot;&gt;-----BEGIN CERTIFICATE-----&amp;#10;MIIBszCCAVmgAwIBAgIUb3Jw0Kx9P1cQm8yVt4sLr2nWd7EwCgYIKoZIzj0EAwIw&amp;#10;EjEQMA4GA1UEAwwHY29ycC1jYTAeFw0yNjEwMTkwMDAwMDBaFw0zNjEwMTYwMDAw&amp;#10;-----END CERTIFICATE-----&lt;/pre&gt;
+      &lt;div class=&quot;cb-secret__actions&quot;&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-copy=&quot;s-ca&quot; aria-label=&quot;Copy CA certificate&quot;&gt;Copy&lt;/button&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-download=&quot;s-ca&quot; data-cb-filename=&quot;ca.pem&quot; aria-label=&quot;Save CA certificate&quot;&gt;Save&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;span class=&quot;cb-field__label&quot; id=&quot;s-conf-label&quot;&gt;Client configuration&lt;/span&gt;
+    &lt;div class=&quot;cb-secret&quot;&gt;
+      &lt;pre class=&quot;cb-secret__value&quot; id=&quot;s-conf&quot; aria-labelledby=&quot;s-conf-label&quot;&gt;[Interface]&amp;#10;Address = 10.8.0.11/32&amp;#10;PrivateKey = (generated on device)&amp;#10;DNS = 10.8.0.53&amp;#10;&amp;#10;[Peer]&amp;#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&amp;#10;Endpoint = vpn.corp.example.net:51820&amp;#10;AllowedIPs = 10.8.0.0/24, 10.20.0.0/16&lt;/pre&gt;
+      &lt;div class=&quot;cb-secret__actions&quot;&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-copy=&quot;s-conf&quot; aria-label=&quot;Copy client configuration&quot;&gt;Copy&lt;/button&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-download=&quot;s-conf&quot; data-cb-filename=&quot;wg0.conf&quot; aria-label=&quot;Save client configuration&quot;&gt;Save&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="secrets-script">Behaviour &amp; fallbacks</h3>
+        <ul class="docs-list">
+          <li>Actions need <code>dist/cubicle.js</code>. Until it runs, buttons with
+            <code>data-cb-copy</code>, <code>data-cb-reveal</code> or <code>data-cb-download</code> are
+            hidden; the value stays visible and selectable.</li>
+          <li>One delegated listener handles every action, so markup swapped in later (HTMX,
+            frameworks) works without re-initialising.</li>
+          <li>On plain-HTTP pages the async clipboard is unavailable; the script copies through a
+            hidden buffer instead, and if that is blocked too it selects the value and asks for
+            <kbd>Ctrl</kbd> + <kbd>C</kbd>.</li>
+          <li>Results are announced through a polite live region; the copy button is tinted and ticked
+            for 1.5 seconds.</li>
+        </ul>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th class="docs-table__th" scope="col">Class / attribute</th><th class="docs-table__th" scope="col">Element</th><th class="docs-table__th" scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-secret</code></td><td class="docs-table__td"><code>&lt;div&gt;</code></td><td class="docs-table__td">Well plus attached toolbar; stacks below 24rem of its own width</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-secret__value</code></td><td class="docs-table__td"><code>&lt;pre&gt;</code></td><td class="docs-table__td">Recessed monospace well; wraps long tokens; scrolls past 16 lines</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-secret__actions</code></td><td class="docs-table__td"><code>&lt;div&gt;</code></td><td class="docs-table__td">Vertical toolbar of attached <code>.cb-btn</code> keys</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-copy="id"</code></td><td class="docs-table__td"><code>&lt;button&gt;</code></td><td class="docs-table__td">Copies the target value (input) or text (any element)</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-reveal="id"</code> + <code>aria-pressed</code></td><td class="docs-table__td"><code>&lt;button&gt;</code></td><td class="docs-table__td">Toggles a password input between masked and shown</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-reveal-timeout="s"</code></td><td class="docs-table__td"><code>&lt;button&gt;</code></td><td class="docs-table__td">Masks the value again after the given seconds</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-download="id"</code> + <code>data-cb-filename</code></td><td class="docs-table__td"><code>&lt;button&gt;</code></td><td class="docs-table__td">Saves the target text as a file</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-copied</code></td><td class="docs-table__td"><code>&lt;button&gt;</code> (set by script)</td><td class="docs-table__td">Success tint and tick for 1.5 seconds</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-js</code></td><td class="docs-table__td"><code>&lt;html&gt;</code> (set by script)</td><td class="docs-table__td">Reveals script-only actions</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-sr</code></td><td class="docs-table__td">Any (set by script)</td><td class="docs-table__td">Visually hidden but announced: live region, copy buffer</td></tr>
             </tbody>
           </table>
         </div>
