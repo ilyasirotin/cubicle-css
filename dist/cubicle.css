@@ -11,6 +11,12 @@
    1. Reset ........... box model, body margin, form-control font inheritance
    2. Tokens .......... colour, depth, geometry, spacing, type, motion
    3. Base ............ document typography, links, monospace, focus ring
+   4. Layout
+      4.1 Application shell .. .cb-app top / side / main / status regions
+      4.2 Scroll model ....... fixed frame
+      4.3 Stack .............. .cb-stack vertical rhythm
+      4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
+      4.5 Grid ............... .cb-grid container-relative columns
    ========================================================================== */
 
 
@@ -172,4 +178,147 @@
     outline: var(--cb-focus-ring);
     outline-offset: var(--cb-focus-offset);
   }
+}
+
+
+/* ==========================================================================
+   4. Layout
+   Application shell and layout primitives. Element classes are written flat:
+   native nesting cannot build BEM suffixes (&__top is not valid CSS).
+   ========================================================================== */
+
+@layer layout {
+  /* 4.1 Application shell ------------------------------------------------- */
+
+  /* Without a sidebar the shell drops to a single column. */
+  .cb-app {
+    --_side: 15rem;
+    display: grid;
+    grid-template:
+      "top    top"  auto
+      "side   main" 1fr
+      "status status" auto
+      / var(--_side) minmax(0, 1fr);
+
+    &:not(:has(> .cb-app__side)) {
+      grid-template: "top" auto "main" 1fr "status" auto / minmax(0, 1fr);
+    }
+  }
+
+  .cb-app__top {
+    grid-area: top;
+    display: flex;
+    align-items: center;
+    gap: var(--cb-space-3);
+    padding: var(--cb-space-1) var(--cb-space-3);
+    background: var(--cb-grad-surface), var(--cb-bg-header);
+    border-block-end: 1px solid var(--cb-border-main);
+  }
+
+  .cb-app__side {
+    grid-area: side;
+    padding: var(--cb-space-2);
+    background: var(--cb-bg-surface);
+    border-inline-end: 1px solid var(--cb-border-main);
+  }
+
+  .cb-app__main {
+    grid-area: main;
+    min-inline-size: 0;
+    padding: var(--cb-space-3);
+  }
+
+  .cb-app__status {
+    grid-area: status;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cb-space-3);
+    padding: var(--cb-space-1) var(--cb-space-3);
+    font-size: var(--cb-text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--cb-text-muted);
+    background: var(--cb-bg-header);
+    border-block-start: 1px solid var(--cb-border-main);
+  }
+
+  /* Narrow viewports: the sidebar stacks above main. */
+  @media (width < 50rem) {
+    .cb-app {
+      grid-template: "top" auto "side" auto "main" 1fr "status" auto / minmax(0, 1fr);
+    }
+
+    .cb-app__side {
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--cb-border-main);
+    }
+  }
+
+  /* 4.2 Scroll model: fixed frame ----------------------------------------- */
+
+  /* Top bar and status bar stay put; sidebar and main scroll inside the shell.
+     100cqb is the height of the nearest size container (container-type: size)
+     and falls back to the small viewport height on a normal page, so the
+     frame works as a body child or inside any framework mount point.
+     This block is the only place that knows the scroll model: an alternative
+     (page scroll with sticky chrome) replaces this block, nothing else. */
+  .cb-app {
+    block-size: 100cqb;
+  }
+
+  .cb-app__side,
+  .cb-app__main {
+    overflow: auto;
+  }
+
+  @media (width < 50rem) {
+    .cb-app {
+      block-size: auto;
+      min-block-size: 100cqb;
+    }
+
+    .cb-app__side,
+    .cb-app__main {
+      overflow: visible;
+    }
+  }
+
+  /* 4.3 Stack ------------------------------------------------------------- */
+
+  .cb-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cb-space-3);
+  }
+
+  .cb-stack--tight { gap: var(--cb-space-1); }
+  .cb-stack--loose { gap: var(--cb-space-5); }
+
+  /* 4.4 Cluster ----------------------------------------------------------- */
+
+  .cb-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--cb-space-2);
+  }
+
+  .cb-cluster--end { justify-content: flex-end; }
+  .cb-cluster--between { justify-content: space-between; }
+
+  /* 4.5 Grid -------------------------------------------------------------- */
+
+  /* Columns follow the grid's own width, not the viewport: each column is at
+     least --_min wide, and --_cols caps the count. As the container narrows,
+     columns drop one at a time down to one; min(100%, ...) prevents overflow. */
+  .cb-grid {
+    --_cols: 12;
+    --_min: 12rem;
+    display: grid;
+    gap: var(--cb-space-3);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(var(--_min), (100% - (var(--_cols) - 1) * var(--cb-space-3)) / var(--_cols))), 1fr));
+  }
+
+  .cb-grid--2 { --_cols: 2; }
+  .cb-grid--3 { --_cols: 3; }
+  .cb-grid--4 { --_cols: 4; }
 }

@@ -20,3 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typography) with a base typography demo.
 - `scripts/check-tokens.mjs`: zero-dependency check that every token in `@layer tokens` is
   documented in the catalogue with the same value, and that every `var(--cb-*)` reference resolves.
+- `dist/cubicle.css` layout layer: application shell `.cb-app` (`__top`, `__side`, `__main`,
+  `__status`) as a fixed frame that fills the viewport or its size container and stacks the
+  sidebar below 800px; layout primitives `.cb-stack` (`--tight`, `--loose`), `.cb-cluster`
+  (`--end`, `--between`) and container-relative `.cb-grid` (`--2`, `--3`, `--4`).

@@ -250,6 +250,7 @@ Target **Baseline "Widely Available"** in modern evergreen browsers. Approved an
 - `:is()`, `:where()`, and `:has()` (used judiciously for parent state styling, e.g., input groups or checked row highlighting in tables)
 - `font-variant-numeric: tabular-nums` for all numeric readouts, tables, IP addresses, and metrics
 - Logical properties (`inline-size`, `padding-inline`, `margin-block`) where beneficial for clean layout math
+- Container queries and container query length units (`cqb`) where a component must size itself to its container rather than the viewport (e.g., the `.cb-app` fixed frame, which falls back to the small viewport height when no size container exists)
 
 ---
 
