@@ -31,3 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/verify-browser.mjs`: captures rest, hover, focus and active screenshots of every distinct
   interactive demo control, checks text contrast in each pointer state and the focus ring, and
   checks that every button has an accessible name.
+- `dist/cubicle.css` buttons: `.cb-btn` raised key with asymmetric bevel and 1px press travel;
+  variants `--primary`, `--danger` (tinted, inline), `--danger-solid` (modal confirmations);
+  sizes `--sm` and `--icon`; states `disabled`, `aria-disabled`, `aria-pressed` (sunk, no travel)
+  and `aria-busy` (stepped spinner, still under reduced motion); attached `.cb-btn-group`.

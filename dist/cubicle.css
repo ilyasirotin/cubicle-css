@@ -17,6 +17,8 @@
       4.3 Stack .............. .cb-stack vertical rhythm
       4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
       4.5 Grid ............... .cb-grid container-relative columns
+   5. Components
+      5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
    ========================================================================== */
 
 
@@ -323,4 +325,181 @@
   .cb-grid--2 { --_cols: 2; }
   .cb-grid--3 { --_cols: 3; }
   .cb-grid--4 { --_cols: 4; }
+}
+
+
+/* ==========================================================================
+   5. Components
+   ========================================================================== */
+
+@layer components {
+  /* 5.1 Buttons ----------------------------------------------------------- */
+
+  /* Raised key: light top/left edge, dark bottom/right edge, outset bevel and
+     micro-gradient. Variants set only the private --_* properties; states
+     swap them, so no rule repeats the paint logic. */
+  .cb-btn {
+    --_h: 1.625rem;
+    --_bg: var(--cb-bg-btn);
+    --_bg-hover: color-mix(in srgb, var(--cb-bg-btn) 50%, var(--cb-bg-raised));
+    --_ink: var(--cb-text-main);
+    --_border-top: var(--cb-border-main);
+    --_border-bot: var(--cb-border-strong);
+    --_grad: var(--cb-grad-btn);
+    --_shadow: var(--cb-shadow-outset);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--cb-space-1);
+    min-block-size: var(--_h);
+    padding: 0 var(--cb-space-3);
+    font-size: var(--cb-text-sm);
+    font-weight: 500;
+    line-height: var(--cb-line-tight);
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--_ink);
+    background: var(--_grad), var(--_bg);
+    border: 1px solid;
+    border-color: var(--_border-top) var(--_border-bot) var(--_border-bot) var(--_border-top);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--_shadow);
+    cursor: pointer;
+    transition-property: background-color, box-shadow, translate;
+    transition-duration: var(--cb-duration);
+
+    /* Toggle on: sunk lighting, no travel. Before :hover so hover still tints it. */
+    &[aria-pressed="true"] {
+      --_bg: var(--cb-bg-selected);
+      --_bg-hover: color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised));
+      --_ink: var(--cb-text-main);
+      --_grad: none;
+      --_shadow: var(--cb-shadow-pressed);
+    }
+
+    &:hover {
+      --_bg: var(--_bg-hover);
+    }
+
+    /* Mechanical click: 1px travel, inverted lighting, no gradient. */
+    &:active {
+      --_grad: none;
+      --_shadow: var(--cb-shadow-pressed);
+      translate: 0 1px;
+    }
+
+    &:is([disabled], [aria-disabled="true"]) {
+      --_bg: var(--cb-bg-btn);
+      --_bg-hover: var(--cb-bg-btn);
+      --_ink: var(--cb-text-disabled);
+      --_border-top: var(--cb-border-main);
+      --_border-bot: var(--cb-border-main);
+      --_grad: none;
+      --_shadow: none;
+      translate: none;
+      cursor: not-allowed;
+    }
+
+    /* Focusable but inert: links and buttons that must stay in the tab order. */
+    &[aria-disabled="true"] {
+      pointer-events: none;
+    }
+
+    &[aria-busy="true"] {
+      cursor: progress;
+
+      &::before {
+        content: "";
+        inline-size: 0.75em;
+        block-size: 0.75em;
+        border: 2px solid color-mix(in srgb, currentColor 25%, var(--_bg));
+        border-block-start-color: currentColor;
+        border-radius: var(--cb-radius-round);
+        animation: cb-spin var(--cb-duration-spin) steps(8) infinite;
+      }
+    }
+  }
+
+  @keyframes cb-spin {
+    to { rotate: 1turn; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cb-btn[aria-busy="true"]::before {
+      animation: none;
+    }
+  }
+
+  /* Variants */
+  .cb-btn--primary {
+    --_bg: var(--cb-accent);
+    --_bg-hover: color-mix(in srgb, var(--cb-accent) 88%, var(--cb-bg-raised));
+    --_ink: var(--cb-text-inverse);
+    --_border-top: color-mix(in srgb, var(--cb-accent) 80%, var(--cb-text-main));
+    --_border-bot: color-mix(in srgb, var(--cb-accent) 50%, var(--cb-text-main));
+    --_grad: var(--cb-grad-btn-dark);
+    --_shadow: var(--cb-shadow-outset-dark);
+  }
+
+  /* Inline destructive action (table rows): tinted steel, not a red slab. */
+  .cb-btn--danger {
+    --_bg: color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-btn));
+    --_bg-hover: color-mix(in srgb, var(--cb-danger) 16%, var(--cb-bg-btn));
+    --_ink: var(--cb-danger);
+    --_border-top: color-mix(in srgb, var(--cb-danger) 35%, var(--cb-border-main));
+    --_border-bot: color-mix(in srgb, var(--cb-danger) 45%, var(--cb-border-strong));
+  }
+
+  /* Critical confirmation (modal dialogs): solid crimson. */
+  .cb-btn--danger-solid {
+    --_bg: var(--cb-danger);
+    --_bg-hover: color-mix(in srgb, var(--cb-danger) 88%, var(--cb-bg-raised));
+    --_ink: var(--cb-text-inverse);
+    --_border-top: color-mix(in srgb, var(--cb-danger) 80%, var(--cb-text-main));
+    --_border-bot: color-mix(in srgb, var(--cb-danger) 50%, var(--cb-text-main));
+    --_grad: var(--cb-grad-btn-dark);
+    --_shadow: var(--cb-shadow-outset-dark);
+  }
+
+  /* Sizes and shape. --icon follows --sm so the pair stays square. */
+  .cb-btn--sm {
+    --_h: 1.25rem;
+    padding-inline: var(--cb-space-2);
+    font-size: var(--cb-text-xs);
+  }
+
+  .cb-btn--icon {
+    inline-size: var(--_h);
+    padding-inline: 0;
+  }
+
+  /* Attached group: shared 1px seams, outer corners only. */
+  .cb-btn-group {
+    display: inline-flex;
+
+    & > .cb-btn {
+      border-radius: var(--cb-radius-none);
+    }
+
+    & > .cb-btn:first-child {
+      border-start-start-radius: var(--cb-radius-sm);
+      border-end-start-radius: var(--cb-radius-sm);
+    }
+
+    & > .cb-btn:last-child {
+      border-start-end-radius: var(--cb-radius-sm);
+      border-end-end-radius: var(--cb-radius-sm);
+    }
+
+    & > .cb-btn + .cb-btn {
+      margin-inline-start: -1px;
+    }
+
+    /* Keep the hovered edge and the focus ring above the neighbours. */
+    & > .cb-btn:is(:hover, :focus-visible) {
+      position: relative;
+      z-index: 1;
+    }
+  }
 }
