@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cubicle — Component Catalogue</title>
+  <link rel="stylesheet" href="../dist/cubicle.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <a class="docs-skip" href="#main">Skip to content</a>
+
+  <header class="docs-topbar">
+    <p class="docs-topbar__brand">Cubicle</p>
+    <span class="docs-topbar__meta">Unreleased</span>
+  </header>
+
+  <div class="docs-shell">
+    <nav class="docs-nav" aria-label="Catalogue">
+      <p class="docs-nav__label">Overview</p>
+      <ul class="docs-nav__list">
+        <li><a class="docs-nav__link" href="#principles">Principles</a></li>
+      </ul>
+      <p class="docs-nav__label">Tokens</p>
+      <ul class="docs-nav__list">
+        <li><a class="docs-nav__link" href="#tokens-colour">Colour</a></li>
+        <li><a class="docs-nav__link" href="#tokens-depth">Depth &amp; shadow</a></li>
+        <li><a class="docs-nav__link" href="#tokens-radius">Radius</a></li>
+        <li><a class="docs-nav__link" href="#tokens-motion">Motion &amp; focus</a></li>
+        <li><a class="docs-nav__link" href="#tokens-spacing">Spacing</a></li>
+        <li><a class="docs-nav__link" href="#tokens-typography">Typography</a></li>
+      </ul>
+    </nav>
+
+    <main id="main" class="docs-main">
+      <h1 class="docs-title">Component catalogue</h1>
+      <p class="docs-lead">Engineering reference for Cubicle: every token and component with its live
+        rendering, a copy-paste snippet identical to the live markup, and the accepted modifiers and
+        state attributes.</p>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="principles" aria-labelledby="principles-title">
+        <h2 class="docs-h2" id="principles-title">Principles</h2>
+        <p class="docs-text">Cubicle is a dense, tactile CSS framework for critical enterprise tools:
+          IAM portals, VPN admin panels, infrastructure consoles and back-office dashboards.</p>
+
+        <h3 class="docs-h3">Neo-enterprise utilitarianism</h3>
+        <ul class="docs-list">
+          <li><strong>Inspiration, not imitation.</strong> The functional design code of classic
+            enterprise software (clear affordances, tactile depth, high density, unambiguous states)
+            without pixel fonts or retro gimmicks.</li>
+          <li><strong>Clarity over decoration.</strong> Every border, shadow and background shift groups
+            data, signals interactivity or shows system state.</li>
+          <li><strong>Tactile and realistic.</strong> Buttons look raised and travel 1px when pressed;
+            inputs and wells look recessed; containers have physical boundaries.</li>
+        </ul>
+
+        <h3 class="docs-h3">Visual language</h3>
+        <ul class="docs-list">
+          <li>Cool industrial steel neutrals separate workspaces; colour is reserved for status and
+            primary actions, in desaturated enterprise tones.</li>
+          <li>Sharp corners or micro-radii only (0–3px). No pills, no large rounded cards.</li>
+          <li>Visible 1px borders between cells, groups and panels; text meets WCAG AA; keyboard focus
+            shows a 2px accent ring.</li>
+          <li>Compact 13px base text, monospace for technical data, tabular figures for every number.</li>
+        </ul>
+
+        <h3 class="docs-h3">Forbidden</h3>
+        <ul class="docs-list">
+          <li>Glassmorphism, neomorphism, blur, glowing borders.</li>
+          <li>Transitions slower than 50ms; bouncy easing.</li>
+          <li>Borderless “ghost” inputs that only show an underline on focus.</li>
+          <li>Marketing patterns: hero banners, pricing cards, oversized type.</li>
+        </ul>
+
+        <h3 class="docs-h3">Integration</h3>
+        <ul class="docs-list">
+          <li>Link <code>dist/cubicle.css</code>; no build step and no dependencies.</li>
+          <li>The base layer sets document typography, links, monospace and the focus ring only. Native
+            controls, tables and fieldsets get the Cubicle look through <code>cb-*</code> classes.</li>
+          <li>All rules live in cascade layers
+            (<code>reset, tokens, base, layout, components, utilities</code>), so unlayered host CSS
+            overrides any of them without <code>!important</code>.</li>
+          <li>States use standard attributes (<code>disabled</code>, <code>aria-invalid</code>,
+            <code>aria-selected</code>…), so server-driven swaps work without class toggling.</li>
+        </ul>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="tokens" aria-labelledby="tokens-title">
+        <h2 class="docs-h2" id="tokens-title">Tokens</h2>
+        <p class="docs-text">Every colour, shadow, radius and duration in Cubicle comes from these
+          <code>--cb-*</code> custom properties in <code>@layer tokens</code>. Derived states mix them
+          with <code>color-mix(in srgb, …)</code> instead of adding new tokens.</p>
+
+        <!-- Colour ------------------------------------------------------- -->
+        <h3 class="docs-h3" id="tokens-colour">Colour</h3>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th class="docs-table__th" scope="col">Swatch</th>
+                <th class="docs-table__th" scope="col">Token</th>
+                <th class="docs-table__th" scope="col">Value</th>
+                <th class="docs-table__th" scope="col">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-canvas"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-canvas</code></td><td class="docs-table__td"><code>#e4e7ec</code></td><td class="docs-table__td">Main workspace background</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-surface"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-surface</code></td><td class="docs-table__td"><code>#f4f6f8</code></td><td class="docs-table__td">Panels, cards, table bodies</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-raised"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-raised</code></td><td class="docs-table__td"><code>#ffffff</code></td><td class="docs-table__td">Inputs, active tabs, modals</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-btn"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-btn</code></td><td class="docs-table__td"><code>#eaedf2</code></td><td class="docs-table__td">Dedicated tactile button surface</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-recessed"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-recessed</code></td><td class="docs-table__td"><code>#dce1e8</code></td><td class="docs-table__td">Wells, code blocks, readonly and disabled fields</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-header"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-header</code></td><td class="docs-table__td"><code>#d5dae2</code></td><td class="docs-table__td">Panel headers, table heads, topbars</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-zebra"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-zebra</code></td><td class="docs-table__td"><code>#edf0f4</code></td><td class="docs-table__td">Alternating table row tint</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-hover"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-hover</code></td><td class="docs-table__td"><code>#e2e8f0</code></td><td class="docs-table__td">Row and item hover highlight</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--bg-selected"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-bg-selected</code></td><td class="docs-table__td"><code>#cfe0f5</code></td><td class="docs-table__td">Selected table row, active tree node</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--text-main"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-main</code></td><td class="docs-table__td"><code>#11161d</code></td><td class="docs-table__td">Primary high-contrast ink</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--text-muted"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-muted</code></td><td class="docs-table__td"><code>#4b5563</code></td><td class="docs-table__td">Secondary labels, metadata, hints</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--text-disabled"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-disabled</code></td><td class="docs-table__td"><code>#8892a0</code></td><td class="docs-table__td">Disabled control text</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--text-inverse"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-inverse</code></td><td class="docs-table__td"><code>#f8fafc</code></td><td class="docs-table__td">Text on dark and semantic fills</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--border-subtle"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-border-subtle</code></td><td class="docs-table__td"><code>#cbd2dc</code></td><td class="docs-table__td">Table cell dividers, internal lines</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--border-main"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-border-main</code></td><td class="docs-table__td"><code>#9aa3b2</code></td><td class="docs-table__td">Panel, input and button borders; top/left button bevel</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--border-strong"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-border-strong</code></td><td class="docs-table__td"><code>#646f80</code></td><td class="docs-table__td">Active control frames, bottom/right bevel, recessed top edge</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--accent"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-accent</code></td><td class="docs-table__td"><code>#1e4b85</code></td><td class="docs-table__td">Primary actions, links, focus ring</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--ok"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-ok</code></td><td class="docs-table__td"><code>#166534</code></td><td class="docs-table__td">Online, active, valid</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--warn"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-warn</code></td><td class="docs-table__td"><code>#9a4a06</code></td><td class="docs-table__td">Pending, degraded</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--danger"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-danger</code></td><td class="docs-table__td"><code>#991b1b</code></td><td class="docs-table__td">Revoked, offline, destructive</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-chip docs-chip--info"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-info</code></td><td class="docs-table__td"><code>#075985</code></td><td class="docs-table__td">System notices</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Depth -------------------------------------------------------- -->
+        <h3 class="docs-h3" id="tokens-depth">Depth &amp; shadow</h3>
+        <p class="docs-text">Multi-layer micro-bevels give controls physical volume. Values are in
+          <code>dist/cubicle.css</code>, section 2.5.</p>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th class="docs-table__th" scope="col">Specimen</th>
+                <th class="docs-table__th" scope="col">Token</th>
+                <th class="docs-table__th" scope="col">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--shadow-outset"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-shadow-outset</code></td><td class="docs-table__td">Raised light controls: top highlight, bottom shade</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--shadow-outset-dark"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-shadow-outset-dark</code></td><td class="docs-table__td">Raised dark and semantic fills</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--shadow-inset"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-shadow-inset</code></td><td class="docs-table__td">Recessed inputs, wells, code blocks</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--shadow-pressed"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-shadow-pressed</code></td><td class="docs-table__td">Active / pressed state: inverted lighting</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--shadow-float"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-shadow-float</code></td><td class="docs-table__td">Dialogs, popovers, menus above the page</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--grad-surface"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-grad-surface</code></td><td class="docs-table__td">Header bars and toolbars</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--grad-btn"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-grad-btn</code></td><td class="docs-table__td">Light button micro-gradient (removed when pressed)</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--grad-btn-dark"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-grad-btn-dark</code></td><td class="docs-table__td">Dark and semantic button micro-gradient</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Radius ------------------------------------------------------- -->
+        <h3 class="docs-h3" id="tokens-radius">Radius</h3>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th class="docs-table__th" scope="col">Specimen</th>
+                <th class="docs-table__th" scope="col">Token</th>
+                <th class="docs-table__th" scope="col">Value</th>
+                <th class="docs-table__th" scope="col">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-none"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-none</code></td><td class="docs-table__td"><code>0px</code></td><td class="docs-table__td">Sharp edges: table cells, attached segments</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-sm"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-sm</code></td><td class="docs-table__td"><code>2px</code></td><td class="docs-table__td">Default for buttons, inputs, badges</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-md"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-md</code></td><td class="docs-table__td"><code>3px</code></td><td class="docs-table__td">Maximum allowed: panels, modals</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Motion ------------------------------------------------------- -->
+        <h3 class="docs-h3" id="tokens-motion">Motion &amp; focus</h3>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th class="docs-table__th" scope="col">Specimen</th>
+                <th class="docs-table__th" scope="col">Token</th>
+                <th class="docs-table__th" scope="col">Value</th>
+                <th class="docs-table__th" scope="col">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td">—</td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-duration</code></td><td class="docs-table__td"><code>50ms</code></td><td class="docs-table__td">The only transition duration: instantaneous mechanical feedback</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--focus-ring"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-focus-ring</code></td><td class="docs-table__td docs-table__td--nowrap"><code>2px solid var(--cb-accent)</code></td><td class="docs-table__td">Keyboard focus outline on every interactive element</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td">—</td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-focus-offset</code></td><td class="docs-table__td"><code>1px</code></td><td class="docs-table__td">Gap between the control edge and the focus ring</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Spacing ------------------------------------------------------ -->
+        <h3 class="docs-h3" id="tokens-spacing">Spacing</h3>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th class="docs-table__th" scope="col">Specimen</th>
+                <th class="docs-table__th" scope="col">Token</th>
+                <th class="docs-table__th" scope="col">Value</th>
+                <th class="docs-table__th" scope="col">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-bar docs-bar--space-1"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-space-1</code></td><td class="docs-table__td docs-table__td--nowrap"><code>0.25rem</code> (4px)</td><td class="docs-table__td">Tight inline gap</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-bar docs-bar--space-2"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-space-2</code></td><td class="docs-table__td docs-table__td--nowrap"><code>0.5rem</code> (8px)</td><td class="docs-table__td">Standard cell and input padding</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-bar docs-bar--space-3"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-space-3</code></td><td class="docs-table__td docs-table__td--nowrap"><code>0.75rem</code> (12px)</td><td class="docs-table__td">Panel padding</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-bar docs-bar--space-4"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-space-4</code></td><td class="docs-table__td docs-table__td--nowrap"><code>1rem</code> (16px)</td><td class="docs-table__td">Section separation</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-bar docs-bar--space-5"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-space-5</code></td><td class="docs-table__td docs-table__td--nowrap"><code>1.5rem</code> (24px)</td><td class="docs-table__td">Major layout gap</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Typography --------------------------------------------------- -->
+        <h3 class="docs-h3" id="tokens-typography">Typography</h3>
+        <p class="docs-text">Fonts are not bundled: each stack falls back to the platform's system and
+          monospace faces.</p>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th class="docs-table__th" scope="col">Token</th>
+                <th class="docs-table__th" scope="col">Value</th>
+                <th class="docs-table__th" scope="col">Specimen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-font-sans</code></td><td class="docs-table__td"><code>Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif</code></td><td class="docs-table__td"><span class="docs-type--sans">Tunnel routing for wg-edge-01</span></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-font-mono</code></td><td class="docs-table__td"><code>"JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, monospace</code></td><td class="docs-table__td"><span class="docs-type--mono">10.8.0.1/24 :51820</span></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-xs</code></td><td class="docs-table__td docs-table__td--nowrap"><code>0.75rem</code> (12px)</td><td class="docs-table__td"><span class="docs-type--xs">Badges, table headers, micro-labels</span></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-sm</code></td><td class="docs-table__td docs-table__td--nowrap"><code>0.8125rem</code> (13px)</td><td class="docs-table__td"><span class="docs-type--sm">Base dense UI text</span></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-md</code></td><td class="docs-table__td docs-table__td--nowrap"><code>0.875rem</code> (14px)</td><td class="docs-table__td"><span class="docs-type--md">Comfortable reading, primary inputs</span></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-text-lg</code></td><td class="docs-table__td docs-table__td--nowrap"><code>1rem</code> (16px)</td><td class="docs-table__td"><span class="docs-type--lg">Panel titles, modal headers</span></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-line-tight</code></td><td class="docs-table__td"><code>1.25</code></td><td class="docs-table__td">Headings, single-line controls</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>--cb-line-base</code></td><td class="docs-table__td"><code>1.4</code></td><td class="docs-table__td">Body text and table cells</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="docs-h4">Tabular figures</h4>
+        <p class="docs-text">Numeric readouts use <code>font-variant-numeric: tabular-nums</code> so
+          columns align to the pixel.</p>
+        <div class="docs-figures">
+          <p class="docs-figures__col"><span class="docs-figures__caption">Proportional</span>1,111.11<br>8,808.08<br>10.0.11.1</p>
+          <p class="docs-figures__col docs-figures__col--tabular"><span class="docs-figures__caption">Tabular</span>1,111.11<br>8,808.08<br>10.0.11.1</p>
+        </div>
+
+        <h4 class="docs-h4">Base typography</h4>
+        <p class="docs-text">The base layer sets the sans stack at 13px on the canvas, accent-coloured
+          underlined links, and the monospace stack for <code>code</code>, <code>kbd</code>,
+          <code>samp</code> and <code>pre</code>. No class is required.</p>
+        <div class="docs-demo">
+          <p>Peer <a href="#tokens-typography">wg-edge-01</a> listens on <code>51820/udp</code>.
+            Press <kbd>Ctrl</kbd> + <kbd>K</kbd> to search; the last handshake
+            returned <samp>OK 0.42 ms</samp>.</p>
+          <pre>10.8.0.0/24 dev wg0 proto kernel scope link src 10.8.0.1</pre>
+        </div>
+        <pre class="docs-snippet"><code>&lt;p&gt;Peer &lt;a href=&quot;#tokens-typography&quot;&gt;wg-edge-01&lt;/a&gt; listens on &lt;code&gt;51820/udp&lt;/code&gt;.
+  Press &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;kbd&gt;K&lt;/kbd&gt; to search; the last handshake
+  returned &lt;samp&gt;OK 0.42 ms&lt;/samp&gt;.&lt;/p&gt;
+&lt;pre&gt;10.8.0.0/24 dev wg0 proto kernel scope link src 10.8.0.1&lt;/pre&gt;</code></pre>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -15,3 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `color-scheme: light`, and the single `:focus-visible` ring).
 - `scripts/check-snippets.mjs`: zero-dependency check that every catalogue demo matches its
   copy-paste snippet byte for byte and contains no inline styles.
+- `docs/index.html` and `docs/docs.css`: catalogue shell with skip link, sticky navigation,
+  Principles, and token reference (colour, depth and shadow, radius, motion and focus, spacing,
+  typography) with a base typography demo.

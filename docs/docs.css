@@ -1,0 +1,387 @@
+/*
+ * Cubicle catalogue — documentation-only layout styles. Never shipped.
+ * Selects only docs-* classes and never reaches into live demos, so every
+ * demo renders with dist/cubicle.css alone. Uses --cb-* tokens only.
+ */
+
+@layer docs {
+  /* ---- Page chrome ------------------------------------------------------ */
+
+  .docs-skip {
+    position: absolute;
+    inset-block-start: -10rem;
+    inset-inline-start: var(--cb-space-2);
+    padding: var(--cb-space-1) var(--cb-space-2);
+    background: var(--cb-bg-raised);
+    border: 1px solid var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+
+    &:focus {
+      inset-block-start: var(--cb-space-2);
+    }
+  }
+
+  .docs-topbar {
+    display: flex;
+    align-items: baseline;
+    gap: var(--cb-space-2);
+    padding: var(--cb-space-2) var(--cb-space-3);
+    background: var(--cb-grad-surface), var(--cb-bg-header);
+    border-block-end: 1px solid var(--cb-border-main);
+  }
+
+  .docs-topbar__brand {
+    margin: 0;
+    font-size: var(--cb-text-lg);
+    font-weight: 700;
+  }
+
+  .docs-topbar__meta {
+    font-family: var(--cb-font-mono);
+    font-size: var(--cb-text-xs);
+    color: var(--cb-text-muted);
+  }
+
+  .docs-shell {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* ---- Navigation ------------------------------------------------------- */
+
+  .docs-nav {
+    position: sticky;
+    inset-block-start: 0;
+    max-block-size: 100vh;
+    overflow-y: auto;
+    padding: var(--cb-space-2) 0;
+    background: var(--cb-bg-surface);
+    border-inline-end: 1px solid var(--cb-border-main);
+  }
+
+  .docs-nav__label {
+    margin: var(--cb-space-2) var(--cb-space-3) var(--cb-space-1);
+    font-size: var(--cb-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--cb-text-muted);
+  }
+
+  .docs-nav__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Inset from the scrolling nav edges so the focus ring is not clipped. */
+  .docs-nav__link {
+    display: block;
+    margin: var(--cb-space-1);
+    padding: 0 var(--cb-space-2);
+    color: var(--cb-text-main);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--cb-bg-hover);
+      text-decoration: underline;
+    }
+  }
+
+  /* ---- Content ---------------------------------------------------------- */
+
+  .docs-main {
+    min-inline-size: 0;
+    padding: var(--cb-space-4) var(--cb-space-5) var(--cb-space-5);
+  }
+
+  .docs-title {
+    margin: 0 0 var(--cb-space-2);
+    font-size: var(--cb-text-lg);
+    line-height: var(--cb-line-tight);
+  }
+
+  .docs-lead {
+    max-inline-size: 80ch;
+    margin: 0 0 var(--cb-space-4);
+    color: var(--cb-text-muted);
+  }
+
+  .docs-section {
+    margin-block-end: var(--cb-space-5);
+  }
+
+  .docs-h2 {
+    margin: 0 0 var(--cb-space-3);
+    padding-block-end: var(--cb-space-1);
+    font-size: var(--cb-text-lg);
+    line-height: var(--cb-line-tight);
+    border-block-end: 1px solid var(--cb-border-main);
+  }
+
+  .docs-h3 {
+    margin: var(--cb-space-4) 0 var(--cb-space-2);
+    font-size: var(--cb-text-md);
+    line-height: var(--cb-line-tight);
+  }
+
+  .docs-h4 {
+    margin: var(--cb-space-3) 0 var(--cb-space-1);
+    font-size: var(--cb-text-sm);
+    line-height: var(--cb-line-tight);
+  }
+
+  .docs-text {
+    max-inline-size: 80ch;
+    margin: 0 0 var(--cb-space-2);
+  }
+
+  .docs-list {
+    max-inline-size: 80ch;
+    margin: 0 0 var(--cb-space-3);
+    padding-inline-start: var(--cb-space-4);
+  }
+
+  /* ---- Demo + snippet pair --------------------------------------------- */
+
+  .docs-demo {
+    overflow-x: auto;
+    padding: var(--cb-space-3);
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-md) var(--cb-radius-md) 0 0;
+
+    & > :first-child {
+      margin-block-start: 0;
+    }
+
+    & > :last-child {
+      margin-block-end: 0;
+    }
+  }
+
+  .docs-snippet {
+    overflow: auto;
+    margin: 0 0 var(--cb-space-3);
+    padding: var(--cb-space-2) var(--cb-space-3);
+    font-size: var(--cb-text-xs);
+    line-height: var(--cb-line-base);
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+    border-block-start-color: var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  .docs-demo + .docs-snippet {
+    border-radius: 0 0 var(--cb-radius-md) var(--cb-radius-md);
+  }
+
+  /* ---- Reference tables (temporary until .cb-table ships) -------------- */
+
+  .docs-table-wrap {
+    overflow-x: auto;
+    margin-block-end: var(--cb-space-3);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+  }
+
+  /* Below this width the wrapper scrolls instead of crushing the text columns. */
+  .docs-table {
+    inline-size: 100%;
+    min-inline-size: 40rem;
+    border-collapse: collapse;
+    background: var(--cb-bg-surface);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .docs-table__th,
+  .docs-table__td {
+    padding: var(--cb-space-1) var(--cb-space-2);
+    text-align: start;
+    vertical-align: middle;
+    border: 1px solid var(--cb-border-subtle);
+  }
+
+  .docs-table__th {
+    font-size: var(--cb-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--cb-bg-header);
+    border-block-end-color: var(--cb-border-main);
+  }
+
+  .docs-table__row:nth-child(even) {
+    background: var(--cb-bg-zebra);
+  }
+
+  .docs-table__td--nowrap {
+    white-space: nowrap;
+  }
+
+  /* ---- Token specimens -------------------------------------------------- */
+
+  /* Each modifier feeds one token into the shared specimen rules below. */
+  .docs-chip {
+    display: block;
+    inline-size: 3rem;
+    block-size: 1.25rem;
+    background: var(--_c);
+    border: 1px solid var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+  }
+
+  .docs-chip--bg-canvas { --_c: var(--cb-bg-canvas); }
+  .docs-chip--bg-surface { --_c: var(--cb-bg-surface); }
+  .docs-chip--bg-raised { --_c: var(--cb-bg-raised); }
+  .docs-chip--bg-btn { --_c: var(--cb-bg-btn); }
+  .docs-chip--bg-recessed { --_c: var(--cb-bg-recessed); }
+  .docs-chip--bg-header { --_c: var(--cb-bg-header); }
+  .docs-chip--bg-zebra { --_c: var(--cb-bg-zebra); }
+  .docs-chip--bg-hover { --_c: var(--cb-bg-hover); }
+  .docs-chip--bg-selected { --_c: var(--cb-bg-selected); }
+  .docs-chip--text-main { --_c: var(--cb-text-main); }
+  .docs-chip--text-muted { --_c: var(--cb-text-muted); }
+  .docs-chip--text-disabled { --_c: var(--cb-text-disabled); }
+  .docs-chip--text-inverse { --_c: var(--cb-text-inverse); }
+  .docs-chip--border-subtle { --_c: var(--cb-border-subtle); }
+  .docs-chip--border-main { --_c: var(--cb-border-main); }
+  .docs-chip--border-strong { --_c: var(--cb-border-strong); }
+  .docs-chip--accent { --_c: var(--cb-accent); }
+  .docs-chip--ok { --_c: var(--cb-ok); }
+  .docs-chip--warn { --_c: var(--cb-warn); }
+  .docs-chip--danger { --_c: var(--cb-danger); }
+  .docs-chip--info { --_c: var(--cb-info); }
+
+  .docs-tile {
+    display: block;
+    inline-size: 4.5rem;
+    block-size: 2rem;
+    background: var(--cb-bg-btn);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+  }
+
+  .docs-tile--shadow-outset {
+    border-color: var(--cb-border-main) var(--cb-border-strong) var(--cb-border-strong) var(--cb-border-main);
+    box-shadow: var(--cb-shadow-outset);
+  }
+
+  .docs-tile--shadow-outset-dark {
+    background: var(--cb-accent);
+    border-color: var(--cb-accent);
+    box-shadow: var(--cb-shadow-outset-dark);
+  }
+
+  .docs-tile--shadow-inset {
+    background: var(--cb-bg-raised);
+    border-block-start-color: var(--cb-border-strong);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  .docs-tile--shadow-pressed {
+    box-shadow: var(--cb-shadow-pressed);
+  }
+
+  .docs-tile--shadow-float {
+    background: var(--cb-bg-raised);
+    border: 0;
+    box-shadow: var(--cb-shadow-float);
+  }
+
+  .docs-tile--grad-surface {
+    background: var(--cb-grad-surface), var(--cb-bg-surface);
+  }
+
+  .docs-tile--grad-btn {
+    background: var(--cb-grad-btn), var(--cb-bg-btn);
+  }
+
+  .docs-tile--grad-btn-dark {
+    background: var(--cb-grad-btn-dark), var(--cb-accent);
+    border-color: var(--cb-accent);
+  }
+
+  .docs-tile--radius-none { border-radius: var(--cb-radius-none); }
+  .docs-tile--radius-sm { border-radius: var(--cb-radius-sm); }
+  .docs-tile--radius-md { border-radius: var(--cb-radius-md); }
+
+  .docs-tile--focus-ring {
+    background: var(--cb-bg-raised);
+    border: var(--cb-focus-ring);
+  }
+
+  .docs-bar {
+    display: block;
+    inline-size: var(--_w);
+    block-size: 0.75rem;
+    background: var(--cb-accent);
+  }
+
+  .docs-bar--space-1 { --_w: var(--cb-space-1); }
+  .docs-bar--space-2 { --_w: var(--cb-space-2); }
+  .docs-bar--space-3 { --_w: var(--cb-space-3); }
+  .docs-bar--space-4 { --_w: var(--cb-space-4); }
+  .docs-bar--space-5 { --_w: var(--cb-space-5); }
+
+  .docs-type--sans { font-family: var(--cb-font-sans); }
+  .docs-type--mono { font-family: var(--cb-font-mono); }
+  .docs-type--xs { font-size: var(--cb-text-xs); }
+  .docs-type--sm { font-size: var(--cb-text-sm); }
+  .docs-type--md { font-size: var(--cb-text-md); }
+  .docs-type--lg { font-size: var(--cb-text-lg); }
+
+  /* Proportional vs tabular figures, side by side. */
+  .docs-figures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cb-space-4);
+    margin-block-end: var(--cb-space-3);
+  }
+
+  .docs-figures__col {
+    margin: 0;
+    padding: var(--cb-space-2) var(--cb-space-3);
+    text-align: end;
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+  }
+
+  .docs-figures__col--tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .docs-figures__caption {
+    display: block;
+    margin-block-end: var(--cb-space-1);
+    font-size: var(--cb-text-xs);
+    color: var(--cb-text-muted);
+  }
+
+  /* ---- Narrow viewports: nav stacks above content ---------------------- */
+
+  @media (width < 50rem) {
+    .docs-shell {
+      display: block;
+    }
+
+    .docs-nav {
+      position: static;
+      max-block-size: none;
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--cb-border-main);
+    }
+
+    .docs-nav__list {
+      display: flex;
+      flex-wrap: wrap;
+      padding-inline: var(--cb-space-2);
+    }
+
+    .docs-main {
+      padding: var(--cb-space-3);
+    }
+  }
+}
