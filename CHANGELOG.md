@@ -41,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   labels; `.cb-field` with label, hint, error (shown only while invalid) and an automatic
   required marker; container-collapsing `.cb-field--horizontal`; `.cb-input-group` with addons;
   `.cb-range`. AGENTS.md now allows round radios, range engine pseudo-elements and `:user-invalid`.
+- `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
+  `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
+  children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
+  `--warn`, `--danger`, `--info` status stripes; collapsible `<details>` panels with a CSS chevron.
 - Catalogue "Buttons" section: variants, states, sizes and icon buttons in a dense row, button
   groups, with snippets and a reference table of modifiers and state attributes.
 - Catalogue "Inputs & fields" section: text field states, select and textarea, checkbox and radio,
