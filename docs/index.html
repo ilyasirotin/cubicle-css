@@ -40,6 +40,7 @@
       <p class="docs-nav__label">Components</p>
       <ul class="docs-nav__list">
         <li><a class="docs-nav__link" href="#buttons">Buttons</a></li>
+        <li><a class="docs-nav__link" href="#fields">Inputs &amp; fields</a></li>
       </ul>
     </nav>
 
@@ -184,7 +185,7 @@
               <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-none"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-none</code></td><td class="docs-table__td"><code>0px</code></td><td class="docs-table__td">Sharp edges: table cells, attached segments</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-sm"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-sm</code></td><td class="docs-table__td"><code>2px</code></td><td class="docs-table__td">Default for buttons, inputs, badges</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-md"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-md</code></td><td class="docs-table__td"><code>3px</code></td><td class="docs-table__td">Maximum allowed: panels, modals</td></tr>
-              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-round"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-round</code></td><td class="docs-table__td"><code>50%</code></td><td class="docs-table__td">Round status indicators only: LED dots, busy spinner. Never controls or containers</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td"><span class="docs-tile docs-tile--radius-round"></span></td><td class="docs-table__td docs-table__td--nowrap"><code>--cb-radius-round</code></td><td class="docs-table__td"><code>50%</code></td><td class="docs-table__td">Round status indicators (LED dots, busy spinner) and radio buttons only</td></tr>
             </tbody>
           </table>
         </div>
@@ -688,7 +689,411 @@
           </table>
         </div>
       </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="fields" aria-labelledby="fields-title">
+        <h2 class="docs-h2" id="fields-title">Inputs &amp; fields</h2>
+        <p class="docs-text">Recessed wells for entering and reading configuration values, with a label,
+          hint and error that travel together.</p>
+
+        <h3 class="docs-h3" id="fields-text">Text fields</h3>
+        <p class="docs-text">Editable, required, read-only (recessed monospace, still focusable and
+          submitted), disabled, and invalid. The e-mail field uses native validation: type an invalid
+          address and leave the field to see <code>:user-invalid</code> and its error.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2">
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-name">Display name</label>
+              <input class="cb-input" id="f-name" type="text" placeholder="e.g. Platform on-call" aria-describedby="f-name-hint">
+              <p class="cb-field__hint" id="f-name-hint">Shown in audit logs and approval requests.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-upn">User principal name</label>
+              <input class="cb-input" id="f-upn" type="text" required value="j.doe@corp.example.net">
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-oid">Object ID</label>
+              <input class="cb-input" id="f-oid" type="text" readonly value="3f9c2a71-8e4b-4d6a-9c1e-5b7f20d4a8e3">
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-tenant">Tenant</label>
+              <input class="cb-input" id="f-tenant" type="text" disabled value="corp-prod" aria-describedby="f-tenant-hint">
+              <p class="cb-field__hint" id="f-tenant-hint">Managed by directory sync.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-src">Allowed source</label>
+              <input class="cb-input" id="f-src" type="text" value="10.8.0.0/33" aria-invalid="true" aria-describedby="f-src-error">
+              <p class="cb-field__error" id="f-src-error">Prefix length must be between 0 and 32.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-mail">Alert e-mail</label>
+              <input class="cb-input" id="f-mail" type="email" required placeholder="soc@corp.example.net" aria-describedby="f-mail-error">
+              <p class="cb-field__error" id="f-mail-error">Enter a valid e-mail address.</p>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-name&quot;&gt;Display name&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-name&quot; type=&quot;text&quot; placeholder=&quot;e.g. Platform on-call&quot; aria-describedby=&quot;f-name-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-name-hint&quot;&gt;Shown in audit logs and approval requests.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-upn&quot;&gt;User principal name&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-upn&quot; type=&quot;text&quot; required value=&quot;j.doe@corp.example.net&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-oid&quot;&gt;Object ID&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-oid&quot; type=&quot;text&quot; readonly value=&quot;3f9c2a71-8e4b-4d6a-9c1e-5b7f20d4a8e3&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-tenant&quot;&gt;Tenant&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-tenant&quot; type=&quot;text&quot; disabled value=&quot;corp-prod&quot; aria-describedby=&quot;f-tenant-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-tenant-hint&quot;&gt;Managed by directory sync.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-src&quot;&gt;Allowed source&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-src&quot; type=&quot;text&quot; value=&quot;10.8.0.0/33&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;f-src-error&quot;&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;f-src-error&quot;&gt;Prefix length must be between 0 and 32.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-mail&quot;&gt;Alert e-mail&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-mail&quot; type=&quot;email&quot; required placeholder=&quot;soc@corp.example.net&quot; aria-describedby=&quot;f-mail-error&quot;&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;f-mail-error&quot;&gt;Enter a valid e-mail address.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="fields-select">Select &amp; textarea</h3>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-grid cb-grid--3">
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-role">Role</label>
+                <select class="cb-select" id="f-role">
+                  <option>Viewer</option>
+                  <option selected>Operator</option>
+                  <option>Administrator</option>
+                </select>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-region">Region</label>
+                <select class="cb-select" id="f-region" disabled>
+                  <option>eu-central-1</option>
+                </select>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-idp">Identity provider</label>
+                <select class="cb-select" id="f-idp" aria-invalid="true" aria-describedby="f-idp-error">
+                  <option selected>Choose…</option>
+                  <option>Keycloak</option>
+                  <option>Entra ID</option>
+                </select>
+                <p class="cb-field__error" id="f-idp-error">Select an identity provider.</p>
+              </div>
+            </div>
+            <div class="cb-grid cb-grid--2">
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-ips">Allowed IPs</label>
+                <textarea class="cb-input" id="f-ips" aria-describedby="f-ips-hint">10.8.0.0/24&#10;192.168.40.0/22</textarea>
+                <p class="cb-field__hint" id="f-ips-hint">One CIDR per line.</p>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-ca">CA certificate</label>
+                <textarea class="cb-input" id="f-ca" readonly>-----BEGIN CERTIFICATE-----&#10;MIIBszCCAVmgAwIBAgIUb3Jw0Kx9&#10;-----END CERTIFICATE-----</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-role&quot;&gt;Role&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;f-role&quot;&gt;
+        &lt;option&gt;Viewer&lt;/option&gt;
+        &lt;option selected&gt;Operator&lt;/option&gt;
+        &lt;option&gt;Administrator&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-region&quot;&gt;Region&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;f-region&quot; disabled&gt;
+        &lt;option&gt;eu-central-1&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-idp&quot;&gt;Identity provider&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;f-idp&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;f-idp-error&quot;&gt;
+        &lt;option selected&gt;Choose…&lt;/option&gt;
+        &lt;option&gt;Keycloak&lt;/option&gt;
+        &lt;option&gt;Entra ID&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;p class=&quot;cb-field__error&quot; id=&quot;f-idp-error&quot;&gt;Select an identity provider.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-ips&quot;&gt;Allowed IPs&lt;/label&gt;
+      &lt;textarea class=&quot;cb-input&quot; id=&quot;f-ips&quot; aria-describedby=&quot;f-ips-hint&quot;&gt;10.8.0.0/24&amp;#10;192.168.40.0/22&lt;/textarea&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-ips-hint&quot;&gt;One CIDR per line.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-ca&quot;&gt;CA certificate&lt;/label&gt;
+      &lt;textarea class=&quot;cb-input&quot; id=&quot;f-ca&quot; readonly&gt;-----BEGIN CERTIFICATE-----&amp;#10;MIIBszCCAVmgAwIBAgIUb3Jw0Kx9&amp;#10;-----END CERTIFICATE-----&lt;/textarea&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="fields-check">Checkbox &amp; radio</h3>
+        <p class="docs-text">The native inputs, drawn as small recessed wells; radios are round. The
+          indeterminate state has no HTML attribute: set <code>input.indeterminate = true</code> from
+          script (this page does so for the marked demo).</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2">
+            <div class="cb-stack cb-stack--tight">
+              <label class="cb-choice"><input class="cb-check" type="checkbox">Require MFA</label>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" checked>Lock after 5 failed attempts</label>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" data-docs-indeterminate>Select all sessions (some selected)</label>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" disabled>Allow legacy protocols</label>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" checked disabled>Audit logging (enforced)</label>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" aria-invalid="true">Accept the data processing terms</label>
+            </div>
+            <div class="cb-stack cb-stack--tight" role="radiogroup" aria-labelledby="f-factor-label">
+              <span class="cb-field__label" id="f-factor-label">Second factor</span>
+              <label class="cb-choice"><input class="cb-check" type="radio" name="f-factor" checked>TOTP app</label>
+              <label class="cb-choice"><input class="cb-check" type="radio" name="f-factor">FIDO2 security key</label>
+              <label class="cb-choice"><input class="cb-check" type="radio" name="f-factor" disabled>SMS (deprecated)</label>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+  &lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot;&gt;Require MFA&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; checked&gt;Lock after 5 failed attempts&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; data-docs-indeterminate&gt;Select all sessions (some selected)&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; disabled&gt;Allow legacy protocols&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; checked disabled&gt;Audit logging (enforced)&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-invalid=&quot;true&quot;&gt;Accept the data processing terms&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-stack cb-stack--tight&quot; role=&quot;radiogroup&quot; aria-labelledby=&quot;f-factor-label&quot;&gt;
+    &lt;span class=&quot;cb-field__label&quot; id=&quot;f-factor-label&quot;&gt;Second factor&lt;/span&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;radio&quot; name=&quot;f-factor&quot; checked&gt;TOTP app&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;radio&quot; name=&quot;f-factor&quot;&gt;FIDO2 security key&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;radio&quot; name=&quot;f-factor&quot; disabled&gt;SMS (deprecated)&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="fields-horizontal">Horizontal layout</h3>
+        <p class="docs-text">Label on the left for dense settings pages. Each field measures its own
+          width and stacks when it is narrower than 28rem, so it adapts inside narrow panels too.</p>
+        <div class="docs-demo">
+          <div class="cb-stack cb-stack--tight">
+            <div class="cb-field cb-field--horizontal">
+              <label class="cb-field__label" for="f-if">Interface</label>
+              <input class="cb-input" id="f-if" type="text" readonly value="wg0">
+            </div>
+            <div class="cb-field cb-field--horizontal">
+              <label class="cb-field__label" for="f-port">Listen port</label>
+              <input class="cb-input" id="f-port" type="number" required min="1" max="65535" value="51820">
+            </div>
+            <div class="cb-field cb-field--horizontal">
+              <label class="cb-field__label" for="f-allowed">Allowed IPs</label>
+              <textarea class="cb-input" id="f-allowed" aria-describedby="f-allowed-hint">10.8.0.0/24&#10;10.20.0.0/16</textarea>
+              <p class="cb-field__hint" id="f-allowed-hint">Routed through the tunnel; one CIDR per line.</p>
+            </div>
+            <div class="cb-field cb-field--horizontal">
+              <label class="cb-field__label" for="f-mtu">MTU</label>
+              <select class="cb-select" id="f-mtu">
+                <option>1280</option>
+                <option selected>1420</option>
+                <option>1500</option>
+              </select>
+            </div>
+            <div class="cb-field cb-field--horizontal">
+              <span class="cb-field__label">Keepalive</span>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" checked>Send every 25 s</label>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+  &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-if&quot;&gt;Interface&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-if&quot; type=&quot;text&quot; readonly value=&quot;wg0&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-port&quot;&gt;Listen port&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-port&quot; type=&quot;number&quot; required min=&quot;1&quot; max=&quot;65535&quot; value=&quot;51820&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-allowed&quot;&gt;Allowed IPs&lt;/label&gt;
+    &lt;textarea class=&quot;cb-input&quot; id=&quot;f-allowed&quot; aria-describedby=&quot;f-allowed-hint&quot;&gt;10.8.0.0/24&amp;#10;10.20.0.0/16&lt;/textarea&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-allowed-hint&quot;&gt;Routed through the tunnel; one CIDR per line.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-mtu&quot;&gt;MTU&lt;/label&gt;
+    &lt;select class=&quot;cb-select&quot; id=&quot;f-mtu&quot;&gt;
+      &lt;option&gt;1280&lt;/option&gt;
+      &lt;option selected&gt;1420&lt;/option&gt;
+      &lt;option&gt;1500&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+    &lt;span class=&quot;cb-field__label&quot;&gt;Keepalive&lt;/span&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; checked&gt;Send every 25 s&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="fields-group">Input group</h3>
+        <p class="docs-text">Addons, controls and buttons attached on shared seams. An invalid control
+          also marks the addon.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-issuer">OIDC issuer</label>
+              <div class="cb-input-group">
+                <span class="cb-input-group__addon">https://</span>
+                <input class="cb-input" id="f-issuer" type="text" value="login.corp.example.net/realms/ops">
+                <button class="cb-btn" type="button">Test</button>
+              </div>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-pubkey">Server public key</label>
+              <div class="cb-input-group">
+                <input class="cb-input" id="f-pubkey" type="text" readonly value="hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=">
+                <button class="cb-btn" type="button">Copy</button>
+              </div>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-ldap">Directory URL</label>
+              <div class="cb-input-group">
+                <span class="cb-input-group__addon">ldaps://</span>
+                <input class="cb-input" id="f-ldap" type="text" value="dc01.corp:389" aria-invalid="true" aria-describedby="f-ldap-error">
+                <button class="cb-btn" type="button">Test</button>
+              </div>
+              <p class="cb-field__error" id="f-ldap-error">Port 389 is plain LDAP; use 636.</p>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-issuer&quot;&gt;OIDC issuer&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;span class=&quot;cb-input-group__addon&quot;&gt;https://&lt;/span&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;f-issuer&quot; type=&quot;text&quot; value=&quot;login.corp.example.net/realms/ops&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Test&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-pubkey&quot;&gt;Server public key&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;f-pubkey&quot; type=&quot;text&quot; readonly value=&quot;hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Copy&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-ldap&quot;&gt;Directory URL&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;span class=&quot;cb-input-group__addon&quot;&gt;ldaps://&lt;/span&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;f-ldap&quot; type=&quot;text&quot; value=&quot;dc01.corp:389&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;f-ldap-error&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Test&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;f-ldap-error&quot;&gt;Port 389 is plain LDAP; use 636.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="fields-sizes">Small size</h3>
+        <p class="docs-text"><code>--sm</code> controls match <code>.cb-btn--sm</code> for filter bars
+          and inline editing in table rows.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster docs-row">
+            <input class="cb-input cb-input--sm" type="search" placeholder="Filter peers" aria-label="Filter peers">
+            <select class="cb-select cb-select--sm" aria-label="Status">
+              <option>All</option>
+              <option>Online</option>
+              <option>Offline</option>
+            </select>
+            <label class="cb-choice"><input class="cb-check" type="checkbox">Expired keys only</label>
+            <button class="cb-btn cb-btn--sm" type="button">Apply</button>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster docs-row&quot;&gt;
+  &lt;input class=&quot;cb-input cb-input--sm&quot; type=&quot;search&quot; placeholder=&quot;Filter peers&quot; aria-label=&quot;Filter peers&quot;&gt;
+  &lt;select class=&quot;cb-select cb-select--sm&quot; aria-label=&quot;Status&quot;&gt;
+    &lt;option&gt;All&lt;/option&gt;
+    &lt;option&gt;Online&lt;/option&gt;
+    &lt;option&gt;Offline&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot;&gt;Expired keys only&lt;/label&gt;
+  &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Apply&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="fields-file">File &amp; range</h3>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-cert">Client certificate</label>
+              <input class="cb-input" id="f-cert" type="file" accept=".pem,.crt" aria-describedby="f-cert-hint">
+              <p class="cb-field__hint" id="f-cert-hint">PEM or CRT, up to 64 KB.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-timeout">Session timeout</label>
+              <input class="cb-range" id="f-timeout" type="range" min="5" max="120" step="5" value="30" aria-describedby="f-timeout-hint">
+              <p class="cb-field__hint" id="f-timeout-hint">5–120 minutes; 30 selected.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-idle">Idle lock (policy)</label>
+              <input class="cb-range" id="f-idle" type="range" min="5" max="60" value="15" disabled>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-cert&quot;&gt;Client certificate&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-cert&quot; type=&quot;file&quot; accept=&quot;.pem,.crt&quot; aria-describedby=&quot;f-cert-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-cert-hint&quot;&gt;PEM or CRT, up to 64 KB.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-timeout&quot;&gt;Session timeout&lt;/label&gt;
+    &lt;input class=&quot;cb-range&quot; id=&quot;f-timeout&quot; type=&quot;range&quot; min=&quot;5&quot; max=&quot;120&quot; step=&quot;5&quot; value=&quot;30&quot; aria-describedby=&quot;f-timeout-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-timeout-hint&quot;&gt;5–120 minutes; 30 selected.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-idle&quot;&gt;Idle lock (policy)&lt;/label&gt;
+    &lt;input class=&quot;cb-range&quot; id=&quot;f-idle&quot; type=&quot;range&quot; min=&quot;5&quot; max=&quot;60&quot; value=&quot;15&quot; disabled&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th class="docs-table__th" scope="col">Class / attribute</th><th class="docs-table__th" scope="col">Applies to</th><th class="docs-table__th" scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-input</code></td><td class="docs-table__td"><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td class="docs-table__td">Recessed field, 26px, 14px text</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-select</code></td><td class="docs-table__td"><code>&lt;select&gt;</code></td><td class="docs-table__td">Recessed field with a chevron</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-input--sm</code> / <code>.cb-select--sm</code></td><td class="docs-table__td">Field</td><td class="docs-table__td">20px, 12px text; pairs with <code>.cb-btn--sm</code></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-check</code></td><td class="docs-table__td">Checkbox or radio <code>&lt;input&gt;</code></td><td class="docs-table__td">Recessed box (radio round); navy fill when checked</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-choice</code></td><td class="docs-table__td"><code>&lt;label&gt;</code></td><td class="docs-table__td">Aligns a check with its text; mutes it when disabled</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-field</code></td><td class="docs-table__td">Wrapper</td><td class="docs-table__td">Label, control, hint and error stacked</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-field--horizontal</code></td><td class="docs-table__td">Wrapper</td><td class="docs-table__td">Label column of 11rem; stacks below 28rem of its own width</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-field__label</code> / <code>__hint</code> / <code>__error</code></td><td class="docs-table__td">Field parts</td><td class="docs-table__td">Error shows only while a control in the field is invalid</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-input-group</code> / <code>__addon</code></td><td class="docs-table__td">Wrapper / text</td><td class="docs-table__td">Attached addons, fields and buttons</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-range</code></td><td class="docs-table__td">Range <code>&lt;input&gt;</code></td><td class="docs-table__td">Recessed track, raised thumb</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>readonly</code></td><td class="docs-table__td">Field</td><td class="docs-table__td">Recessed monospace; focusable and submitted</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>disabled</code></td><td class="docs-table__td">Any control</td><td class="docs-table__td">Flat and muted; skipped by Tab, not submitted</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>required</code></td><td class="docs-table__td">Any control</td><td class="docs-table__td">Asterisk after the field label</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-invalid="true"</code></td><td class="docs-table__td">Any control</td><td class="docs-table__td">Crimson border and tint; error shown (server validation)</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>:user-invalid</code></td><td class="docs-table__td">Any control</td><td class="docs-table__td">Same look after the user interacts (native constraints)</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>indeterminate</code> (property)</td><td class="docs-table__td">Checkbox</td><td class="docs-table__td">Bar mark for a partial selection; set from script</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
   </div>
+
+  <!-- Docs only: indeterminate has no HTML attribute. -->
+  <script>
+    for (const el of document.querySelectorAll('[data-docs-indeterminate]')) el.indeterminate = true;
+  </script>
 </body>
 </html>
