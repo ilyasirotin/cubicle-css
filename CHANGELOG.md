@@ -13,3 +13,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a minimal zero-specificity reset, the full `--cb-*` design token set, and a document-level base
   layer (sans typography at 13px, accent links, monospace for `code`/`kbd`/`samp`/`pre`,
   `color-scheme: light`, and the single `:focus-visible` ring).
+- `scripts/check-snippets.mjs`: zero-dependency check that every catalogue demo matches its
+  copy-paste snippet byte for byte and contains no inline styles.
