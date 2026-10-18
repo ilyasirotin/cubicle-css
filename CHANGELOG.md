@@ -49,3 +49,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   groups, with snippets and a reference table of modifiers and state attributes.
 - Catalogue "Inputs & fields" section: text field states, select and textarea, checkbox and radio,
   horizontal settings layout, input groups, small size, file and range, with a reference table.
+- Catalogue "Fieldsets & panels" section: group boxes (one disabled), panel anatomy, flush body
+  with a log well, status stripes and collapsible panels, with a reference table.
