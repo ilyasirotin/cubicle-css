@@ -213,6 +213,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
 - `reference/` — frozen design/spec inputs (see `reference/README.md`); read-only; git-ignored.
 - `scripts/` — dev tools: `verify-browser.mjs`, `build-min.sh`, `check-snippets.mjs`; never shipped.
 - `.claude/` — Claude Code setup: settings, hooks, skills.
+- `.claude/plans/` — Claude's implementation plans. Store every plan in this directory.
 - `README.md`, `LICENSE` (MIT), `CHANGELOG.md` (Keep a Changelog, SemVer), `CONTRIBUTING.md`, `AGENTS.md`.
 - `.github/workflows/` — not used yet; release and Pages automation is deferred (Section 14).
 
