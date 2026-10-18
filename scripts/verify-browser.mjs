@@ -157,26 +157,43 @@ for (const [fg, bg, need] of PAIRS) {
 }
 
 // 7. Live states of every distinct interactive control in the catalogue demos:
-//    rest, hover, keyboard focus and active are captured, text contrast is measured
-//    in each pointer state and the focus ring is checked. Contrast uses the bottom
-//    background colour of the element (or its nearest painted ancestor); gradient
-//    overlays such as --cb-grad-btn are ignored. Disabled and busy controls are skipped.
-const readContrastColors = (el) => {
+//    rest, hover, keyboard focus and active are captured and the focus ring is checked.
+//    Contrast is measured in each pointer state: text controls need text >= 4.5 against
+//    their bottom background colour (or nearest painted ancestor; gradient overlays such
+//    as --cb-grad-btn are ignored). Checkboxes and radios have no text, so their boundary
+//    (top border vs. surrounding surface) and, when on, their mark vs. fill need >= 3
+//    (WCAG 1.4.11). Range thumbs are engine pseudo-elements and are judged from the shots.
+//    Disabled and busy controls are skipped.
+const readContrast = (el) => {
   const cv = document.createElement('canvas'); cv.width = cv.height = 1;
   const g = cv.getContext('2d', { willReadFrequently: true });
   const rgba = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data]; };
-  let bg = [255, 255, 255, 255];
-  for (let n = el; n; n = n.parentElement) {
-    const c = rgba(getComputedStyle(n).backgroundColor);
-    if (c[3] > 0) { bg = c; break; }
+  const rgb = (c) => rgba(c).slice(0, 3);
+  const painted = (start) => {
+    for (let n = start; n; n = n.parentElement) { const c = rgba(getComputedStyle(n).backgroundColor); if (c[3] > 0) return c.slice(0, 3); }
+    return [255, 255, 255];
+  };
+  const cs = getComputedStyle(el);
+  if (el.matches('input[type=range]')) return { need: 0, pairs: [] };
+  if (el.matches('input[type=checkbox], input[type=radio]')) {
+    const on = el.checked || el.indeterminate;
+    return { need: 3, pairs: [
+      ['boundary', rgb(cs.borderTopColor), painted(el.parentElement)],
+      ...(on ? [['mark', rgb(getComputedStyle(el, '::before').backgroundColor), rgb(cs.backgroundColor)]] : []),
+    ] };
   }
-  return { fg: rgba(getComputedStyle(el).color).slice(0, 3), bg: bg.slice(0, 3) };
+  return { need: 4.5, pairs: [['text', rgb(cs.color), painted(el)]] };
 };
 
 const controls7 = await page.$$('.docs-demo :is(button, a[href], input, select, textarea, summary):not([disabled], [aria-disabled="true"], [aria-busy="true"])');
 const seenKeys = new Set();
 for (const el of controls7) {
-  const key = await el.evaluate((n) => `${n.tagName.toLowerCase()}${[...n.classList].map((c) => `.${c}`).join('')}${n.hasAttribute('aria-pressed') ? `[aria-pressed=${n.getAttribute('aria-pressed')}]` : ''}`);
+  // One capture per distinct look: tag, classes, input type and state attributes.
+  const key = await el.evaluate((n) => n.tagName.toLowerCase()
+    + [...n.classList].map((c) => `.${c}`).join('')
+    + ['type', 'aria-pressed', 'aria-invalid', 'readonly']
+      .filter((a) => n.hasAttribute(a) && !(a === 'type' && n.tagName !== 'INPUT'))
+      .map((a) => `[${a}${n.getAttribute(a) ? `=${n.getAttribute(a)}` : ''}]`).join(''));
   if (seenKeys.has(key)) continue;
   seenKeys.add(key);
   const slug = key.replace(/[^a-z0-9-]+/gi, '-').replace(/^-|-$/g, '');
@@ -186,7 +203,10 @@ for (const el of controls7) {
     const b = await el.boundingBox();
     await page.screenshot({ path: `${shots}/state-${slug}-${state}.png`, clip: { x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: b.height + 16 } });
   };
-  const contrast = async () => { const { fg, bg } = await el.evaluate(readContrastColors); return ratio(fg, bg); };
+  const contrast = async () => {
+    const { need, pairs } = await el.evaluate(readContrast);
+    return pairs.map(([name, fg, bg]) => ({ name, need, r: ratio(fg, bg) }));
+  };
   const box = await el.boundingBox();
   const centre = [box.x + box.width / 2, box.y + box.height / 2];
   const ratios = {};
@@ -207,9 +227,10 @@ for (const el of controls7) {
   await shot('focus');
   await el.evaluate((n) => n.blur());
 
-  const low = Object.entries(ratios).filter(([, r]) => r < 4.5);
-  check(!low.length && ring, `states of ${key}: contrast >= 4.5 at rest/hover/active, focus ring visible`,
-    `${Object.entries(ratios).map(([s, r]) => `${s} ${r.toFixed(2)}`).join(', ')}${ring ? '' : ', NO FOCUS RING'}`);
+  const all = Object.entries(ratios).flatMap(([state, list]) => list.map((m) => ({ state, ...m })));
+  const low = all.filter((m) => m.r < m.need);
+  check(!low.length && ring, `states of ${key}: contrast at rest/hover/active, focus ring visible`,
+    `${all.length ? all.map((m) => `${m.state} ${m.name} ${m.r.toFixed(2)}`).join(', ') : 'contrast n/a'}${ring ? '' : ', NO FOCUS RING'}`);
 }
 
 // 8. Every button and button-styled link has an accessible name (text or aria-label).
