@@ -7,20 +7,6 @@
 @layer docs {
   /* ---- Page chrome ------------------------------------------------------ */
 
-  .docs-skip {
-    position: absolute;
-    inset-block-start: -10rem;
-    inset-inline-start: var(--cb-space-2);
-    padding: var(--cb-space-1) var(--cb-space-2);
-    background: var(--cb-bg-raised);
-    border: 1px solid var(--cb-border-strong);
-    border-radius: var(--cb-radius-sm);
-
-    &:focus {
-      inset-block-start: var(--cb-space-2);
-    }
-  }
-
   .docs-topbar {
     display: flex;
     align-items: baseline;
@@ -224,10 +210,6 @@
     & > table {
       min-inline-size: 40rem;
     }
-  }
-
-  .docs-nowrap {
-    white-space: nowrap;
   }
 
   /* ---- Token specimens -------------------------------------------------- */

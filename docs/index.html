@@ -9,7 +9,7 @@
   <script src="../dist/cubicle.js" defer></script>
 </head>
 <body>
-  <a class="docs-skip" href="#main">Skip to content</a>
+  <a class="cb-skip-link" href="#main">Skip to content</a>
 
   <header class="docs-topbar">
     <p class="docs-topbar__brand">Cubicle</p>
@@ -54,6 +54,10 @@
         <li><a class="docs-nav__link" href="#details">Details &amp; disclosure</a></li>
         <li><a class="docs-nav__link" href="#dialogs">Modals &amp; dialogs</a></li>
         <li><a class="docs-nav__link" href="#pagination">Pagination</a></li>
+      </ul>
+      <p class="docs-nav__label">Utilities</p>
+      <ul class="docs-nav__list">
+        <li><a class="docs-nav__link" href="#utilities">Utilities</a></li>
       </ul>
     </nav>
 
@@ -220,7 +224,7 @@
             <tbody>
               <tr><td>—</td><th scope="row"><code>--cb-duration</code></th><td><code>50ms</code></td><td>The only transition duration: instantaneous mechanical feedback</td></tr>
               <tr><td>—</td><th scope="row"><code>--cb-duration-spin</code></th><td><code>800ms</code></td><td>One stepped revolution of the busy spinner; stops under reduced motion</td></tr>
-              <tr><td><span class="docs-tile docs-tile--focus-ring"></span></td><th scope="row"><code>--cb-focus-ring</code></th><td class="docs-nowrap"><code>2px solid var(--cb-accent)</code></td><td>Keyboard focus outline on every interactive element</td></tr>
+              <tr><td><span class="docs-tile docs-tile--focus-ring"></span></td><th scope="row"><code>--cb-focus-ring</code></th><td class="cb-nowrap"><code>2px solid var(--cb-accent)</code></td><td>Keyboard focus outline on every interactive element</td></tr>
               <tr><td>—</td><th scope="row"><code>--cb-focus-offset</code></th><td><code>1px</code></td><td>Gap between the control edge and the focus ring</td></tr>
             </tbody>
           </table>
@@ -239,11 +243,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td><span class="docs-bar docs-bar--space-1"></span></td><th scope="row"><code>--cb-space-1</code></th><td class="docs-nowrap"><code>0.25rem</code> (4px)</td><td>Tight inline gap</td></tr>
-              <tr><td><span class="docs-bar docs-bar--space-2"></span></td><th scope="row"><code>--cb-space-2</code></th><td class="docs-nowrap"><code>0.5rem</code> (8px)</td><td>Standard cell and input padding</td></tr>
-              <tr><td><span class="docs-bar docs-bar--space-3"></span></td><th scope="row"><code>--cb-space-3</code></th><td class="docs-nowrap"><code>0.75rem</code> (12px)</td><td>Panel padding</td></tr>
-              <tr><td><span class="docs-bar docs-bar--space-4"></span></td><th scope="row"><code>--cb-space-4</code></th><td class="docs-nowrap"><code>1rem</code> (16px)</td><td>Section separation</td></tr>
-              <tr><td><span class="docs-bar docs-bar--space-5"></span></td><th scope="row"><code>--cb-space-5</code></th><td class="docs-nowrap"><code>1.5rem</code> (24px)</td><td>Major layout gap</td></tr>
+              <tr><td><span class="docs-bar docs-bar--space-1"></span></td><th scope="row"><code>--cb-space-1</code></th><td class="cb-nowrap"><code>0.25rem</code> (4px)</td><td>Tight inline gap</td></tr>
+              <tr><td><span class="docs-bar docs-bar--space-2"></span></td><th scope="row"><code>--cb-space-2</code></th><td class="cb-nowrap"><code>0.5rem</code> (8px)</td><td>Standard cell and input padding</td></tr>
+              <tr><td><span class="docs-bar docs-bar--space-3"></span></td><th scope="row"><code>--cb-space-3</code></th><td class="cb-nowrap"><code>0.75rem</code> (12px)</td><td>Panel padding</td></tr>
+              <tr><td><span class="docs-bar docs-bar--space-4"></span></td><th scope="row"><code>--cb-space-4</code></th><td class="cb-nowrap"><code>1rem</code> (16px)</td><td>Section separation</td></tr>
+              <tr><td><span class="docs-bar docs-bar--space-5"></span></td><th scope="row"><code>--cb-space-5</code></th><td class="cb-nowrap"><code>1.5rem</code> (24px)</td><td>Major layout gap</td></tr>
             </tbody>
           </table>
         </div>
@@ -264,10 +268,10 @@
             <tbody>
               <tr><th scope="row"><code>--cb-font-sans</code></th><td><code>Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif</code></td><td><span class="docs-type--sans">Tunnel routing for wg-edge-01</span></td></tr>
               <tr><th scope="row"><code>--cb-font-mono</code></th><td><code>"JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, monospace</code></td><td><span class="docs-type--mono">10.8.0.1/24 :51820</span></td></tr>
-              <tr><th scope="row"><code>--cb-text-xs</code></th><td class="docs-nowrap"><code>0.75rem</code> (12px)</td><td><span class="docs-type--xs">Badges, table headers, micro-labels</span></td></tr>
-              <tr><th scope="row"><code>--cb-text-sm</code></th><td class="docs-nowrap"><code>0.8125rem</code> (13px)</td><td><span class="docs-type--sm">Base dense UI text</span></td></tr>
-              <tr><th scope="row"><code>--cb-text-md</code></th><td class="docs-nowrap"><code>0.875rem</code> (14px)</td><td><span class="docs-type--md">Comfortable reading, primary inputs</span></td></tr>
-              <tr><th scope="row"><code>--cb-text-lg</code></th><td class="docs-nowrap"><code>1rem</code> (16px)</td><td><span class="docs-type--lg">Panel titles, modal headers</span></td></tr>
+              <tr><th scope="row"><code>--cb-text-xs</code></th><td class="cb-nowrap"><code>0.75rem</code> (12px)</td><td><span class="docs-type--xs">Badges, table headers, micro-labels</span></td></tr>
+              <tr><th scope="row"><code>--cb-text-sm</code></th><td class="cb-nowrap"><code>0.8125rem</code> (13px)</td><td><span class="docs-type--sm">Base dense UI text</span></td></tr>
+              <tr><th scope="row"><code>--cb-text-md</code></th><td class="cb-nowrap"><code>0.875rem</code> (14px)</td><td><span class="docs-type--md">Comfortable reading, primary inputs</span></td></tr>
+              <tr><th scope="row"><code>--cb-text-lg</code></th><td class="cb-nowrap"><code>1rem</code> (16px)</td><td><span class="docs-type--lg">Panel titles, modal headers</span></td></tr>
               <tr><th scope="row"><code>--cb-line-tight</code></th><td><code>1.25</code></td><td>Headings, single-line controls</td></tr>
               <tr><th scope="row"><code>--cb-line-base</code></th><td><code>1.4</code></td><td>Body text and table cells</td></tr>
             </tbody>
@@ -546,7 +550,7 @@
           edge, and a 1px mechanical travel when pressed.</p>
 
         <h3 class="docs-h3" id="buttons-variants">Variants</h3>
-        <p class="docs-text">Hover, press or <kbd>Tab</kbd> to the buttons to see the live states.
+        <p class="docs-text">Hover, press or <kbd class="cb-kbd">Tab</kbd> to the buttons to see the live states.
           Tinted <code>--danger</code> is for inline destructive actions in dense tables; solid
           <code>--danger-solid</code> is reserved for critical confirmations in dialogs.</p>
         <div class="docs-demo">
@@ -1227,7 +1231,7 @@
             frameworks) works without re-initialising.</li>
           <li>On plain-HTTP pages the async clipboard is unavailable; the script copies through a
             hidden buffer instead, and if that is blocked too it selects the value and asks for
-            <kbd>Ctrl</kbd> + <kbd>C</kbd>.</li>
+            <kbd class="cb-kbd">Ctrl</kbd> + <kbd class="cb-kbd">C</kbd>.</li>
           <li>Results are announced through a polite live region; the copy button is tinted and ticked
             for 1.5 seconds.</li>
         </ul>
@@ -1757,10 +1761,10 @@
               <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
             </thead>
             <tbody>
-              <tr><th scope="row"><kbd>Tab</kbd></th><td>Moves into the tab list (to the selected tab), then into its panel</td></tr>
-              <tr><th scope="row"><kbd>←</kbd> <kbd>→</kbd></th><td>Previous or next tab, wrapping; disabled tabs are skipped</td></tr>
-              <tr><th scope="row"><kbd>↑</kbd> <kbd>↓</kbd></th><td>The same, in a vertical list</td></tr>
-              <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>First or last tab</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Tab</kbd></th><td>Moves into the tab list (to the selected tab), then into its panel</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">←</kbd> <kbd class="cb-kbd">→</kbd></th><td>Previous or next tab, wrapping; disabled tabs are skipped</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">↑</kbd> <kbd class="cb-kbd">↓</kbd></th><td>The same, in a vertical list</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Home</kbd> <kbd class="cb-kbd">End</kbd></th><td>First or last tab</td></tr>
             </tbody>
           </table>
         </div>
@@ -2715,7 +2719,7 @@
 
         <h3 class="docs-h3" id="nav-tree">Directory tree</h3>
         <p class="docs-text">An ARIA tree inside <code>data-cb-tree</code>: <code>cubicle.js</code> adds the
-          arrow keys, and a click, <kbd>Enter</kbd> or <kbd>Space</kbd> selects a row and opens or closes its
+          arrow keys, and a click, <kbd class="cb-kbd">Enter</kbd> or <kbd class="cb-kbd">Space</kbd> selects a row and opens or closes its
           branch. <code>--lines</code> draws the connectors. A branch whose children are still loading carries
           <code>aria-busy="true"</code>; opening a branch fires <code>cb-toggle</code>, so a server can load
           it then (for HTMX: <code>hx-trigger="cb-toggle[detail.expanded] once"</code>).</p>
@@ -2831,11 +2835,11 @@
               <tr><th scope="col">Key</th><th scope="col">Action in a tree</th></tr>
             </thead>
             <tbody>
-              <tr><th scope="row"><kbd>↓</kbd> <kbd>↑</kbd></th><td>Next or previous visible row</td></tr>
-              <tr><th scope="row"><kbd>→</kbd></th><td>Opens a closed branch; on an open one, moves to its first child</td></tr>
-              <tr><th scope="row"><kbd>←</kbd></th><td>Closes an open branch; otherwise moves to the parent</td></tr>
-              <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>First or last visible row</td></tr>
-              <tr><th scope="row"><kbd>Enter</kbd> <kbd>Space</kbd></th><td>Selects the row and opens or closes its branch</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">↓</kbd> <kbd class="cb-kbd">↑</kbd></th><td>Next or previous visible row</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">→</kbd></th><td>Opens a closed branch; on an open one, moves to its first child</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">←</kbd></th><td>Closes an open branch; otherwise moves to the parent</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Home</kbd> <kbd class="cb-kbd">End</kbd></th><td>First or last visible row</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Enter</kbd> <kbd class="cb-kbd">Space</kbd></th><td>Selects the row and opens or closes its branch</td></tr>
             </tbody>
           </table>
         </div>
@@ -3180,9 +3184,9 @@
               <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
             </thead>
             <tbody>
-              <tr><th scope="row"><kbd>Tab</kbd></th><td>Into a radio group at its checked key; through checkbox keys one by one</td></tr>
-              <tr><th scope="row"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></th><td>Moves the choice within a radio group</td></tr>
-              <tr><th scope="row"><kbd>Space</kbd></th><td>Checks the focused key; toggles a checkbox key</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Tab</kbd></th><td>Into a radio group at its checked key; through checkbox keys one by one</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">←</kbd> <kbd class="cb-kbd">→</kbd> <kbd class="cb-kbd">↑</kbd> <kbd class="cb-kbd">↓</kbd></th><td>Moves the choice within a radio group</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Space</kbd></th><td>Checks the focused key; toggles a checkbox key</td></tr>
             </tbody>
           </table>
         </div>
@@ -3209,7 +3213,7 @@
       <section class="docs-section" id="details" aria-labelledby="details-title">
         <h2 class="docs-h2" id="details-title">Details &amp; disclosure</h2>
         <p class="docs-text">Native <code>&lt;details&gt;</code> for content that can stay folded: framed blocks,
-          accordions and inline "advanced" sections. No script; <kbd>Enter</kbd> or <kbd>Space</kbd> on the
+          accordions and inline "advanced" sections. No script; <kbd class="cb-kbd">Enter</kbd> or <kbd class="cb-kbd">Space</kbd> on the
           summary opens and closes it.</p>
 
         <h3 class="docs-h3" id="details-framed">Framed</h3>
@@ -3961,6 +3965,129 @@
               <tr><th scope="row"><code>aria-current</code></th><td>Key</td><td>Current page or size, sunk</td></tr>
               <tr><th scope="row"><code>aria-disabled="true"</code> without <code>href</code></th><td>Arrow</td><td>First or last page: flat and out of the tab order</td></tr>
               <tr><th scope="row"><code>rel="prev"</code>, <code>rel="next"</code></th><td>Arrow</td><td>Kept when the strip collapses</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="utilities" aria-labelledby="utilities-title">
+        <h2 class="docs-h2" id="utilities-title">Utilities</h2>
+        <p class="docs-text">Single-purpose helpers in the last cascade layer, so they win over component
+          classes without <code>!important</code>. There are no spacing helpers: stacks, clusters and grids
+          lay pages out.</p>
+
+        <h3 class="docs-h3" id="utilities-text">Text and numbers</h3>
+        <div class="docs-demo">
+          <div class="cb-stack cb-stack--tight">
+            <div>Public key <span class="cb-mono">hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=</span></div>
+            <div>Peers <span class="cb-num">1 248</span>, handshakes today <span class="cb-num">38 410</span></div>
+            <div class="cb-muted">Counters refresh every 30 seconds.</div>
+            <div><span class="cb-text-ok">Online</span> · <span class="cb-text-warn">Degraded</span> · <span class="cb-text-danger">Revoked</span> · <span class="cb-text-info">Notice</span></div>
+            <div class="cb-text-xs cb-muted">Last sync 2026-10-19 10:42:07 UTC</div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+  &lt;div&gt;Public key &lt;span class=&quot;cb-mono&quot;&gt;hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&lt;/span&gt;&lt;/div&gt;
+  &lt;div&gt;Peers &lt;span class=&quot;cb-num&quot;&gt;1 248&lt;/span&gt;, handshakes today &lt;span class=&quot;cb-num&quot;&gt;38 410&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;cb-muted&quot;&gt;Counters refresh every 30 seconds.&lt;/div&gt;
+  &lt;div&gt;&lt;span class=&quot;cb-text-ok&quot;&gt;Online&lt;/span&gt; · &lt;span class=&quot;cb-text-warn&quot;&gt;Degraded&lt;/span&gt; · &lt;span class=&quot;cb-text-danger&quot;&gt;Revoked&lt;/span&gt; · &lt;span class=&quot;cb-text-info&quot;&gt;Notice&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;cb-text-xs cb-muted&quot;&gt;Last sync 2026-10-19 10:42:07 UTC&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="utilities-wrap">Wrapping and truncation</h3>
+        <p class="docs-text">A truncated table cell takes the width the other columns leave; put the full value in
+          <code>title</code>. Long hashes and keys wrap anywhere with <code>.cb-break</code>.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-table-wrap">
+              <table class="cb-table">
+                <thead>
+                  <tr><th scope="col">Rule</th><th scope="col">Description</th><th scope="col">Hits</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">14</th><td class="cb-truncate" title="Allow the VPN range to reach the internal web tier on tcp/443, requested in change CR-4471 for the quarterly audit">Allow the VPN range to reach the internal web tier on tcp/443, requested in change CR-4471 for the quarterly audit</td><td class="cb-num">12 904</td></tr>
+                  <tr><th scope="row">15</th><td class="cb-truncate" title="Helpdesk SSH to the jump host only">Helpdesk SSH to the jump host only</td><td class="cb-num">311</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cb-break">SHA-256 <span class="cb-mono">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span></div>
+            <div>Route <span class="cb-nowrap">10.8.0.0/24 → 10.20.0.0/16</span> is pushed to every peer.</div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-table-wrap&quot;&gt;
+    &lt;table class=&quot;cb-table&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Description&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Hits&lt;/th&gt;&lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td class=&quot;cb-truncate&quot; title=&quot;Allow the VPN range to reach the internal web tier on tcp/443, requested in change CR-4471 for the quarterly audit&quot;&gt;Allow the VPN range to reach the internal web tier on tcp/443, requested in change CR-4471 for the quarterly audit&lt;/td&gt;&lt;td class=&quot;cb-num&quot;&gt;12 904&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td class=&quot;cb-truncate&quot; title=&quot;Helpdesk SSH to the jump host only&quot;&gt;Helpdesk SSH to the jump host only&lt;/td&gt;&lt;td class=&quot;cb-num&quot;&gt;311&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-break&quot;&gt;SHA-256 &lt;span class=&quot;cb-mono&quot;&gt;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&lt;/span&gt;&lt;/div&gt;
+  &lt;div&gt;Route &lt;span class=&quot;cb-nowrap&quot;&gt;10.8.0.0/24 → 10.20.0.0/16&lt;/span&gt; is pushed to every peer.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="utilities-chips">Inline code and keys</h3>
+        <div class="docs-demo">
+          <p>Set <code class="cb-code">AllowedIPs</code> to <code class="cb-code">10.8.0.0/24</code> and restart <code class="cb-code">wg-quick@wg0</code>. Copy a value with <kbd class="cb-kbd">Ctrl</kbd> + <kbd class="cb-kbd">C</kbd>.</p>
+        </div>
+        <pre class="docs-snippet"><code>&lt;p&gt;Set &lt;code class=&quot;cb-code&quot;&gt;AllowedIPs&lt;/code&gt; to &lt;code class=&quot;cb-code&quot;&gt;10.8.0.0/24&lt;/code&gt; and restart &lt;code class=&quot;cb-code&quot;&gt;wg-quick@wg0&lt;/code&gt;. Copy a value with &lt;kbd class=&quot;cb-kbd&quot;&gt;Ctrl&lt;/kbd&gt; + &lt;kbd class=&quot;cb-kbd&quot;&gt;C&lt;/kbd&gt;.&lt;/p&gt;</code></pre>
+
+        <h3 class="docs-h3" id="utilities-a11y">Accessibility</h3>
+        <p class="docs-text"><code>.cb-sr-only</code> hides text from the eye but not from screen readers: a table
+          caption, the label of an icon-only key. This catalogue's own "Skip to content" link is a
+          <code>.cb-skip-link</code>: press <kbd class="cb-kbd">Tab</kbd> at the top of the page.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <table class="cb-table cb-table--compact">
+              <caption class="cb-sr-only">Gateways and their load</caption>
+              <thead>
+                <tr><th scope="col">Gateway</th><th class="cb-table__num" scope="col">Load</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">gw-eu-1</th><td class="cb-table__num">82%</td></tr>
+                <tr><th scope="row">gw-eu-2</th><td class="cb-table__num">37%</td></tr>
+              </tbody>
+            </table>
+            <p><button class="cb-btn cb-btn--icon" type="button">⟳<span class="cb-sr-only">Refresh gateways</span></button></p>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+    &lt;caption class=&quot;cb-sr-only&quot;&gt;Gateways and their load&lt;/caption&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Load&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;82%&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-2&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;37%&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+  &lt;p&gt;&lt;button class=&quot;cb-btn cb-btn--icon&quot; type=&quot;button&quot;&gt;⟳&lt;span class=&quot;cb-sr-only&quot;&gt;Refresh gateways&lt;/span&gt;&lt;/button&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class</th><th scope="col">Sets</th><th scope="col">Use</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-mono</code></th><td>Monospace stack, no ligatures</td><td>IPs, keys, hashes inside sans text</td></tr>
+              <tr><th scope="row"><code>.cb-num</code></th><td><code>tabular-nums</code></td><td>Counters and figures that line up</td></tr>
+              <tr><th scope="row"><code>.cb-muted</code></th><td><code>--cb-text-muted</code></td><td>Notes and metadata</td></tr>
+              <tr><th scope="row"><code>.cb-text-ok</code> / <code>-warn</code> / <code>-danger</code> / <code>-info</code></th><td>Tone colour</td><td>Status words in text; always the word, never colour alone</td></tr>
+              <tr><th scope="row"><code>.cb-text-xs</code></th><td>12px</td><td>Micro-labels and timestamps</td></tr>
+              <tr><th scope="row"><code>.cb-truncate</code></th><td>One line, ellipsis</td><td>Long names and descriptions; in a table cell it takes the free width</td></tr>
+              <tr><th scope="row"><code>.cb-nowrap</code></th><td><code>white-space: nowrap</code></td><td>Routes, ranges and figures that must not break</td></tr>
+              <tr><th scope="row"><code>.cb-break</code></th><td><code>overflow-wrap: anywhere</code></td><td>Tokens, hashes and keys in narrow places</td></tr>
+              <tr><th scope="row"><code>.cb-code</code></th><td>Recessed monospace chip</td><td>Inline technical values in prose</td></tr>
+              <tr><th scope="row"><code>.cb-kbd</code></th><td>Small raised key</td><td>Keyboard shortcuts</td></tr>
+              <tr><th scope="row"><code>.cb-sr-only</code></th><td>Visually hidden, still announced</td><td>Captions, icon-key labels</td></tr>
+              <tr><th scope="row"><code>.cb-skip-link</code></th><td>Off screen until focused</td><td>First link of the page, to the main content</td></tr>
             </tbody>
           </table>
         </div>

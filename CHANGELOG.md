@@ -179,9 +179,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   no longer reset a dialog's auto margins.
 - Catalogue "Pagination" section: full pagination under a table in a panel footer, separate keys
   on the first page, cursor paging, the narrow collapse, notes and a reference table.
+- Catalogue "Utilities" section (own navigation group): text and numbers, wrapping and
+  truncation, inline code and keys, visually hidden captions and labels, and a reference table.
 
 ### Changed
 
+- The catalogue uses its own utilities: `.cb-skip-link`, `.cb-nowrap` and `.cb-kbd` replace the
+  docs-only skip link, nowrap cells and bare `<kbd>` (the base typography demo keeps a bare `<kbd>`).
 - Collapsible panels, navigation and tree rows, and details share one disclosure chevron rule
   (§5.3); the panel chevron now uses the same 0.25rem margin as the others.
 - Catalogue reference tables use `.cb-table` (row headers as `<th scope="row">`); the temporary
