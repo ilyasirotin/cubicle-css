@@ -1435,6 +1435,7 @@
   .cb-table :is(th, td) {
     block-size: var(--_row);
     padding: var(--_pad) var(--cb-space-2);
+    line-height: var(--cb-line-tight); /* one text line fits the compact 20px row too */
     text-align: start;
     vertical-align: middle;
     white-space: nowrap;
