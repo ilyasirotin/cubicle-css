@@ -165,6 +165,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
     --cb-shadow-float:
       0 4px 12px -2px rgba(15, 23, 42, 0.18),
       0 0 0 1px var(--cb-border-strong);
+    --cb-shadow-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.6); /* Top-edge light on static chips: badges, LED lamps */
 
     --cb-grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(15, 23, 42, 0.03) 100%);
     --cb-grad-btn: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 55%, rgba(15, 23, 42, 0.05) 100%);

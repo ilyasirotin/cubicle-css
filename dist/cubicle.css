@@ -24,6 +24,7 @@
       5.3 Fieldsets & panels . .cb-fieldset; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, collapsible
       5.4 Secret & copy boxes  script-only actions, copied feedback, .cb-secret
+      5.5 Badges & LEDs ...... .cb-badge tags, status, solid, count, busy; .cb-led
    ========================================================================== */
 
 
@@ -116,6 +117,7 @@
     --cb-shadow-float:
       0 4px 12px -2px rgba(15, 23, 42, 0.18),
       0 0 0 1px var(--cb-border-strong);
+    --cb-shadow-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.6); /* Top-edge light on static chips: badges, LED lamps */
 
     --cb-grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(15, 23, 42, 0.03) 100%);
     --cb-grad-btn: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 55%, rgba(15, 23, 42, 0.05) 100%);
@@ -415,17 +417,21 @@
 
     &[aria-busy="true"] {
       cursor: progress;
-
-      &::before {
-        content: "";
-        inline-size: 0.75em;
-        block-size: 0.75em;
-        border: 2px solid color-mix(in srgb, currentColor 25%, var(--_bg));
-        border-block-start-color: currentColor;
-        border-radius: var(--cb-radius-round);
-        animation: cb-spin var(--cb-duration-spin) steps(8) infinite;
-      }
     }
+  }
+
+  /* Busy spinner, shared by buttons and badges (5.5): a ring with one solid
+     quarter that turns in discrete steps. It replaces a badge's LED lamp. */
+  :is(.cb-btn, .cb-badge)[aria-busy="true"]::before {
+    content: "";
+    inline-size: 0.75em;
+    block-size: 0.75em;
+    background: none;
+    border: 2px solid color-mix(in srgb, currentColor 25%, var(--_bg));
+    border-block-start-color: currentColor;
+    border-radius: var(--cb-radius-round);
+    box-shadow: none;
+    animation: cb-spin var(--cb-duration-spin) steps(8) infinite;
   }
 
   @keyframes cb-spin {
@@ -433,7 +439,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cb-btn[aria-busy="true"]::before {
+    :is(.cb-btn, .cb-badge)[aria-busy="true"]::before {
       animation: none;
     }
   }
@@ -1225,5 +1231,86 @@
       border-start-end-radius: var(--cb-radius-none);
       border-end-start-radius: var(--cb-radius-sm);
     }
+  }
+
+  /* 5.5 Badges & LEDs ----------------------------------------------------- */
+
+  /* Badge: a static bordered chip, never a control. Without a modifier it is a
+     neutral tag (roles, protocols, directories). Modifiers set only --_tone;
+     ink, tint and border derive from it. Colour is never the only signal:
+     always write the status word. */
+  .cb-badge {
+    --_tone: var(--cb-text-main);
+    --_bg: color-mix(in srgb, var(--_tone) 10%, var(--cb-bg-surface));
+    --_border: color-mix(in srgb, var(--_tone) 35%, var(--cb-border-main));
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--cb-space-1);
+    min-block-size: 1.125rem; /* 18px: fits a .cb-btn--sm table row */
+    padding-inline: 0.375rem;
+    font-size: var(--cb-text-xs);
+    font-weight: 600;
+    line-height: var(--cb-line-tight);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--_tone);
+    background: var(--_bg);
+    border: 1px solid var(--_border);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-highlight);
+  }
+
+  /* LED: lamp plus text, no frame. The text keeps the surrounding ink, so it
+     reads on any surface. Without a modifier the lamp is grey (unknown). */
+  .cb-led {
+    --_tone: var(--cb-text-muted);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--cb-space-1);
+  }
+
+  /* Status tones, shared by badges and LEDs. --off is a hollow grey lamp. */
+  :is(.cb-badge--ok, .cb-led--ok) { --_tone: var(--cb-ok); }
+  :is(.cb-badge--warn, .cb-led--warn) { --_tone: var(--cb-warn); }
+  :is(.cb-badge--danger, .cb-led--danger) { --_tone: var(--cb-danger); }
+  :is(.cb-badge--info, .cb-led--info) { --_tone: var(--cb-info); }
+  :is(.cb-badge--off, .cb-led--off) { --_tone: var(--cb-text-muted); }
+
+  /* LED lamp: status colour, darker rim, top glint. */
+  :is(.cb-led, .cb-badge--ok, .cb-badge--warn, .cb-badge--danger, .cb-badge--info, .cb-badge--off)::before {
+    content: "";
+    flex: none;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--_tone);
+    border: 1px solid color-mix(in srgb, var(--_tone) 65%, var(--cb-text-main));
+    border-radius: var(--cb-radius-round);
+    box-shadow: var(--cb-shadow-highlight);
+  }
+
+  :is(.cb-badge--off, .cb-led--off)::before {
+    background: none;
+    box-shadow: none;
+  }
+
+  /* Solid: inverse ink on the full tone, for critical marks (REVOKED, EXPIRED). */
+  .cb-badge--solid {
+    --_bg: var(--_tone);
+    --_border: color-mix(in srgb, var(--_tone) 60%, var(--cb-text-main));
+    color: var(--cb-text-inverse);
+  }
+
+  /* Count: a compact number for buttons, panel heads and navigation. */
+  .cb-badge--count {
+    min-inline-size: 1.125rem;
+    justify-content: center;
+    padding-inline: var(--cb-space-1);
+  }
+
+  /* The fill or the number is the signal: solid and count badges have no lamp. */
+  :is(.cb-badge--solid, .cb-badge--count):not([aria-busy="true"])::before {
+    display: none;
   }
 }

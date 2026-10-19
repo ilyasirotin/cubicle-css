@@ -46,6 +46,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   work on swapped markup; copy falls back to a hidden buffer on plain-HTTP pages and announces
   results through a live region. CSS hides script-only actions until `html[data-cb-js]`, tints
   copied buttons, and adds the multi-line `.cb-secret` well with an attached toolbar.
+- `dist/cubicle.css` badges and LEDs: `.cb-badge` neutral tag; `--ok`, `--warn`, `--danger`,
+  `--info` status badges with an LED lamp and `--off` with a hollow lamp; `--solid` and `--count`;
+  `aria-busy` swaps the lamp for the stepped spinner, now shared with buttons; frameless `.cb-led`
+  with the same modifiers. New token `--cb-shadow-highlight` for the badge and lamp top edge.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only

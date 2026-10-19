@@ -325,6 +325,11 @@
     box-shadow: var(--cb-shadow-float);
   }
 
+  .docs-tile--shadow-highlight {
+    background: var(--cb-bg-recessed);
+    box-shadow: var(--cb-shadow-highlight);
+  }
+
   .docs-tile--grad-surface {
     background: var(--cb-grad-surface), var(--cb-bg-surface);
   }
