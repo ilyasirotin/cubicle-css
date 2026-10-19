@@ -8,7 +8,8 @@
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
-//                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png and meters-<width>.png.
+//                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
+//                 and segmented-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -198,6 +199,11 @@ const readContrast = (el) => {
   };
   const cs = getComputedStyle(el);
   if (el.matches('input[type=range]')) return { need: 0, pairs: [] };
+  // A segmented-control input is a transparent cover over its key: judge the key's text.
+  if (el.closest('.cb-segmented')) {
+    const key = el.parentElement;
+    return { need: 4.5, pairs: [['text', rgb(getComputedStyle(key).color), painted(key)]] };
+  }
   if (el.matches('input[type=checkbox], input[type=radio]')) {
     const on = el.checked || el.indeterminate;
     return { need: 3, pairs: [
@@ -216,7 +222,8 @@ for (const el of controls7) {
     + [...n.classList].map((c) => `.${c}`).join('')
     + ['type', 'aria-pressed', 'aria-invalid', 'readonly']
       .filter((a) => n.hasAttribute(a) && !(a === 'type' && n.tagName !== 'INPUT'))
-      .map((a) => `[${a}${n.getAttribute(a) ? `=${n.getAttribute(a)}` : ''}]`).join(''));
+      .map((a) => `[${a}${n.getAttribute(a) ? `=${n.getAttribute(a)}` : ''}]`).join('')
+    + (n.closest('.cb-segmented') ? ' in .cb-segmented' : ''));
   if (seenKeys.has(key)) continue;
   seenKeys.add(key);
   const slug = key.replace(/[^a-z0-9-]+/gi, '-').replace(/^-|-$/g, '');
@@ -246,7 +253,11 @@ for (const el of controls7) {
   await page.mouse.up(); await page.mouse.move(2, 2);
 
   await el.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
-  const ring = await el.evaluate((n) => { const cs = getComputedStyle(n); return n.matches(':focus-visible') && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none'; });
+  // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
+  const ring = await el.evaluate((n) => {
+    const f = n.type === 'radio' && document.activeElement?.name === n.name ? document.activeElement : n;
+    const cs = getComputedStyle(f); return f.matches(':focus-visible') && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
+  });
   await shot('focus');
   await el.evaluate((n) => n.blur());
 
@@ -837,6 +848,64 @@ if (await page.locator('.docs-demo .cb-meter').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/meters-${width}.png` });
+  }
+}
+
+// 16. Segmented controls: the checked key is sunk on the selected tint and the others are
+//     not, a click and the arrow keys move the choice, the input covers its key exactly (so
+//     the focus ring frames the key), disabled keys and disabled fieldsets refuse a choice,
+//     checkbox groups keep several keys on, and --fill keys share the row equally.
+if (await page.locator('.docs-demo .cb-segmented').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const look = await page.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-bg-selected)'; const selected = getComputedStyle(probe).color;
+    probe.style.boxShadow = 'var(--cb-shadow-pressed)'; const pressed = getComputedStyle(probe).boxShadow; probe.remove();
+    const keys = [...document.querySelectorAll('.docs-demo .cb-segmented > .cb-btn')].filter((k) => !k.querySelector(':disabled'));
+    const wrong = keys.filter((k) => {
+      const on = k.querySelector(':checked'); const cs = getComputedStyle(k);
+      return on ? cs.backgroundColor !== selected || cs.boxShadow !== pressed : cs.backgroundColor === selected;
+    }).map((k) => k.textContent.trim());
+    const covers = keys.every((k) => { const a = k.getBoundingClientRect(); const b = k.querySelector('input').getBoundingClientRect(); return Math.abs(a.x - b.x) < 0.5 && Math.abs(a.y - b.y) < 0.5 && Math.abs(a.width - b.width) < 0.5 && Math.abs(a.height - b.height) < 0.5; });
+    return { keys: keys.length, wrong, covers };
+  });
+  check(look.wrong.length === 0, 'segmented: checked keys are sunk on the selected tint, others are not', `${look.keys} keys${look.wrong.length ? ', wrong: ' + look.wrong.join(', ') : ''}`);
+  check(look.covers, 'segmented: each input covers its key exactly, so the focus ring frames the key');
+
+  const group = page.locator('.docs-demo .cb-segmented[role="radiogroup"]').first();
+  const checkedValue = () => group.evaluate((g) => g.querySelector(':checked')?.value);
+  const start = await checkedValue();
+  await group.locator('.cb-btn').first().click(); const clicked = await checkedValue();
+  await group.locator(':checked').focus(); await page.keyboard.press('ArrowRight'); const arrowed = await checkedValue();
+  check(clicked !== start && arrowed !== clicked, 'segmented: a click and the arrow keys move the choice', `${start} -> click ${clicked} -> ArrowRight ${arrowed}`);
+
+  const refused = await page.evaluate(() => {
+    const key = document.querySelector('.docs-demo .cb-segmented > .cb-btn:has(> input:disabled:not(:checked))');
+    const input = key.querySelector('input'); key.click();
+    const fieldset = document.querySelector('.docs-demo fieldset.cb-segmented[disabled]');
+    return { keyChecked: input.checked, keyCursor: getComputedStyle(key).cursor,
+      fieldsetAll: fieldset ? [...fieldset.querySelectorAll('input')].every((i) => i.matches(':disabled')) : null };
+  });
+  check(!refused.keyChecked && refused.keyCursor === 'not-allowed' && refused.fieldsetAll !== false, 'segmented: disabled keys and disabled fieldsets refuse a choice', JSON.stringify(refused));
+
+  const multi = await page.$eval('.docs-demo .cb-segmented[role="group"]', (g) => g.querySelectorAll(':checked').length);
+  check(multi > 1, 'segmented: a checkbox group keeps several keys on', `${multi} on`);
+
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const fill = await page.$eval('.docs-demo .cb-segmented--fill', (g) => {
+      const ws = [...g.children].map((k) => k.getBoundingClientRect().width);
+      const parent = g.parentElement.getBoundingClientRect().width;
+      return { spread: Math.max(...ws) - Math.min(...ws), span: Math.abs(g.getBoundingClientRect().width - parent), overflow: document.documentElement.scrollWidth > innerWidth };
+    });
+    check(fill.spread <= 1 && fill.span <= 1 && !fill.overflow, `segmented --fill keys share the row equally at ${width}px`, JSON.stringify(fill));
+  }
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-segmented--fill)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/segmented-${width}.png` });
   }
 }
 

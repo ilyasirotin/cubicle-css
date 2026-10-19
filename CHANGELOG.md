@@ -107,6 +107,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   low / high / optimum reading, contrast against the track, 12px and 6px tracks, a still
   indeterminate bar, ruler ticks and threshold marks), marks that follow changed and inserted
   meters, no marks without JavaScript, fill contrast pairs and screenshots.
+- `scripts/verify-browser.mjs`: segmented controls (sunk checked keys, click and arrow keys,
+  inputs that cover their keys, disabled keys and fieldsets, checkbox groups, equal `--fill` keys at
+  1360 and 360px); state captures judge a segment by its key's text and follow the radio that
+  takes focus in a group.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
