@@ -5,8 +5,9 @@
 
 /*
  * Behaviour hooks are data-cb-* attributes on controls; each value is the id of
- * the target element. One delegated click listener serves them, so markup
- * inserted later (HTMX swaps, frameworks) works without re-initialisation.
+ * the target element. Delegated click and keydown listeners on the document
+ * serve them, so markup inserted later (HTMX swaps, frameworks) works without
+ * re-initialisation.
  *
  *   data-cb-copy="id"                          copy the target's text
  *   data-cb-reveal="id" aria-pressed="false"   toggle a password field
@@ -17,6 +18,9 @@
  *                                              rows' state, indeterminate when mixed
  *   data-cb-dismiss="id"                       hide the target (an alert); focus
  *                                              moves to the next focusable element
+ *   data-cb-tabs (no value)                    container of ARIA tabs: click,
+ *                                              arrow keys, Home and End select a
+ *                                              role="tab"; state lives in the markup
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -27,6 +31,7 @@
   const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss]';
   const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled, [type="hidden"]), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])';
   const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
+  const TAB = '[data-cb-tabs] [role="tab"]';
   const remaskTimers = new WeakMap();
   let liveRegion;
 
@@ -171,9 +176,58 @@
     if (next) next.focus();
   };
 
+  // ARIA tabs: the selected tab is the only one in the tab order, and only its
+  // panel is shown. The state is written by the server; this keeps it in step.
+  const tabsOf = (tab) => [...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')];
+  const isEnabled = (tab) => tab.getAttribute('aria-disabled') !== 'true';
+
+  const selectTab = (tab) => {
+    for (const other of tabsOf(tab)) {
+      const on = other === tab;
+      other.setAttribute('aria-selected', String(on));
+      other.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(other.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
+    }
+    tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  };
+
+  // Arrow keys follow the list's orientation (and reading direction); they
+  // skip disabled tabs and wrap. Home and End jump to the ends.
+  const tabKey = (event, tab) => {
+    const list = tab.closest('[role="tablist"]');
+    const enabled = tabsOf(tab).filter(isEnabled);
+    const vertical = list.getAttribute('aria-orientation') === 'vertical';
+    const forward = getComputedStyle(list).direction === 'rtl' ? -1 : 1;
+    const steps = vertical ? { ArrowDown: 1, ArrowUp: -1 } : { ArrowRight: forward, ArrowLeft: -forward };
+    let next;
+    if (event.key === 'Home') next = enabled[0];
+    else if (event.key === 'End') next = enabled.at(-1);
+    else if (steps[event.key]) {
+      const index = enabled.indexOf(tab);
+      next = enabled[(index + steps[event.key] + enabled.length) % enabled.length];
+    }
+    if (!next) return;
+    event.preventDefault();
+    next.focus();
+    selectTab(next);
+  };
+
+  document.addEventListener('keydown', (event) => {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+    const tab = event.target instanceof Element ? event.target.closest(TAB) : null;
+    if (tab) tabKey(event, tab);
+  });
+
   document.addEventListener('click', (event) => {
     // A click cancelled by the host (or a cancelled box toggle) means: do nothing.
     if (event.defaultPrevented) return;
+
+    const tab = event.target instanceof Element ? event.target.closest(TAB) : null;
+    if (tab) {
+      if (isEnabled(tab)) selectTab(tab);
+      return;
+    }
 
     const box = event.target;
     if (box instanceof HTMLInputElement && box.type === 'checkbox') {

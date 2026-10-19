@@ -29,6 +29,8 @@
                                compact, wrap, sticky; select-all (cubicle.js)
       5.7 Alerts ............. .cb-alert tones, glyph, title, actions, close
                                (cubicle.js), --sm, --banner
+      5.8 Tabs ............... .cb-tabs link and ARIA tabs (cubicle.js), states,
+                               panel head, --vertical, no-JS fallback
    ========================================================================== */
 
 
@@ -1650,5 +1652,187 @@
     border-block-start-width: 0;
     border-inline-end-width: 0;
     border-radius: var(--cb-radius-none);
+  }
+
+  /* 5.8 Tabs -------------------------------------------------------------- */
+
+  /* Folder tabs over a framed panel. Two kinds share the look:
+     - link tabs: <a aria-current="page">, one URL each, switched by the server;
+     - ARIA tabs: role="tablist" / "tab" / "tabpanel" inside [data-cb-tabs],
+       switched by cubicle.js (click, arrow keys, Home, End). The markup holds
+       the state: aria-selected, tabindex 0 / -1 and hidden on idle panels.
+     The selected tab takes the panel colour (--_active) and covers the line
+     under the list, so tab and panel read as one sheet. */
+  .cb-tabs {
+    --_active: var(--cb-bg-raised);
+  }
+
+  /* The line is a background, not a border, so the list can scroll sideways
+     without a 1px vertical overflow. Padding keeps focus rings inside it. */
+  .cb-tabs__list {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    min-inline-size: 0;
+    padding: 3px 3px 0;
+    overflow-x: auto;
+    background: linear-gradient(var(--cb-border-main), var(--cb-border-main)) bottom / 100% 1px no-repeat;
+  }
+
+  .cb-tabs__tab {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--cb-space-1);
+    min-block-size: 1.625rem;
+    margin: 0;
+    padding: 0 var(--cb-space-3);
+    font-size: var(--cb-text-sm);
+    font-weight: 500;
+    line-height: var(--cb-line-tight);
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--cb-text-muted);
+    background: color-mix(in srgb, var(--cb-bg-header) 60%, var(--cb-bg-surface));
+    border: 1px solid var(--cb-border-main);
+    border-start-start-radius: var(--cb-radius-sm);
+    border-start-end-radius: var(--cb-radius-sm);
+    cursor: pointer;
+    transition: background-color var(--cb-duration);
+
+    &:hover {
+      color: var(--cb-text-main);
+      background: var(--cb-bg-hover);
+    }
+
+    &:is([aria-selected="true"], [aria-current]:not([aria-current="false"])) {
+      min-block-size: calc(1.625rem + 2px);
+      font-weight: 600;
+      color: var(--cb-text-main);
+      background: var(--_active);
+      border-block-end-color: var(--_active);
+    }
+
+    &[aria-disabled="true"] {
+      color: var(--cb-text-disabled);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  .cb-tabs__panel {
+    padding: var(--cb-space-3);
+    background: var(--_active);
+    border: 1px solid var(--cb-border-main);
+    border-block-start: 0;
+    border-end-start-radius: var(--cb-radius-sm);
+    border-end-end-radius: var(--cb-radius-sm);
+  }
+
+  /* Panel title for the no-script layout; with the script the tab names it. */
+  .cb-tabs__heading {
+    margin: 0 0 var(--cb-space-2);
+    font-size: var(--cb-text-md);
+    font-weight: 600;
+  }
+
+  :root[data-cb-js] [data-cb-tabs] .cb-tabs__heading {
+    display: none;
+  }
+
+  /* Tabs in a panel head: the head's bottom border is the line, and the panel
+     body is the tab panel. */
+  .cb-panel.cb-tabs {
+    --_active: var(--cb-bg-surface);
+  }
+
+  .cb-panel__head:has(> .cb-tabs__list) {
+    padding-block-end: 0;
+
+    & > .cb-tabs__list {
+      align-self: flex-end;
+      margin-block-end: -1px;
+      background: none;
+    }
+  }
+
+  .cb-panel__body.cb-tabs__panel {
+    background: none;
+    border: 0;
+    border-radius: var(--cb-radius-none);
+  }
+
+  /* Vertical: the list stands at the start of the panel. It measures its own
+     width (a definite width, like any inline-size container) and stays
+     horizontal below 30rem. */
+  .cb-tabs--vertical {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+
+    & > * {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @container (width >= 30rem) {
+    .cb-tabs--vertical > .cb-tabs__list {
+      grid-column: 1;
+      grid-row: 1;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0;
+      overflow: visible;
+      background-position: right;
+      background-size: 1px 100%;
+    }
+
+    .cb-tabs--vertical > .cb-tabs__panel {
+      grid-column: 2;
+      grid-row: 1;
+      border-block-start: 1px solid var(--cb-border-main);
+      border-inline-start: 0;
+      border-start-end-radius: var(--cb-radius-sm);
+      border-end-start-radius: var(--cb-radius-none);
+    }
+
+    .cb-tabs--vertical .cb-tabs__tab {
+      min-block-size: 1.625rem;
+      border-radius: var(--cb-radius-none);
+      border-start-start-radius: var(--cb-radius-sm);
+      border-end-start-radius: var(--cb-radius-sm);
+
+      &:is([aria-selected="true"], [aria-current]:not([aria-current="false"])) {
+        border-block-end-color: var(--cb-border-main);
+        border-inline-end-color: var(--_active);
+      }
+    }
+  }
+
+  /* Without the script ARIA tabs cannot switch: the list goes and every panel
+     shows, stacked, under its own heading. */
+  :root:not([data-cb-js]) [data-cb-tabs] {
+    & [role="tablist"] {
+      display: none;
+    }
+
+    & [role="tabpanel"] {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      border-block-start: 1px solid var(--cb-border-main);
+      border-inline-start-width: 1px;
+    }
+
+    & [role="tabpanel"][hidden] {
+      display: block;
+    }
+
+    & > .cb-panel__head {
+      padding-block-end: var(--cb-space-1);
+    }
+
+    & > .cb-panel__head + [role="tabpanel"] {
+      border-block-start: 0;
+    }
   }
 }

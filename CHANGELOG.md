@@ -61,6 +61,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (one 28px line) and `--banner`; the shell gains an optional `.cb-app__banner` strip under the top
   bar. `dist/cubicle.js` adds `data-cb-dismiss`, which hides the target and moves focus on; the key
   stays hidden without the script.
+- `dist/cubicle.css` tabs: `.cb-tabs` folder tabs for links (`aria-current`) and ARIA tabs
+  (`role="tab"`, `aria-selected`), with counts, lamps and `aria-disabled`; a sideways-scrolling
+  list, tabs in a `.cb-panel` head, `--vertical` (horizontal below 30rem), and a no-script layout
+  that stacks every panel under its `.cb-tabs__heading`. `dist/cubicle.js` switches tabs inside
+  `[data-cb-tabs]` on click and with arrow keys, Home and End; AGENTS.md now names its click and
+  keydown listeners.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only
