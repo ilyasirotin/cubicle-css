@@ -112,6 +112,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catalogue "Alerts" section: tones with actions and dismiss, compact alerts above a table, an
   error summary linking to invalid fields, banners in a shell frame, accessibility notes and a
   reference table; the shell reference lists `.cb-app__banner`.
+- Catalogue "Tree views & navigation" section: sidebar navigation with branches, counts and a
+  lamp, a directory tree with lines, kinds, a selected user and a loading branch, a DN breadcrumb,
+  keyboard and reference tables; the Layout shell sidebar now uses `.cb-nav`.
 
 ### Changed
 

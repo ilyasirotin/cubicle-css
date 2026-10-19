@@ -48,6 +48,7 @@
         <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
+        <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
       </ul>
     </nav>
 
@@ -304,14 +305,14 @@
         <div class="docs-demo docs-frame">
           <div class="cb-app">
             <header class="cb-app__top"><strong>IAM Console</strong><span>corp.example.net</span></header>
-            <aside class="cb-app__side" aria-label="Directory">
-              <div class="cb-stack cb-stack--tight">
-                <span>Users</span>
-                <span>Groups</span>
-                <span>Service accounts</span>
-                <span>Policies</span>
-              </div>
-            </aside>
+            <nav class="cb-app__side cb-nav" aria-label="Directory">
+              <ul class="cb-nav__list">
+                <li><a class="cb-nav__link" href="#layout-shell" aria-current="page">Users</a></li>
+                <li><a class="cb-nav__link" href="#layout-shell">Groups</a></li>
+                <li><a class="cb-nav__link" href="#layout-shell">Service accounts</a></li>
+                <li><a class="cb-nav__link" href="#layout-shell">Policies</a></li>
+              </ul>
+            </nav>
             <div class="cb-app__main">
               <div class="cb-stack cb-stack--tight">
                 <code>10.8.0.11 alice wg-edge-01</code>
@@ -331,14 +332,14 @@
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-app&quot;&gt;
   &lt;header class=&quot;cb-app__top&quot;&gt;&lt;strong&gt;IAM Console&lt;/strong&gt;&lt;span&gt;corp.example.net&lt;/span&gt;&lt;/header&gt;
-  &lt;aside class=&quot;cb-app__side&quot; aria-label=&quot;Directory&quot;&gt;
-    &lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
-      &lt;span&gt;Users&lt;/span&gt;
-      &lt;span&gt;Groups&lt;/span&gt;
-      &lt;span&gt;Service accounts&lt;/span&gt;
-      &lt;span&gt;Policies&lt;/span&gt;
-    &lt;/div&gt;
-  &lt;/aside&gt;
+  &lt;nav class=&quot;cb-app__side cb-nav&quot; aria-label=&quot;Directory&quot;&gt;
+    &lt;ul class=&quot;cb-nav__list&quot;&gt;
+      &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot; aria-current=&quot;page&quot;&gt;Users&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot;&gt;Groups&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot;&gt;Service accounts&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot;&gt;Policies&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
   &lt;div class=&quot;cb-app__main&quot;&gt;
     &lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
       &lt;code&gt;10.8.0.11 alice wg-edge-01&lt;/code&gt;
@@ -2625,6 +2626,234 @@
               <tr><th scope="row"><code>.cb-alert__close</code> + <code>data-cb-dismiss="id"</code></th><td><code>&lt;button&gt;</code></td><td>Close key at the end of the first line; hides the alert (script)</td></tr>
               <tr><th scope="row"><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code></th><td>In an alert</td><td>Indented list, for error summaries</td></tr>
               <tr><th scope="row"><code>.cb-app__banner</code></th><td><code>&lt;div&gt;</code> in <code>.cb-app</code></td><td>Banner strip under the top bar; collapses when empty</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="nav" aria-labelledby="nav-title">
+        <h2 class="docs-h2" id="nav-title">Tree views &amp; navigation</h2>
+        <p class="docs-text">Console navigation and directory hierarchies (LDAP, Active Directory) share one
+          row model: a chevron slot, a label, and counts or lamps at the end.</p>
+
+        <h3 class="docs-h3" id="nav-sidebar">Sidebar navigation</h3>
+        <p class="docs-text">Links in nested lists; <code>aria-current="page"</code> marks the current page.
+          Branches are native <code>&lt;details&gt;</code>, so they open without script.</p>
+        <div class="docs-demo">
+          <nav class="cb-nav" aria-label="Console">
+            <p class="cb-nav__heading" id="n-dir">Directory</p>
+            <ul class="cb-nav__list" aria-labelledby="n-dir">
+              <li><a class="cb-nav__link" href="#nav-sidebar" aria-current="page">Users <span class="cb-badge cb-badge--count">1 248</span></a></li>
+              <li><a class="cb-nav__link" href="#nav-sidebar">Groups <span class="cb-badge cb-badge--count">86</span></a></li>
+              <li><a class="cb-nav__link" href="#nav-sidebar">Service accounts</a></li>
+              <li>
+                <details open>
+                  <summary class="cb-nav__link">Policies</summary>
+                  <ul class="cb-nav__list">
+                    <li><a class="cb-nav__link" href="#nav-sidebar">Password</a></li>
+                    <li><a class="cb-nav__link" href="#nav-sidebar">MFA</a></li>
+                    <li><a class="cb-nav__link" href="#nav-sidebar">Sessions</a></li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+            <p class="cb-nav__heading" id="n-net">Network</p>
+            <ul class="cb-nav__list" aria-labelledby="n-net">
+              <li><a class="cb-nav__link" href="#nav-sidebar">Gateways <span class="cb-led cb-led--warn">1 degraded</span></a></li>
+              <li><a class="cb-nav__link" href="#nav-sidebar">Peers</a></li>
+              <li>
+                <details>
+                  <summary class="cb-nav__link">Routes</summary>
+                  <ul class="cb-nav__list">
+                    <li><a class="cb-nav__link" href="#nav-sidebar">Static</a></li>
+                    <li><a class="cb-nav__link" href="#nav-sidebar">Split tunnel</a></li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <pre class="docs-snippet"><code>&lt;nav class=&quot;cb-nav&quot; aria-label=&quot;Console&quot;&gt;
+  &lt;p class=&quot;cb-nav__heading&quot; id=&quot;n-dir&quot;&gt;Directory&lt;/p&gt;
+  &lt;ul class=&quot;cb-nav__list&quot; aria-labelledby=&quot;n-dir&quot;&gt;
+    &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot; aria-current=&quot;page&quot;&gt;Users &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;1 248&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Groups &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;86&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Service accounts&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;
+      &lt;details open&gt;
+        &lt;summary class=&quot;cb-nav__link&quot;&gt;Policies&lt;/summary&gt;
+        &lt;ul class=&quot;cb-nav__list&quot;&gt;
+          &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Password&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;MFA&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Sessions&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/details&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;p class=&quot;cb-nav__heading&quot; id=&quot;n-net&quot;&gt;Network&lt;/p&gt;
+  &lt;ul class=&quot;cb-nav__list&quot; aria-labelledby=&quot;n-net&quot;&gt;
+    &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Gateways &lt;span class=&quot;cb-led cb-led--warn&quot;&gt;1 degraded&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Peers&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;
+      &lt;details&gt;
+        &lt;summary class=&quot;cb-nav__link&quot;&gt;Routes&lt;/summary&gt;
+        &lt;ul class=&quot;cb-nav__list&quot;&gt;
+          &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Static&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Split tunnel&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/details&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="nav-tree">Directory tree</h3>
+        <p class="docs-text">An ARIA tree inside <code>data-cb-tree</code>: <code>cubicle.js</code> adds the
+          arrow keys, and a click, <kbd>Enter</kbd> or <kbd>Space</kbd> selects a row and opens or closes its
+          branch. <code>--lines</code> draws the connectors. A branch whose children are still loading carries
+          <code>aria-busy="true"</code>; opening a branch fires <code>cb-toggle</code>, so a server can load
+          it then (for HTMX: <code>hx-trigger="cb-toggle[detail.expanded] once"</code>).</p>
+        <div class="docs-demo">
+          <div class="cb-nav cb-nav--lines" data-cb-tree>
+            <ul class="cb-nav__list" role="tree" aria-label="Directory corp.example.net">
+              <li role="treeitem" aria-expanded="true" aria-selected="false" tabindex="-1">
+                <span class="cb-nav__link"><span class="cb-nav__kind">DC</span>corp.example.net</span>
+                <ul class="cb-nav__list" role="group">
+                  <li role="treeitem" aria-expanded="true" aria-selected="false" tabindex="-1">
+                    <span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Staff</span>
+                    <ul class="cb-nav__list" role="group">
+                      <li role="treeitem" aria-expanded="true" aria-selected="false" tabindex="-1">
+                        <span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Engineering</span>
+                        <ul class="cb-nav__list" role="group">
+                          <li role="treeitem" aria-selected="true" tabindex="0"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Alice Ng</span></li>
+                          <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Bartek Kowalski</span></li>
+                          <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Chidi Okafor</span></li>
+                        </ul>
+                      </li>
+                      <li role="treeitem" aria-expanded="false" aria-selected="false" tabindex="-1">
+                        <span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Finance</span>
+                        <ul class="cb-nav__list" role="group">
+                          <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Daria Ivanova</span></li>
+                          <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Eduardo Santos</span></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li role="treeitem" aria-expanded="false" aria-selected="false" tabindex="-1">
+                    <span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Service Accounts</span>
+                    <ul class="cb-nav__list" role="group">
+                      <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>svc-backup</span></li>
+                    </ul>
+                  </li>
+                  <li role="treeitem" aria-expanded="false" aria-selected="false" aria-busy="true" tabindex="-1">
+                    <span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Contractors</span>
+                    <ul class="cb-nav__list" role="group"></ul>
+                  </li>
+                  <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Domain Admins</span></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-nav cb-nav--lines&quot; data-cb-tree&gt;
+  &lt;ul class=&quot;cb-nav__list&quot; role=&quot;tree&quot; aria-label=&quot;Directory corp.example.net&quot;&gt;
+    &lt;li role=&quot;treeitem&quot; aria-expanded=&quot;true&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;
+      &lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;DC&lt;/span&gt;corp.example.net&lt;/span&gt;
+      &lt;ul class=&quot;cb-nav__list&quot; role=&quot;group&quot;&gt;
+        &lt;li role=&quot;treeitem&quot; aria-expanded=&quot;true&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;
+          &lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;OU&lt;/span&gt;Staff&lt;/span&gt;
+          &lt;ul class=&quot;cb-nav__list&quot; role=&quot;group&quot;&gt;
+            &lt;li role=&quot;treeitem&quot; aria-expanded=&quot;true&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;
+              &lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;OU&lt;/span&gt;Engineering&lt;/span&gt;
+              &lt;ul class=&quot;cb-nav__list&quot; role=&quot;group&quot;&gt;
+                &lt;li role=&quot;treeitem&quot; aria-selected=&quot;true&quot; tabindex=&quot;0&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;Alice Ng&lt;/span&gt;&lt;/li&gt;
+                &lt;li role=&quot;treeitem&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;Bartek Kowalski&lt;/span&gt;&lt;/li&gt;
+                &lt;li role=&quot;treeitem&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;Chidi Okafor&lt;/span&gt;&lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/li&gt;
+            &lt;li role=&quot;treeitem&quot; aria-expanded=&quot;false&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;
+              &lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;OU&lt;/span&gt;Finance&lt;/span&gt;
+              &lt;ul class=&quot;cb-nav__list&quot; role=&quot;group&quot;&gt;
+                &lt;li role=&quot;treeitem&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;Daria Ivanova&lt;/span&gt;&lt;/li&gt;
+                &lt;li role=&quot;treeitem&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;Eduardo Santos&lt;/span&gt;&lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/li&gt;
+        &lt;li role=&quot;treeitem&quot; aria-expanded=&quot;false&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;
+          &lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;OU&lt;/span&gt;Service Accounts&lt;/span&gt;
+          &lt;ul class=&quot;cb-nav__list&quot; role=&quot;group&quot;&gt;
+            &lt;li role=&quot;treeitem&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;svc-backup&lt;/span&gt;&lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/li&gt;
+        &lt;li role=&quot;treeitem&quot; aria-expanded=&quot;false&quot; aria-selected=&quot;false&quot; aria-busy=&quot;true&quot; tabindex=&quot;-1&quot;&gt;
+          &lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;OU&lt;/span&gt;Contractors&lt;/span&gt;
+          &lt;ul class=&quot;cb-nav__list&quot; role=&quot;group&quot;&gt;&lt;/ul&gt;
+        &lt;/li&gt;
+        &lt;li role=&quot;treeitem&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;&lt;span class=&quot;cb-nav__link&quot;&gt;&lt;span class=&quot;cb-nav__kind&quot;&gt;CN&lt;/span&gt;Domain Admins&lt;/span&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="nav-breadcrumb">Breadcrumb</h3>
+        <div class="docs-demo">
+          <nav aria-label="Distinguished name">
+            <ol class="cb-breadcrumb">
+              <li><a href="#nav-tree">DC=example</a></li>
+              <li><a href="#nav-tree">DC=corp</a></li>
+              <li><a href="#nav-tree">OU=Staff</a></li>
+              <li><a href="#nav-tree">OU=Engineering</a></li>
+              <li><span aria-current="page">CN=Alice Ng</span></li>
+            </ol>
+          </nav>
+        </div>
+        <pre class="docs-snippet"><code>&lt;nav aria-label=&quot;Distinguished name&quot;&gt;
+  &lt;ol class=&quot;cb-breadcrumb&quot;&gt;
+    &lt;li&gt;&lt;a href=&quot;#nav-tree&quot;&gt;DC=example&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#nav-tree&quot;&gt;DC=corp&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#nav-tree&quot;&gt;OU=Staff&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#nav-tree&quot;&gt;OU=Engineering&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;span aria-current=&quot;page&quot;&gt;CN=Alice Ng&lt;/span&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="nav-keys">Keyboard</h3>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Key</th><th scope="col">Action in a tree</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><kbd>↓</kbd> <kbd>↑</kbd></th><td>Next or previous visible row</td></tr>
+              <tr><th scope="row"><kbd>→</kbd></th><td>Opens a closed branch; on an open one, moves to its first child</td></tr>
+              <tr><th scope="row"><kbd>←</kbd></th><td>Closes an open branch; otherwise moves to the parent</td></tr>
+              <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>First or last visible row</td></tr>
+              <tr><th scope="row"><kbd>Enter</kbd> <kbd>Space</kbd></th><td>Selects the row and opens or closes its branch</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-nav</code></th><td><code>&lt;nav&gt;</code>, <code>&lt;div&gt;</code></td><td>Navigation or tree; <code>--lines</code> adds connectors</td></tr>
+              <tr><th scope="row"><code>.cb-nav__heading</code></th><td><code>&lt;p&gt;</code></td><td>Group heading; label the list with <code>aria-labelledby</code></td></tr>
+              <tr><th scope="row"><code>.cb-nav__list</code></th><td><code>&lt;ul&gt;</code></td><td>List; nested lists indent by 1rem</td></tr>
+              <tr><th scope="row"><code>.cb-nav__link</code></th><td><code>&lt;a&gt;</code>, <code>&lt;summary&gt;</code>, <code>&lt;span&gt;</code></td><td>24px row with a chevron slot</td></tr>
+              <tr><th scope="row"><code>aria-current="page"</code></th><td>Link</td><td>Current page: selected tint and accent bar</td></tr>
+              <tr><th scope="row"><code>&lt;details&gt;</code> + <code>summary.cb-nav__link</code></th><td>In a list item</td><td>Branch without script; <code>open</code> turns the chevron down</td></tr>
+              <tr><th scope="row"><code>data-cb-tree</code></th><td><code>.cb-nav</code></td><td>Hands its ARIA tree to the script</td></tr>
+              <tr><th scope="row"><code>role="tree"</code>, <code>"treeitem"</code>, <code>"group"</code></th><td><code>&lt;ul&gt;</code>, <code>&lt;li&gt;</code></td><td>Tree structure; one item has <code>tabindex="0"</code>, the others <code>-1</code></td></tr>
+              <tr><th scope="row"><code>aria-expanded</code></th><td>Branch item</td><td>Open or closed branch</td></tr>
+              <tr><th scope="row"><code>aria-selected="true"</code></th><td>Item</td><td>Selected node: selected tint and accent bar</td></tr>
+              <tr><th scope="row"><code>aria-busy="true"</code></th><td>Branch item, <code>&lt;details&gt;</code></td><td>Spinner in place of the chevron while children load</td></tr>
+              <tr><th scope="row"><code>cb-toggle</code></th><td>Event on the item</td><td>Fired when a tree branch opens or closes; <code>detail.expanded</code></td></tr>
+              <tr><th scope="row"><code>.cb-nav__kind</code></th><td><code>&lt;span&gt;</code></td><td>Object type as a monospace RDN chip: DC, OU, CN</td></tr>
+              <tr><th scope="row"><code>.cb-breadcrumb</code></th><td><code>&lt;ol&gt;</code> in <code>&lt;nav&gt;</code></td><td>Path with › separators; <code>aria-current</code> on the last part</td></tr>
             </tbody>
           </table>
         </div>
