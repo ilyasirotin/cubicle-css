@@ -127,6 +127,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
     --cb-bg-zebra: #edf0f4;        /* Alternating table row tint */
     --cb-bg-hover: #e2e8f0;        /* Crisp row/item hover highlight */
     --cb-bg-selected: #cfe0f5;     /* Selected table row / active tree node */
+    --cb-bg-backdrop: rgba(15, 23, 42, 0.45); /* Dimmed page under modal dialogs */
 
     /* 2. Typography & Ink (Cool Deep Slate) */
     --cb-text-main: #11161d;       /* Primary high-contrast ink */
@@ -256,6 +257,7 @@ Target **Baseline "Widely Available"** in modern evergreen browsers. Approved an
 - Container queries and container query length units (`cqb`) where a component must size itself to its container rather than the viewport (e.g., the `.cb-app` fixed frame, which falls back to the small viewport height when no size container exists)
 - `:user-invalid` alongside `aria-invalid="true"`, so native constraint validation (`required`, `pattern`, `type="email"`) is shown only after the user has interacted with a field
 - `<details name>` for exclusive accordions, as progressive enhancement (Baseline newly available; older engines open the blocks independently)
+- Popover API (`popover`, `popovertarget`) for non-blocking dialogs, and `<dialog>` with `showModal()` (via `dist/cubicle.js`) for modal ones
 
 ---
 

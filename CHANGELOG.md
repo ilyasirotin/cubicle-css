@@ -87,6 +87,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   trailing meta, a padded `__body`, shared seams when stacked (exclusive with `<details name>`),
   nesting, `--sm` and a frameless `--inline` variant. AGENTS.md §10 lists `<details name>` as
   progressive enhancement.
+- `dist/cubicle.css` dialogs: `.cb-dialog` on `<dialog>`, built from the panel parts, raised in a
+  strong frame with the float shadow; non-blocking with `popover` + `popovertarget` (no script),
+  modal through `data-cb-modal` in `dist/cubicle.js` (`showModal()`) over a dimmed backdrop; the
+  body scrolls between a fixed head and foot; `--sm`, `--lg`, `--danger`; full screen below 40rem.
+  New token `--cb-bg-backdrop`; AGENTS.md §10 lists the popover API and modal `<dialog>`.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only

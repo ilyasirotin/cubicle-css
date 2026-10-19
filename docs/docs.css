@@ -250,6 +250,7 @@
   .docs-chip--bg-zebra { --_c: var(--cb-bg-zebra); }
   .docs-chip--bg-hover { --_c: var(--cb-bg-hover); }
   .docs-chip--bg-selected { --_c: var(--cb-bg-selected); }
+  .docs-chip--bg-backdrop { --_c: var(--cb-bg-backdrop); }
   .docs-chip--text-main { --_c: var(--cb-text-main); }
   .docs-chip--text-muted { --_c: var(--cb-text-muted); }
   .docs-chip--text-disabled { --_c: var(--cb-text-disabled); }

@@ -27,6 +27,8 @@
  *                                              which fires "cb-toggle" (detail.expanded)
  *   data-cb-marks (no value, on <meter>)       marks low and high on the ruler strip;
  *                                              follows attribute changes and new meters
+ *   data-cb-modal="id"                         open the <dialog> as a modal (showModal);
+ *                                              closing stays native: method="dialog", Escape
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -34,7 +36,7 @@
   'use strict';
 
   const COPIED_MS = 1500;
-  const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss]';
+  const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal]';
   const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled, [type="hidden"]), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])';
   const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
   const TAB = '[data-cb-tabs] [role="tab"]';
@@ -352,9 +354,12 @@
     } else if (button.hasAttribute('data-cb-download')) {
       const target = targetOf(button, 'data-cb-download');
       if (target) download(button, target);
-    } else {
+    } else if (button.hasAttribute('data-cb-dismiss')) {
       const target = targetOf(button, 'data-cb-dismiss');
       if (target) dismiss(target);
+    } else {
+      const target = targetOf(button, 'data-cb-modal');
+      if (target instanceof HTMLDialogElement && !target.open) target.showModal();
     }
   });
 })();

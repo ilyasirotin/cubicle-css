@@ -41,6 +41,8 @@
                                --fill
       5.12 Details ........... .cb-details framed and --inline disclosure, stacked
                                accordions (details[name]), --sm
+      5.13 Dialogs ........... .cb-dialog popover and modal (cubicle.js), panel parts,
+                               --sm, --lg, --danger, backdrop, full screen when narrow
    ========================================================================== */
 
 
@@ -95,6 +97,7 @@
     --cb-bg-zebra: #edf0f4;        /* Alternating table row tint */
     --cb-bg-hover: #e2e8f0;        /* Crisp row/item hover highlight */
     --cb-bg-selected: #cfe0f5;     /* Selected table row / active tree node */
+    --cb-bg-backdrop: rgba(15, 23, 42, 0.45); /* Dimmed page under modal dialogs */
 
     /* 2.2 Typography & ink (cool deep slate) */
     --cb-text-main: #11161d;       /* Primary high-contrast ink */
@@ -1155,7 +1158,7 @@
   /* Script-only actions stay hidden until cubicle.js marks the root, so a page
      without the script shows the value (still selectable) and no dead buttons.
      Markup swapped in later is covered too; nothing needs re-initialising. */
-  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]) {
+  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal]) {
     display: none;
   }
 
@@ -2338,6 +2341,79 @@
 
     & > .cb-details__body {
       padding: var(--cb-space-1) 0 var(--cb-space-1) calc(0.875rem + var(--cb-space-1));
+    }
+  }
+
+  /* 5.13 Dialogs ---------------------------------------------------------- */
+
+  /* <dialog class="cb-dialog"> built from the panel parts (.cb-panel__head,
+     __title, __body, __foot), raised above the page in a strong frame.
+     - Non-blocking: add popover and open it with popovertarget; no script,
+       Escape and a click outside close it, the page stays usable.
+     - Modal: open it with a data-cb-modal="id" button (cubicle.js calls
+       showModal()); the page goes inert under a dimmed backdrop.
+     Close with <form method="dialog"> buttons or Escape. A wrapping form is
+     transparent to the layout, so the body scrolls between a fixed head and
+     foot. .cb-panel itself stays off the <dialog>: its display would show a
+     closed dialog. */
+  .cb-dialog {
+    inline-size: min(36rem, 100% - 2 * var(--cb-space-4));
+    max-inline-size: none;
+    max-block-size: calc(100dvh - 2 * var(--cb-space-5));
+    margin: auto;
+    padding: 0;
+    color: var(--cb-text-main);
+    background: var(--cb-bg-raised);
+    border: 1px solid var(--cb-border-strong);
+    border-radius: var(--cb-radius-md);
+    box-shadow: var(--cb-shadow-float);
+
+    &:is([open], :popover-open) {
+      display: flex;
+      flex-direction: column;
+    }
+
+    & > form {
+      display: contents;
+    }
+  }
+
+  .cb-dialog :is(.cb-panel__head, .cb-panel__foot) {
+    flex: none;
+  }
+
+  .cb-dialog .cb-panel__body {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+  }
+
+  .cb-dialog:modal::backdrop {
+    background: var(--cb-bg-backdrop);
+  }
+
+  .cb-dialog--sm {
+    inline-size: min(24rem, 100% - 2 * var(--cb-space-4));
+  }
+
+  .cb-dialog--lg {
+    inline-size: min(56rem, 100% - 2 * var(--cb-space-4));
+  }
+
+  /* Destructive confirmation: the crimson stripe of .cb-panel--danger. */
+  .cb-dialog--danger {
+    border-block-start: 3px solid var(--cb-danger);
+  }
+
+  /* Narrow viewports: the dialog takes the whole screen. */
+  @media (width < 40rem) {
+    .cb-dialog {
+      inline-size: 100%;
+      block-size: 100dvh;
+      max-block-size: none;
+      margin: 0;
+      border-inline: 0;
+      border-radius: var(--cb-radius-none);
     }
   }
 }
