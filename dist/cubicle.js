@@ -4,7 +4,7 @@
  */
 
 /*
- * Behaviour hooks are data-cb-* attributes on buttons; each value is the id of
+ * Behaviour hooks are data-cb-* attributes on controls; each value is the id of
  * the target element. One delegated click listener serves them, so markup
  * inserted later (HTMX swaps, frameworks) works without re-initialisation.
  *
@@ -12,14 +12,18 @@
  *   data-cb-reveal="id" aria-pressed="false"   toggle a password field
  *     data-cb-reveal-timeout="30"              optional: re-mask after N seconds
  *   data-cb-download="id" data-cb-filename=""  save the target's text as a file
+ *   data-cb-select-all="id"                    header checkbox: (un)check every row
+ *                                              checkbox of the table; it shows the
+ *                                              rows' state, indeterminate when mixed
  *
- * Until this script runs, the stylesheet hides those buttons (html[data-cb-js]).
+ * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
 (() => {
   'use strict';
 
   const COPIED_MS = 1500;
   const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download]';
+  const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
   const remaskTimers = new WeakMap();
   let liveRegion;
 
@@ -117,7 +121,50 @@
     URL.revokeObjectURL(url);
   };
 
+  // Row checkboxes of the table a select-all box points at (enabled ones only).
+  const rowBoxes = (master) => {
+    const table = targetOf(master, 'data-cb-select-all');
+    return table ? [...table.querySelectorAll('tbody input[type="checkbox"]:not(:disabled)')] : [];
+  };
+
+  const syncSelectAll = (master) => {
+    const boxes = rowBoxes(master);
+    const checked = boxes.filter((box) => box.checked).length;
+    master.checked = checked > 0 && checked === boxes.length;
+    master.indeterminate = checked > 0 && checked < boxes.length;
+  };
+
+  // A click has already toggled the box. Changed rows fire a bubbling change
+  // event, so forms, HTMX triggers and frameworks see the new selection.
+  const selectAll = (master) => {
+    for (const box of rowBoxes(master)) {
+      if (box.checked === master.checked) continue;
+      box.checked = master.checked;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    master.indeterminate = false;
+  };
+
+  const syncFromRow = (box) => {
+    const table = box.closest('table[id]');
+    if (!table) return;
+    for (const master of document.querySelectorAll(SELECT_ALL)) {
+      if (master.getAttribute('data-cb-select-all') === table.id) syncSelectAll(master);
+    }
+  };
+
+  document.querySelectorAll(SELECT_ALL).forEach(syncSelectAll);
+
   document.addEventListener('click', (event) => {
+    const box = event.target;
+    if (box instanceof HTMLInputElement && box.type === 'checkbox') {
+      // A cancelled click puts the box back, so there is nothing to follow.
+      if (event.defaultPrevented) return;
+      if (box.matches(SELECT_ALL)) selectAll(box);
+      else syncFromRow(box);
+      return;
+    }
+
     const button = event.target instanceof Element ? event.target.closest(ACTIONS) : null;
     if (!button || button.matches(':disabled, [aria-disabled="true"]')) return;
 

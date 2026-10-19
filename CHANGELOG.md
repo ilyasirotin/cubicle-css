@@ -50,6 +50,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--info` status badges with an LED lamp and `--off` with a hollow lamp; `--solid` and `--count`;
   `aria-busy` swaps the lamp for the stepped spinner, now shared with buttons; frameless `.cb-led`
   with the same modifiers. New token `--cb-shadow-highlight` for the badge and lamp top edge.
+- `dist/cubicle.css` data tables: `.cb-table-wrap` scroll frame (`--scroll` limits the height);
+  `.cb-table` styled by element with separate 1px borders, fixed 28px rows, zebra, instant hover,
+  selection by `aria-selected` or a checked row `.cb-check`, `caption` and `tfoot` totals; cell
+  helpers `__num`, `__select`, `__actions`, `__empty`; sortable headers (`__sort` + `aria-sort`);
+  modifiers `--compact`, `--wrap` and `--sticky` (header and first column). `dist/cubicle.js`
+  adds `data-cb-select-all` with indeterminate sync; the box stays hidden without the script.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only

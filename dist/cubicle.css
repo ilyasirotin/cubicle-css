@@ -25,6 +25,8 @@
                                flush body, well, status stripes, collapsible
       5.4 Secret & copy boxes  script-only actions, copied feedback, .cb-secret
       5.5 Badges & LEDs ...... .cb-badge tags, status, solid, count, busy; .cb-led
+      5.6 Data tables ........ .cb-table-wrap, .cb-table rows, selection, sorting,
+                               compact, wrap, sticky; select-all (cubicle.js)
    ========================================================================== */
 
 
@@ -1113,7 +1115,7 @@
   /* Script-only actions stay hidden until cubicle.js marks the root, so a page
      without the script shows the value (still selectable) and no dead buttons.
      Markup swapped in later is covered too; nothing needs re-initialising. */
-  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download]) {
+  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all]) {
     display: none;
   }
 
@@ -1312,5 +1314,229 @@
   /* The fill or the number is the signal: solid and count badges have no lamp. */
   :is(.cb-badge--solid, .cb-badge--count):not([aria-busy="true"])::before {
     display: none;
+  }
+
+  /* 5.6 Data tables ------------------------------------------------------- */
+
+  /* Wide tables scroll here instead of breaking the page. The wrapper draws
+     the frame; inside a flush panel body the panel frames it instead. */
+  .cb-table-wrap {
+    overflow: auto;
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+  }
+
+  /* Height-limited wrapper with its own vertical scroll, so a sticky header
+     pins inside it. Hosts set another height with their own rule. */
+  .cb-table-wrap--scroll {
+    max-block-size: 20rem;
+  }
+
+  /* Cells are styled by element, so hand-written tables need no cell classes.
+     Borders are separate, not collapsed: collapsed borders belong to the table
+     and vanish from sticky cells. Each cell draws only its end and bottom
+     edges; the table (or its wrapper) draws the frame. Rows set --_bg and
+     cells paint it, so sticky cells stay opaque. Every row has one height,
+     with or without .cb-btn--sm actions. */
+  .cb-table {
+    --_row: 1.75rem; /* 28px including the bottom border */
+    --_pad: 0.1875rem; /* leaves room for a 20px .cb-btn--sm */
+
+    inline-size: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cb-table-wrap > .cb-table {
+    border: 0;
+    border-radius: var(--cb-radius-none);
+  }
+
+  .cb-table :is(th, td) {
+    block-size: var(--_row);
+    padding: var(--_pad) var(--cb-space-2);
+    text-align: start;
+    vertical-align: middle;
+    white-space: nowrap;
+    background: var(--_bg);
+    border-block-end: 1px solid var(--cb-border-subtle);
+    border-inline-end: 1px solid var(--cb-border-subtle);
+  }
+
+  .cb-table :is(th, td):last-child {
+    border-inline-end: 0;
+  }
+
+  .cb-table > :last-child > tr:last-child > :is(th, td) {
+    border-block-end: 0;
+  }
+
+  .cb-table thead th {
+    font-size: var(--cb-text-xs);
+    font-weight: 600;
+    background: var(--cb-grad-surface), var(--cb-bg-header);
+    border-block-end-color: var(--cb-border-main);
+  }
+
+  /* Row headers: semantics only, no extra weight. */
+  .cb-table tbody th {
+    font-weight: inherit;
+  }
+
+  .cb-table caption {
+    caption-side: top;
+    padding: var(--cb-space-1) var(--cb-space-2);
+    font-weight: 600;
+    text-align: start;
+  }
+
+  /* Rows: zebra, instant hover, selected by attribute or by a checked row box. */
+  .cb-table tbody tr {
+    --_bg: var(--cb-bg-surface);
+
+    &:nth-child(even) {
+      --_bg: var(--cb-bg-zebra);
+    }
+
+    &:hover {
+      --_bg: var(--cb-bg-hover);
+    }
+
+    &:is([aria-selected="true"], :has(> td > .cb-check:checked)) {
+      --_bg: var(--cb-bg-selected);
+    }
+
+    &:is([aria-selected="true"], :has(> td > .cb-check:checked)):hover {
+      --_bg: color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised));
+    }
+  }
+
+  /* Totals. */
+  .cb-table tfoot :is(th, td) {
+    font-weight: 600;
+    background: color-mix(in srgb, var(--cb-bg-header) 50%, var(--cb-bg-surface));
+  }
+
+  .cb-table tbody:has(+ tfoot) > tr:last-child > :is(th, td) {
+    border-block-end-color: var(--cb-border-main);
+  }
+
+  /* Cell roles that markup alone cannot tell. */
+  .cb-table .cb-table__num {
+    text-align: end;
+  }
+
+  .cb-table .cb-table__select {
+    inline-size: 2rem;
+    min-inline-size: 2rem;
+    text-align: center;
+
+    & > .cb-check {
+      vertical-align: middle;
+    }
+  }
+
+  /* Shrinks to its keys; the word space between inline buttons is the gap. */
+  .cb-table .cb-table__actions {
+    inline-size: 1px;
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  .cb-table .cb-table__empty {
+    padding-block: var(--cb-space-4);
+    color: var(--cb-text-muted);
+    text-align: center;
+    white-space: normal;
+  }
+
+  /* Sortable header: <th aria-sort> holds a flat key (the header bar is its
+     surface). The server re-renders with the new aria-sort; no script. The
+     arrow is CSS geometry: a muted up/down pair until the column is sorted. */
+  .cb-table__sort {
+    display: flex;
+    align-items: center;
+    gap: var(--cb-space-1);
+    inline-size: 100%;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &::after {
+      content: "";
+      flex: none;
+      inline-size: 0.5rem;
+      block-size: 0.75rem;
+      background: var(--cb-text-muted);
+      clip-path: polygon(50% 0, 100% 40%, 0 40%, 0 60%, 100% 60%, 50% 100%, 0 60%, 0 40%);
+    }
+  }
+
+  .cb-table__num > .cb-table__sort {
+    justify-content: flex-end;
+  }
+
+  [aria-sort="ascending"] > .cb-table__sort::after {
+    background: currentColor;
+    clip-path: polygon(50% 20%, 100% 70%, 0 70%);
+  }
+
+  [aria-sort="descending"] > .cb-table__sort::after {
+    background: currentColor;
+    clip-path: polygon(0 30%, 100% 30%, 50% 80%);
+  }
+
+  /* Modifiers */
+  .cb-table--compact {
+    --_row: 1.5rem;
+    --_pad: 1px;
+  }
+
+  /* Data cells wrap; column and row headers stay on one line. */
+  .cb-table--wrap td {
+    white-space: normal;
+  }
+
+  /* Sticky header and first column (plus the column after a leading select
+     column). The pinned edge is drawn darker so it reads while scrolled. */
+  .cb-table--sticky thead th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+  }
+
+  .cb-table--sticky :is(th, td):first-child,
+  .cb-table--sticky .cb-table__select:first-child + :is(th, td) {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    border-inline-end-color: var(--cb-border-main);
+  }
+
+  .cb-table--sticky .cb-table__select:first-child {
+    border-inline-end-color: var(--cb-border-subtle);
+  }
+
+  .cb-table--sticky .cb-table__select:first-child + :is(th, td) {
+    inset-inline-start: 2rem;
+  }
+
+  .cb-table--sticky thead th:first-child,
+  .cb-table--sticky thead .cb-table__select:first-child + th {
+    z-index: 3;
   }
 }
