@@ -215,7 +215,7 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
 - `docs/example.html` — sample IAM/infra console screen; serves as in-context showcase and integration test.
 - `docs/docs.css` — documentation-only layout styles; never shipped.
 - `reference/` — frozen design/spec inputs (see `reference/README.md`); read-only; git-ignored.
-- `scripts/` — dev tools: `verify-browser.mjs`, `build-min.sh`, `check-snippets.mjs`, `check-tokens.mjs`; never shipped.
+- `scripts/` — dev tools: `verify-browser.mjs`, `build-min.sh`, `check-snippets.mjs`, `check-tokens.mjs`, and `contrast-pairs.mjs` (the palette contrast pairs shared by `verify-browser.mjs` and the catalogue's contrast table); never shipped.
 - `.claude/` — Claude Code setup: settings, hooks, skills.
 - `.claude/plans/` — Claude's implementation plans. Store every plan in this directory.
 - `README.md`, `LICENSE` (MIT), `CHANGELOG.md` (Keep a Changelog, SemVer), `CONTRIBUTING.md`, `AGENTS.md`.

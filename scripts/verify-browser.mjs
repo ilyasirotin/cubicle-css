@@ -14,10 +14,12 @@
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
 //                 pagination-<width>.png and utilities-<width>.png.
+//                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium, firefox, webkit } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
+import { measurePairs, ratio, label } from './contrast-pairs.mjs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -131,89 +133,11 @@ for (const id of await page.$$eval('[popovertarget]:not([popovertargetaction])',
   check(opened && closed, `dialog #${id} opens and closes with Escape`);
 }
 
-// 6. Contrast of text pairs (Cool Industrial Steel palette). Edit PAIRS when tokens change.
-const PAIRS = [
-  // Primary ink across all neutral surfaces
-  ['--cb-text-main', '--cb-bg-canvas', 4.5],
-  ['--cb-text-main', '--cb-bg-surface', 4.5],
-  ['--cb-text-main', '--cb-bg-raised', 4.5],
-  ['--cb-text-main', '--cb-bg-btn', 4.5],
-  ['--cb-text-main', '--cb-bg-recessed', 4.5],
-  ['--cb-text-main', '--cb-bg-header', 4.5],
-  ['--cb-text-main', '--cb-bg-zebra', 4.5],
-  ['--cb-text-main', '--cb-bg-hover', 4.5],
-  ['--cb-text-main', '--cb-bg-selected', 4.5],
-
-  // Muted ink across main reading surfaces
-  ['--cb-text-muted', '--cb-bg-canvas', 4.5],
-  ['--cb-text-muted', '--cb-bg-surface', 4.5],
-  ['--cb-text-muted', '--cb-bg-raised', 4.5],
-  ['--cb-text-muted', '--cb-bg-recessed', 4.5],
-  ['--cb-text-muted', '--cb-bg-header', 4.5],
-
-  // Solid semantic buttons (inverse text on dark corporate tones)
-  ['--cb-text-inverse', '--cb-accent', 4.5],
-  ['--cb-text-inverse', '--cb-ok', 4.5],
-  ['--cb-text-inverse', '--cb-warn', 4.5],
-  ['--cb-text-inverse', '--cb-danger', 4.5],
-  ['--cb-text-inverse', '--cb-info', 4.5],
-
-  // Tinted danger button (.cb-btn--danger)
-  ['--cb-danger', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-btn))', 4.5],
-
-  // Derived semantic badge tints (10% mix on surface)
-  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info', '--cb-text-muted'].map((c) => [
-    c,
-    `color-mix(in srgb, var(${c}) 10%, var(--cb-bg-surface))`,
-    4.5,
-  ]),
-  // Neutral tag (.cb-badge) and neutral solid badge
-  ['--cb-text-main', 'color-mix(in srgb, var(--cb-text-main) 10%, var(--cb-bg-surface))', 4.5],
-  ['--cb-text-inverse', '--cb-text-main', 4.5],
-  // Table rows: selected + hover, totals row
-  ['--cb-text-main', 'color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised))', 4.5],
-  ['--cb-text-main', 'color-mix(in srgb, var(--cb-bg-header) 50%, var(--cb-bg-surface))', 4.5],
-  // Alert bodies (10% tone tint) and links in a danger alert
-  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].map((c) => ['--cb-text-main', `color-mix(in srgb, var(${c}) 10%, var(--cb-bg-surface))`, 4.5]),
-  ['--cb-accent', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-surface))', 4.5],
-  // Meter and progress fills against the recessed track (non-text, >= 3)
-  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-accent'].map((c) => [c, '--cb-bg-recessed', 3]),
-  // Text tones (.cb-text-ok / -warn / -danger / -info) on the page surfaces
-  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].flatMap((c) => ['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas'].map((bg) => [c, bg, 4.5])),
-  // Idle tabs (muted ink on the darker tab tint)
-  ['--cb-text-muted', 'color-mix(in srgb, var(--cb-bg-header) 60%, var(--cb-bg-surface))', 4.5],
-
-  // Non-text structural & focus contrast (>= 3.0)
-  // Field and checkbox side / bottom edges (60% strong into main)
-  ...['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas'].map((bg) => ['color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main))', bg, 3]),
-  ['--cb-border-strong', '--cb-bg-surface', 3],
-  ['--cb-border-strong', '--cb-bg-raised', 3],
-  ['--cb-accent', '--cb-bg-surface', 3],
-  ['--cb-accent', '--cb-bg-canvas', 3],
-];
-
-const rgb = await page.evaluate((names) => {
-  const cv = document.createElement('canvas'); cv.width = cv.height = 1;
-  const g = cv.getContext('2d', { willReadFrequently: true });
-  const probe = document.body.appendChild(document.createElement('div'));
-  const out = {};
-  for (const n of names) {
-    probe.style.color = n.startsWith('--') ? `var(${n})` : n;
-    g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = getComputedStyle(probe).color; g.fillRect(0, 0, 1, 1);
-    const d = g.getImageData(0, 0, 1, 1).data; out[n] = [d[0], d[1], d[2]];
-  }
-  probe.remove(); return out;
-}, [...new Set(PAIRS.flat().filter((x) => typeof x === 'string'))]);
-
-const lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
-const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
-
-for (const [fg, bg, need] of PAIRS) {
-  if (!rgb[fg] || !rgb[bg]) { check(false, `contrast ${fg} on ${bg}`, 'token missing'); continue; }
-  const r = ratio(rgb[fg], rgb[bg]);
-  const label = bg.replace(/color-mix\(in srgb, var\((--[a-z-]+)\) (\d+)\%, var\((--[a-z-]+)\)\)/, 'mix($1 $2% + $3)');
-  check(r >= need, `contrast ${fg} on ${label} >= ${need}`, r.toFixed(2));
+// 6. Contrast of the palette pairs (scripts/contrast-pairs.mjs): text >= 4.5, non-text >= 3.
+const measured = await measurePairs(page);
+for (const m of measured) {
+  if (m.ratio === null) { check(false, `contrast ${label(m.fg)} on ${label(m.bg)}`, 'colour missing'); continue; }
+  check(m.ratio >= m.need, `contrast ${label(m.fg)} on ${label(m.bg)} >= ${m.need}`, m.ratio.toFixed(2));
 }
 
 // 7. Live states of every distinct interactive control in the catalogue demos:
@@ -1200,6 +1124,91 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
     await section.screenshot({ path: `${shots}/utilities-${width}.png` });
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 21. Keyboard audit: Tab from the top of a fresh page through every stop until focus leaves
+//     the page. Each stop must show the indicator (on a tree item, on its row label), and the
+//     ring, grown by its width and offset, must lie inside the viewport and inside every
+//     clipping ancestor; a stop that repeats before the end is a trap. Browsers do not scroll a
+//     partly visible control further on Tab, so a control may stay partly scrolled out of a
+//     container or the viewport (allowed by WCAG 2.4.11 as long as it is not hidden entirely);
+//     those stops are listed, not failed. A fully shown control with a cut ring fails.
+for (const width of [1360, 360]) {
+  const pa = await context.newPage(); await applyOverrides(pa);
+  await pa.setViewportSize({ width, height: 900 }); await pa.goto(pathToFileURL(page_path).href);
+  const seen = new Set(); const invisible = []; const clipped = []; const partly = []; let stops = 0; let trap = ''; let lastId = '';
+  for (let i = 0; i < 3000; i++) {
+    await pa.keyboard.press(TAB);
+    // Firefox and WebKit scroll to the focused control a frame later; measure after it.
+    await pa.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    const stop = await pa.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || el === document.body || el === document.documentElement) return null;
+      if (!el.dataset.vbStop) el.dataset.vbStop = String(document.querySelectorAll('[data-vb-stop]').length);
+      const target = el.matches('[data-cb-tree] [role="treeitem"]') ? el.querySelector(':scope > .cb-nav__link') : el;
+      const cs = getComputedStyle(target);
+      const w = parseFloat(cs.outlineWidth); const grow = w + parseFloat(cs.outlineOffset);
+      const r = target.getBoundingClientRect();
+      const ring = { l: r.left - grow, t: r.top - grow, r: r.right + grow, b: r.bottom + grow };
+      const name = `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''} "${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 24)}"`;
+      const visible = el.matches(':focus-visible') && cs.outlineStyle !== 'none' && w >= 2;
+      let clip = ''; let partial = '';
+      // The ring must fit wherever the control itself is fully shown. A control partly scrolled
+      // out (of a scroller or of the viewport) is reported; one hidden entirely, or a whole control
+      // with a cut ring, fails.
+      const inside = (box, label, scrolls = false) => {
+        if (!(ring.l < box.l - 0.5 || ring.t < box.t - 0.5 || ring.r > box.r + 0.5 || ring.b > box.b + 0.5)) return;
+        if (partial) return; // outer clipping follows from the scroll position already reported
+        const seen = r.right > box.l && r.left < box.r && r.bottom > box.t && r.top < box.b;
+        const whole = r.left >= box.l - 0.5 && r.top >= box.t - 0.5 && r.right <= box.r + 0.5 && r.bottom <= box.b + 0.5;
+        const by = Math.max(box.l - ring.l, box.t - ring.t, ring.r - box.r, ring.b - box.b).toFixed(1);
+        if (scrolls && seen && !whole) partial = label; else clip ||= `${label} (${by}px)`;
+      };
+      for (let n = target.parentElement; n && n !== document.body; n = n.parentElement) {
+        const o = getComputedStyle(n);
+        if (o.overflowX === 'visible' && o.overflowY === 'visible') continue;
+        const b = n.getBoundingClientRect();
+        const scroller = n.scrollWidth > n.clientWidth + 1 || n.scrollHeight > n.clientHeight + 1;
+        inside({ l: b.left + n.clientLeft, t: b.top + n.clientTop, r: b.left + n.clientLeft + n.clientWidth, b: b.top + n.clientTop + n.clientHeight },
+          n.className && typeof n.className === 'string' ? '.' + n.className.trim().split(/\s+/)[0] : n.tagName.toLowerCase(), scroller);
+      }
+      // A control taller or wider than the viewport cannot show its whole ring; judge the rest.
+      if (ring.b - ring.t <= innerHeight && ring.r - ring.l <= innerWidth) inside({ l: 0, t: 0, r: innerWidth, b: innerHeight }, 'viewport', true);
+      return { id: el.dataset.vbStop, name, visible, clip, partial };
+    });
+    if (!stop) break;
+    // Back at the first stop, or still on the last one (focus could not move on): the end.
+    if (seen.has(stop.id)) { if (stop.id !== '0' && stop.id !== lastId) trap = stop.name; break; }
+    lastId = stop.id;
+    seen.add(stop.id); stops++;
+    if (!stop.visible) invisible.push(stop.name);
+    if (stop.clip) clipped.push(`${stop.name} by ${stop.clip}`);
+    else if (stop.partial) partly.push(`${stop.name} in ${stop.partial}`);
+  }
+  await pa.close();
+  check(stops > 50 && !trap && invisible.length === 0, `keyboard audit at ${width}px: every Tab stop shows the focus ring, no trap`,
+    `${stops} stops${trap ? `, trap at ${trap}` : ''}${invisible.length ? `; no ring: ${invisible.slice(0, 5).join(' | ')}` : ''}`);
+  // Firefox applies scroll-margin only when Tab has to scroll; a control already fully in view at the
+  // viewport edge keeps a ring cut by at most the ring itself (3px). Those are listed, not failed.
+  const edge = engine === 'firefox' ? clipped.filter((c) => /by viewport \((\d+(?:\.\d+)?)px\)$/.test(c) && Number(c.match(/\((\d+(?:\.\d+)?)px\)$/)[1]) <= 4) : [];
+  clipped.splice(0, clipped.length, ...clipped.filter((c) => !edge.includes(c)));
+  if (edge.length) partly.push(...edge.map((c) => `${c} [firefox: no scroll-margin when already in view]`));
+  check(clipped.length === 0, `keyboard audit at ${width}px: no focus ring is clipped`,
+    `${partly.length ? `${partly.length} partly scrolled out (${partly.join(' | ')})` : 'none partly scrolled out'}${clipped.length ? `; clipped: ${clipped.slice(0, 6).join(' | ')}${clipped.length > 6 ? ` (+${clipped.length - 6})` : ''}` : ''}`);
+}
+
+// 22. The catalogue's contrast table (generated from scripts/contrast-pairs.mjs) matches the
+//     live ratios row for row, so a token change cannot leave it stale.
+const docRows = await page.$$eval('#a11y-contrast-table tbody tr', (rows) => rows.map((r) => [...r.children].map((c) => c.textContent.trim())));
+if (docRows.length) {
+  const stale = measured.flatMap((m, i) => {
+    const row = docRows[i];
+    if (!row) return [`missing row for ${label(m.fg)} on ${label(m.bg)}`];
+    const same = row[0] === label(m.fg) && row[1] === label(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.01 && row[3] === `≥ ${m.need}`;
+    return same ? [] : [`${row.slice(0, 4).join(' ')} vs live ${label(m.fg)} ${label(m.bg)} ${m.ratio.toFixed(2)}`];
+  });
+  if (docRows.length !== measured.length) stale.push(`${docRows.length} rows for ${measured.length} pairs`);
+  check(stale.length === 0, 'the catalogue contrast table matches the live ratios', stale.slice(0, 3).join(' | ') || `${docRows.length} rows`);
 }
 
 await browser.close();

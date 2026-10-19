@@ -146,6 +146,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   missing meter ruler, WebKit's unreadable clipboard) are reported as labelled skips; WebKit is
   driven with Option+Tab and Firefox with full keyboard access, as their keyboard users would.
   AGENTS.md §9 requires the minified build to pass in all three engines.
+- `scripts/contrast-pairs.mjs`: the palette contrast pairs with their purpose, shared by
+  `verify-browser.mjs` and the catalogue's generated contrast table.
+- `scripts/verify-browser.mjs`: a keyboard audit that tabs through the whole page at 1360 and
+  360px (a ring on every stop, no trap, no clipped ring; controls partly scrolled out of a
+  container or the viewport are listed, as WCAG 2.4.11 allows), and a check that the catalogue
+  contrast table matches the live ratios.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
