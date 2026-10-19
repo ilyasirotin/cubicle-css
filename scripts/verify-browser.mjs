@@ -9,7 +9,7 @@
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
-//                 segmented-<width>.png and details-<width>.png.
+//                 segmented-<width>.png, details-<width>.png and dialog-<id>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -277,7 +277,7 @@ check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(
 //    table select-all, alert dismiss, ARIA tabs and trees, meter marks, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
-const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]';
+const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal]';
 if (await page.locator(ACTIONS).count()) {
   const fresh = async (ctx = context, before) => {
     const p = await ctx.newPage();
@@ -482,7 +482,8 @@ if (await page.locator(ACTIONS).count()) {
   const pn = await fresh(noJs);
   const r = await pn.evaluate((sel) => {
     const buttons = [...document.querySelectorAll(sel)];
-    const targets = buttons.map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all') ?? b.getAttribute('data-cb-dismiss')));
+    // A dialog target is closed (display: none) by design; every other target must show.
+    const targets = buttons.filter((b) => !b.hasAttribute('data-cb-modal')).map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all') ?? b.getAttribute('data-cb-dismiss') ?? b.getAttribute('data-cb-modal')));
     return { hidden: buttons.every((b) => getComputedStyle(b).display === 'none'), visible: targets.every((t) => t && getComputedStyle(t).display !== 'none') };
   }, ACTIONS);
   check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
@@ -552,7 +553,8 @@ if (await page.locator(INDICATORS).count()) {
 //     sort arrow for each aria-sort value.
 if (await page.locator('.docs-demo .cb-table').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
-  const heights = await page.$$eval('.docs-demo .cb-table', (tables) => tables.map((t, i) => {
+  // Tables inside closed dialogs are not rendered; they are measured by check 18 instead.
+  const heights = await page.$$eval('.docs-demo .cb-table', (tables) => tables.filter((t) => t.getClientRects().length).map((t, i) => {
     const rows = [...t.querySelectorAll('tbody tr, thead tr, tfoot tr')].filter((r) => !r.querySelector('.cb-table__empty'));
     const want = t.classList.contains('cb-table--compact') ? 24 : 28;
     const wraps = t.classList.contains('cb-table--wrap');
@@ -974,6 +976,76 @@ if (await page.locator('.docs-demo .cb-details').count()) {
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/details-${width}.png` });
   }
+}
+
+// 18. Modal dialogs: a data-cb-modal button opens its dialog as a modal with focus inside
+//     (on the autofocus element when there is one) and the page inert under the backdrop
+//     token; Escape closes it and focus returns to the opener; a method="dialog" button
+//     reports its value; a typed confirmation refuses a wrong name; widths follow --sm,
+//     default and --lg, --danger has a 3px stripe, a long dialog fits the viewport with a
+//     scrolling body, and below 40rem a dialog fills the screen.
+if (await page.locator('.docs-demo [data-cb-modal]').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const backdrop = await page.evaluate(() => { const i = document.body.appendChild(document.createElement('i')); i.style.color = 'var(--cb-bg-backdrop)'; const c = getComputedStyle(i).color; i.remove(); return c; });
+  const ids = await page.$$eval('.docs-demo [data-cb-modal]', (bs) => bs.map((b) => b.getAttribute('data-cb-modal')));
+  for (const id of ids) {
+    const opener = page.locator(`[data-cb-modal="${id}"]`);
+    await opener.scrollIntoViewIfNeeded(); await opener.focus(); await page.keyboard.press('Enter');
+    const open = await page.evaluate(([i, bd]) => {
+      const d = document.getElementById(i); const r = d.getBoundingClientRect(); const cs = getComputedStyle(d);
+      const auto = d.querySelector('[autofocus]');
+      const body = d.querySelector('.cb-panel__body'); const foot = d.querySelector('.cb-panel__foot').getBoundingClientRect();
+      const nav = document.querySelector('.docs-nav__link').getBoundingClientRect();
+      const hit = document.elementFromPoint(nav.x + 2, nav.y + 2);
+      return { modal: d.matches(':modal'), focusInside: d.contains(document.activeElement), onAutofocus: !auto || document.activeElement === auto,
+        backdrop: getComputedStyle(d, '::backdrop').backgroundColor === bd, inert: !hit || !hit.closest('.docs-nav'),
+        width: Math.round(r.width), height: r.height, stripe: cs.borderTopWidth, scrolls: body.scrollHeight > body.clientHeight, footIn: foot.bottom <= innerHeight,
+        sm: d.classList.contains('cb-dialog--sm'), lg: d.classList.contains('cb-dialog--lg'), danger: d.classList.contains('cb-dialog--danger') };
+    }, [id, backdrop]);
+    await page.screenshot({ path: `${shots}/dialog-${id}.png` });
+    const want = open.sm ? 384 : open.lg ? 896 : 576;
+    const sized = open.width === want && open.height <= 900 - 48 && open.footIn && (!open.danger || open.stripe === '3px');
+    check(open.modal && open.focusInside && open.onAutofocus && open.backdrop && open.inert && sized,
+      `dialog #${id} opens as a modal: focus inside, page inert, backdrop token, ${want}px wide`,
+      `${open.width}x${Math.round(open.height)}, stripe ${open.stripe}${open.scrolls ? ', body scrolls' : ''}`);
+    await page.keyboard.press('Escape');
+    const closed = await page.evaluate((i) => ({ open: document.getElementById(i).open, back: document.activeElement?.getAttribute('data-cb-modal') === i }), id);
+    check(!closed.open && closed.back, `dialog #${id}: Escape closes it and focus returns to the opener`, JSON.stringify(closed));
+  }
+
+  // At least one demo dialog (the long form) must overflow and scroll its body.
+  const scrolled = [];
+  for (const id of ids) {
+    await page.click(`[data-cb-modal="${id}"]`);
+    scrolled.push(await page.evaluate((i) => { const b = document.getElementById(i).querySelector('.cb-panel__body'); return b.scrollHeight > b.clientHeight; }, id));
+    await page.keyboard.press('Escape');
+  }
+  check(scrolled.some(Boolean), 'a long dialog scrolls its body between a fixed head and foot', `${scrolled.filter(Boolean).length} of ${scrolled.length} dialogs`);
+
+  const typed = await page.locator('.docs-demo dialog [pattern][required]').first();
+  if (await typed.count()) {
+    const dialogId = await typed.evaluate((i) => i.closest('dialog').id);
+    const pattern = await typed.getAttribute('pattern');
+    await page.click(`[data-cb-modal="${dialogId}"]`);
+    const danger = page.locator(`#${dialogId} .cb-btn--danger-solid`);
+    await danger.click(); const emptyOpen = await page.$eval(`#${dialogId}`, (d) => d.open);
+    await typed.fill('gw-wrong'); await danger.click(); const wrongOpen = await page.$eval(`#${dialogId}`, (d) => d.open);
+    await typed.fill(pattern); await danger.click();
+    const done = await page.$eval(`#${dialogId}`, (d) => ({ open: d.open, value: d.returnValue }));
+    await page.click(`[data-cb-modal="${dialogId}"]`); await typed.fill('');
+    await page.locator(`#${dialogId} [formnovalidate]`).click();
+    const cancelled = await page.$eval(`#${dialogId}`, (d) => ({ open: d.open, value: d.returnValue }));
+    check(emptyOpen && wrongOpen && !done.open && done.value === await danger.getAttribute('value') && !cancelled.open && cancelled.value === 'cancel',
+      'typed confirmation refuses an empty or wrong name; the right name or Cancel closes it', `empty ${emptyOpen}, wrong ${wrongOpen}, right -> ${done.value}, cancel -> ${cancelled.value}`);
+  }
+
+  await page.setViewportSize({ width: 360, height: 900 });
+  await page.click(`[data-cb-modal="${ids[0]}"]`);
+  const narrow = await page.$eval(`#${ids[0]}`, (d) => { const r = d.getBoundingClientRect(); return { w: r.width, h: r.height, radius: getComputedStyle(d).borderTopLeftRadius }; });
+  await page.screenshot({ path: `${shots}/dialog-${ids[0]}-360.png` });
+  await page.keyboard.press('Escape');
+  check(narrow.w === 360 && narrow.h === 900 && narrow.radius === '0px', 'below 40rem a dialog fills the screen', JSON.stringify(narrow));
+  await page.setViewportSize({ width: 1360, height: 900 });
 }
 
 await browser.close();

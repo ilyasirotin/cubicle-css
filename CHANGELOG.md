@@ -123,6 +123,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/verify-browser.mjs`: details checks (one chevron rule across panels, nav, trees and
   details; summary heights; 1px seams; Enter, Space and named groups; meta at the row end; the
   frameless inline variant) and screenshots.
+- `scripts/verify-browser.mjs`: modal dialog checks (opening as a modal with focus inside, inert
+  page, backdrop token, widths and the danger stripe, Escape returning focus to the opener, a
+  scrolling long body, typed confirmation, full screen below 40rem) and their no-JS hiding;
+  tables inside closed dialogs are left out of the row-height check.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
