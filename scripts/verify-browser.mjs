@@ -1,9 +1,12 @@
 // Cubicle browser verification. Development tool only; not part of the shipped kit.
 //
-// Setup (once):   cd scripts && npm install && npx playwright install chromium
-// Run:            node scripts/verify-browser.mjs [docs/index.html] [--css dist/cubicle.min.css] [--js dist/cubicle.min.js]
+// Setup (once):   cd scripts && npm install && npx playwright install chromium firefox webkit
+// Run:            node scripts/verify-browser.mjs [docs/index.html] [--browser chromium|firefox|webkit]
+//                                                 [--css dist/cubicle.min.css] [--js dist/cubicle.min.js]
+//                 --browser picks the engine (chromium by default).
 //                 --css / --js serve the given file in place of dist/cubicle.css / dist/cubicle.js
 //                 (to check the minified build).
+//                 Known engine limits (ENGINE_LIMITS below) are reported as "skip", with the reason.
 // Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
@@ -13,7 +16,7 @@
 //                 pagination-<width>.png and utilities-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
-import { chromium } from 'playwright';
+import { chromium, firefox, webkit } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -24,16 +27,41 @@ const cssFlag = args.indexOf('--css');
 const css_override = cssFlag >= 0 ? resolve(root, args.splice(cssFlag, 2)[1] ?? '') : null;
 const jsFlag = args.indexOf('--js');
 const js_override = jsFlag >= 0 ? resolve(root, args.splice(jsFlag, 2)[1] ?? '') : null;
+const engineFlag = args.indexOf('--browser');
+const engine = engineFlag >= 0 ? args.splice(engineFlag, 2)[1] : 'chromium';
+const engines = { chromium, firefox, webkit };
+if (!engines[engine]) { console.error(`unknown --browser ${engine}; use chromium, firefox or webkit`); process.exit(2); }
 const page_path = resolve(root, args[0] ?? 'docs/index.html');
 const shots = resolve(root, 'tmp/shots');
 mkdirSync(shots, { recursive: true });
 
-const results = [];
-const check = (ok, name, detail = '') => results.push({ ok, name, detail });
+// Differences that come from an engine or from automation, not from the stylesheet. A failing
+// check whose name matches one of these, in that engine, is reported as "skip" with the reason.
+// WebKit, like Safari, moves Tab between form controls only; Option+Tab reaches every control.
+const TAB = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
+const SHIFT_TAB = engine === 'webkit' ? 'Alt+Shift+Tab' : 'Shift+Tab';
+// Reading the clipboard from automation is refused in WebKit; null means "could not read".
+const readClipboard = (pg) => pg.evaluate(() => navigator.clipboard.readText()).catch(() => null);
 
-const browser = await chromium.launch();
+const ENGINE_LIMITS = [
+  { engine: 'firefox', check: /^meter ruler:/, reason: 'Firefox paints the meter track on the element itself, so there is no ruler strip for ticks and marks' },
+  { engine: 'webkit', check: /reaches the clipboard|falls back when the async clipboard/, reason: 'WebKit refuses clipboard reads from automation, so the copied text cannot be compared' },
+];
+
+const results = [];
+const check = (ok, name, detail = '') => {
+  const limit = !ok && ENGINE_LIMITS.find((l) => l.engine === engine && l.check.test(name));
+  results.push(limit ? { ok: true, skip: limit.reason, name, detail } : { ok, name, detail });
+};
+
+// Firefox on macOS skips links on Tab unless "full keyboard access" is on; keyboard users turn it
+// on, and the audit must walk the same path, so the preference is set here.
+const browser = await engines[engine].launch(engine === 'firefox' ? { firefoxUserPrefs: { 'accessibility.tabfocus': 7 } } : {});
+const engineVersion = browser.version();
 const contextOptions = { colorScheme: 'light', viewport: { width: 1360, height: 900 } };
-const context = await browser.newContext({ ...contextOptions, permissions: ['clipboard-read', 'clipboard-write'], acceptDownloads: true });
+// Playwright grants clipboard permissions in Chromium only.
+const context = await browser.newContext({ ...contextOptions, acceptDownloads: true,
+  ...(engine === 'chromium' ? { permissions: ['clipboard-read', 'clipboard-write'] } : {}) });
 const page = await context.newPage();
 
 const applyOverrides = async (p) => {
@@ -55,7 +83,8 @@ for (const width of [360, 800, 1360]) {
   await page.setViewportSize({ width, height: 900 });
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   check(sw <= 0, `no horizontal overflow at ${width}px`, sw > 0 ? `${sw}px too wide` : '');
-  await page.screenshot({ path: `${shots}/page-${width}.png`, fullPage: true });
+  // Firefox refuses screenshots taller than 32767px; the catalogue is longer, so it gets the viewport.
+  await page.screenshot({ path: `${shots}/page-${width}.png`, fullPage: true }).catch(() => page.screenshot({ path: `${shots}/page-${width}.png` }));
 }
 await page.setViewportSize({ width: 1360, height: 900 });
 
@@ -64,9 +93,11 @@ const controls = ['a[href]', 'button:not([disabled])', 'input:not([type=hidden])
 for (const sel of controls) {
   const el = page.locator(sel).first();
   if (await el.count() === 0) continue;
+  // Tab away and back with Shift+Tab: keyboard focus, and it stays inside the page even for
+  // the first control (Shift+Tab from it would leave for the browser UI).
   await el.focus();
-  await page.keyboard.press('Shift+Tab');
-  await page.keyboard.press('Tab');
+  await page.keyboard.press(TAB);
+  await page.keyboard.press(SHIFT_TAB);
   const r = await el.evaluate((n) => { const cs = getComputedStyle(n); return { fv: n.matches(':focus-visible'), w: parseFloat(cs.outlineWidth), s: cs.outlineStyle }; });
   check(r.fv && r.w >= 2 && r.s !== 'none', `focus ring visible on ${sel}`, `${r.w}px ${r.s}`);
 }
@@ -235,7 +266,9 @@ for (const el of controls7) {
 
   await el.scrollIntoViewIfNeeded();
   const shot = async (state) => {
+    await el.scrollIntoViewIfNeeded().catch(() => {});
     const b = await el.boundingBox();
+    if (!b || b.y + b.height < 0 || b.x + b.width < 0) return; // e.g. a skip link at rest is off screen
     await page.screenshot({ path: `${shots}/state-${slug}-${state}.png`, clip: { x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: b.height + 16 } });
   };
   const contrast = async () => {
@@ -257,7 +290,7 @@ for (const el of controls7) {
   await el.evaluate((n) => n.addEventListener('click', (e) => e.preventDefault(), { once: true }));
   await page.mouse.up(); await page.mouse.move(2, 2);
 
-  await el.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+  await el.focus(); await page.keyboard.press(SHIFT_TAB); await page.keyboard.press(TAB);
   // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
   const ring = await el.evaluate((n) => {
     const f = n.type === 'radio' && document.activeElement?.name === n.name ? document.activeElement : n;
@@ -310,11 +343,11 @@ if (await page.locator(ACTIONS).count()) {
     for (const id of await ids(p, 'data-cb-copy')) {
       const btn = p.locator(`[data-cb-copy="${id}"]`);
       await btn.scrollIntoViewIfNeeded(); await btn.click(); await p.waitForTimeout(100);
-      const got = await p.evaluate(() => navigator.clipboard.readText());
+      const got = await readClipboard(p);
       const flagged = await btn.evaluate((b) => b.hasAttribute('data-cb-copied'));
       const live = await p.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '');
-      check(got === await valueOf(p, id) && flagged && /copied/i.test(live), `copy #${id}: clipboard holds the value, button and live region confirm`,
-        `clipboard ${got === await valueOf(p, id) ? 'ok' : 'MISMATCH'}, data-cb-copied ${flagged}, live "${live}"`);
+      check(flagged && /copied/i.test(live), `copy #${id}: button and live region confirm`, `data-cb-copied ${flagged}, live "${live}"`);
+      check(got === await valueOf(p, id), `copy #${id} reaches the clipboard`, got === null ? 'clipboard unreadable' : got === await valueOf(p, id) ? '' : 'MISMATCH');
     }
 
     for (const id of await ids(p, 'data-cb-reveal')) {
@@ -472,10 +505,10 @@ if (await page.locator(ACTIONS).count()) {
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
-      await p.evaluate(() => navigator.clipboard.writeText('sentinel'));
+      await p.evaluate(() => navigator.clipboard.writeText('sentinel')).catch(() => {});
       const ph = await fresh(context, (q) => q.addInitScript(() => Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true })));
       await ph.locator(`[data-cb-copy="${copyId}"]`).click(); await ph.waitForTimeout(100);
-      const got = await p.evaluate(() => navigator.clipboard.readText());
+      const got = await readClipboard(p);
       check(got === await valueOf(ph, copyId), `copy #${copyId} falls back when the async clipboard is missing`, got === 'sentinel' ? 'clipboard unchanged' : '');
       await ph.close();
     }
@@ -821,7 +854,7 @@ if (await page.locator('.docs-demo .cb-meter').count()) {
     let ok = Math.round(info.track) === wantH;
     results.push(`track ${info.track}px`);
     if (!info.indeterminate) {
-      const fill = await px(0.05, midTrack); const empty = await px(0.98, midTrack);
+      const fill = await px(0.05, midTrack); const empty = await px((Math.min(info.fraction, 0.96) + 1) / 2, midTrack);
       const got = nearest(fill, ['ok', 'warn', 'danger', 'accent']); const r = ratio(fill, empty);
       ok &&= got === info.tone && (info.fraction > 0.97 || r >= 3);
       results.push(`fill ${got} (want ${info.tone}), vs track ${r.toFixed(2)}`);
@@ -830,22 +863,24 @@ if (await page.locator('.docs-demo .cb-meter').count()) {
       ok &&= info.animation === 'none' && a === b;
       results.push(`still ${a === b}, animation ${info.animation}`);
     }
+    check(ok, `meter: ${info.key.trim()}`, results.join(', '));
+    const ruler = []; let rulerOk = true;
     const stripY = (info.h - 1) / info.h;
     if (info.ticks) {
       const tick = await px(0.5, stripY); const t = nearest(tick, ['border-main', 'bg-surface', 'text-main']);
-      ok &&= t !== 'bg-surface';
-      results.push(`tick at 50% ${t}`);
+      rulerOk &&= t !== 'bg-surface';
+      ruler.push(`tick at 50% ${t}`);
     }
     if (info.low || info.high) {
       const w = (await m.boundingBox()).width;
       for (const f of [info.low, info.high].filter(Boolean).map(Number)) {
         const x = ((w - 2) * f + 1) / w; const mark = await px(x, stripY);
         const t = nearest(mark, ['text-main', 'border-main', 'bg-surface']);
-        ok &&= t === 'text-main';
-        results.push(`mark at ${(f * 100).toFixed(0)}% ${t}`);
+        rulerOk &&= t === 'text-main';
+        ruler.push(`mark at ${(f * 100).toFixed(0)}% ${t}`);
       }
     }
-    check(ok, `meter: ${info.key.trim()}`, results.join(', '));
+    if (ruler.length) check(rulerOk, `meter ruler: ${info.key.trim()}`, ruler.join(', '));
   }
   const rows = await page.$$eval('.docs-demo .cb-table:has(.cb-meter--sm) tbody tr', (rs) => [...new Set(rs.map((r) => Math.round(r.getBoundingClientRect().height)))]);
   if (rows.length) check(rows.length === 1 && rows[0] === 28, 'table rows with compact meters stay 28px', `${rows.join(', ')}px`);
@@ -1153,7 +1188,7 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
   // The skip link is judged on a fresh page: the first Tab of a new document.
   const ps = await context.newPage(); await applyOverrides(ps); await ps.goto(pathToFileURL(page_path).href);
   const before = await ps.$eval('.cb-skip-link', (a) => a.getBoundingClientRect().bottom);
-  await ps.keyboard.press('Tab');
+  await ps.keyboard.press(TAB);
   const skip = await ps.evaluate(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return { cls: a.className, top: r.top, bottom: r.bottom }; });
   await ps.close();
   check(before < 0 && skip.cls === 'cb-skip-link' && skip.top >= 0 && skip.bottom <= 900, 'the skip link is off screen until the first Tab, then visible', `rest bottom ${before}, focused top ${skip.top}`);
@@ -1170,6 +1205,7 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
 await browser.close();
 
 const failed = results.filter((r) => !r.ok);
-for (const r of results) console.log(`${r.ok ? 'ok  ' : 'FAIL'}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}`);
-console.log(`\n${results.length - failed.length}/${results.length} checks passed. Screenshots: tmp/shots/`);
+for (const r of results) console.log(`${r.skip ? 'skip' : r.ok ? 'ok  ' : 'FAIL'}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}${r.skip ? `  [${engine}: ${r.skip}]` : ''}`);
+const skipped = results.filter((r) => r.skip).length;
+console.log(`\n${engine} ${engineVersion}: ${results.length - failed.length}/${results.length} checks passed${skipped ? ` (${skipped} skipped as engine limits)` : ''}. Screenshots: tmp/shots/`);
 process.exit(failed.length ? 1 : 0);

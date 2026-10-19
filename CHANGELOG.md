@@ -142,6 +142,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/verify-browser.mjs`: utilities checks (token values, truncation inside the table wrapper
   at 1360 and 360px, hidden text that still names its table and key, the skip link on the first
   Tab of a fresh page, code and key surfaces), text-tone contrast pairs and screenshots.
+- `scripts/verify-browser.mjs`: `--browser chromium|firefox|webkit`; engine limits (Firefox's
+  missing meter ruler, WebKit's unreadable clipboard) are reported as labelled skips; WebKit is
+  driven with Option+Tab and Firefox with full keyboard access, as their keyboard users would.
+  AGENTS.md §9 requires the minified build to pass in all three engines.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
