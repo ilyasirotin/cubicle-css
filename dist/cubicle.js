@@ -25,6 +25,8 @@
  *                                              Home, End; click, Enter and Space
  *                                              select a row and toggle a branch,
  *                                              which fires "cb-toggle" (detail.expanded)
+ *   data-cb-marks (no value, on <meter>)       marks low and high on the ruler strip;
+ *                                              follows attribute changes and new meters
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -167,6 +169,36 @@
   };
 
   document.querySelectorAll(SELECT_ALL).forEach(syncSelectAll);
+
+  // Meter marks: CSS cannot read low and high, so they are copied into
+  // --_low / --_high as fractions of the range. A click listener cannot see
+  // markup arrive, so one observer follows swapped-in meters and changed
+  // attributes; hosts never call anything.
+  const MARKS = 'meter[data-cb-marks]';
+  const placeMarks = (meter) => {
+    const span = meter.max - meter.min;
+    for (const edge of ['low', 'high']) {
+      if (meter.hasAttribute(edge) && span > 0) meter.style.setProperty(`--_${edge}`, String((meter[edge] - meter.min) / span));
+      else meter.style.removeProperty(`--_${edge}`);
+    }
+  };
+
+  document.querySelectorAll(MARKS).forEach(placeMarks);
+  new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === 'attributes') {
+        if (record.target.matches(MARKS)) placeMarks(record.target);
+        continue;
+      }
+      for (const node of record.addedNodes) {
+        if (!(node instanceof Element)) continue;
+        if (node.matches(MARKS)) placeMarks(node);
+        node.querySelectorAll(MARKS).forEach(placeMarks);
+      }
+    }
+  }).observe(document.documentElement, {
+    childList: true, subtree: true, attributes: true, attributeFilter: ['low', 'high', 'min', 'max', 'data-cb-marks'],
+  });
 
   // Hiding the target would drop focus to <body>: move it to the next
   // focusable element outside the target, or the previous one at the end.

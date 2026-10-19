@@ -72,6 +72,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ring on the row, `.cb-nav__kind` RDN chips, busy branches (shared spinner) and `--lines`
   connectors; `.cb-breadcrumb`. `dist/cubicle.js` adds the APG tree keys inside `[data-cb-tree]`,
   click/Enter/Space select and toggle, and a `cb-toggle` event for lazy loading.
+- `dist/cubicle.css` meters and progress: `.cb-meter` on `<meter>` and `<progress>` with a recessed
+  track and a solid fill coloured by the browser's reading of `low` / `high` / `optimum` (neutral
+  without them), a still hatch for indeterminate progress, `--sm` for table cells, a `--ticks`
+  ruler, and `.cb-gauge` label / value / note. `dist/cubicle.js` marks `low` and `high` on
+  `meter[data-cb-marks]` and follows changed and swapped-in meters. AGENTS.md §6 now allows
+  `<progress>` engine pseudo-elements.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only

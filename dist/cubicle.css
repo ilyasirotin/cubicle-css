@@ -34,6 +34,8 @@
       5.9 Navigation & trees . .cb-nav links and <details> branches, ARIA tree
                                (cubicle.js), kinds, busy branch, --lines;
                                .cb-breadcrumb
+      5.10 Meters & progress . .cb-meter on <meter> / <progress>, --sm, --ticks,
+                               marks (cubicle.js); .cb-gauge
    ========================================================================== */
 
 
@@ -2036,5 +2038,165 @@
       font-weight: 600;
       color: var(--cb-text-main);
     }
+  }
+
+  /* 5.10 Meters & progress ------------------------------------------------ */
+
+  /* .cb-meter styles <meter> (a gauge: disk, quota, load) and <progress> (a
+     task: import, sync) alike: a recessed track and a solid fill with a
+     sheen. A meter's colour follows the engine's own reading of low, high and
+     optimum: optimum is ok, sub-optimum warn, even-less-good danger. A meter
+     without low or high is neutral (accent), as is progress.
+     Under the track lies a 4px ruler strip for --ticks and for threshold marks
+     (data-cb-marks, placed by cubicle.js from low and high).
+     The bars are engine pseudo-elements: no standard selector reaches them
+     (AGENTS.md section 6). */
+  .cb-meter {
+    --_fill: var(--cb-ok);
+    --_h: 0.75rem;
+    --_tick: linear-gradient(var(--cb-border-main), var(--cb-border-main));
+    --_mark: linear-gradient(var(--cb-text-main), var(--cb-text-main));
+    --_ticks: none;
+    --_marks: none;
+
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: calc(var(--_h) + 4px);
+    margin: 0;
+    padding: 0 0 4px;
+    background: var(--_marks), var(--_ticks);
+    border: 0;
+  }
+
+  :is(meter.cb-meter:not([low], [high]), progress.cb-meter) {
+    --_fill: var(--cb-accent);
+  }
+
+  /* Chromium and WebKit: the track and the value are separate boxes. */
+  .cb-meter::-webkit-meter-bar,
+  .cb-meter::-webkit-progress-bar {
+    block-size: var(--_h);
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+    border-block-start-color: var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  .cb-meter::-webkit-meter-optimum-value,
+  .cb-meter::-webkit-progress-value {
+    background: var(--cb-grad-btn-dark), var(--_fill);
+  }
+
+  .cb-meter::-webkit-meter-suboptimum-value {
+    background: var(--cb-grad-btn-dark), var(--cb-warn);
+  }
+
+  .cb-meter::-webkit-meter-even-less-good-value {
+    background: var(--cb-grad-btn-dark), var(--cb-danger);
+  }
+
+  /* Waiting with no known amount: a still hatch, no motion (AGENTS.md section 5). */
+  .cb-meter:indeterminate::-webkit-progress-bar {
+    background: repeating-linear-gradient(-45deg,
+      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 0 6px,
+      var(--cb-bg-recessed) 6px 12px);
+  }
+
+  /* Firefox draws the track on the element itself and offers only the value
+     bar (and meter state pseudo-classes), so it has no ruler strip. */
+  @supports selector(::-moz-meter-bar) {
+    .cb-meter {
+      block-size: var(--_h);
+      padding: 0;
+      background: var(--cb-bg-recessed);
+      border: 1px solid var(--cb-border-main);
+      border-block-start-color: var(--cb-border-strong);
+      border-radius: var(--cb-radius-sm);
+      box-shadow: var(--cb-shadow-inset);
+    }
+
+    .cb-meter::-moz-meter-bar,
+    .cb-meter::-moz-progress-bar {
+      background: var(--cb-grad-btn-dark), var(--_fill);
+    }
+
+    .cb-meter:-moz-meter-sub-optimum::-moz-meter-bar {
+      background: var(--cb-grad-btn-dark), var(--cb-warn);
+    }
+
+    .cb-meter:-moz-meter-sub-sub-optimum::-moz-meter-bar {
+      background: var(--cb-grad-btn-dark), var(--cb-danger);
+    }
+
+    .cb-meter:indeterminate {
+      background: repeating-linear-gradient(-45deg,
+        color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 0 6px,
+        var(--cb-bg-recessed) 6px 12px);
+    }
+
+    .cb-meter:indeterminate::-moz-progress-bar {
+      background: none;
+    }
+  }
+
+  /* Compact: a thin bar beside a number in a 28px table row; no ruler. */
+  .cb-meter--sm {
+    --_h: 0.375rem;
+    display: inline-block;
+    block-size: var(--_h);
+    padding: 0;
+    inline-size: 5rem;
+    vertical-align: middle;
+  }
+
+  /* Ruler: 2px ticks every 10%, 3px at the quarters. */
+  .cb-meter--ticks {
+    --_ticks:
+      var(--_tick) 25% 100% / 1px 3px no-repeat, var(--_tick) 50% 100% / 1px 3px no-repeat,
+      var(--_tick) 75% 100% / 1px 3px no-repeat, var(--_tick) 10% 100% / 1px 2px no-repeat,
+      var(--_tick) 20% 100% / 1px 2px no-repeat, var(--_tick) 30% 100% / 1px 2px no-repeat,
+      var(--_tick) 40% 100% / 1px 2px no-repeat, var(--_tick) 60% 100% / 1px 2px no-repeat,
+      var(--_tick) 70% 100% / 1px 2px no-repeat, var(--_tick) 80% 100% / 1px 2px no-repeat,
+      var(--_tick) 90% 100% / 1px 2px no-repeat;
+  }
+
+  /* Threshold marks at low and high: 2px wide, the full 4px strip, in main
+     ink, so they stand out from the ticks. cubicle.js sets --_low and --_high
+     as fractions of the range; until it does, -1 keeps the marks off the bar. */
+  meter.cb-meter[data-cb-marks] {
+    --_marks:
+      var(--_mark) calc(var(--_low, -1) * 100%) 100% / 2px 4px no-repeat,
+      var(--_mark) calc(var(--_high, -1) * 100%) 100% / 2px 4px no-repeat;
+  }
+
+  /* Gauge: label and reading over the bar, an optional note under it. */
+  .cb-gauge {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--cb-space-1) var(--cb-space-2);
+
+    & > .cb-meter {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .cb-gauge__label {
+    font-weight: 600;
+  }
+
+  .cb-gauge__value {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--cb-text-muted);
+  }
+
+  .cb-gauge__note {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: var(--cb-text-xs);
+    color: var(--cb-text-muted);
   }
 }
