@@ -29,6 +29,7 @@
         <li><a class="docs-nav__link" href="#tokens-radius">Radius</a></li>
         <li><a class="docs-nav__link" href="#tokens-motion">Motion &amp; focus</a></li>
         <li><a class="docs-nav__link" href="#tokens-spacing">Spacing</a></li>
+        <li><a class="docs-nav__link" href="#tokens-density">Density</a></li>
         <li><a class="docs-nav__link" href="#tokens-typography">Typography</a></li>
       </ul>
       <p class="docs-nav__label">Layout &amp; grids</p>
@@ -259,6 +260,182 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Density ------------------------------------------------------ -->
+        <h3 class="docs-h3" id="tokens-density">Density</h3>
+        <p class="docs-text"><code>data-cb-density="compact"</code> or <code>"comfortable"</code> on
+          <code>&lt;html&gt;</code> or on any panel, table or form redefines the size tokens and the small
+          spacing steps for everything inside. Type sizes never change, and a small key always fits a table
+          row.</p>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Mode</th><th scope="col"><span class="cb-mono">--cb-control-h</span></th><th scope="col"><span class="cb-mono">--cb-control-h-sm</span></th><th scope="col"><span class="cb-mono">--cb-row-h</span></th><th scope="col"><span class="cb-mono">--cb-row-h-sm</span></th><th scope="col"><span class="cb-mono">--cb-space-1</span> / 2 / 3</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Compact</th><td class="cb-table__num">22px</td><td class="cb-table__num">18px</td><td class="cb-table__num">24px</td><td class="cb-table__num">20px</td><td class="cb-table__num">2 / 6 / 8px</td></tr>
+              <tr><th scope="row">Default</th><td class="cb-table__num">26px</td><td class="cb-table__num">20px</td><td class="cb-table__num">28px</td><td class="cb-table__num">24px</td><td class="cb-table__num">4 / 8 / 12px</td></tr>
+              <tr><th scope="row">Comfortable</th><td class="cb-table__num">30px</td><td class="cb-table__num">24px</td><td class="cb-table__num">32px</td><td class="cb-table__num">28px</td><td class="cb-table__num">6 / 10 / 16px</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <section class="cb-panel" data-cb-density="compact" aria-labelledby="dn-compact-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="dn-compact-title">Compact</h4>
+                <button class="cb-btn cb-btn--sm" type="button">Refresh</button>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-field">
+                  <label class="cb-field__label" for="dn-compact-search">Search peers</label>
+                  <input class="cb-input" id="dn-compact-search" type="text" value="gw-eu">
+                </div>
+                <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="compact range">
+                  <label class="cb-btn"><input type="radio" name="dn-compact-range" value="1h" checked>1 h</label>
+                  <label class="cb-btn"><input type="radio" name="dn-compact-range" value="24h">24 h</label>
+                </div>
+                <table class="cb-table">
+                  <thead>
+                    <tr><th scope="col">Peer</th><th class="cb-table__actions" scope="col">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">alice.ng</th><td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button></td></tr>
+                    <tr><th scope="row">b.kowalski</th><td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section class="cb-panel" aria-labelledby="dn-default-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="dn-default-title">Default</h4>
+                <button class="cb-btn cb-btn--sm" type="button">Refresh</button>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-field">
+                  <label class="cb-field__label" for="dn-default-search">Search peers</label>
+                  <input class="cb-input" id="dn-default-search" type="text" value="gw-eu">
+                </div>
+                <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="default range">
+                  <label class="cb-btn"><input type="radio" name="dn-default-range" value="1h" checked>1 h</label>
+                  <label class="cb-btn"><input type="radio" name="dn-default-range" value="24h">24 h</label>
+                </div>
+                <table class="cb-table">
+                  <thead>
+                    <tr><th scope="col">Peer</th><th class="cb-table__actions" scope="col">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">alice.ng</th><td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button></td></tr>
+                    <tr><th scope="row">b.kowalski</th><td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section class="cb-panel" data-cb-density="comfortable" aria-labelledby="dn-comfortable-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="dn-comfortable-title">Comfortable</h4>
+                <button class="cb-btn cb-btn--sm" type="button">Refresh</button>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-field">
+                  <label class="cb-field__label" for="dn-comfortable-search">Search peers</label>
+                  <input class="cb-input" id="dn-comfortable-search" type="text" value="gw-eu">
+                </div>
+                <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="comfortable range">
+                  <label class="cb-btn"><input type="radio" name="dn-comfortable-range" value="1h" checked>1 h</label>
+                  <label class="cb-btn"><input type="radio" name="dn-comfortable-range" value="24h">24 h</label>
+                </div>
+                <table class="cb-table">
+                  <thead>
+                    <tr><th scope="col">Peer</th><th class="cb-table__actions" scope="col">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">alice.ng</th><td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button></td></tr>
+                    <tr><th scope="row">b.kowalski</th><td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;section class=&quot;cb-panel&quot; data-cb-density=&quot;compact&quot; aria-labelledby=&quot;dn-compact-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;dn-compact-title&quot;&gt;Compact&lt;/h4&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Refresh&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;dn-compact-search&quot;&gt;Search peers&lt;/label&gt;
+        &lt;input class=&quot;cb-input&quot; id=&quot;dn-compact-search&quot; type=&quot;text&quot; value=&quot;gw-eu&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;compact range&quot;&gt;
+        &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-compact-range&quot; value=&quot;1h&quot; checked&gt;1 h&lt;/label&gt;
+        &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-compact-range&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;table class=&quot;cb-table&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Action&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;alice.ng&lt;/th&gt;&lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;b.kowalski&lt;/th&gt;&lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;dn-default-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;dn-default-title&quot;&gt;Default&lt;/h4&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Refresh&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;dn-default-search&quot;&gt;Search peers&lt;/label&gt;
+        &lt;input class=&quot;cb-input&quot; id=&quot;dn-default-search&quot; type=&quot;text&quot; value=&quot;gw-eu&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;default range&quot;&gt;
+        &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-default-range&quot; value=&quot;1h&quot; checked&gt;1 h&lt;/label&gt;
+        &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-default-range&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;table class=&quot;cb-table&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Action&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;alice.ng&lt;/th&gt;&lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;b.kowalski&lt;/th&gt;&lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel&quot; data-cb-density=&quot;comfortable&quot; aria-labelledby=&quot;dn-comfortable-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;dn-comfortable-title&quot;&gt;Comfortable&lt;/h4&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Refresh&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;dn-comfortable-search&quot;&gt;Search peers&lt;/label&gt;
+        &lt;input class=&quot;cb-input&quot; id=&quot;dn-comfortable-search&quot; type=&quot;text&quot; value=&quot;gw-eu&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;comfortable range&quot;&gt;
+        &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-comfortable-range&quot; value=&quot;1h&quot; checked&gt;1 h&lt;/label&gt;
+        &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-comfortable-range&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;table class=&quot;cb-table&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Action&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;alice.ng&lt;/th&gt;&lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;b.kowalski&lt;/th&gt;&lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+
 
         <!-- Typography --------------------------------------------------- -->
         <h3 class="docs-h3" id="tokens-typography">Typography</h3>
