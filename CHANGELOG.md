@@ -83,6 +83,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ring, the checked key is sunk like an `aria-pressed` toggle, disabled keys (and `<fieldset
   disabled>` groups) are flat, a disabled checked key keeps a muted tint, and `--fill` spreads equal
   keys across the container. No script.
+- `dist/cubicle.css` details and disclosure: `.cb-details` framed blocks with a summary row,
+  trailing meta, a padded `__body`, shared seams when stacked (exclusive with `<details name>`),
+  nesting, `--sm` and a frameless `--inline` variant. AGENTS.md §10 lists `<details name>` as
+  progressive enhancement.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only
@@ -147,5 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Collapsible panels, navigation and tree rows, and details share one disclosure chevron rule
+  (§5.3); the panel chevron now uses the same 0.25rem margin as the others.
 - Catalogue reference tables use `.cb-table` (row headers as `<th scope="row">`); the temporary
   `.docs-table` styles are removed from `docs/docs.css`.

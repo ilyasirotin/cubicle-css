@@ -255,6 +255,7 @@ Target **Baseline "Widely Available"** in modern evergreen browsers. Approved an
 - Logical properties (`inline-size`, `padding-inline`, `margin-block`) where beneficial for clean layout math
 - Container queries and container query length units (`cqb`) where a component must size itself to its container rather than the viewport (e.g., the `.cb-app` fixed frame, which falls back to the small viewport height when no size container exists)
 - `:user-invalid` alongside `aria-invalid="true"`, so native constraint validation (`required`, `pattern`, `type="email"`) is shown only after the user has interacted with a field
+- `<details name>` for exclusive accordions, as progressive enhancement (Baseline newly available; older engines open the blocks independently)
 
 ---
 
