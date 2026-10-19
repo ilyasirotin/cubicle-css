@@ -5,7 +5,8 @@
 //                 --css / --js serve the given file in place of dist/cubicle.css / dist/cubicle.js
 //                 (to check the minified build).
 // Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
-//                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control.
+//                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
+//                 and badges-<width>.png of the badges section.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -131,6 +132,9 @@ const PAIRS = [
     `color-mix(in srgb, var(${c}) 10%, var(--cb-bg-surface))`,
     4.5,
   ]),
+  // Neutral tag (.cb-badge) and neutral solid badge
+  ['--cb-text-main', 'color-mix(in srgb, var(--cb-text-main) 10%, var(--cb-bg-surface))', 4.5],
+  ['--cb-text-inverse', '--cb-text-main', 4.5],
 
   // Non-text structural & focus contrast (>= 3.0)
   ['--cb-border-strong', '--cb-bg-surface', 3],
@@ -335,6 +339,52 @@ if (await page.locator(ACTIONS).count()) {
   }, ACTIONS);
   check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
   await noJs.close();
+}
+
+// 10. Badges and LEDs, once per distinct look: text >= 4.5 against the painted background,
+//     the LED lamp rim >= 3 against it (WCAG 1.4.11), at most 20px high so badges fit
+//     .cb-btn--sm table rows, and busy badges spin except under reduced motion.
+const INDICATORS = '.docs-demo :is(.cb-badge, .cb-led)';
+if (await page.locator(INDICATORS).count()) {
+  const measured = await page.$$eval(INDICATORS, (els) => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    const rgba = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data]; };
+    const painted = (start) => {
+      for (let n = start; n; n = n.parentElement) { const c = rgba(getComputedStyle(n).backgroundColor); if (c[3] > 0) return c.slice(0, 3); }
+      return [255, 255, 255];
+    };
+    const seen = new Set();
+    return els.flatMap((el) => {
+      const busy = el.getAttribute('aria-busy') === 'true';
+      const key = `${el.className}${busy ? '[aria-busy]' : ''}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
+      const cs = getComputedStyle(el); const lamp = getComputedStyle(el, '::before');
+      const lit = !busy && lamp.display !== 'none' && lamp.content !== 'none';
+      return [{ key, busy, height: el.getBoundingClientRect().height, text: [rgba(cs.color).slice(0, 3), painted(el)],
+        rim: lit ? [rgba(lamp.borderTopColor).slice(0, 3), painted(el)] : null, spin: lamp.animationName }];
+    });
+  });
+  for (const m of measured) {
+    const text = ratio(...m.text); const rim = m.rim && ratio(...m.rim);
+    const ok = text >= 4.5 && (!m.rim || rim >= 3) && m.height <= 20 && (!m.busy || m.spin === 'cb-spin');
+    check(ok, `indicator .${m.key.replace(/ /g, '.')}: text, lamp and height`,
+      `text ${text.toFixed(2)}${m.rim ? `, lamp ${rim.toFixed(2)}` : ''}, ${m.height}px${m.busy ? `, ${m.spin}` : ''}`);
+  }
+
+  const calm = await browser.newContext({ ...contextOptions, reducedMotion: 'reduce' });
+  const pr = await calm.newPage(); await applyOverrides(pr); await pr.goto(pathToFileURL(page_path).href);
+  const still = await pr.$$eval('.docs-demo .cb-badge[aria-busy="true"]', (els) => els.map((e) => getComputedStyle(e, '::before').animationName));
+  check(still.length > 0 && still.every((a) => a === 'none'), 'busy badges stop spinning under reduced motion', still.join(', '));
+  await calm.close();
+
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const section = page.locator('.docs-section:has(.docs-demo .cb-badge)').first();
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/badges-${width}.png` });
+  }
 }
 
 await browser.close();
