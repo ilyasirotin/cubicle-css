@@ -193,3 +193,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (§5.3); the panel chevron now uses the same 0.25rem margin as the others.
 - Catalogue reference tables use `.cb-table` (row headers as `<th scope="row">`); the temporary
   `.docs-table` styles are removed from `docs/docs.css`.
+
+### Fixed
+
+- Focus rings on scroll containers (`.cb-app__main`, `.cb-app__side`, `.cb-table-wrap`,
+  `.cb-secret__value`, `.cb-panel--inset`, dialog bodies) and on keys of a scrolling tab list are
+  drawn inside, so the scroll edge no longer clips them. AGENTS.md §2.2 and §13 list the permitted
+  placements of the one focus indicator.

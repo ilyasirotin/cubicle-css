@@ -216,6 +216,12 @@
     outline: var(--cb-focus-ring);
     outline-offset: var(--cb-focus-offset);
   }
+
+  /* The same ring drawn inside scroll containers and the keys of a scrolling
+     tab list, where an outer ring would be clipped by the scroll edge. */
+  :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab):focus-visible {
+    outline-offset: calc(-2px - var(--cb-focus-offset));
+  }
 }
 
 
