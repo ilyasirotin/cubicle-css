@@ -43,6 +43,8 @@
                                accordions (details[name]), --sm
       5.13 Dialogs ........... .cb-dialog popover and modal (cubicle.js), panel parts,
                                --sm, --lg, --danger, backdrop, full screen when narrow
+      5.14 Pagination ........ .cb-pagination summary, page and size strips, gap, jump
+                               form, --spaced, collapse when narrow
    ========================================================================== */
 
 
@@ -405,9 +407,10 @@
     transition-property: background-color, box-shadow, translate;
     transition-duration: var(--cb-duration);
 
-    /* Toggle on (or the checked key of a segmented control, 5.11): sunk
-       lighting, no travel. Before :hover so hover still tints it. */
-    &:is([aria-pressed="true"], :has(> input:checked)) {
+    /* Toggle on, the checked key of a segmented control (5.11) or the current
+       page of a pagination (5.14): sunk lighting, no travel. Before :hover so
+       hover still tints it. */
+    &:is([aria-pressed="true"], :has(> input:checked), [aria-current]:not([aria-current="false"])) {
       --_bg: var(--cb-bg-selected);
       --_bg-hover: color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised));
       --_ink: var(--cb-text-main);
@@ -439,7 +442,7 @@
     }
 
     /* A disabled toggle or segment still shows that it is on. */
-    &:is([disabled], [aria-disabled="true"], :has(> input:disabled)):is([aria-pressed="true"], :has(> input:checked)) {
+    &:is([disabled], [aria-disabled="true"], :has(> input:disabled)):is([aria-pressed="true"], :has(> input:checked), [aria-current]:not([aria-current="false"])) {
       --_bg: color-mix(in srgb, var(--cb-bg-selected) 50%, var(--cb-bg-btn));
       --_bg-hover: color-mix(in srgb, var(--cb-bg-selected) 50%, var(--cb-bg-btn));
       --_shadow: var(--cb-shadow-pressed);
@@ -2414,6 +2417,109 @@
       margin: 0;
       border-inline: 0;
       border-radius: var(--cb-radius-none);
+    }
+  }
+
+  /* 5.14 Pagination ------------------------------------------------------- */
+
+  /* <nav class="cb-pagination" aria-label="…">: a range summary, a strip of
+     .cb-btn--sm link keys (aria-current="page" sinks the current one, like a
+     pressed key), an optional strip of page sizes (__sizes) and a GET jump
+     form. All
+     links: no script. Arrows carry rel="prev" / "next"; at the first or last
+     page they lose href and take aria-disabled. The nav measures its own
+     width and keeps only ‹ current › below 30rem. */
+  .cb-pagination {
+    container-type: inline-size;
+    inline-size: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--cb-space-2) var(--cb-space-3);
+  }
+
+  .cb-pagination__summary {
+    margin: 0;
+    margin-inline-end: auto;
+    font-variant-numeric: tabular-nums;
+    color: var(--cb-text-muted);
+  }
+
+  /* Attached keys, like .cb-btn-group, plus the gap cell. __sizes is the
+     same strip for rows per page; it never collapses. */
+  :is(.cb-pagination__pages, .cb-pagination__sizes) {
+    display: inline-flex;
+
+    & > * {
+      min-inline-size: 1.75rem;
+      font-variant-numeric: tabular-nums;
+      border-radius: var(--cb-radius-none);
+    }
+
+    & > * + * {
+      margin-inline-start: -1px;
+    }
+
+    & > :first-child {
+      border-start-start-radius: var(--cb-radius-sm);
+      border-end-start-radius: var(--cb-radius-sm);
+    }
+
+    & > :last-child {
+      border-start-end-radius: var(--cb-radius-sm);
+      border-end-end-radius: var(--cb-radius-sm);
+    }
+
+    & > :is(:hover, :focus-visible) {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  /* Skipped pages: a flat, framed cell as high as a key. */
+  .cb-pagination__gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: 1.25rem;
+    color: var(--cb-text-muted);
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-main);
+  }
+
+  /* Separate keys. */
+  .cb-pagination--spaced :is(.cb-pagination__pages, .cb-pagination__sizes) {
+    gap: var(--cb-space-1);
+
+    & > * {
+      margin-inline-start: 0;
+      border-radius: var(--cb-radius-sm);
+    }
+
+    & > .cb-pagination__gap {
+      background: none;
+      border: 0;
+    }
+  }
+
+  .cb-pagination__jump {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--cb-space-1);
+    margin: 0;
+
+    & > .cb-input {
+      inline-size: 4rem;
+    }
+  }
+
+  @container (width < 30rem) {
+    .cb-pagination__pages > :is(a, .cb-pagination__gap):not([aria-current], [rel]) {
+      display: none;
+    }
+
+    .cb-pagination__summary {
+      flex-basis: 100%;
     }
   }
 }

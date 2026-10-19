@@ -92,6 +92,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   modal through `data-cb-modal` in `dist/cubicle.js` (`showModal()`) over a dimmed backdrop; the
   body scrolls between a fixed head and foot; `--sm`, `--lg`, `--danger`; full screen below 40rem.
   New token `--cb-bg-backdrop`; AGENTS.md §10 lists the popover API and modal `<dialog>`.
+- `dist/cubicle.css` pagination: `.cb-pagination` with a range summary, an attached strip of
+  `.cb-btn--sm` link keys (`aria-current` sinks the current page, now part of the shared `.cb-btn`
+  pressed state), a `__gap` cell, a `__sizes` strip for rows per page, a GET `__jump` form,
+  `--spaced` keys, and a collapse to ‹ current › below 30rem of its own width. No script.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only
