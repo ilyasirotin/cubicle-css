@@ -148,6 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catalogue "Segmented controls" section: a range picker and a panel-head toolbar, a full-width
   form field, log-level checkboxes with counts, a status filter with lamps, disabled keys and a
   disabled fieldset, keyboard and reference tables.
+- Catalogue "Details & disclosure" section: framed blocks with meta, an exclusive accordion,
+  nested and compact blocks, inline advanced settings in a form, and a reference table.
 
 ### Changed
 

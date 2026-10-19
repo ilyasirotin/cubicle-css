@@ -51,6 +51,7 @@
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
         <li><a class="docs-nav__link" href="#meters">Meters &amp; progress</a></li>
         <li><a class="docs-nav__link" href="#segmented">Segmented controls</a></li>
+        <li><a class="docs-nav__link" href="#details">Details &amp; disclosure</a></li>
       </ul>
     </nav>
 
@@ -3196,6 +3197,242 @@
               <tr><th scope="row"><code>disabled</code></th><td>Input, <code>&lt;fieldset&gt;</code></td><td>Key flat and muted; a checked one keeps a muted tint</td></tr>
               <tr><th scope="row"><code>.cb-segmented--fill</code></th><td>Group</td><td>Equal keys across the container</td></tr>
               <tr><th scope="row"><code>.cb-btn--sm</code></th><td>Key</td><td>20px keys for toolbars and panel heads</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="details" aria-labelledby="details-title">
+        <h2 class="docs-h2" id="details-title">Details &amp; disclosure</h2>
+        <p class="docs-text">Native <code>&lt;details&gt;</code> for content that can stay folded: framed blocks,
+          accordions and inline "advanced" sections. No script; <kbd>Enter</kbd> or <kbd>Space</kbd> on the
+          summary opens and closes it.</p>
+
+        <h3 class="docs-h3" id="details-framed">Framed</h3>
+        <p class="docs-text">A count, badge or lamp at the end of the summary reports what is inside.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <details class="cb-details" open>
+              <summary>Firewall rules <span class="cb-badge cb-badge--count">12</span></summary>
+              <div class="cb-details__body">
+                <table class="cb-table cb-table--compact">
+                  <thead>
+                    <tr><th scope="col">Rule</th><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Port</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">14</th><td><code>10.8.0.0/24</code></td><td><code>10.20.0.0/16</code></td><td>tcp/443</td></tr>
+                    <tr><th scope="row">15</th><td><code>10.8.0.0/24</code></td><td><code>10.20.4.15</code></td><td>tcp/22</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+            <details class="cb-details">
+              <summary>Recent errors <span class="cb-led cb-led--danger">2 errors</span></summary>
+              <div class="cb-details__body">
+                <p>10:35:48 Session for e.santos refused: certificate revoked.</p>
+                <p>10:22:41 Handshake latency on gw-ap-1 above 250 ms.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;details class=&quot;cb-details&quot; open&gt;
+    &lt;summary&gt;Firewall rules &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;12&lt;/span&gt;&lt;/summary&gt;
+    &lt;div class=&quot;cb-details__body&quot;&gt;
+      &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Source&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Destination&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Port&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td&gt;&lt;code&gt;10.8.0.0/24&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.20.0.0/16&lt;/code&gt;&lt;/td&gt;&lt;td&gt;tcp/443&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td&gt;&lt;code&gt;10.8.0.0/24&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.20.4.15&lt;/code&gt;&lt;/td&gt;&lt;td&gt;tcp/22&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/details&gt;
+  &lt;details class=&quot;cb-details&quot;&gt;
+    &lt;summary&gt;Recent errors &lt;span class=&quot;cb-led cb-led--danger&quot;&gt;2 errors&lt;/span&gt;&lt;/summary&gt;
+    &lt;div class=&quot;cb-details__body&quot;&gt;
+      &lt;p&gt;10:35:48 Session for e.santos refused: certificate revoked.&lt;/p&gt;
+      &lt;p&gt;10:22:41 Handshake latency on gw-ap-1 above 250 ms.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/details&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="details-accordion">Accordion</h3>
+        <p class="docs-text">Adjacent blocks share their seams. With one <code>name</code>, opening a block
+          closes the others in browsers that support it; older ones open them independently.</p>
+        <div class="docs-demo">
+          <div>
+            <details class="cb-details" name="gw-settings" open>
+              <summary>Interface</summary>
+              <div class="cb-details__body"><p>wg0, listen port 51820, MTU 1420.</p></div>
+            </details>
+            <details class="cb-details" name="gw-settings">
+              <summary>Peers <span class="cb-badge cb-badge--count">412</span></summary>
+              <div class="cb-details__body"><p>412 peers; 9 joined today.</p></div>
+            </details>
+            <details class="cb-details" name="gw-settings">
+              <summary>DNS</summary>
+              <div class="cb-details__body"><p>Resolver <code>10.8.0.53</code>, search domain corp.example.net.</p></div>
+            </details>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div&gt;
+  &lt;details class=&quot;cb-details&quot; name=&quot;gw-settings&quot; open&gt;
+    &lt;summary&gt;Interface&lt;/summary&gt;
+    &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;wg0, listen port 51820, MTU 1420.&lt;/p&gt;&lt;/div&gt;
+  &lt;/details&gt;
+  &lt;details class=&quot;cb-details&quot; name=&quot;gw-settings&quot;&gt;
+    &lt;summary&gt;Peers &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;412&lt;/span&gt;&lt;/summary&gt;
+    &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;412 peers; 9 joined today.&lt;/p&gt;&lt;/div&gt;
+  &lt;/details&gt;
+  &lt;details class=&quot;cb-details&quot; name=&quot;gw-settings&quot;&gt;
+    &lt;summary&gt;DNS&lt;/summary&gt;
+    &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;Resolver &lt;code&gt;10.8.0.53&lt;/code&gt;, search domain corp.example.net.&lt;/p&gt;&lt;/div&gt;
+  &lt;/details&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="details-nested">Nested</h3>
+        <div class="docs-demo">
+          <details class="cb-details" open>
+            <summary>Policies</summary>
+            <div class="cb-details__body cb-stack cb-stack--tight">
+              <details class="cb-details" open>
+                <summary>Password</summary>
+                <div class="cb-details__body"><p>At least 14 characters; no reuse of the last 5.</p></div>
+              </details>
+              <details class="cb-details">
+                <summary>MFA</summary>
+                <div class="cb-details__body"><p>Hardware key or TOTP for every administrator.</p></div>
+              </details>
+            </div>
+          </details>
+        </div>
+        <pre class="docs-snippet"><code>&lt;details class=&quot;cb-details&quot; open&gt;
+  &lt;summary&gt;Policies&lt;/summary&gt;
+  &lt;div class=&quot;cb-details__body cb-stack cb-stack--tight&quot;&gt;
+    &lt;details class=&quot;cb-details&quot; open&gt;
+      &lt;summary&gt;Password&lt;/summary&gt;
+      &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;At least 14 characters; no reuse of the last 5.&lt;/p&gt;&lt;/div&gt;
+    &lt;/details&gt;
+    &lt;details class=&quot;cb-details&quot;&gt;
+      &lt;summary&gt;MFA&lt;/summary&gt;
+      &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;Hardware key or TOTP for every administrator.&lt;/p&gt;&lt;/div&gt;
+    &lt;/details&gt;
+  &lt;/div&gt;
+&lt;/details&gt;</code></pre>
+
+        <h3 class="docs-h3" id="details-compact">Compact</h3>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <div>
+              <details class="cb-details cb-details--sm" open>
+                <summary>gw-eu-1 <span class="cb-badge cb-badge--ok">Online</span></summary>
+                <div class="cb-details__body"><p>412 peers, load 82%.</p></div>
+              </details>
+              <details class="cb-details cb-details--sm">
+                <summary>gw-eu-2 <span class="cb-badge cb-badge--ok">Online</span></summary>
+                <div class="cb-details__body"><p>96 peers, load 37%.</p></div>
+              </details>
+              <details class="cb-details cb-details--sm">
+                <summary>gw-ap-2 <span class="cb-badge cb-badge--danger">Down</span></summary>
+                <div class="cb-details__body"><p>No handshake for 4 minutes.</p></div>
+              </details>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;div&gt;
+    &lt;details class=&quot;cb-details cb-details--sm&quot; open&gt;
+      &lt;summary&gt;gw-eu-1 &lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/summary&gt;
+      &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;412 peers, load 82%.&lt;/p&gt;&lt;/div&gt;
+    &lt;/details&gt;
+    &lt;details class=&quot;cb-details cb-details--sm&quot;&gt;
+      &lt;summary&gt;gw-eu-2 &lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/summary&gt;
+      &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;96 peers, load 37%.&lt;/p&gt;&lt;/div&gt;
+    &lt;/details&gt;
+    &lt;details class=&quot;cb-details cb-details--sm&quot;&gt;
+      &lt;summary&gt;gw-ap-2 &lt;span class=&quot;cb-badge cb-badge--danger&quot;&gt;Down&lt;/span&gt;&lt;/summary&gt;
+      &lt;div class=&quot;cb-details__body&quot;&gt;&lt;p&gt;No handshake for 4 minutes.&lt;/p&gt;&lt;/div&gt;
+    &lt;/details&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="details-inline">Inline</h3>
+        <p class="docs-text">No frame: for optional settings inside a form or a panel body.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-grid cb-grid--2">
+              <div class="cb-field">
+                <label class="cb-field__label" for="d-endpoint">Endpoint</label>
+                <input class="cb-input" id="d-endpoint" type="text" value="vpn.corp.example.net:51820">
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="d-allowed">Allowed IPs</label>
+                <input class="cb-input" id="d-allowed" type="text" value="10.8.0.0/24">
+              </div>
+            </div>
+            <details class="cb-details cb-details--inline">
+              <summary>Advanced settings</summary>
+              <div class="cb-details__body">
+                <div class="cb-grid cb-grid--2">
+                  <div class="cb-field">
+                    <label class="cb-field__label" for="d-mtu">MTU</label>
+                    <input class="cb-input" id="d-mtu" type="text" value="1420">
+                  </div>
+                  <div class="cb-field">
+                    <label class="cb-field__label" for="d-keepalive">Keepalive, seconds</label>
+                    <input class="cb-input" id="d-keepalive" type="text" value="25">
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;d-endpoint&quot;&gt;Endpoint&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;d-endpoint&quot; type=&quot;text&quot; value=&quot;vpn.corp.example.net:51820&quot;&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;d-allowed&quot;&gt;Allowed IPs&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;d-allowed&quot; type=&quot;text&quot; value=&quot;10.8.0.0/24&quot;&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;details class=&quot;cb-details cb-details--inline&quot;&gt;
+    &lt;summary&gt;Advanced settings&lt;/summary&gt;
+    &lt;div class=&quot;cb-details__body&quot;&gt;
+      &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+        &lt;div class=&quot;cb-field&quot;&gt;
+          &lt;label class=&quot;cb-field__label&quot; for=&quot;d-mtu&quot;&gt;MTU&lt;/label&gt;
+          &lt;input class=&quot;cb-input&quot; id=&quot;d-mtu&quot; type=&quot;text&quot; value=&quot;1420&quot;&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;cb-field&quot;&gt;
+          &lt;label class=&quot;cb-field__label&quot; for=&quot;d-keepalive&quot;&gt;Keepalive, seconds&lt;/label&gt;
+          &lt;input class=&quot;cb-input&quot; id=&quot;d-keepalive&quot; type=&quot;text&quot; value=&quot;25&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/details&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-details</code></th><td><code>&lt;details&gt;</code></td><td>Framed block with a 28px summary row and the shared chevron</td></tr>
+              <tr><th scope="row"><code>&lt;summary&gt;</code></th><td>First child</td><td>Title row; a trailing <code>.cb-badge</code> or <code>.cb-led</code> goes to its end</td></tr>
+              <tr><th scope="row"><code>.cb-details__body</code></th><td><code>&lt;div&gt;</code></td><td>Padded content</td></tr>
+              <tr><th scope="row"><code>open</code></th><td><code>&lt;details&gt;</code></td><td>Open; the chevron points down</td></tr>
+              <tr><th scope="row"><code>name</code></th><td><code>&lt;details&gt;</code></td><td>Exclusive accordion among blocks with the same name</td></tr>
+              <tr><th scope="row">Adjacent blocks</th><td><code>.cb-details + .cb-details</code></td><td>Shared 1px seams; outer corners rounded</td></tr>
+              <tr><th scope="row"><code>.cb-details--sm</code></th><td>Block</td><td>24px summary, tighter body</td></tr>
+              <tr><th scope="row"><code>.cb-details--inline</code></th><td>Block</td><td>No frame; body aligned with the summary text</td></tr>
             </tbody>
           </table>
         </div>
