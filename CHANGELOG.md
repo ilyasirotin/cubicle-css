@@ -78,6 +78,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ruler, and `.cb-gauge` label / value / note. `dist/cubicle.js` marks `low` and `high` on
   `meter[data-cb-marks]` and follows changed and swapped-in meters. AGENTS.md §6 now allows
   `<progress>` engine pseudo-elements.
+- `dist/cubicle.css` segmented controls: `.cb-segmented` on a `.cb-btn-group` turns labels with
+  native radios or checkboxes into attached keys; the input covers its key and carries the focus
+  ring, the checked key is sunk like an `aria-pressed` toggle, disabled keys (and `<fieldset
+  disabled>` groups) are flat, a disabled checked key keeps a muted tint, and `--fill` spreads equal
+  keys across the container. No script.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only

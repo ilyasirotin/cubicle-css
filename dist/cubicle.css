@@ -36,6 +36,8 @@
                                .cb-breadcrumb
       5.10 Meters & progress . .cb-meter on <meter> / <progress>, --sm, --ticks,
                                marks (cubicle.js); .cb-gauge
+      5.11 Segmented controls  .cb-segmented radios / checkboxes as attached keys,
+                               --fill
    ========================================================================== */
 
 
@@ -397,8 +399,9 @@
     transition-property: background-color, box-shadow, translate;
     transition-duration: var(--cb-duration);
 
-    /* Toggle on: sunk lighting, no travel. Before :hover so hover still tints it. */
-    &[aria-pressed="true"] {
+    /* Toggle on (or the checked key of a segmented control, 5.11): sunk
+       lighting, no travel. Before :hover so hover still tints it. */
+    &:is([aria-pressed="true"], :has(> input:checked)) {
       --_bg: var(--cb-bg-selected);
       --_bg-hover: color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised));
       --_ink: var(--cb-text-main);
@@ -417,7 +420,7 @@
       translate: 0 1px;
     }
 
-    &:is([disabled], [aria-disabled="true"]) {
+    &:is([disabled], [aria-disabled="true"], :has(> input:disabled)) {
       --_bg: var(--cb-bg-btn);
       --_bg-hover: var(--cb-bg-btn);
       --_ink: var(--cb-text-disabled);
@@ -427,6 +430,13 @@
       --_shadow: none;
       translate: none;
       cursor: not-allowed;
+    }
+
+    /* A disabled toggle or segment still shows that it is on. */
+    &:is([disabled], [aria-disabled="true"], :has(> input:disabled)):is([aria-pressed="true"], :has(> input:checked)) {
+      --_bg: color-mix(in srgb, var(--cb-bg-selected) 50%, var(--cb-bg-btn));
+      --_bg-hover: color-mix(in srgb, var(--cb-bg-selected) 50%, var(--cb-bg-btn));
+      --_shadow: var(--cb-shadow-pressed);
     }
 
     /* Focusable but inert: links and buttons that must stay in the tab order. */
@@ -532,7 +542,7 @@
     }
 
     /* Keep the hovered edge and the focus ring above the neighbours. */
-    & > .cb-btn:is(:hover, :focus-visible) {
+    & > .cb-btn:is(:hover, :focus-visible, :has(> :focus-visible)) {
       position: relative;
       z-index: 1;
     }
@@ -2198,5 +2208,43 @@
     margin: 0;
     font-size: var(--cb-text-xs);
     color: var(--cb-text-muted);
+  }
+
+  /* 5.11 Segmented controls ----------------------------------------------- */
+
+  /* One choice (radios) or several (checkboxes) shown as attached keys:
+     <div class="cb-btn-group cb-segmented" role="radiogroup"> (or a
+     <fieldset>) with <label class="cb-btn"><input type="radio">Text</label>.
+     The group gives seams and corners; the checked and disabled looks come
+     from .cb-btn (5.1). The native input covers its key, so it takes the
+     click, the arrow keys and the standard focus ring: no script. */
+  .cb-segmented {
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+    & > .cb-btn {
+      position: relative;
+    }
+
+    & > .cb-btn > :is(input[type="radio"], input[type="checkbox"]) {
+      appearance: none;
+      position: absolute;
+      inset: -1px;
+      margin: 0;
+      border-radius: inherit;
+      cursor: inherit;
+    }
+  }
+
+  /* Equal keys across the whole container. */
+  .cb-segmented--fill {
+    display: flex;
+
+    & > .cb-btn {
+      flex: 1 1 0;
+      min-inline-size: 0;
+    }
   }
 }
