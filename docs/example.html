@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cubicle — VPN console example</title>
+  <link rel="stylesheet" href="../dist/cubicle.css">
+  <script src="../dist/cubicle.js" defer></script>
+</head>
+<body>
+  <a class="cb-skip-link" href="#main">Skip to content</a>
+
+  <div class="cb-app">
+    <header class="cb-app__top">
+      <strong>Corp VPN Console</strong>
+      <span class="cb-badge cb-badge--solid cb-badge--danger">prod</span>
+      <span class="cb-muted">corp.example.net</span>
+      <span class="cb-muted">alice.ng (network operations)</span>
+      <a class="cb-btn cb-btn--sm" href="index.html">Sign out</a>
+    </header>
+
+    <div class="cb-app__banner">
+      <div class="cb-alert cb-alert--banner cb-alert--sm cb-alert--warn" id="x-licence">Licence expires on 2026-11-01: 13 days left. <a href="index.html#alerts">Renew licence</a><button class="cb-alert__close cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-dismiss="x-licence" aria-label="Dismiss licence notice">✕</button></div>
+    </div>
+
+    <nav class="cb-app__side cb-nav" aria-label="Console">
+      <p class="cb-nav__heading" id="x-dir">Directory</p>
+      <ul class="cb-nav__list" aria-labelledby="x-dir">
+        <li><a class="cb-nav__link" href="#main">Users <span class="cb-badge cb-badge--count">1 248</span></a></li>
+        <li><a class="cb-nav__link" href="#main">Groups <span class="cb-badge cb-badge--count">86</span></a></li>
+        <li><a class="cb-nav__link" href="#main">Service accounts</a></li>
+      </ul>
+      <p class="cb-nav__heading" id="x-net">Network</p>
+      <ul class="cb-nav__list" aria-labelledby="x-net">
+        <li><a class="cb-nav__link" href="#main" aria-current="page">Gateways <span class="cb-led cb-led--warn">1 degraded</span></a></li>
+        <li><a class="cb-nav__link" href="#main">Peers</a></li>
+        <li>
+          <details>
+            <summary class="cb-nav__link">Routes</summary>
+            <ul class="cb-nav__list">
+              <li><a class="cb-nav__link" href="#main">Static</a></li>
+              <li><a class="cb-nav__link" href="#main">Split tunnel</a></li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+      <p class="cb-nav__heading" id="x-tree-label">Directory tree</p>
+      <div class="cb-nav cb-nav--lines" data-cb-tree>
+        <ul class="cb-nav__list" role="tree" aria-labelledby="x-tree-label">
+          <li role="treeitem" aria-expanded="true" aria-selected="false" tabindex="0">
+            <span class="cb-nav__link"><span class="cb-nav__kind">DC</span>corp.example.net</span>
+            <ul class="cb-nav__list" role="group">
+              <li role="treeitem" aria-expanded="false" aria-selected="false" tabindex="-1">
+                <span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Staff</span>
+                <ul class="cb-nav__list" role="group">
+                  <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Alice Ng</span></li>
+                  <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Bartek Kowalski</span></li>
+                </ul>
+              </li>
+              <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">OU</span>Gateways</span></li>
+              <li role="treeitem" aria-selected="false" tabindex="-1"><span class="cb-nav__link"><span class="cb-nav__kind">CN</span>Domain Admins</span></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="cb-app__main" id="main">
+      <div class="cb-stack">
+        <nav aria-label="Location">
+          <ol class="cb-breadcrumb">
+            <li><a href="#main">Network</a></li>
+            <li><a href="#main">Gateways</a></li>
+            <li><span aria-current="page">gw-eu-1</span></li>
+          </ol>
+        </nav>
+
+        <section class="cb-panel cb-tabs" data-cb-tabs aria-labelledby="x-gw-title">
+          <header class="cb-panel__head">
+            <h1 class="cb-panel__title" id="x-gw-title">gw-eu-1</h1>
+            <span class="cb-badge cb-badge--ok">Online</span>
+            <div class="cb-tabs__list" role="tablist" aria-label="gw-eu-1 views">
+              <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-overview" aria-controls="x-overview" aria-selected="true">Overview</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-peers" aria-controls="x-peers" aria-selected="false" tabindex="-1">Peers <span class="cb-badge cb-badge--count">412</span></button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-config" aria-controls="x-config" aria-selected="false" tabindex="-1">Config</button>
+            </div>
+          </header>
+
+          <!-- Overview ----------------------------------------------------- -->
+          <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-overview" aria-labelledby="x-tab-overview">
+            <h2 class="cb-tabs__heading">Overview</h2>
+            <div class="cb-alert" role="status">
+              <p class="cb-alert__title">Maintenance window tonight</p>
+              <p>gw-eu-1 restarts between 23:00 and 23:30 UTC; peers fail over to gw-eu-2.</p>
+            </div>
+            <div class="cb-grid cb-grid--3">
+              <div class="cb-gauge">
+                <label class="cb-gauge__label" for="x-cpu">CPU</label>
+                <span class="cb-gauge__value">37%</span>
+                <meter class="cb-meter cb-meter--ticks" id="x-cpu" min="0" max="100" low="70" high="90" optimum="0" value="37" data-cb-marks>37%</meter>
+                <p class="cb-gauge__note">Warns at 70%, critical at 90%.</p>
+              </div>
+              <div class="cb-gauge">
+                <label class="cb-gauge__label" for="x-mem">Memory</label>
+                <span class="cb-gauge__value">52.4 / 64 GB</span>
+                <meter class="cb-meter cb-meter--ticks" id="x-mem" min="0" max="64" low="48" high="58" optimum="0" value="52.4" data-cb-marks>52.4 GB of 64 GB</meter>
+                <p class="cb-gauge__note">Warns at 48 GB.</p>
+              </div>
+              <div class="cb-gauge">
+                <label class="cb-gauge__label" for="x-lic">Licences</label>
+                <span class="cb-gauge__value">184 / 250 seats</span>
+                <meter class="cb-meter cb-meter--ticks" id="x-lic" min="0" max="250" low="200" high="235" optimum="0" value="184" data-cb-marks>184 of 250 seats</meter>
+                <p class="cb-gauge__note">Order more at 200 seats.</p>
+              </div>
+            </div>
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="x-rekey">Rotating peer keys</label>
+              <span class="cb-gauge__value cb-num">264 / 412</span>
+              <progress class="cb-meter" id="x-rekey" max="412" value="264">264 of 412 peers</progress>
+            </div>
+          </div>
+
+          <!-- Peers -------------------------------------------------------- -->
+          <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-peers" aria-labelledby="x-tab-peers" data-cb-density="compact" hidden>
+            <h2 class="cb-tabs__heading">Peers</h2>
+            <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key and cannot connect.</div>
+            <div class="cb-table-wrap">
+              <table class="cb-table cb-table--sticky" id="x-peer-table" aria-labelledby="x-tab-peers">
+                <thead>
+                  <tr>
+                    <th class="cb-table__select" scope="col"><input class="cb-check" type="checkbox" data-cb-select-all="x-peer-table" aria-label="Select all peers"></th>
+                    <th scope="col" aria-sort="ascending"><button class="cb-table__sort" type="button">Peer</button></th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Tunnel IP</th>
+                    <th scope="col">Endpoint</th>
+                    <th class="cb-table__num" scope="col" aria-sort="none"><button class="cb-table__sort" type="button">Received</button></th>
+                    <th class="cb-table__num" scope="col">Sent</th>
+                    <th scope="col">Last handshake</th>
+                    <th scope="col">Description</th>
+                    <th class="cb-table__actions" scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select laptop-an-1"></td>
+                    <th scope="row">laptop-an-1</th>
+                    <td><span class="cb-badge cb-badge--ok">Online</span></td>
+                    <td><span class="cb-mono">10.8.0.11</span></td>
+                    <td><span class="cb-mono">203.0.113.24:51820</span></td>
+                    <td class="cb-table__num">1.42 GB</td>
+                    <td class="cb-table__num">312.8 MB</td>
+                    <td>14 s ago</td>
+                    <td class="cb-truncate" title="Alice Ng, network operations laptop, hardware key enrolled">Alice Ng, network operations laptop, hardware key enrolled</td>
+                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm cb-btn--danger" type="button" data-cb-modal="x-revoke">Revoke</button></td>
+                  </tr>
+                  <tr>
+                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select phone-bk-2" checked></td>
+                    <th scope="row">phone-bk-2</th>
+                    <td><span class="cb-badge cb-badge--warn">Stale</span></td>
+                    <td><span class="cb-mono">10.8.0.12</span></td>
+                    <td><span class="cb-mono">198.51.100.7:51820</span></td>
+                    <td class="cb-table__num">86.0 MB</td>
+                    <td class="cb-table__num">9.4 MB</td>
+                    <td>6 min ago</td>
+                    <td class="cb-truncate" title="Bartek Kowalski, phone, on call this week">Bartek Kowalski, phone, on call this week</td>
+                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm cb-btn--danger" type="button" data-cb-modal="x-revoke">Revoke</button></td>
+                  </tr>
+                  <tr>
+                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select svc-backup"></td>
+                    <th scope="row">svc-backup</th>
+                    <td><span class="cb-badge cb-badge--info">Service</span></td>
+                    <td><span class="cb-mono">10.8.0.40</span></td>
+                    <td><span class="cb-mono">10.20.4.15:51820</span></td>
+                    <td class="cb-table__num">38.9 GB</td>
+                    <td class="cb-table__num">220.6 MB</td>
+                    <td>3 s ago</td>
+                    <td class="cb-truncate" title="Nightly configuration backup to the vault">Nightly configuration backup to the vault</td>
+                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm cb-btn--danger" type="button" data-cb-modal="x-revoke">Revoke</button></td>
+                  </tr>
+                  <tr>
+                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select laptop-es-1"></td>
+                    <th scope="row">laptop-es-1</th>
+                    <td><span class="cb-badge cb-badge--danger">Revoked</span></td>
+                    <td><span class="cb-mono">10.8.0.51</span></td>
+                    <td><span class="cb-mono">198.51.100.62:51820</span></td>
+                    <td class="cb-table__num">0 B</td>
+                    <td class="cb-table__num">0 B</td>
+                    <td>never</td>
+                    <td class="cb-truncate" title="Eduardo Santos, key revoked after the device was reported lost">Eduardo Santos, key revoked after the device was reported lost</td>
+                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button" aria-disabled="true">Revoke</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <nav class="cb-pagination" aria-label="Peers pages">
+              <p class="cb-pagination__summary">1–4 of 412</p>
+              <div class="cb-pagination__pages">
+                <a class="cb-btn cb-btn--sm" rel="prev" aria-disabled="true" aria-label="Previous page">‹</a>
+                <a class="cb-btn cb-btn--sm" href="#x-peers" aria-current="page" aria-label="Page 1">1</a>
+                <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 2">2</a>
+                <span class="cb-pagination__gap" aria-hidden="true">…</span>
+                <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 103">103</a>
+                <a class="cb-btn cb-btn--sm" href="#x-peers" rel="next" aria-label="Next page">›</a>
+              </div>
+            </nav>
+          </div>
+
+          <!-- Config ------------------------------------------------------- -->
+          <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-config" aria-labelledby="x-tab-config" hidden>
+            <h2 class="cb-tabs__heading">Config</h2>
+            <form class="cb-stack" method="post" action="#x-config">
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="x-endpoint">Endpoint</label>
+                <input class="cb-input" id="x-endpoint" name="endpoint" type="text" value="vpn.corp.example.net" required>
+              </div>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="x-port">Listen port</label>
+                <input class="cb-input" id="x-port" name="port" type="number" min="1" max="65535" value="51820">
+              </div>
+              <div class="cb-field cb-field--horizontal">
+                <span class="cb-field__label" id="x-mode-label">Tunnel mode</span>
+                <div class="cb-btn-group cb-segmented cb-segmented--fill" role="radiogroup" aria-labelledby="x-mode-label">
+                  <label class="cb-btn"><input type="radio" name="mode" value="full">Full</label>
+                  <label class="cb-btn"><input type="radio" name="mode" value="split" checked>Split</label>
+                  <label class="cb-btn"><input type="radio" name="mode" value="off">Off</label>
+                </div>
+              </div>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="x-pubkey">Server public key</label>
+                <div class="cb-input-group">
+                  <input class="cb-input" id="x-pubkey" type="text" readonly value="hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=">
+                  <button class="cb-btn" type="button" data-cb-copy="x-pubkey">Copy</button>
+                </div>
+              </div>
+              <div class="cb-field">
+                <span class="cb-field__label" id="x-client-label">Client configuration</span>
+                <div class="cb-secret">
+                  <pre class="cb-secret__value" id="x-client" aria-labelledby="x-client-label">[Interface]&#10;Address = 10.8.0.11/32&#10;DNS = 10.8.0.53&#10;&#10;[Peer]&#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&#10;Endpoint = vpn.corp.example.net:51820&#10;AllowedIPs = 10.8.0.0/24, 10.20.0.0/16</pre>
+                  <div class="cb-secret__actions">
+                    <button class="cb-btn cb-btn--sm" type="button" data-cb-copy="x-client" aria-label="Copy client configuration">Copy</button>
+                    <button class="cb-btn cb-btn--sm" type="button" data-cb-download="x-client" data-cb-filename="wg0.conf" aria-label="Save client configuration">Save</button>
+                  </div>
+                </div>
+              </div>
+              <details class="cb-details cb-details--inline">
+                <summary>Advanced settings</summary>
+                <div class="cb-details__body cb-stack">
+                  <div class="cb-field cb-field--horizontal">
+                    <label class="cb-field__label" for="x-mtu">MTU</label>
+                    <input class="cb-input" id="x-mtu" name="mtu" type="number" min="1280" max="1500" value="1420">
+                  </div>
+                  <div class="cb-field cb-field--horizontal">
+                    <label class="cb-field__label" for="x-keepalive">Keepalive, seconds</label>
+                    <input class="cb-input" id="x-keepalive" name="keepalive" type="number" min="0" max="600" value="25">
+                  </div>
+                </div>
+              </details>
+              <div class="cb-cluster cb-cluster--between">
+                <button class="cb-btn cb-btn--danger" type="button" data-cb-modal="x-delete">Delete gateway…</button>
+                <button class="cb-btn cb-btn--primary" type="submit">Save changes</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="cb-app__status">
+      <span class="cb-led cb-led--ok">Connected</span>
+      <span class="cb-led cb-led--ok">LDAP synced 10:41</span>
+      <span class="cb-led cb-led--warn">1 gateway degraded</span>
+      <span>412 peers</span>
+    </footer>
+  </div>
+
+  <dialog class="cb-dialog cb-dialog--sm cb-dialog--danger" id="x-revoke" aria-labelledby="x-revoke-title">
+    <form method="dialog">
+      <header class="cb-panel__head">
+        <h2 class="cb-panel__title" id="x-revoke-title">Revoke peer key?</h2>
+      </header>
+      <div class="cb-panel__body">
+        <p>The peer is disconnected at once and cannot reconnect until it gets a new key.</p>
+      </div>
+      <footer class="cb-panel__foot">
+        <button class="cb-btn" value="cancel" autofocus>Cancel</button>
+        <button class="cb-btn cb-btn--danger-solid" value="revoke">Revoke key</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="cb-dialog cb-dialog--sm cb-dialog--danger" id="x-delete" aria-labelledby="x-delete-title">
+    <form method="dialog">
+      <header class="cb-panel__head">
+        <h2 class="cb-panel__title" id="x-delete-title">Delete gateway gw-eu-1?</h2>
+      </header>
+      <div class="cb-panel__body cb-stack">
+        <p>412 peers lose their tunnel. This cannot be undone.</p>
+        <div class="cb-field">
+          <label class="cb-field__label" for="x-delete-name">Type <code class="cb-code">gw-eu-1</code> to confirm</label>
+          <input class="cb-input" id="x-delete-name" type="text" required pattern="gw-eu-1" autocomplete="off" aria-describedby="x-delete-error">
+          <p class="cb-field__error" id="x-delete-error">Type the gateway name exactly.</p>
+        </div>
+      </div>
+      <footer class="cb-panel__foot">
+        <button class="cb-btn" value="cancel" formnovalidate autofocus>Cancel</button>
+        <button class="cb-btn cb-btn--danger-solid" value="delete">Delete gateway</button>
+      </footer>
+    </form>
+  </dialog>
+</body>
+</html>

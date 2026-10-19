@@ -203,6 +203,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on the first page, cursor paging, the narrow collapse, notes and a reference table.
 - Catalogue "Utilities" section (own navigation group): text and numbers, wrapping and
   truncation, inline code and keys, visually hidden captions and labels, and a reference table.
+- `docs/example.html`: a VPN console screen built only from Cubicle (shell with a banner, sidebar
+  navigation and directory tree, breadcrumb, a gateway panel with Overview, Peers and Config tabs,
+  gauges, a compact-density peers table with selection, sorting and pagination, a config form
+  with secrets, revoke and typed-delete dialogs, status bar); the catalogue links to it.
 - Catalogue "Density" subsection under Tokens: the per-mode size table and one panel shown in
   compact, default and comfortable density.
 - Catalogue "Accessibility" section (own navigation group): a contrast table generated from the
