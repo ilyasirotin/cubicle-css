@@ -2285,15 +2285,17 @@
     }
   }
 
-  /* Stacked blocks share 1px seams; only the outer corners stay rounded. The
-     block with a focused summary rises, so its ring stays on top. */
-  .cb-details + .cb-details {
+  /* Adjacent blocks in normal flow stack with 1px seams; only the outer
+     corners stay rounded. In the gap-based layout primitives (.cb-stack,
+     .cb-grid, .cb-cluster) they stay apart. The block with a focused summary
+     rises, so its ring stays on top. */
+  :not(.cb-stack, .cb-grid, .cb-cluster) > .cb-details + .cb-details {
     margin-block-start: -1px;
     border-start-start-radius: var(--cb-radius-none);
     border-start-end-radius: var(--cb-radius-none);
   }
 
-  .cb-details:has(+ .cb-details) {
+  :not(.cb-stack, .cb-grid, .cb-cluster) > .cb-details:has(+ .cb-details) {
     border-end-start-radius: var(--cb-radius-none);
     border-end-end-radius: var(--cb-radius-none);
   }
