@@ -6,7 +6,8 @@
 //                 (to check the minified build).
 // Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
-//                 and badges-<width>.png of the badges section.
+//                 badges-<width>.png and tables-<width>.png of those sections, and
+//                 tables-sticky-360.png of the wide grid scrolled sideways.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -135,6 +136,9 @@ const PAIRS = [
   // Neutral tag (.cb-badge) and neutral solid badge
   ['--cb-text-main', 'color-mix(in srgb, var(--cb-text-main) 10%, var(--cb-bg-surface))', 4.5],
   ['--cb-text-inverse', '--cb-text-main', 4.5],
+  // Table rows: selected + hover, totals row
+  ['--cb-text-main', 'color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised))', 4.5],
+  ['--cb-text-main', 'color-mix(in srgb, var(--cb-bg-header) 50%, var(--cb-bg-surface))', 4.5],
 
   // Non-text structural & focus contrast (>= 3.0)
   ['--cb-border-strong', '--cb-bg-surface', 3],
@@ -251,9 +255,10 @@ const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
 check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
 
 // 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
-//    the plain-HTTP copy fallback, and hiding of script-only actions without JavaScript.
+//    table select-all, the plain-HTTP copy fallback, and hiding of script-only controls
+//    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
-const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download]';
+const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all]';
 if (await page.locator(ACTIONS).count()) {
   const fresh = async (ctx = context, before) => {
     const p = await ctx.newPage();
@@ -316,6 +321,30 @@ if (await page.locator(ACTIONS).count()) {
         `${download.suggestedFilename()}, ${content.length} chars`);
     }
 
+    // Select-all: checks every row, follows the rows (indeterminate when mixed), highlights the
+    // checked rows and fires a bubbling change event for each box it changes.
+    for (const id of await ids(p, 'data-cb-select-all')) {
+      const master = p.locator(`[data-cb-select-all="${id}"]`);
+      await master.scrollIntoViewIfNeeded(); await p.mouse.move(2, 2);
+      const state = () => p.evaluate((i) => {
+        const m = document.querySelector(`[data-cb-select-all="${i}"]`);
+        const boxes = [...document.getElementById(i).querySelectorAll('tbody input[type="checkbox"]:not(:disabled)')];
+        const probe = document.body.appendChild(document.createElement('i'));
+        probe.style.color = 'var(--cb-bg-selected)'; const sel = getComputedStyle(probe).color; probe.remove();
+        const lit = boxes.filter((b) => getComputedStyle(b.closest('td')).backgroundColor === sel).length;
+        return { master: m.checked ? 'on' : m.indeterminate ? 'mixed' : 'off', on: boxes.filter((b) => b.checked).length, lit, n: boxes.length };
+      }, id);
+      await p.evaluate(() => { window.__changes = 0; document.addEventListener('change', (e) => { if (!e.target.matches('[data-cb-select-all]')) window.__changes++; }); });
+      const start = await state();
+      await master.click(); const all = await state(); const changes = await p.evaluate(() => window.__changes);
+      await p.locator(`#${id} tbody input[type="checkbox"]`).first().click(); await p.mouse.move(2, 2); const mixed = await state();
+      await master.click(); await master.click(); const none = await state();
+      check(all.master === 'on' && all.on === all.n && all.lit === all.n && changes === all.n - start.on
+        && mixed.master === 'mixed' && none.master === 'off' && none.on === 0 && none.lit === 0,
+        `select-all #${id} checks rows, follows them and highlights them`,
+        `start ${start.master} ${start.on}/${start.n}; all ${all.on}/${all.n} lit ${all.lit}, ${changes} change events; one off -> ${mixed.master}; cleared -> ${none.master} ${none.on}`);
+    }
+
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
@@ -334,7 +363,7 @@ if (await page.locator(ACTIONS).count()) {
   const pn = await fresh(noJs);
   const r = await pn.evaluate((sel) => {
     const buttons = [...document.querySelectorAll(sel)];
-    const targets = buttons.map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download')));
+    const targets = buttons.map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all')));
     return { hidden: buttons.every((b) => getComputedStyle(b).display === 'none'), visible: targets.every((t) => t && getComputedStyle(t).display !== 'none') };
   }, ACTIONS);
   check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
@@ -384,6 +413,86 @@ if (await page.locator(INDICATORS).count()) {
     const section = page.locator('.docs-section:has(.docs-demo .cb-badge)').first();
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/badges-${width}.png` });
+  }
+}
+
+// 11. Data tables: one row height (28px, compact 24px) with or without .cb-btn--sm,
+//     sticky first column(s) and header that stay put while their wrapper scrolls,
+//     text contrast in every row paint (zebra, hover, selected, totals), and a visible
+//     sort arrow for each aria-sort value.
+if (await page.locator('.docs-demo .cb-table').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const heights = await page.$$eval('.docs-demo .cb-table', (tables) => tables.map((t, i) => {
+    const rows = [...t.querySelectorAll('tbody tr, thead tr, tfoot tr')].filter((r) => !r.querySelector('.cb-table__empty'));
+    const want = t.classList.contains('cb-table--compact') ? 24 : 28;
+    const wraps = t.classList.contains('cb-table--wrap');
+    return { i, want, wraps, got: [...new Set(rows.map((r) => Math.round(r.getBoundingClientRect().height)))] };
+  }));
+  for (const h of heights) {
+    const ok = h.wraps ? h.got.every((x) => x >= h.want) : h.got.length === 1 && h.got[0] === h.want;
+    check(ok, `table ${h.i + 1}: rows are ${h.want}px${h.wraps ? ' or taller (wrapping)' : ''}`, `${h.got.join(', ')}px`);
+  }
+
+  // Sticky checks run at 360px, where the wide grid scrolls inside its wrapper.
+  await page.setViewportSize({ width: 360, height: 900 });
+  const sticky = await page.$$eval('.docs-demo .cb-table--sticky', (tables) => tables.map((t, i) => {
+    const wrap = t.closest('.cb-table-wrap');
+    if (!wrap) return { i, skip: true };
+    const box = () => wrap.getBoundingClientRect();
+    const row = t.querySelector('tbody tr');
+    const pinned = t.querySelector('.cb-table__select:first-child') ? 2 : 1;
+    const before = [...row.children].slice(0, pinned).map((c) => c.getBoundingClientRect().left - box().left);
+    wrap.scrollLeft = wrap.scrollWidth;
+    const after = [...row.children].slice(0, pinned).map((c) => c.getBoundingClientRect().left - box().left);
+    const scrolledX = wrap.scrollLeft;
+    wrap.scrollTop = wrap.scrollHeight;
+    const headTop = t.querySelector('thead th').getBoundingClientRect().top - box().top;
+    const scrolledY = wrap.scrollTop;
+    wrap.scrollLeft = 0; wrap.scrollTop = 0;
+    return { i, pinned, before, after, scrolledX, headTop, scrolledY };
+  }));
+  for (const s of sticky.filter((x) => !x.skip)) {
+    const columnsHold = !s.scrolledX || s.after.every((x, k) => Math.abs(x - s.before[k]) < 1);
+    const headHolds = !s.scrolledY || Math.abs(s.headTop - 1) < 1;
+    check(columnsHold && headHolds && (s.scrolledX || s.scrolledY), `sticky table ${s.i + 1}: pinned columns and header stay in place while scrolled`,
+      `scrolled x ${s.scrolledX} y ${s.scrolledY}; first ${s.pinned} column(s) ${s.before.map(Math.round)} -> ${s.after.map(Math.round)}; header top ${Math.round(s.headTop)}`);
+  }
+  const wide = page.locator('.docs-demo .cb-table--sticky').first();
+  await wide.scrollIntoViewIfNeeded();
+  await wide.evaluate((t) => { t.closest('.cb-table-wrap').scrollLeft = 300; });
+  await wide.locator('xpath=..').screenshot({ path: `${shots}/tables-sticky-360.png` });
+  await wide.evaluate((t) => { t.closest('.cb-table-wrap').scrollLeft = 0; });
+  await page.setViewportSize({ width: 1360, height: 900 });
+
+  // Contrast of every row paint, live: hover is forced by moving the pointer onto a row.
+  const paints = async () => page.$$eval('.docs-demo .cb-table :is(tbody, tfoot) tr', (rows) => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    const rgb = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); };
+    return rows.flatMap((r) => [...r.children].filter((c) => !c.querySelector('a, .cb-badge, .cb-btn, .cb-check') && c.textContent.trim())
+      .map((c) => ({ key: getComputedStyle(c).backgroundColor, fg: rgb(getComputedStyle(c).color), bg: rgb(getComputedStyle(c).backgroundColor) })));
+  });
+  const row = page.locator('.docs-demo .cb-table tbody tr:not(:has(:checked))').first();
+  await row.scrollIntoViewIfNeeded(); await row.hover();
+  const cells = [...await paints(), ...(await (async () => { await page.mouse.move(2, 2); return paints(); })())];
+  const byPaint = new Map();
+  for (const c of cells) { const r = ratio(c.fg, c.bg); if (!byPaint.has(c.key) || r < byPaint.get(c.key)) byPaint.set(c.key, r); }
+  for (const [paint, r] of byPaint) check(r >= 4.5, `table cell text on ${paint} >= 4.5`, r.toFixed(2));
+
+  const arrows = await page.$$eval('.docs-demo th[aria-sort] > .cb-table__sort', (bs) => bs.map((b) => {
+    const a = getComputedStyle(b, '::after');
+    return { sort: b.parentElement.getAttribute('aria-sort'), w: parseFloat(a.width), h: parseFloat(a.height), clip: a.clipPath !== 'none' };
+  }));
+  for (const sort of new Set(arrows.map((a) => a.sort))) {
+    const a = arrows.find((x) => x.sort === sort);
+    check(a.w > 0 && a.h > 0 && a.clip, `sort arrow visible for aria-sort="${sort}"`, `${a.w}x${a.h}px`);
+  }
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-table)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/tables-${width}.png` });
   }
 }
 
