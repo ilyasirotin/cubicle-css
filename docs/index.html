@@ -44,6 +44,7 @@
         <li><a class="docs-nav__link" href="#fields">Inputs &amp; fields</a></li>
         <li><a class="docs-nav__link" href="#secrets">Secret boxes</a></li>
         <li><a class="docs-nav__link" href="#panels">Fieldsets &amp; panels</a></li>
+        <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
       </ul>
     </nav>
@@ -1516,6 +1517,473 @@
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-panel--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code></td><td class="docs-table__td">Panel</td><td class="docs-table__td">3px status edge; pair with a status word</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-panel--inset</code></td><td class="docs-table__td">Panel, <code>&lt;pre&gt;</code></td><td class="docs-table__td">Recessed well with its own padding and scrolling</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>open</code></td><td class="docs-table__td"><code>&lt;details class="cb-panel"&gt;</code></td><td class="docs-table__td">Expanded; the chevron points down</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="tables" aria-labelledby="tables-title">
+        <h2 class="docs-h2" id="tables-title">Data tables</h2>
+        <p class="docs-text">Dense, bordered data grids for sessions, accounts, certificates and logs, with
+          zebra rows, instant hover and selection, and horizontal scrolling inside a wrapper.</p>
+
+        <h3 class="docs-h3" id="tables-grid">Full grid</h3>
+        <p class="docs-text">Cells stay on one line, so a wide table scrolls inside
+          <code>.cb-table-wrap</code>. <code>--sticky</code> pins the header and the first column (here the
+          select and user columns). A checked row box highlights its row; the header box selects all rows
+          (needs <code>cubicle.js</code>). Sorting is done by the server, which re-renders
+          <code>aria-sort</code>.</p>
+        <div class="docs-demo">
+          <div class="cb-table-wrap">
+            <table class="cb-table cb-table--sticky" id="t-sessions">
+              <thead>
+                <tr>
+                  <th class="cb-table__select" scope="col"><input class="cb-check" type="checkbox" data-cb-select-all="t-sessions" aria-label="Select all sessions"></th>
+                  <th scope="col" aria-sort="ascending"><button class="cb-table__sort" type="button">User</button></th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Client IP</th>
+                  <th scope="col">Tunnel IP</th>
+                  <th scope="col">Gateway</th>
+                  <th class="cb-table__num" scope="col" aria-sort="none"><button class="cb-table__sort" type="button">Received</button></th>
+                  <th class="cb-table__num" scope="col">Sent</th>
+                  <th scope="col" aria-sort="none"><button class="cb-table__sort" type="button">Connected</button></th>
+                  <th scope="col">Last handshake</th>
+                  <th class="cb-table__actions" scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select alice.ng" checked></td>
+                <th scope="row">alice.ng</th>
+                <td><span class="cb-badge cb-badge--ok">Online</span></td>
+                <td><code>203.0.113.24</code></td>
+                <td><code>10.8.0.11</code></td>
+                <td>gw-eu-1</td>
+                <td class="cb-table__num">1.42 GB</td>
+                <td class="cb-table__num">312.8 MB</td>
+                <td>2026-10-19 08:12</td>
+                <td>14 s ago</td>
+                <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button> <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Disconnect</button></td>
+              </tr>
+              <tr>
+                <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select b.kowalski"></td>
+                <th scope="row">b.kowalski</th>
+                <td><span class="cb-badge cb-badge--ok">Online</span></td>
+                <td><code>198.51.100.7</code></td>
+                <td><code>10.8.0.12</code></td>
+                <td>gw-eu-1</td>
+                <td class="cb-table__num">86.0 MB</td>
+                <td class="cb-table__num">9.4 MB</td>
+                <td>2026-10-19 09:40</td>
+                <td>1 min ago</td>
+                <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button> <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Disconnect</button></td>
+              </tr>
+              <tr>
+                <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select c.okafor" checked></td>
+                <th scope="row">c.okafor</th>
+                <td><span class="cb-badge cb-badge--warn">Stale</span></td>
+                <td><code>192.0.2.181</code></td>
+                <td><code>10.8.0.19</code></td>
+                <td>gw-us-2</td>
+                <td class="cb-table__num">4.07 GB</td>
+                <td class="cb-table__num">1.10 GB</td>
+                <td>2026-10-18 22:03</td>
+                <td>6 min ago</td>
+                <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button> <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Disconnect</button></td>
+              </tr>
+              <tr>
+                <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select d.ivanova"></td>
+                <th scope="row">d.ivanova</th>
+                <td><span class="cb-badge cb-badge--ok">Online</span></td>
+                <td><code>203.0.113.90</code></td>
+                <td><code>10.8.0.23</code></td>
+                <td>gw-ap-1</td>
+                <td class="cb-table__num">512.3 MB</td>
+                <td class="cb-table__num">48.1 MB</td>
+                <td>2026-10-19 07:55</td>
+                <td>9 s ago</td>
+                <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button> <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Disconnect</button></td>
+              </tr>
+              <tr>
+                <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select svc-backup"></td>
+                <th scope="row">svc-backup</th>
+                <td><span class="cb-badge cb-badge--info">Service</span></td>
+                <td><code>10.20.4.15</code></td>
+                <td><code>10.8.0.40</code></td>
+                <td>gw-eu-2</td>
+                <td class="cb-table__num">38.9 GB</td>
+                <td class="cb-table__num">220.6 MB</td>
+                <td>2026-10-17 00:00</td>
+                <td>3 s ago</td>
+                <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button> <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Disconnect</button></td>
+              </tr>
+              <tr>
+                <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select e.santos"></td>
+                <th scope="row">e.santos</th>
+                <td><span class="cb-badge cb-badge--danger">Revoked</span></td>
+                <td><code>198.51.100.62</code></td>
+                <td><code>10.8.0.51</code></td>
+                <td>gw-us-1</td>
+                <td class="cb-table__num">0 B</td>
+                <td class="cb-table__num">0 B</td>
+                <td>2026-10-19 10:01</td>
+                <td>never</td>
+                <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button">Details</button> <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Disconnect</button></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
+  &lt;table class=&quot;cb-table cb-table--sticky&quot; id=&quot;t-sessions&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th class=&quot;cb-table__select&quot; scope=&quot;col&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; data-cb-select-all=&quot;t-sessions&quot; aria-label=&quot;Select all sessions&quot;&gt;&lt;/th&gt;
+        &lt;th scope=&quot;col&quot; aria-sort=&quot;ascending&quot;&gt;&lt;button class=&quot;cb-table__sort&quot; type=&quot;button&quot;&gt;User&lt;/button&gt;&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Client IP&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;
+        &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot; aria-sort=&quot;none&quot;&gt;&lt;button class=&quot;cb-table__sort&quot; type=&quot;button&quot;&gt;Received&lt;/button&gt;&lt;/th&gt;
+        &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Sent&lt;/th&gt;
+        &lt;th scope=&quot;col&quot; aria-sort=&quot;none&quot;&gt;&lt;button class=&quot;cb-table__sort&quot; type=&quot;button&quot;&gt;Connected&lt;/button&gt;&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Last handshake&lt;/th&gt;
+        &lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Actions&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-label=&quot;Select alice.ng&quot; checked&gt;&lt;/td&gt;
+      &lt;th scope=&quot;row&quot;&gt;alice.ng&lt;/th&gt;
+      &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;203.0.113.24&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.8.0.11&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;gw-eu-1&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;312.8 MB&lt;/td&gt;
+      &lt;td&gt;2026-10-19 08:12&lt;/td&gt;
+      &lt;td&gt;14 s ago&lt;/td&gt;
+      &lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt; &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Disconnect&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-label=&quot;Select b.kowalski&quot;&gt;&lt;/td&gt;
+      &lt;th scope=&quot;row&quot;&gt;b.kowalski&lt;/th&gt;
+      &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;198.51.100.7&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.8.0.12&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;gw-eu-1&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;9.4 MB&lt;/td&gt;
+      &lt;td&gt;2026-10-19 09:40&lt;/td&gt;
+      &lt;td&gt;1 min ago&lt;/td&gt;
+      &lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt; &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Disconnect&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-label=&quot;Select c.okafor&quot; checked&gt;&lt;/td&gt;
+      &lt;th scope=&quot;row&quot;&gt;c.okafor&lt;/th&gt;
+      &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;192.0.2.181&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.8.0.19&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;gw-us-2&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;4.07 GB&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;1.10 GB&lt;/td&gt;
+      &lt;td&gt;2026-10-18 22:03&lt;/td&gt;
+      &lt;td&gt;6 min ago&lt;/td&gt;
+      &lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt; &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Disconnect&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-label=&quot;Select d.ivanova&quot;&gt;&lt;/td&gt;
+      &lt;th scope=&quot;row&quot;&gt;d.ivanova&lt;/th&gt;
+      &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.8.0.23&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;gw-ap-1&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;512.3 MB&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;48.1 MB&lt;/td&gt;
+      &lt;td&gt;2026-10-19 07:55&lt;/td&gt;
+      &lt;td&gt;9 s ago&lt;/td&gt;
+      &lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt; &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Disconnect&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-label=&quot;Select svc-backup&quot;&gt;&lt;/td&gt;
+      &lt;th scope=&quot;row&quot;&gt;svc-backup&lt;/th&gt;
+      &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--info&quot;&gt;Service&lt;/span&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.20.4.15&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.8.0.40&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;gw-eu-2&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;38.9 GB&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;220.6 MB&lt;/td&gt;
+      &lt;td&gt;2026-10-17 00:00&lt;/td&gt;
+      &lt;td&gt;3 s ago&lt;/td&gt;
+      &lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt; &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Disconnect&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; aria-label=&quot;Select e.santos&quot;&gt;&lt;/td&gt;
+      &lt;th scope=&quot;row&quot;&gt;e.santos&lt;/th&gt;
+      &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--danger&quot;&gt;Revoked&lt;/span&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;198.51.100.62&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;10.8.0.51&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;gw-us-1&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;0 B&lt;/td&gt;
+      &lt;td class=&quot;cb-table__num&quot;&gt;0 B&lt;/td&gt;
+      &lt;td&gt;2026-10-19 10:01&lt;/td&gt;
+      &lt;td&gt;never&lt;/td&gt;
+      &lt;td class=&quot;cb-table__actions&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Details&lt;/button&gt; &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Disconnect&lt;/button&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tables-selected">Selected row</h3>
+        <p class="docs-text"><code>aria-selected="true"</code> marks a row chosen elsewhere, for example the
+          record shown in a detail pane.</p>
+        <div class="docs-demo">
+          <div class="cb-table-wrap">
+            <table class="cb-table">
+              <thead>
+                <tr>
+                  <th scope="col">Common name</th>
+                  <th scope="col">Issuer</th>
+                  <th scope="col">Not after</th>
+                  <th scope="col">State</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><a href="#badges-context">vpn.corp.example.net</a></th>
+                  <td>Corp Issuing CA 2</td>
+                  <td>2027-03-14</td>
+                  <td><span class="cb-badge cb-badge--ok">Valid</span></td>
+                </tr>
+                <tr aria-selected="true">
+                  <th scope="row"><a href="#badges-context">ldap.corp.example.net</a></th>
+                  <td>Corp Issuing CA 2</td>
+                  <td>2026-10-25</td>
+                  <td><span class="cb-badge cb-badge--warn">Expires in 6 days</span></td>
+                </tr>
+                <tr>
+                  <th scope="row"><a href="#badges-context">sso.corp.example.net</a></th>
+                  <td>Corp Issuing CA 1</td>
+                  <td>2026-09-30</td>
+                  <td><span class="cb-badge cb-badge--danger">Expired</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
+  &lt;table class=&quot;cb-table&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;col&quot;&gt;Common name&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Issuer&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;Not after&lt;/th&gt;
+        &lt;th scope=&quot;col&quot;&gt;State&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;row&quot;&gt;&lt;a href=&quot;#badges-context&quot;&gt;vpn.corp.example.net&lt;/a&gt;&lt;/th&gt;
+        &lt;td&gt;Corp Issuing CA 2&lt;/td&gt;
+        &lt;td&gt;2027-03-14&lt;/td&gt;
+        &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Valid&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr aria-selected=&quot;true&quot;&gt;
+        &lt;th scope=&quot;row&quot;&gt;&lt;a href=&quot;#badges-context&quot;&gt;ldap.corp.example.net&lt;/a&gt;&lt;/th&gt;
+        &lt;td&gt;Corp Issuing CA 2&lt;/td&gt;
+        &lt;td&gt;2026-10-25&lt;/td&gt;
+        &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Expires in 6 days&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;row&quot;&gt;&lt;a href=&quot;#badges-context&quot;&gt;sso.corp.example.net&lt;/a&gt;&lt;/th&gt;
+        &lt;td&gt;Corp Issuing CA 1&lt;/td&gt;
+        &lt;td&gt;2026-09-30&lt;/td&gt;
+        &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--danger&quot;&gt;Expired&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tables-panel">In a panel, wrapping, scrolling</h3>
+        <p class="docs-text">In a flush panel body the panel frames the table. <code>--wrap</code> lets data
+          cells wrap; <code>.cb-table-wrap--scroll</code> limits the height to 20rem, so the sticky header
+          stays in view.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="t-audit-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="t-audit-title">Audit log</h4>
+              <button class="cb-btn cb-btn--sm" type="button">Export</button>
+            </header>
+            <div class="cb-panel__body cb-panel__body--flush">
+              <div class="cb-table-wrap cb-table-wrap--scroll">
+                <table class="cb-table cb-table--wrap cb-table--sticky" aria-labelledby="t-audit-title">
+                  <thead>
+                    <tr>
+                      <th scope="col">Time</th>
+                      <th scope="col">Actor</th>
+                      <th scope="col">Event</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>10:42:07</td><td>alice.ng</td><td>Granted role vpn-admin to b.kowalski for 8 hours (change request CR-4471).</td></tr>
+                    <tr><td>10:41:55</td><td>system</td><td>LDAP sync completed: 12 users updated, 0 disabled, 1 group renamed.</td></tr>
+                    <tr><td>10:39:12</td><td>c.okafor</td><td>Rotated WireGuard key for peer gw-us-2; previous key revoked.</td></tr>
+                    <tr><td>10:35:48</td><td>system</td><td>Session for e.santos refused: certificate revoked at 10:01.</td></tr>
+                    <tr><td>10:31:20</td><td>d.ivanova</td><td>Updated firewall rule 14: allow 10.8.0.0/24 to 10.20.0.0/16 on tcp/443.</td></tr>
+                    <tr><td>10:27:03</td><td>alice.ng</td><td>Exported session report for gw-eu-1 (CSV, 1 248 rows).</td></tr>
+                    <tr><td>10:22:41</td><td>system</td><td>Gateway gw-ap-1 handshake latency above 250 ms for 5 minutes.</td></tr>
+                    <tr><td>10:18:09</td><td>b.kowalski</td><td>Signed in from 198.51.100.7 with hardware key.</td></tr>
+                    <tr><td>10:12:30</td><td>system</td><td>Scheduled backup of the configuration store finished in 41 s.</td></tr>
+                    <tr><td>10:05:17</td><td>c.okafor</td><td>Disabled account temp-contractor-07 (contract ended).</td></tr>
+                    <tr><td>09:58:02</td><td>system</td><td>Certificate for ldap.corp.example.net expires in 6 days.</td></tr>
+                    <tr><td>09:51:44</td><td>d.ivanova</td><td>Added peer laptop-di-2 with AllowedIPs 10.8.0.23/32.</td></tr>
+                    <tr><td>09:47:10</td><td>alice.ng</td><td>Approved access request AR-1182 for group finance-readonly.</td></tr>
+                    <tr><td>09:40:00</td><td>system</td><td>Service svc-backup authenticated with API key ending 9QF2.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;t-audit-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;t-audit-title&quot;&gt;Audit log&lt;/h4&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Export&lt;/button&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+    &lt;div class=&quot;cb-table-wrap cb-table-wrap--scroll&quot;&gt;
+      &lt;table class=&quot;cb-table cb-table--wrap cb-table--sticky&quot; aria-labelledby=&quot;t-audit-title&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th scope=&quot;col&quot;&gt;Time&lt;/th&gt;
+            &lt;th scope=&quot;col&quot;&gt;Actor&lt;/th&gt;
+            &lt;th scope=&quot;col&quot;&gt;Event&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;td&gt;10:42:07&lt;/td&gt;&lt;td&gt;alice.ng&lt;/td&gt;&lt;td&gt;Granted role vpn-admin to b.kowalski for 8 hours (change request CR-4471).&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:41:55&lt;/td&gt;&lt;td&gt;system&lt;/td&gt;&lt;td&gt;LDAP sync completed: 12 users updated, 0 disabled, 1 group renamed.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:39:12&lt;/td&gt;&lt;td&gt;c.okafor&lt;/td&gt;&lt;td&gt;Rotated WireGuard key for peer gw-us-2; previous key revoked.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:35:48&lt;/td&gt;&lt;td&gt;system&lt;/td&gt;&lt;td&gt;Session for e.santos refused: certificate revoked at 10:01.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:31:20&lt;/td&gt;&lt;td&gt;d.ivanova&lt;/td&gt;&lt;td&gt;Updated firewall rule 14: allow 10.8.0.0/24 to 10.20.0.0/16 on tcp/443.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:27:03&lt;/td&gt;&lt;td&gt;alice.ng&lt;/td&gt;&lt;td&gt;Exported session report for gw-eu-1 (CSV, 1 248 rows).&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:22:41&lt;/td&gt;&lt;td&gt;system&lt;/td&gt;&lt;td&gt;Gateway gw-ap-1 handshake latency above 250 ms for 5 minutes.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:18:09&lt;/td&gt;&lt;td&gt;b.kowalski&lt;/td&gt;&lt;td&gt;Signed in from 198.51.100.7 with hardware key.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:12:30&lt;/td&gt;&lt;td&gt;system&lt;/td&gt;&lt;td&gt;Scheduled backup of the configuration store finished in 41 s.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;10:05:17&lt;/td&gt;&lt;td&gt;c.okafor&lt;/td&gt;&lt;td&gt;Disabled account temp-contractor-07 (contract ended).&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;09:58:02&lt;/td&gt;&lt;td&gt;system&lt;/td&gt;&lt;td&gt;Certificate for ldap.corp.example.net expires in 6 days.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;09:51:44&lt;/td&gt;&lt;td&gt;d.ivanova&lt;/td&gt;&lt;td&gt;Added peer laptop-di-2 with AllowedIPs 10.8.0.23/32.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;09:47:10&lt;/td&gt;&lt;td&gt;alice.ng&lt;/td&gt;&lt;td&gt;Approved access request AR-1182 for group finance-readonly.&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;td&gt;09:40:00&lt;/td&gt;&lt;td&gt;system&lt;/td&gt;&lt;td&gt;Service svc-backup authenticated with API key ending 9QF2.&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tables-compact">Compact, caption and totals</h3>
+        <div class="docs-demo">
+          <table class="cb-table cb-table--compact">
+            <caption>Bandwidth by gateway, last 24 hours</caption>
+            <thead>
+              <tr>
+                <th scope="col">Gateway</th>
+                <th class="cb-table__num" scope="col">Peers</th>
+                <th class="cb-table__num" scope="col">Received</th>
+                <th class="cb-table__num" scope="col">Sent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">gw-eu-1</th><td class="cb-table__num">412</td><td class="cb-table__num">1.21 TB</td><td class="cb-table__num">38.4 GB</td></tr>
+              <tr><th scope="row">gw-eu-2</th><td class="cb-table__num">96</td><td class="cb-table__num">402.7 GB</td><td class="cb-table__num">12.0 GB</td></tr>
+              <tr><th scope="row">gw-us-1</th><td class="cb-table__num">233</td><td class="cb-table__num">880.1 GB</td><td class="cb-table__num">21.9 GB</td></tr>
+              <tr><th scope="row">gw-ap-1</th><td class="cb-table__num">57</td><td class="cb-table__num">96.3 GB</td><td class="cb-table__num">4.2 GB</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><th scope="row">Total</th><td class="cb-table__num">798</td><td class="cb-table__num">2.59 TB</td><td class="cb-table__num">76.5 GB</td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <pre class="docs-snippet"><code>&lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+  &lt;caption&gt;Bandwidth by gateway, last 24 hours&lt;/caption&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;
+      &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Peers&lt;/th&gt;
+      &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;
+      &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Sent&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;412&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.21 TB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;38.4 GB&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-2&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;402.7 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;12.0 GB&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-us-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;233&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;880.1 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;21.9 GB&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-ap-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;57&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96.3 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;4.2 GB&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+  &lt;tfoot&gt;
+    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Total&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;798&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;2.59 TB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;76.5 GB&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tfoot&gt;
+&lt;/table&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tables-empty">Empty state</h3>
+        <div class="docs-demo">
+          <table class="cb-table">
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Group</th>
+                <th scope="col">Last sign-in</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="cb-table__empty" colspan="3">No users match “contractor” in group finance-readonly.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre class="docs-snippet"><code>&lt;table class=&quot;cb-table&quot;&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th scope=&quot;col&quot;&gt;User&lt;/th&gt;
+      &lt;th scope=&quot;col&quot;&gt;Group&lt;/th&gt;
+      &lt;th scope=&quot;col&quot;&gt;Last sign-in&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;td class=&quot;cb-table__empty&quot; colspan=&quot;3&quot;&gt;No users match “contractor” in group finance-readonly.&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tables-a11y">Accessibility</h3>
+        <ul class="docs-list">
+          <li>Name every table: a <code>&lt;caption&gt;</code>, or <code>aria-labelledby</code> pointing at
+            the panel title.</li>
+          <li>Use <code>scope="col"</code> on column headers and a <code>&lt;th scope="row"&gt;</code> for the
+            cell that names each row.</li>
+          <li>Give every row checkbox an <code>aria-label</code> that names its row.</li>
+          <li><code>aria-sort</code> belongs on the <code>&lt;th&gt;</code>, not on the sort button.</li>
+        </ul>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th class="docs-table__th" scope="col">Class / attribute</th><th class="docs-table__th" scope="col">Element</th><th class="docs-table__th" scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table-wrap</code></td><td class="docs-table__td"><code>&lt;div&gt;</code></td><td class="docs-table__td">Frame and scroll container for a table wider than its column</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table-wrap--scroll</code></td><td class="docs-table__td">Wrapper</td><td class="docs-table__td">Limits the height to 20rem; the table scrolls inside</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table</code></td><td class="docs-table__td"><code>&lt;table&gt;</code></td><td class="docs-table__td">Bordered grid; cells styled by element, one line each, 28px rows</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table--compact</code></td><td class="docs-table__td">Table</td><td class="docs-table__td">24px rows</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table--wrap</code></td><td class="docs-table__td">Table</td><td class="docs-table__td">Data cells wrap; headers stay on one line</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table--sticky</code></td><td class="docs-table__td">Table</td><td class="docs-table__td">Pins the header and the first column (and the one after a select column)</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table__num</code></td><td class="docs-table__td"><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td class="docs-table__td">Right-aligned numbers</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table__select</code></td><td class="docs-table__td"><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td class="docs-table__td">Narrow centred column for a <code>.cb-check</code></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table__actions</code></td><td class="docs-table__td"><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td class="docs-table__td">Shrinks to its <code>.cb-btn--sm</code> keys, aligned to the end</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table__sort</code> + <code>aria-sort</code></td><td class="docs-table__td"><code>&lt;button&gt;</code> in <code>&lt;th&gt;</code></td><td class="docs-table__td">Sort key; arrow for <code>ascending</code>, <code>descending</code>, <code>none</code></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-table__empty</code></td><td class="docs-table__td"><code>&lt;td colspan&gt;</code></td><td class="docs-table__td">Centred, muted “no data” row</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-selected="true"</code></td><td class="docs-table__td"><code>&lt;tr&gt;</code></td><td class="docs-table__td">Selected row</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-check:checked</code></td><td class="docs-table__td">Row checkbox</td><td class="docs-table__td">Selects its row</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>data-cb-select-all="id"</code></td><td class="docs-table__td">Header checkbox</td><td class="docs-table__td">Checks every row box of the table; indeterminate when mixed (script)</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>&lt;caption&gt;</code>, <code>&lt;tfoot&gt;</code></td><td class="docs-table__td">Table</td><td class="docs-table__td">Label above the frame; totals row</td></tr>
             </tbody>
           </table>
         </div>
