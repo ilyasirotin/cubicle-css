@@ -188,6 +188,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on the first page, cursor paging, the narrow collapse, notes and a reference table.
 - Catalogue "Utilities" section (own navigation group): text and numbers, wrapping and
   truncation, inline code and keys, visually hidden captions and labels, and a reference table.
+- Catalogue "Accessibility" section (own navigation group): a contrast table generated from the
+  measured palette pairs, the focus ring and its placements with an inset-ring demo, a keyboard map
+  of every component, motion and meaning rules, and the verified engines with their differences.
 
 ### Changed
 

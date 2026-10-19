@@ -59,6 +59,10 @@
       <ul class="docs-nav__list">
         <li><a class="docs-nav__link" href="#utilities">Utilities</a></li>
       </ul>
+      <p class="docs-nav__label">Accessibility</p>
+      <ul class="docs-nav__list">
+        <li><a class="docs-nav__link" href="#accessibility">Accessibility</a></li>
+      </ul>
     </nav>
 
     <main id="main" class="docs-main">
@@ -4088,6 +4092,159 @@
               <tr><th scope="row"><code>.cb-kbd</code></th><td>Small raised key</td><td>Keyboard shortcuts</td></tr>
               <tr><th scope="row"><code>.cb-sr-only</code></th><td>Visually hidden, still announced</td><td>Captions, icon-key labels</td></tr>
               <tr><th scope="row"><code>.cb-skip-link</code></th><td>Off screen until focused</td><td>First link of the page, to the main content</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="accessibility" aria-labelledby="accessibility-title">
+        <h2 class="docs-h2" id="accessibility-title">Accessibility</h2>
+        <p class="docs-text">What Cubicle guarantees, how it is measured, and what a page must still do itself.
+          Every figure here comes from <code>scripts/verify-browser.mjs</code>.</p>
+
+        <h3 class="docs-h3" id="a11y-contrast">Contrast</h3>
+        <p class="docs-text">Every text pair meets WCAG AA (4.5:1) and every boundary, fill and focus ring meets
+          3:1. Ratios are measured in the browser from the tokens; this table is generated and checked against
+          the live values.</p>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap" id="a11y-contrast-table">
+            <thead>
+              <tr><th scope="col">Foreground</th><th scope="col">Background</th><th scope="col">Ratio</th><th scope="col">Minimum</th><th scope="col">Used for</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">14.65</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">16.76</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">18.16</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-btn</span></td><td class="cb-table__num">15.47</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">13.82</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-header</span></td><td class="cb-table__num">12.93</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-zebra</span></td><td class="cb-table__num">15.89</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-hover</span></td><td class="cb-table__num">14.73</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">13.52</td><td class="cb-table__num">≥ 4.5</td><td>Primary text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-bg-selected 70%, --cb-bg-raised)</span></td><td class="cb-table__num">14.78</td><td class="cb-table__num">≥ 4.5</td><td>Primary text: selected row, hovered</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-bg-header 50%, --cb-bg-surface)</span></td><td class="cb-table__num">14.76</td><td class="cb-table__num">≥ 4.5</td><td>Primary text: table totals</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">6.10</td><td class="cb-table__num">≥ 4.5</td><td>Muted text: hints, metadata</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">6.98</td><td class="cb-table__num">≥ 4.5</td><td>Muted text: hints, metadata</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">7.56</td><td class="cb-table__num">≥ 4.5</td><td>Muted text: hints, metadata</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">5.75</td><td class="cb-table__num">≥ 4.5</td><td>Muted text: hints, metadata</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-header</span></td><td class="cb-table__num">5.38</td><td class="cb-table__num">≥ 4.5</td><td>Muted text: hints, metadata</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">mix(--cb-bg-header 60%, --cb-bg-surface)</span></td><td class="cb-table__num">5.98</td><td class="cb-table__num">≥ 4.5</td><td>Muted text: idle tabs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-inverse</span></th><td><span class="cb-mono">--cb-accent</span></td><td class="cb-table__num">8.36</td><td class="cb-table__num">≥ 4.5</td><td>Inverse text: solid buttons, badges, glyphs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-inverse</span></th><td><span class="cb-mono">--cb-ok</span></td><td class="cb-table__num">6.81</td><td class="cb-table__num">≥ 4.5</td><td>Inverse text: solid buttons, badges, glyphs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-inverse</span></th><td><span class="cb-mono">--cb-warn</span></td><td class="cb-table__num">5.98</td><td class="cb-table__num">≥ 4.5</td><td>Inverse text: solid buttons, badges, glyphs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-inverse</span></th><td><span class="cb-mono">--cb-danger</span></td><td class="cb-table__num">7.94</td><td class="cb-table__num">≥ 4.5</td><td>Inverse text: solid buttons, badges, glyphs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-inverse</span></th><td><span class="cb-mono">--cb-info</span></td><td class="cb-table__num">7.23</td><td class="cb-table__num">≥ 4.5</td><td>Inverse text: solid buttons, badges, glyphs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-inverse</span></th><td><span class="cb-mono">--cb-text-main</span></td><td class="cb-table__num">17.36</td><td class="cb-table__num">≥ 4.5</td><td>Inverse text: solid buttons, badges, glyphs</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">mix(--cb-danger 10%, --cb-bg-btn)</span></td><td class="cb-table__num">5.98</td><td class="cb-table__num">≥ 4.5</td><td>Tinted danger button</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">mix(--cb-ok 10%, --cb-bg-surface)</span></td><td class="cb-table__num">5.66</td><td class="cb-table__num">≥ 4.5</td><td>Status badges, alert titles</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">mix(--cb-warn 10%, --cb-bg-surface)</span></td><td class="cb-table__num">5.01</td><td class="cb-table__num">≥ 4.5</td><td>Status badges, alert titles</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">mix(--cb-danger 10%, --cb-bg-surface)</span></td><td class="cb-table__num">6.45</td><td class="cb-table__num">≥ 4.5</td><td>Status badges, alert titles</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">mix(--cb-info 10%, --cb-bg-surface)</span></td><td class="cb-table__num">5.97</td><td class="cb-table__num">≥ 4.5</td><td>Status badges, alert titles</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">mix(--cb-text-muted 10%, --cb-bg-surface)</span></td><td class="cb-table__num">6.03</td><td class="cb-table__num">≥ 4.5</td><td>Status badges, alert titles</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-text-main 10%, --cb-bg-surface)</span></td><td class="cb-table__num">13.69</td><td class="cb-table__num">≥ 4.5</td><td>Neutral tag</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-ok 10%, --cb-bg-surface)</span></td><td class="cb-table__num">14.40</td><td class="cb-table__num">≥ 4.5</td><td>Alert body text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-warn 10%, --cb-bg-surface)</span></td><td class="cb-table__num">14.54</td><td class="cb-table__num">≥ 4.5</td><td>Alert body text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-danger 10%, --cb-bg-surface)</span></td><td class="cb-table__num">14.09</td><td class="cb-table__num">≥ 4.5</td><td>Alert body text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-info 10%, --cb-bg-surface)</span></td><td class="cb-table__num">14.34</td><td class="cb-table__num">≥ 4.5</td><td>Alert body text</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-accent</span></th><td><span class="cb-mono">mix(--cb-danger 10%, --cb-bg-surface)</span></td><td class="cb-table__num">6.79</td><td class="cb-table__num">≥ 4.5</td><td>Links in a danger alert</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">6.58</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">7.13</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">5.75</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">5.78</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">6.26</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">5.05</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">7.67</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">8.31</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">6.70</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">6.98</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">7.56</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">6.10</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">3.49</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
+              <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">3.78</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
+              <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">3.05</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-border-strong</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">4.70</td><td class="cb-table__num">≥ 3</td><td>Strong edges: field tops, pinned columns</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-border-strong</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">5.09</td><td class="cb-table__num">≥ 3</td><td>Strong edges: field tops, dialog frame</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">5.43</td><td class="cb-table__num">≥ 3</td><td>Meter and progress fills</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">4.76</td><td class="cb-table__num">≥ 3</td><td>Meter and progress fills</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">6.32</td><td class="cb-table__num">≥ 3</td><td>Meter and progress fills</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-accent</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">6.66</td><td class="cb-table__num">≥ 3</td><td>Meter and progress fills</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-accent</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">8.08</td><td class="cb-table__num">≥ 3</td><td>Focus ring, accent bars</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-accent</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">7.06</td><td class="cb-table__num">≥ 3</td><td>Focus ring, accent bars</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="docs-h3" id="a11y-focus">Focus</h3>
+        <p class="docs-text">One indicator for every control: <code>2px solid var(--cb-accent)</code> with a 1px
+          offset. It is drawn outside by default, inside scroll containers (where the scroll edge would clip it,
+          as on the log below), and on the row label of a tree item, so it never frames a whole branch. Give
+          a scrollable region without controls <code>tabindex="0"</code>, a role and a label, so keyboard users
+          can scroll it.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <button class="cb-btn" type="button">Ring outside</button>
+            <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="Gateway log">10:42:07 gw-eu-1 handshake ok&#10;10:42:05 gw-eu-2 handshake ok&#10;10:41:58 gw-ap-2 no handshake for 240 s&#10;10:41:30 gw-us-1 handshake ok</pre>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Ring outside&lt;/button&gt;
+  &lt;pre class=&quot;cb-panel cb-panel--inset&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Gateway log&quot;&gt;10:42:07 gw-eu-1 handshake ok&amp;#10;10:42:05 gw-eu-2 handshake ok&amp;#10;10:41:58 gw-ap-2 no handshake for 240 s&amp;#10;10:41:30 gw-us-1 handshake ok&lt;/pre&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="a11y-keys">Keyboard</h3>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Component</th><th scope="col">Keys</th><th scope="col">Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Any control</th><td><kbd class="cb-kbd">Tab</kbd> / <kbd class="cb-kbd">Shift</kbd> <kbd class="cb-kbd">Tab</kbd></td><td>Next or previous control; the focus ring shows where you are</td></tr>
+              <tr><th scope="row">Skip link</th><td><kbd class="cb-kbd">Tab</kbd> at the top, <kbd class="cb-kbd">Enter</kbd></td><td>Jump past the navigation to the content</td></tr>
+              <tr><th scope="row">Buttons, link keys</th><td><kbd class="cb-kbd">Enter</kbd> / <kbd class="cb-kbd">Space</kbd></td><td>Activate; a toggle flips <code>aria-pressed</code></td></tr>
+              <tr><th scope="row">Fields</th><td>Typing, <kbd class="cb-kbd">Tab</kbd></td><td>Edit; errors appear after you leave a field</td></tr>
+              <tr><th scope="row">Check boxes</th><td><kbd class="cb-kbd">Space</kbd></td><td>Toggle; a header box selects all rows (script)</td></tr>
+              <tr><th scope="row">Radios, segmented controls</th><td><kbd class="cb-kbd">←</kbd> <kbd class="cb-kbd">→</kbd> <kbd class="cb-kbd">↑</kbd> <kbd class="cb-kbd">↓</kbd></td><td>Move the choice within the group</td></tr>
+              <tr><th scope="row">ARIA tabs</th><td><kbd class="cb-kbd">←</kbd> <kbd class="cb-kbd">→</kbd> (<kbd class="cb-kbd">↑</kbd> <kbd class="cb-kbd">↓</kbd> vertical), <kbd class="cb-kbd">Home</kbd> <kbd class="cb-kbd">End</kbd></td><td>Select a tab; disabled tabs are skipped (script)</td></tr>
+              <tr><th scope="row">Tree</th><td><kbd class="cb-kbd">↑</kbd> <kbd class="cb-kbd">↓</kbd> <kbd class="cb-kbd">→</kbd> <kbd class="cb-kbd">←</kbd> <kbd class="cb-kbd">Home</kbd> <kbd class="cb-kbd">End</kbd>, <kbd class="cb-kbd">Enter</kbd></td><td>Walk, open, close and select rows (script)</td></tr>
+              <tr><th scope="row">Details, collapsible panels, nav branches</th><td><kbd class="cb-kbd">Enter</kbd> / <kbd class="cb-kbd">Space</kbd> on the summary</td><td>Open or close</td></tr>
+              <tr><th scope="row">Dialogs</th><td><kbd class="cb-kbd">Esc</kbd></td><td>Close; focus returns to the opener. Inside a modal, Tab stays in the dialog</td></tr>
+              <tr><th scope="row">Secret boxes, alerts</th><td><kbd class="cb-kbd">Enter</kbd> on Copy, Show, Save, ✕</td><td>Copy, reveal, download, dismiss; results are announced (script)</td></tr>
+              <tr><th scope="row">Pagination</th><td><kbd class="cb-kbd">Tab</kbd>, <kbd class="cb-kbd">Enter</kbd></td><td>Follow a page link; disabled arrows are not in the tab order</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="docs-h3" id="a11y-motion">Motion</h3>
+        <ul class="docs-list">
+          <li>Transitions last 50ms; nothing bounces or slides.</li>
+          <li>The stepped busy spinner is the only loop, and it stops under
+            <code>prefers-reduced-motion: reduce</code>. Indeterminate progress is a still hatch.</li>
+        </ul>
+        <h3 class="docs-h3" id="a11y-meaning">Meaning</h3>
+        <ul class="docs-list">
+          <li>Colour is never the only signal: badges, lamps, alerts and stripes come with a status word,
+            and alerts add a glyph.</li>
+          <li>State lives in standard attributes (<code>aria-current</code>, <code>aria-selected</code>,
+            <code>aria-pressed</code>, <code>aria-expanded</code>, <code>aria-invalid</code>,
+            <code>aria-busy</code>, <code>disabled</code>), so assistive technology reads what the eye sees.</li>
+          <li><code>cubicle.js</code> announces copies and re-masking through a polite live region. Use
+            <code>role="status"</code> for updates and <code>role="alert"</code> for errors after an action.</li>
+          <li>Hide labels visually with <code>.cb-sr-only</code>, never with <code>display: none</code>.</li>
+        </ul>
+        <h3 class="docs-h3" id="a11y-engines">Engines</h3>
+        <p class="docs-text">The whole suite passes in Chromium, Firefox and WebKit, on the source and on the
+          minified build. Differences that come from an engine are reported as labelled skips, never as
+          passes.</p>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Engine</th><th scope="col">Version verified</th><th scope="col">Known differences</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Chromium</th><td class="cb-table__num">156</td><td>None</td></tr>
+              <tr><th scope="row">Firefox</th><td class="cb-table__num">157</td><td>No ruler strip under meters: ticks and threshold marks are not drawn</td></tr>
+              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines</td></tr>
             </tbody>
           </table>
         </div>
