@@ -49,6 +49,7 @@
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
+        <li><a class="docs-nav__link" href="#meters">Meters &amp; progress</a></li>
       </ul>
     </nav>
 
@@ -2854,6 +2855,160 @@
               <tr><th scope="row"><code>cb-toggle</code></th><td>Event on the item</td><td>Fired when a tree branch opens or closes; <code>detail.expanded</code></td></tr>
               <tr><th scope="row"><code>.cb-nav__kind</code></th><td><code>&lt;span&gt;</code></td><td>Object type as a monospace RDN chip: DC, OU, CN</td></tr>
               <tr><th scope="row"><code>.cb-breadcrumb</code></th><td><code>&lt;ol&gt;</code> in <code>&lt;nav&gt;</code></td><td>Path with › separators; <code>aria-current</code> on the last part</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="meters" aria-labelledby="meters-title">
+        <h2 class="docs-h2" id="meters-title">Meters &amp; progress</h2>
+        <p class="docs-text">Native <code>&lt;meter&gt;</code> for levels within a range (disk, quota, load) and
+          <code>&lt;progress&gt;</code> for tasks, in a recessed track with a solid fill.</p>
+
+        <h3 class="docs-h3" id="meters-gauges">Gauges</h3>
+        <p class="docs-text">The colour follows the browser's own reading of <code>low</code>,
+          <code>high</code> and <code>optimum</code>; a meter without them is neutral. <code>--ticks</code> adds a
+          ruler, and <code>data-cb-marks</code> lets <code>cubicle.js</code> mark <code>low</code> and
+          <code>high</code> on it.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2">
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="m-disk">Disk /var on gw-eu-1</label>
+              <span class="cb-gauge__value">412 / 500 GB (82%)</span>
+              <meter class="cb-meter cb-meter--ticks" id="m-disk" min="0" max="500" low="350" high="450" optimum="0" value="412" data-cb-marks>412 GB of 500 GB</meter>
+              <p class="cb-gauge__note">Warns at 350 GB, critical at 450 GB.</p>
+            </div>
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="m-lic">VPN licences</label>
+              <span class="cb-gauge__value">184 / 250 seats</span>
+              <meter class="cb-meter cb-meter--ticks" id="m-lic" min="0" max="250" low="200" high="235" optimum="0" value="184" data-cb-marks>184 of 250 seats</meter>
+              <p class="cb-gauge__note">Order more at 200 seats.</p>
+            </div>
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="m-mem">Memory gw-us-2</label>
+              <span class="cb-gauge__value">61.5 / 64 GB (96%)</span>
+              <meter class="cb-meter cb-meter--ticks" id="m-mem" min="0" max="64" low="48" high="58" optimum="0" value="61.5" data-cb-marks>61.5 GB of 64 GB</meter>
+              <p class="cb-gauge__note">Critical above 58 GB.</p>
+            </div>
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="m-api">API calls today</label>
+              <span class="cb-gauge__value">38 410 / 100 000</span>
+              <meter class="cb-meter cb-meter--ticks" id="m-api" min="0" max="100000" value="38410">38 410 of 100 000 calls</meter>
+              <p class="cb-gauge__note">Resets at 00:00 UTC.</p>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+  &lt;div class=&quot;cb-gauge&quot;&gt;
+    &lt;label class=&quot;cb-gauge__label&quot; for=&quot;m-disk&quot;&gt;Disk /var on gw-eu-1&lt;/label&gt;
+    &lt;span class=&quot;cb-gauge__value&quot;&gt;412 / 500 GB (82%)&lt;/span&gt;
+    &lt;meter class=&quot;cb-meter cb-meter--ticks&quot; id=&quot;m-disk&quot; min=&quot;0&quot; max=&quot;500&quot; low=&quot;350&quot; high=&quot;450&quot; optimum=&quot;0&quot; value=&quot;412&quot; data-cb-marks&gt;412 GB of 500 GB&lt;/meter&gt;
+    &lt;p class=&quot;cb-gauge__note&quot;&gt;Warns at 350 GB, critical at 450 GB.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-gauge&quot;&gt;
+    &lt;label class=&quot;cb-gauge__label&quot; for=&quot;m-lic&quot;&gt;VPN licences&lt;/label&gt;
+    &lt;span class=&quot;cb-gauge__value&quot;&gt;184 / 250 seats&lt;/span&gt;
+    &lt;meter class=&quot;cb-meter cb-meter--ticks&quot; id=&quot;m-lic&quot; min=&quot;0&quot; max=&quot;250&quot; low=&quot;200&quot; high=&quot;235&quot; optimum=&quot;0&quot; value=&quot;184&quot; data-cb-marks&gt;184 of 250 seats&lt;/meter&gt;
+    &lt;p class=&quot;cb-gauge__note&quot;&gt;Order more at 200 seats.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-gauge&quot;&gt;
+    &lt;label class=&quot;cb-gauge__label&quot; for=&quot;m-mem&quot;&gt;Memory gw-us-2&lt;/label&gt;
+    &lt;span class=&quot;cb-gauge__value&quot;&gt;61.5 / 64 GB (96%)&lt;/span&gt;
+    &lt;meter class=&quot;cb-meter cb-meter--ticks&quot; id=&quot;m-mem&quot; min=&quot;0&quot; max=&quot;64&quot; low=&quot;48&quot; high=&quot;58&quot; optimum=&quot;0&quot; value=&quot;61.5&quot; data-cb-marks&gt;61.5 GB of 64 GB&lt;/meter&gt;
+    &lt;p class=&quot;cb-gauge__note&quot;&gt;Critical above 58 GB.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-gauge&quot;&gt;
+    &lt;label class=&quot;cb-gauge__label&quot; for=&quot;m-api&quot;&gt;API calls today&lt;/label&gt;
+    &lt;span class=&quot;cb-gauge__value&quot;&gt;38 410 / 100 000&lt;/span&gt;
+    &lt;meter class=&quot;cb-meter cb-meter--ticks&quot; id=&quot;m-api&quot; min=&quot;0&quot; max=&quot;100000&quot; value=&quot;38410&quot;&gt;38 410 of 100 000 calls&lt;/meter&gt;
+    &lt;p class=&quot;cb-gauge__note&quot;&gt;Resets at 00:00 UTC.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="meters-progress">Progress</h3>
+        <p class="docs-text">Without <code>value</code> a progress bar is indeterminate: a still hatch, since only
+          busy spinners move.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="p-import">Importing users from HR feed</label>
+              <span class="cb-gauge__value">1 248 / 1 950 (64%)</span>
+              <progress class="cb-meter" id="p-import" max="1950" value="1248">1 248 of 1 950 users</progress>
+            </div>
+            <div class="cb-gauge">
+              <label class="cb-gauge__label" for="p-ldap">Waiting for LDAP</label>
+              <span class="cb-gauge__value">ldap.corp.example.net</span>
+              <progress class="cb-meter" id="p-ldap">Waiting</progress>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-gauge&quot;&gt;
+    &lt;label class=&quot;cb-gauge__label&quot; for=&quot;p-import&quot;&gt;Importing users from HR feed&lt;/label&gt;
+    &lt;span class=&quot;cb-gauge__value&quot;&gt;1 248 / 1 950 (64%)&lt;/span&gt;
+    &lt;progress class=&quot;cb-meter&quot; id=&quot;p-import&quot; max=&quot;1950&quot; value=&quot;1248&quot;&gt;1 248 of 1 950 users&lt;/progress&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-gauge&quot;&gt;
+    &lt;label class=&quot;cb-gauge__label&quot; for=&quot;p-ldap&quot;&gt;Waiting for LDAP&lt;/label&gt;
+    &lt;span class=&quot;cb-gauge__value&quot;&gt;ldap.corp.example.net&lt;/span&gt;
+    &lt;progress class=&quot;cb-meter&quot; id=&quot;p-ldap&quot;&gt;Waiting&lt;/progress&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="meters-table">In a table</h3>
+        <p class="docs-text"><code>--sm</code> fits beside a number in a 28px row.</p>
+        <div class="docs-demo">
+          <div class="cb-table-wrap">
+            <table class="cb-table">
+              <thead>
+                <tr><th scope="col">Gateway</th><th class="cb-table__num" scope="col">Peers</th><th class="cb-table__num" scope="col">Load</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">gw-eu-1</th><td class="cb-table__num">412</td><td class="cb-table__num">82% <meter class="cb-meter cb-meter--sm" min="0" max="100" low="70" high="90" optimum="0" value="82" aria-label="gw-eu-1 load">82%</meter></td></tr>
+                <tr><th scope="row">gw-eu-2</th><td class="cb-table__num">96</td><td class="cb-table__num">37% <meter class="cb-meter cb-meter--sm" min="0" max="100" low="70" high="90" optimum="0" value="37" aria-label="gw-eu-2 load">37%</meter></td></tr>
+                <tr><th scope="row">gw-us-1</th><td class="cb-table__num">233</td><td class="cb-table__num">91% <meter class="cb-meter cb-meter--sm" min="0" max="100" low="70" high="90" optimum="0" value="91" aria-label="gw-us-1 load">91%</meter></td></tr>
+                <tr><th scope="row">gw-ap-1</th><td class="cb-table__num">57</td><td class="cb-table__num">12% <meter class="cb-meter cb-meter--sm" min="0" max="100" low="70" high="90" optimum="0" value="12" aria-label="gw-ap-1 load">12%</meter></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
+  &lt;table class=&quot;cb-table&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Peers&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Load&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;412&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;82% &lt;meter class=&quot;cb-meter cb-meter--sm&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;82&quot; aria-label=&quot;gw-eu-1 load&quot;&gt;82%&lt;/meter&gt;&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-2&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;37% &lt;meter class=&quot;cb-meter cb-meter--sm&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;37&quot; aria-label=&quot;gw-eu-2 load&quot;&gt;37%&lt;/meter&gt;&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-us-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;233&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;91% &lt;meter class=&quot;cb-meter cb-meter--sm&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;91&quot; aria-label=&quot;gw-us-1 load&quot;&gt;91%&lt;/meter&gt;&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-ap-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;57&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;12% &lt;meter class=&quot;cb-meter cb-meter--sm&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;12&quot; aria-label=&quot;gw-ap-1 load&quot;&gt;12%&lt;/meter&gt;&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="meters-a11y">Accessibility</h3>
+        <ul class="docs-list">
+          <li>Label every bar with <code>&lt;label for&gt;</code> or <code>aria-label</code>, and show the number as
+            text: colour, ticks and marks support it but never replace it.</li>
+          <li>Use <code>&lt;meter&gt;</code> for a level and <code>&lt;progress&gt;</code> for a task; they are
+            announced differently.</li>
+        </ul>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-meter</code></th><td><code>&lt;meter&gt;</code>, <code>&lt;progress&gt;</code></td><td>12px recessed track, solid fill, 4px ruler strip under it</td></tr>
+              <tr><th scope="row"><code>low</code>, <code>high</code>, <code>optimum</code></th><td><code>&lt;meter&gt;</code></td><td>Fill turns ok, warn or danger as the browser reads the value</td></tr>
+              <tr><th scope="row">No <code>low</code> / <code>high</code></th><td><code>&lt;meter&gt;</code></td><td>Neutral accent fill</td></tr>
+              <tr><th scope="row"><code>:indeterminate</code></th><td><code>&lt;progress&gt;</code> without <code>value</code></td><td>Still hatch</td></tr>
+              <tr><th scope="row"><code>.cb-meter--sm</code></th><td>Bar</td><td>6px high, 5rem wide, inline beside a number</td></tr>
+              <tr><th scope="row"><code>.cb-meter--ticks</code></th><td>Bar</td><td>Ruler: ticks every 10%, long ones at the quarters</td></tr>
+              <tr><th scope="row"><code>data-cb-marks</code></th><td><code>&lt;meter&gt;</code></td><td>Marks <code>low</code> and <code>high</code> on the ruler (script)</td></tr>
+              <tr><th scope="row"><code>.cb-gauge</code></th><td><code>&lt;div&gt;</code></td><td>Label and reading over the bar</td></tr>
+              <tr><th scope="row"><code>.cb-gauge__label</code>, <code>__value</code>, <code>__note</code></th><td><code>&lt;label&gt;</code>, <code>&lt;span&gt;</code>, <code>&lt;p&gt;</code></td><td>Bold label, muted tabular reading, small note under the bar</td></tr>
             </tbody>
           </table>
         </div>
