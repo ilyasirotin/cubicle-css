@@ -158,6 +158,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   disabled fieldset, keyboard and reference tables.
 - Catalogue "Details & disclosure" section: framed blocks with meta, an exclusive accordion,
   nested and compact blocks, inline advanced settings in a form, and a reference table.
+- Catalogue "Modals & dialogs" section: a popover dialog, a modal revoke confirmation, a typed
+  delete confirmation, a long form with a scrolling body, notes and a reference table; demo blocks
+  no longer reset a dialog's auto margins.
 
 ### Changed
 

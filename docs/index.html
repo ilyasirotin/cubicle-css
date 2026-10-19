@@ -52,6 +52,7 @@
         <li><a class="docs-nav__link" href="#meters">Meters &amp; progress</a></li>
         <li><a class="docs-nav__link" href="#segmented">Segmented controls</a></li>
         <li><a class="docs-nav__link" href="#details">Details &amp; disclosure</a></li>
+        <li><a class="docs-nav__link" href="#dialogs">Modals &amp; dialogs</a></li>
       </ul>
     </nav>
 
@@ -3434,6 +3435,288 @@
               <tr><th scope="row">Adjacent blocks</th><td><code>.cb-details + .cb-details</code></td><td>Shared 1px seams in normal flow; apart inside <code>.cb-stack</code>, <code>.cb-grid</code>, <code>.cb-cluster</code></td></tr>
               <tr><th scope="row"><code>.cb-details--sm</code></th><td>Block</td><td>24px summary, tighter body</td></tr>
               <tr><th scope="row"><code>.cb-details--inline</code></th><td>Block</td><td>No frame; body aligned with the summary text</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="dialogs" aria-labelledby="dialogs-title">
+        <h2 class="docs-h2" id="dialogs-title">Modals &amp; dialogs</h2>
+        <p class="docs-text">Native <code>&lt;dialog&gt;</code> in a strong frame above the page, built from the
+          panel parts. Escape closes every dialog.</p>
+
+        <h3 class="docs-h3" id="dialogs-popover">Non-blocking</h3>
+        <p class="docs-text">With <code>popover</code> and a <code>popovertarget</code> button the dialog opens
+          without script; the page stays usable and a click outside closes it.</p>
+        <div class="docs-demo">
+          <button class="cb-btn" type="button" popovertarget="g-session">Session details</button>
+          <dialog class="cb-dialog cb-dialog--sm" id="g-session" popover aria-labelledby="g-session-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="g-session-title">Session alice.ng</h4>
+              <button class="cb-btn cb-btn--sm cb-btn--icon" type="button" popovertarget="g-session" popovertargetaction="hide" aria-label="Close session details">✕</button>
+            </header>
+            <div class="cb-panel__body">
+              <p>Tunnel IP <code>10.8.0.11</code> on gw-eu-1, connected since 2026-10-19 08:12, last handshake 14 s ago.</p>
+            </div>
+            <footer class="cb-panel__foot">
+              <button class="cb-btn" type="button" popovertarget="g-session" popovertargetaction="hide">Close</button>
+            </footer>
+          </dialog>
+        </div>
+        <pre class="docs-snippet"><code>&lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; popovertarget=&quot;g-session&quot;&gt;Session details&lt;/button&gt;
+&lt;dialog class=&quot;cb-dialog cb-dialog--sm&quot; id=&quot;g-session&quot; popover aria-labelledby=&quot;g-session-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;g-session-title&quot;&gt;Session alice.ng&lt;/h4&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; popovertarget=&quot;g-session&quot; popovertargetaction=&quot;hide&quot; aria-label=&quot;Close session details&quot;&gt;✕&lt;/button&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body&quot;&gt;
+    &lt;p&gt;Tunnel IP &lt;code&gt;10.8.0.11&lt;/code&gt; on gw-eu-1, connected since 2026-10-19 08:12, last handshake 14 s ago.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; popovertarget=&quot;g-session&quot; popovertargetaction=&quot;hide&quot;&gt;Close&lt;/button&gt;
+  &lt;/footer&gt;
+&lt;/dialog&gt;</code></pre>
+
+        <h3 class="docs-h3" id="dialogs-confirm">Modal confirmation</h3>
+        <p class="docs-text">A <code>data-cb-modal</code> button opens the dialog as a modal through
+          <code>cubicle.js</code>: the page goes inert under a dimmed backdrop and focus moves inside. Buttons in
+          a <code>&lt;form method="dialog"&gt;</code> close it and report their <code>value</code>; put
+          <code>autofocus</code> on the safe choice.</p>
+        <div class="docs-demo">
+          <button class="cb-btn cb-btn--danger" type="button" data-cb-modal="g-revoke">Revoke certificate…</button>
+          <dialog class="cb-dialog cb-dialog--sm cb-dialog--danger" id="g-revoke" aria-labelledby="g-revoke-title">
+            <form method="dialog">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="g-revoke-title">Revoke certificate?</h4>
+              </header>
+              <div class="cb-panel__body">
+                <p>The certificate for <code>ldap.corp.example.net</code> stops working at once. Clients must get a new one.</p>
+              </div>
+              <footer class="cb-panel__foot">
+                <button class="cb-btn" value="cancel" autofocus>Cancel</button>
+                <button class="cb-btn cb-btn--danger-solid" value="revoke">Revoke</button>
+              </footer>
+            </form>
+          </dialog>
+        </div>
+        <pre class="docs-snippet"><code>&lt;button class=&quot;cb-btn cb-btn--danger&quot; type=&quot;button&quot; data-cb-modal=&quot;g-revoke&quot;&gt;Revoke certificate…&lt;/button&gt;
+&lt;dialog class=&quot;cb-dialog cb-dialog--sm cb-dialog--danger&quot; id=&quot;g-revoke&quot; aria-labelledby=&quot;g-revoke-title&quot;&gt;
+  &lt;form method=&quot;dialog&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;g-revoke-title&quot;&gt;Revoke certificate?&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body&quot;&gt;
+      &lt;p&gt;The certificate for &lt;code&gt;ldap.corp.example.net&lt;/code&gt; stops working at once. Clients must get a new one.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; value=&quot;cancel&quot; autofocus&gt;Cancel&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--danger-solid&quot; value=&quot;revoke&quot;&gt;Revoke&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/form&gt;
+&lt;/dialog&gt;</code></pre>
+
+        <h3 class="docs-h3" id="dialogs-typed">Typed confirmation</h3>
+        <p class="docs-text"><code>required</code> and <code>pattern</code> let the browser refuse the destructive
+          button until the name matches; Cancel skips validation with <code>formnovalidate</code>.</p>
+        <div class="docs-demo">
+          <button class="cb-btn cb-btn--danger" type="button" data-cb-modal="g-delete">Delete gateway…</button>
+          <dialog class="cb-dialog cb-dialog--sm cb-dialog--danger" id="g-delete" aria-labelledby="g-delete-title">
+            <form method="dialog">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="g-delete-title">Delete gateway gw-ap-2?</h4>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <p>57 peers lose their tunnel. This cannot be undone.</p>
+                <div class="cb-field">
+                  <label class="cb-field__label" for="g-delete-name">Type <code>gw-ap-2</code> to confirm</label>
+                  <input class="cb-input" id="g-delete-name" type="text" required pattern="gw-ap-2" autocomplete="off" aria-describedby="g-delete-error">
+                  <p class="cb-field__error" id="g-delete-error">Type the gateway name exactly.</p>
+                </div>
+              </div>
+              <footer class="cb-panel__foot">
+                <button class="cb-btn" value="cancel" formnovalidate autofocus>Cancel</button>
+                <button class="cb-btn cb-btn--danger-solid" value="delete">Delete gateway</button>
+              </footer>
+            </form>
+          </dialog>
+        </div>
+        <pre class="docs-snippet"><code>&lt;button class=&quot;cb-btn cb-btn--danger&quot; type=&quot;button&quot; data-cb-modal=&quot;g-delete&quot;&gt;Delete gateway…&lt;/button&gt;
+&lt;dialog class=&quot;cb-dialog cb-dialog--sm cb-dialog--danger&quot; id=&quot;g-delete&quot; aria-labelledby=&quot;g-delete-title&quot;&gt;
+  &lt;form method=&quot;dialog&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;g-delete-title&quot;&gt;Delete gateway gw-ap-2?&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;p&gt;57 peers lose their tunnel. This cannot be undone.&lt;/p&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;g-delete-name&quot;&gt;Type &lt;code&gt;gw-ap-2&lt;/code&gt; to confirm&lt;/label&gt;
+        &lt;input class=&quot;cb-input&quot; id=&quot;g-delete-name&quot; type=&quot;text&quot; required pattern=&quot;gw-ap-2&quot; autocomplete=&quot;off&quot; aria-describedby=&quot;g-delete-error&quot;&gt;
+        &lt;p class=&quot;cb-field__error&quot; id=&quot;g-delete-error&quot;&gt;Type the gateway name exactly.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; value=&quot;cancel&quot; formnovalidate autofocus&gt;Cancel&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--danger-solid&quot; value=&quot;delete&quot;&gt;Delete gateway&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/form&gt;
+&lt;/dialog&gt;</code></pre>
+
+        <h3 class="docs-h3" id="dialogs-long">Long content</h3>
+        <p class="docs-text">The body scrolls between a fixed head and foot. Below 40rem of viewport width every
+          dialog takes the whole screen.</p>
+        <div class="docs-demo">
+          <button class="cb-btn cb-btn--primary" type="button" data-cb-modal="g-peer">Edit peer…</button>
+          <dialog class="cb-dialog cb-dialog--lg" id="g-peer" aria-labelledby="g-peer-title">
+            <form method="dialog">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="g-peer-title">Edit peer laptop-di-2</h4>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-grid cb-grid--2">
+                  <div class="cb-field">
+                    <label class="cb-field__label" for="g-peer-name">Name</label>
+                    <input class="cb-input" id="g-peer-name" type="text" value="laptop-di-2" autofocus>
+                  </div>
+                  <div class="cb-field">
+                    <label class="cb-field__label" for="g-peer-ips">Allowed IPs</label>
+                    <input class="cb-input" id="g-peer-ips" type="text" value="10.8.0.23/32">
+                  </div>
+                </div>
+                <table class="cb-table cb-table--compact">
+                  <caption>Recent handshakes</caption>
+                  <thead>
+                    <tr><th scope="col">Time</th><th scope="col">Endpoint</th><th scope="col">Result</th></tr>
+                  </thead>
+                  <tbody>
+                      <tr><td>2026-10-19 10:59</td><td><code>203.0.113.90</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:57</td><td><code>203.0.113.91</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:55</td><td><code>203.0.113.92</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:53</td><td><code>203.0.113.93</code></td><td><span class="cb-badge cb-badge--warn">Retry</span></td></tr>
+                      <tr><td>2026-10-19 10:51</td><td><code>203.0.113.94</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:49</td><td><code>203.0.113.90</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:47</td><td><code>203.0.113.91</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:45</td><td><code>203.0.113.92</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:43</td><td><code>203.0.113.93</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:41</td><td><code>203.0.113.94</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:39</td><td><code>203.0.113.90</code></td><td><span class="cb-badge cb-badge--warn">Retry</span></td></tr>
+                      <tr><td>2026-10-19 10:37</td><td><code>203.0.113.91</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:35</td><td><code>203.0.113.92</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:33</td><td><code>203.0.113.93</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:31</td><td><code>203.0.113.94</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:29</td><td><code>203.0.113.90</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:27</td><td><code>203.0.113.91</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:25</td><td><code>203.0.113.92</code></td><td><span class="cb-badge cb-badge--warn">Retry</span></td></tr>
+                      <tr><td>2026-10-19 10:23</td><td><code>203.0.113.93</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:21</td><td><code>203.0.113.94</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:19</td><td><code>203.0.113.90</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:17</td><td><code>203.0.113.91</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:15</td><td><code>203.0.113.92</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:13</td><td><code>203.0.113.93</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:11</td><td><code>203.0.113.94</code></td><td><span class="cb-badge cb-badge--warn">Retry</span></td></tr>
+                      <tr><td>2026-10-19 10:09</td><td><code>203.0.113.90</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:07</td><td><code>203.0.113.91</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:05</td><td><code>203.0.113.92</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:03</td><td><code>203.0.113.93</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                      <tr><td>2026-10-19 10:01</td><td><code>203.0.113.94</code></td><td><span class="cb-badge cb-badge--ok">OK</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <footer class="cb-panel__foot">
+                <button class="cb-btn" value="cancel">Cancel</button>
+                <button class="cb-btn cb-btn--primary" value="save">Save peer</button>
+              </footer>
+            </form>
+          </dialog>
+        </div>
+        <pre class="docs-snippet"><code>&lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot; data-cb-modal=&quot;g-peer&quot;&gt;Edit peer…&lt;/button&gt;
+&lt;dialog class=&quot;cb-dialog cb-dialog--lg&quot; id=&quot;g-peer&quot; aria-labelledby=&quot;g-peer-title&quot;&gt;
+  &lt;form method=&quot;dialog&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;g-peer-title&quot;&gt;Edit peer laptop-di-2&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+        &lt;div class=&quot;cb-field&quot;&gt;
+          &lt;label class=&quot;cb-field__label&quot; for=&quot;g-peer-name&quot;&gt;Name&lt;/label&gt;
+          &lt;input class=&quot;cb-input&quot; id=&quot;g-peer-name&quot; type=&quot;text&quot; value=&quot;laptop-di-2&quot; autofocus&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;cb-field&quot;&gt;
+          &lt;label class=&quot;cb-field__label&quot; for=&quot;g-peer-ips&quot;&gt;Allowed IPs&lt;/label&gt;
+          &lt;input class=&quot;cb-input&quot; id=&quot;g-peer-ips&quot; type=&quot;text&quot; value=&quot;10.8.0.23/32&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+        &lt;caption&gt;Recent handshakes&lt;/caption&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Time&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Endpoint&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Result&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:59&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:57&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.91&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:55&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.92&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:53&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.93&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Retry&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:51&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.94&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:49&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:47&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.91&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:45&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.92&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:43&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.93&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:41&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.94&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:39&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Retry&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:37&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.91&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:35&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.92&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:33&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.93&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:31&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.94&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:29&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:27&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.91&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:25&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.92&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Retry&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:23&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.93&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:21&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.94&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:19&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:17&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.91&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:15&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.92&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:13&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.93&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:11&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.94&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Retry&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:09&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.90&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:07&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.91&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:05&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.92&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:03&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.93&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;2026-10-19 10:01&lt;/td&gt;&lt;td&gt;&lt;code&gt;203.0.113.94&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;OK&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+    &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; value=&quot;cancel&quot;&gt;Cancel&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--primary&quot; value=&quot;save&quot;&gt;Save peer&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/form&gt;
+&lt;/dialog&gt;</code></pre>
+
+        <h3 class="docs-h3" id="dialogs-notes">Notes</h3>
+        <ul class="docs-list">
+          <li>Use a popover dialog for details and quick edits, a modal one when the decision must be made
+            before anything else.</li>
+          <li>A real form posts (<code>method="post"</code>, or <code>hx-post</code>) instead of
+            <code>method="dialog"</code>.</li>
+          <li>Modal openers stay hidden without the script; give such actions a page of their own as well.</li>
+        </ul>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-dialog</code></th><td><code>&lt;dialog&gt;</code></td><td>Raised, strongly framed box, 36rem wide; holds the panel parts</td></tr>
+              <tr><th scope="row"><code>.cb-panel__head</code>, <code>__title</code>, <code>__body</code>, <code>__foot</code></th><td>In the dialog</td><td>Head and foot stay put; the body scrolls</td></tr>
+              <tr><th scope="row"><code>popover</code> + <code>popovertarget</code></th><td><code>&lt;dialog&gt;</code>, <code>&lt;button&gt;</code></td><td>Non-blocking dialog without script</td></tr>
+              <tr><th scope="row"><code>data-cb-modal="id"</code></th><td><code>&lt;button&gt;</code></td><td>Opens the dialog as a modal (script)</td></tr>
+              <tr><th scope="row"><code>&lt;form method="dialog"&gt;</code></th><td>In the dialog</td><td>Its buttons close the dialog with their <code>value</code></td></tr>
+              <tr><th scope="row"><code>::backdrop</code></th><td>Modal dialog</td><td>Dims the page with <code>--cb-bg-backdrop</code></td></tr>
+              <tr><th scope="row"><code>.cb-dialog--sm</code>, <code>--lg</code></th><td>Dialog</td><td>24rem or 56rem wide</td></tr>
+              <tr><th scope="row"><code>.cb-dialog--danger</code></th><td>Dialog</td><td>Crimson top stripe for destructive confirmations</td></tr>
+              <tr><th scope="row"><code>autofocus</code></th><td>Button</td><td>Focus on opening; put it on the safe action</td></tr>
+              <tr><th scope="row"><code>formnovalidate</code></th><td>Button</td><td>Closes without checking the fields</td></tr>
+              <tr><th scope="row"><code>required</code> + <code>pattern</code></th><td><code>&lt;input&gt;</code></td><td>Typed confirmation, checked by the browser</td></tr>
             </tbody>
           </table>
         </div>
