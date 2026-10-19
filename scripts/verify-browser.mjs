@@ -8,7 +8,7 @@
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
-//                 alerts-<width>.png and tabs-<width>.png.
+//                 alerts-<width>.png, tabs-<width>.png and nav-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -261,7 +261,7 @@ const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
 check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
 
 // 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
-//    table select-all, alert dismiss, ARIA tabs, the plain-HTTP copy fallback, and hiding of script-only controls
+//    table select-all, alert dismiss, ARIA tabs and trees, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
 const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]';
@@ -395,6 +395,43 @@ if (await page.locator(ACTIONS).count()) {
         `click ${clicked.on}; ${trail.join(', ')}`);
     }
 
+    // ARIA trees: arrows walk visible rows with a roving tabindex, → opens a closed branch
+    // (firing cb-toggle) then enters it, ← goes to the parent and closes an open branch,
+    // Enter selects, a click selects and toggles, and the focus ring is on the row label.
+    const trees = await p.$$eval('[data-cb-tree] [role="tree"]', (ts) => ts.map((t, i) => { t.dataset.vbTree = i; return i; }));
+    for (const i of trees) {
+      const tree = `[data-vb-tree="${i}"]`;
+      await p.evaluate(() => { window.__toggles = []; document.addEventListener('cb-toggle', (e) => window.__toggles.push(e.detail.expanded)); });
+      const at = () => p.evaluate((sel) => {
+        const f = document.activeElement; const label = f.querySelector(':scope > .cb-nav__link');
+        return { name: label?.textContent.trim() ?? '', expanded: f.getAttribute('aria-expanded'), roving: document.querySelectorAll(`${sel} [role="treeitem"][tabindex="0"]`).length,
+          ring: getComputedStyle(f).outlineStyle === 'none' && getComputedStyle(label).outlineStyle !== 'none',
+          selected: [...document.querySelectorAll(`${sel} [aria-selected="true"]`)].map((x) => x.querySelector(':scope > .cb-nav__link').textContent.trim()) };
+      }, tree);
+      const closed = p.locator(`${tree} [role="treeitem"][aria-expanded="false"]:not([aria-busy="true"])`).first();
+      await closed.scrollIntoViewIfNeeded(); await closed.focus();
+      const start = await at();
+      await p.keyboard.press('ArrowRight'); const opened = await at();
+      await p.keyboard.press('ArrowRight'); const child = await at();
+      await p.keyboard.press('ArrowLeft'); const back = await at();
+      await p.keyboard.press('ArrowLeft'); const shut = await at();
+      await p.keyboard.press('Home'); const home = await at();
+      await p.keyboard.press('End'); const end = await at();
+      await p.keyboard.press('ArrowUp'); const up = await at();
+      await p.keyboard.press('Enter'); const chosen = await at();
+      const toggles = await p.evaluate(() => window.__toggles.join());
+      const ok = opened.expanded === 'true' && child.name !== start.name && back.name === start.name && shut.expanded === 'false'
+        && home.name !== end.name && up.name !== end.name && chosen.selected.length === 1 && chosen.selected[0] === up.name
+        && [start, opened, child, back, shut, home, end, up].every((x) => x.roving === 1 && x.ring) && toggles.startsWith('true,false');
+      check(ok, `tree ${i + 1}: arrows, Home, End and Enter walk, open, close and select; ring on the row`,
+        `${start.name}: → open, → ${child.name}, ← ${back.name}, ← closed; Home ${home.name}, End ${end.name}, ↑ ${up.name}, Enter selects ${chosen.selected}; cb-toggle ${toggles}`);
+      const row = p.locator(`${tree} [role="treeitem"][aria-expanded] > .cb-nav__link`).first();
+      const before = await row.evaluate((r) => r.parentElement.getAttribute('aria-expanded'));
+      await row.click();
+      const after = await row.evaluate((r) => [r.parentElement.getAttribute('aria-expanded'), r.parentElement.getAttribute('aria-selected')]);
+      check(after[0] !== before && after[1] === 'true', `tree ${i + 1}: a click selects the row and toggles its branch`, `${before} -> ${after[0]}, selected ${after[1]}`);
+    }
+
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
@@ -424,6 +461,8 @@ if (await page.locator(ACTIONS).count()) {
       headings: sets.every((s) => [...s.querySelectorAll('.cb-tabs__heading')].every((h) => getComputedStyle(h).display !== 'none')) };
   });
   if (t.sets) check(t.listsHidden && t.panelsShown && t.headings, 'without JavaScript, ARIA tab sets show every panel under its heading', JSON.stringify(t));
+  const g = await pn.$$eval('[data-cb-tree] [role="group"]', (gs) => ({ groups: gs.length, shown: gs.filter((x) => getComputedStyle(x).display !== 'none').length }));
+  if (g.groups) check(g.shown === g.groups, 'without JavaScript, ARIA trees show every branch', JSON.stringify(g));
   await noJs.close();
 }
 
@@ -631,6 +670,58 @@ if (await page.locator('.docs-demo .cb-tabs').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/tabs-${width}.png` });
+  }
+}
+
+// 14. Navigation and trees: 24px rows, the current or selected row paints the selected
+//     tint with a 2px accent bar, leaf and branch labels line up, --lines draws a 1px
+//     vertical per nested item (stopping at the row centre on the last one), a loading
+//     branch spins (and stops under reduced motion), and breadcrumb separators are silent.
+if (await page.locator('.docs-demo .cb-nav').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const nav = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll('.docs-demo .cb-nav__link')].filter((r) => r.getClientRects().length);
+    const heights = [...new Set(rows.map((r) => Math.round(r.getBoundingClientRect().height)))];
+    const current = document.querySelector('.docs-demo .cb-nav__link[aria-current="page"], .docs-demo [aria-selected="true"] > .cb-nav__link');
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-bg-selected)'; const selected = getComputedStyle(probe).color; probe.remove();
+    const cs = getComputedStyle(current);
+    // Text start of each visible row, relative to its list item, grouped by nesting depth.
+    const starts = rows.map((r) => {
+      const text = [...r.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim()) ?? r.querySelector('.cb-nav__kind');
+      const range = document.createRange(); range.selectNodeContents(text);
+      let depth = 0; for (let n = r.parentElement; n && !n.classList.contains('cb-nav'); n = n.parentElement) if (n.classList.contains('cb-nav__list')) depth++;
+      return `${r.closest('.cb-nav').dataset.vbNav ??= Math.random()}|${depth}|${Math.round(range.getBoundingClientRect().left)}`;
+    });
+    const byGroup = {}; for (const s of starts) { const [nav, depth, x] = s.split('|'); (byGroup[nav + depth] ??= new Set()).add(x); }
+    const ragged = Object.values(byGroup).filter((set) => set.size > 1).length;
+    const lines = [...document.querySelectorAll('.docs-demo .cb-nav--lines .cb-nav__list .cb-nav__list > li')].filter((li) => li.getClientRects().length);
+    const badLines = lines.filter((li) => {
+      const v = getComputedStyle(li, '::before'); const h = parseFloat(v.height);
+      return v.borderLeftWidth !== '1px' || (li.matches(':last-child') ? Math.abs(h - 12) > 0.5 : h < 23);
+    }).length;
+    const busy = document.querySelector('.docs-demo [aria-busy="true"] > .cb-nav__link');
+    const seps = [...document.querySelectorAll('.docs-demo .cb-breadcrumb > li + li')].map((li) => getComputedStyle(li, '::before').content);
+    return { heights, bg: cs.backgroundColor, selected, bar: cs.backgroundImage.startsWith('linear-gradient') && cs.backgroundSize.startsWith('2px'),
+      ragged, lines: lines.length, badLines, spin: busy ? getComputedStyle(busy, '::before').animationName : 'none', seps };
+  });
+  check(nav.heights.length === 1 && nav.heights[0] === 24, 'navigation rows are 24px', `${nav.heights.join(', ')}px`);
+  check(nav.bg === nav.selected && nav.bar, 'current and selected rows paint the selected tint and a 2px accent bar', `${nav.bg}, bar ${nav.bar}`);
+  check(nav.ragged === 0, 'leaf and branch labels start at the same offset per level', `${nav.ragged} ragged levels`);
+  check(nav.lines > 0 && nav.badLines === 0, 'tree lines: a 1px vertical per nested item, the last one stops at the row centre', `${nav.lines} items, ${nav.badLines} wrong`);
+  check(nav.spin === 'cb-spin', 'a loading branch shows the spinner in place of the chevron', nav.spin);
+  check(nav.seps.length > 0 && nav.seps.every((x) => /\/ ""$/.test(x)), 'breadcrumb separators have empty alt text', nav.seps[0] ?? 'none');
+  const calm = await browser.newContext({ ...contextOptions, reducedMotion: 'reduce' });
+  const pr = await calm.newPage(); await applyOverrides(pr); await pr.goto(pathToFileURL(page_path).href);
+  const still = await pr.$eval('.docs-demo [aria-busy="true"] > .cb-nav__link', (r) => getComputedStyle(r, '::before').animationName).catch(() => 'missing');
+  check(still === 'none', 'loading branches stop spinning under reduced motion', still);
+  await calm.close();
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-nav--lines)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/nav-${width}.png` });
   }
 }
 

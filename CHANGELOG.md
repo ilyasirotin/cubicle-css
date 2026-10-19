@@ -88,6 +88,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   wrapping, disabled tabs skipped) and the no-script stacked layout; tab checks for the merged
   selected tab, sideways scrolling at 360px, the End tab kept in view and vertical collapse; idle
   tab contrast and screenshots.
+- `scripts/verify-browser.mjs`: ARIA tree keys (arrows, Home, End, Enter, `cb-toggle`), click to
+  select and toggle, the focus ring on the row, and the no-script open tree; navigation checks for
+  24px rows, the current or selected paint, label alignment, tree lines, the loading spinner (and
+  its reduced-motion stop), silent breadcrumb separators, and screenshots.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
