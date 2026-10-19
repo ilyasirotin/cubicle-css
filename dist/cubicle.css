@@ -2238,9 +2238,10 @@
     }
   }
 
-  /* Equal keys across the whole container. */
+  /* Equal keys across the whole container (stretched in .cb-field too). */
   .cb-segmented--fill {
     display: flex;
+    align-self: stretch;
 
     & > .cb-btn {
       flex: 1 1 0;
