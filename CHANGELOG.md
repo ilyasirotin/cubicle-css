@@ -200,3 +200,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `.cb-secret__value`, `.cb-panel--inset`, dialog bodies) and on keys of a scrolling tab list are
   drawn inside, so the scroll edge no longer clips them. AGENTS.md §2.2 and §13 list the permitted
   placements of the one focus indicator.
+- Side and bottom edges of `.cb-input`, `.cb-select` and `.cb-check` mix 60% of the strong border
+  into the main one, reaching 3:1 on canvas, surface and raised (were ≈2.4:1); the strong top
+  edge and the inset shadow are unchanged.

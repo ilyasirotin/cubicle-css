@@ -570,12 +570,14 @@
   /* 5.2 Form controls ----------------------------------------------------- */
 
   /* Recessed well: inset shadow and a darker top edge. Inputs, textareas and
-     selects share the paint; states only swap the private properties. */
+     selects share the paint; states only swap the private properties. The
+     side and bottom edges mix in the strong border to reach 3:1 against
+     canvas, surface and raised (WCAG 1.4.11). */
   :is(.cb-input, .cb-select) {
     --_h: 1.625rem;
     --_bg: var(--cb-bg-raised);
     --_ink: var(--cb-text-main);
-    --_border: var(--cb-border-main);
+    --_border: color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main));
     --_border-top: var(--cb-border-strong);
     --_shadow: var(--cb-shadow-inset);
 
@@ -703,7 +705,7 @@
      CSS geometry (clip-path) on ::before, so the standard focus ring is kept. */
   .cb-check {
     --_bg: var(--cb-bg-raised);
-    --_border: var(--cb-border-main);
+    --_border: color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main)); /* 3:1, as fields */
     --_border-top: var(--cb-border-strong);
     --_mark: var(--cb-text-inverse);
     --_shadow: var(--cb-shadow-inset);

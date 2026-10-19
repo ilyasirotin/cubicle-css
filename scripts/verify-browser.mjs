@@ -153,6 +153,8 @@ const PAIRS = [
   ['--cb-text-muted', 'color-mix(in srgb, var(--cb-bg-header) 60%, var(--cb-bg-surface))', 4.5],
 
   // Non-text structural & focus contrast (>= 3.0)
+  // Field and checkbox side / bottom edges (60% strong into main)
+  ...['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas'].map((bg) => ['color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main))', bg, 3]),
   ['--cb-border-strong', '--cb-bg-surface', 3],
   ['--cb-border-strong', '--cb-bg-raised', 3],
   ['--cb-accent', '--cb-bg-surface', 3],
