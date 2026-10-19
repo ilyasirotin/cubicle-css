@@ -200,6 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- AGENTS.md no longer mentions a `reference/` directory; the project keeps no frozen design inputs.
 - `.claude/hooks/guard-git.sh` blocks only a real `git push`, `git tag` or `git reset --hard`
   subcommand at a command start (after optional global options); the words inside commit
   messages or quoted strings no longer trip it.
