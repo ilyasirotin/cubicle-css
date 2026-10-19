@@ -10,7 +10,7 @@
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
-//                 pagination-<width>.png.
+//                 pagination-<width>.png and utilities-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -147,6 +147,8 @@ const PAIRS = [
   ['--cb-accent', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-surface))', 4.5],
   // Meter and progress fills against the recessed track (non-text, >= 3)
   ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-accent'].map((c) => [c, '--cb-bg-recessed', 3]),
+  // Text tones (.cb-text-ok / -warn / -danger / -info) on the page surfaces
+  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].flatMap((c) => ['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas'].map((bg) => [c, bg, 4.5])),
   // Idle tabs (muted ink on the darker tab tint)
   ['--cb-text-muted', 'color-mix(in srgb, var(--cb-bg-header) 60%, var(--cb-bg-surface))', 4.5],
 
@@ -1096,6 +1098,69 @@ if (await page.locator('.docs-demo .cb-pagination').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/pagination-${width}.png` });
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 20. Utilities: computed values match their tokens, a truncated table cell ellipsises inside
+//     its wrapper, long hashes wrap at 360px, hidden text stays in the accessibility tree,
+//     the skip link appears on the first Tab, and the code and key chips use their surfaces.
+if (await page.locator('.docs-demo .cb-mono').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const u = await page.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const tok = (name) => { probe.style.color = `var(${name})`; return getComputedStyle(probe).color; };
+    const t = { muted: tok('--cb-text-muted'), ok: tok('--cb-ok'), warn: tok('--cb-warn'), danger: tok('--cb-danger'), info: tok('--cb-info'), recessed: tok('--cb-bg-recessed'), btn: tok('--cb-bg-btn') };
+    probe.style.fontFamily = 'var(--cb-font-mono)'; const mono = getComputedStyle(probe).fontFamily; probe.remove();
+    const cs = (sel) => getComputedStyle(document.querySelector(`.docs-demo ${sel}`));
+    const kbd = cs('.cb-kbd');
+    return {
+      mono: cs('.cb-mono').fontFamily === mono && cs('.cb-mono').fontVariantLigatures === 'none',
+      num: cs('.cb-num').fontVariantNumeric === 'tabular-nums',
+      tones: cs('.cb-muted').color === t.muted && cs('.cb-text-ok').color === t.ok && cs('.cb-text-warn').color === t.warn && cs('.cb-text-danger').color === t.danger && cs('.cb-text-info').color === t.info,
+      xs: cs('.cb-text-xs').fontSize === '12px',
+      chips: cs('.cb-code').backgroundColor === t.recessed && kbd.backgroundColor === t.btn && kbd.boxShadow !== 'none',
+      nowrap: (() => { const n = document.querySelector('.docs-demo .cb-nowrap'); return n.getClientRects().length === 1; })(),
+    };
+  });
+  check(u.mono && u.num && u.tones && u.xs, 'text utilities match their tokens (mono, tabular, tones, 12px)', JSON.stringify({ mono: u.mono, num: u.num, tones: u.tones, xs: u.xs }));
+  check(u.chips && u.nowrap, '.cb-code and .cb-kbd use their surfaces; .cb-nowrap stays on one line', JSON.stringify({ chips: u.chips, nowrap: u.nowrap }));
+
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const w = await page.evaluate(() => {
+      const cells = [...document.querySelectorAll('.docs-demo td.cb-truncate')];
+      const long = cells.reduce((a, c) => (c.scrollWidth - c.clientWidth > a.scrollWidth - a.clientWidth ? c : a));
+      const table = long.closest('table'); const wrap = table.closest('.cb-table-wrap');
+      return { cut: long.scrollWidth > long.clientWidth, ellipsis: getComputedStyle(long).textOverflow === 'ellipsis', fits: table.getBoundingClientRect().width <= wrap.clientWidth + 0.5,
+        overflow: document.documentElement.scrollWidth > innerWidth };
+    });
+    const ok = w.ellipsis && w.fits && !w.overflow && (width === 1360 || w.cut);
+    check(ok, `truncated cells ellipsise inside their wrapper, long hashes wrap (${width}px)`, JSON.stringify(w));
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+
+  const hidden = await page.evaluate(() => [...document.querySelectorAll('.docs-demo .cb-sr-only')].every((e) => {
+    const r = e.getBoundingClientRect(); const cs = getComputedStyle(e);
+    return cs.display !== 'none' && r.width <= 1 && r.height <= 1 && cs.clipPath !== 'none';
+  }));
+  const named = await page.getByRole('table', { name: 'Gateways and their load' }).count();
+  const button = await page.getByRole('button', { name: 'Refresh gateways' }).count();
+  check(hidden && named === 1 && button === 1, '.cb-sr-only text is invisible but names the table and the icon key', JSON.stringify({ hidden, named, button }));
+
+  // The skip link is judged on a fresh page: the first Tab of a new document.
+  const ps = await context.newPage(); await applyOverrides(ps); await ps.goto(pathToFileURL(page_path).href);
+  const before = await ps.$eval('.cb-skip-link', (a) => a.getBoundingClientRect().bottom);
+  await ps.keyboard.press('Tab');
+  const skip = await ps.evaluate(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return { cls: a.className, top: r.top, bottom: r.bottom }; });
+  await ps.close();
+  check(before < 0 && skip.cls === 'cb-skip-link' && skip.top >= 0 && skip.bottom <= 900, 'the skip link is off screen until the first Tab, then visible', `rest bottom ${before}, focused top ${skip.top}`);
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-mono)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/utilities-${width}.png` });
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 }

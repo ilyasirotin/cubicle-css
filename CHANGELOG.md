@@ -139,6 +139,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/verify-browser.mjs`: pagination checks (sunk current keys, key size, seams and spaced
   gaps, disabled arrows out of the tab order, silent gap cells, the narrow collapse at 1360 and
   360px, the jump field's range) and screenshots.
+- `scripts/verify-browser.mjs`: utilities checks (token values, truncation inside the table wrapper
+  at 1360 and 360px, hidden text that still names its table and key, the skip link on the first
+  Tab of a fresh page, code and key surfaces), text-tone contrast pairs and screenshots.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
