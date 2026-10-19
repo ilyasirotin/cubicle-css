@@ -213,45 +213,19 @@
     border-radius: 0 0 var(--cb-radius-md) var(--cb-radius-md);
   }
 
-  /* ---- Reference tables (temporary until .cb-table ships) -------------- */
+  /* ---- Reference tables ------------------------------------------------- */
 
-  .docs-table-wrap {
-    overflow-x: auto;
+  /* .cb-table-wrap docs-ref: below 40rem the wrapper scrolls instead of
+     crushing the text columns. */
+  .docs-ref {
     margin-block-end: var(--cb-space-3);
-    border: 1px solid var(--cb-border-main);
-    border-radius: var(--cb-radius-sm);
+
+    & > table {
+      min-inline-size: 40rem;
+    }
   }
 
-  /* Below this width the wrapper scrolls instead of crushing the text columns. */
-  .docs-table {
-    inline-size: 100%;
-    min-inline-size: 40rem;
-    border-collapse: collapse;
-    background: var(--cb-bg-surface);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .docs-table__th,
-  .docs-table__td {
-    padding: var(--cb-space-1) var(--cb-space-2);
-    text-align: start;
-    vertical-align: middle;
-    border: 1px solid var(--cb-border-subtle);
-  }
-
-  .docs-table__th {
-    font-size: var(--cb-text-xs);
-    font-weight: 600;
-    white-space: nowrap;
-    background: var(--cb-bg-header);
-    border-block-end-color: var(--cb-border-main);
-  }
-
-  .docs-table__row:nth-child(even) {
-    background: var(--cb-bg-zebra);
-  }
-
-  .docs-table__td--nowrap {
+  .docs-nowrap {
     white-space: nowrap;
   }
 

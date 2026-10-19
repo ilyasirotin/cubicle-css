@@ -81,3 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   table with a selected row, an audit log in a flush panel with wrapping cells and a scrolling
   sticky header, a compact table with caption and totals, an empty state, accessibility notes
   and a reference table.
+
+### Changed
+
+- Catalogue reference tables use `.cb-table` (row headers as `<th scope="row">`); the temporary
+  `.docs-table` styles are removed from `docs/docs.css`.
