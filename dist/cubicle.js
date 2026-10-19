@@ -21,6 +21,10 @@
  *   data-cb-tabs (no value)                    container of ARIA tabs: click,
  *                                              arrow keys, Home and End select a
  *                                              role="tab"; state lives in the markup
+ *   data-cb-tree (no value)                    container of an ARIA tree: arrow keys,
+ *                                              Home, End; click, Enter and Space
+ *                                              select a row and toggle a branch,
+ *                                              which fires "cb-toggle" (detail.expanded)
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -32,6 +36,7 @@
   const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled, [type="hidden"]), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])';
   const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
   const TAB = '[data-cb-tabs] [role="tab"]';
+  const TREE_ITEM = '[data-cb-tree] [role="treeitem"]';
   const remaskTimers = new WeakMap();
   let liveRegion;
 
@@ -213,10 +218,68 @@
     selectTab(next);
   };
 
+  // ARIA tree: one row is in the tab order. Collapsed groups are not
+  // rendered, so the rendered items are the visible rows, in order.
+  const treeOf = (item) => item.closest('[role="tree"]');
+  const rows = (tree) => [...tree.querySelectorAll('[role="treeitem"]')].filter((item) => item.getClientRects().length);
+  const rowLabel = (item) => item.querySelector(':scope > .cb-nav__link');
+  const isBranch = (item) => item.hasAttribute('aria-expanded');
+  const isOpen = (item) => item.getAttribute('aria-expanded') === 'true';
+
+  const focusItem = (item) => {
+    for (const other of treeOf(item).querySelectorAll('[role="treeitem"]')) other.tabIndex = other === item ? 0 : -1;
+    item.focus();
+    item.scrollIntoView({ block: 'nearest' });
+  };
+
+  const setExpanded = (item, open) => {
+    item.setAttribute('aria-expanded', String(open));
+    item.dispatchEvent(new CustomEvent('cb-toggle', { bubbles: true, detail: { expanded: open } }));
+  };
+
+  const selectItem = (item) => {
+    for (const other of treeOf(item).querySelectorAll('[role="treeitem"][aria-selected="true"]')) {
+      other.setAttribute('aria-selected', 'false');
+    }
+    item.setAttribute('aria-selected', 'true');
+  };
+
+  // Enter and Space click the row, so host click handlers run for keyboard users.
+  const treeKey = (event, item) => {
+    const list = rows(treeOf(item));
+    const index = list.indexOf(item);
+    const parent = item.parentElement.closest('[role="treeitem"]');
+    let next;
+    switch (event.key) {
+      case 'ArrowDown': next = list[index + 1]; break;
+      case 'ArrowUp': next = list[index - 1]; break;
+      case 'Home': next = list[0]; break;
+      case 'End': next = list.at(-1); break;
+      case 'ArrowRight':
+        if (isBranch(item) && !isOpen(item)) setExpanded(item, true);
+        else if (isOpen(item) && item.contains(list[index + 1])) next = list[index + 1];
+        break;
+      case 'ArrowLeft':
+        if (isOpen(item)) setExpanded(item, false);
+        else next = parent;
+        break;
+      case 'Enter':
+      case ' ':
+        rowLabel(item)?.click();
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    if (next) focusItem(next);
+  };
+
   document.addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
-    const tab = event.target instanceof Element ? event.target.closest(TAB) : null;
-    if (tab) tabKey(event, tab);
+    if (!(event.target instanceof Element)) return;
+    const tab = event.target.closest(TAB);
+    if (tab) return tabKey(event, tab);
+    if (event.target.matches(TREE_ITEM)) treeKey(event, event.target);
   });
 
   document.addEventListener('click', (event) => {
@@ -226,6 +289,15 @@
     const tab = event.target instanceof Element ? event.target.closest(TAB) : null;
     if (tab) {
       if (isEnabled(tab)) selectTab(tab);
+      return;
+    }
+
+    const row = event.target instanceof Element ? event.target.closest('.cb-nav__link') : null;
+    const item = row?.parentElement.matches(TREE_ITEM) ? row.parentElement : null;
+    if (item) {
+      focusItem(item);
+      selectItem(item);
+      if (isBranch(item)) setExpanded(item, !isOpen(item));
       return;
     }
 

@@ -67,6 +67,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that stacks every panel under its `.cb-tabs__heading`. `dist/cubicle.js` switches tabs inside
   `[data-cb-tabs]` on click and with arrow keys, Home and End; AGENTS.md now names its click and
   keydown listeners.
+- `dist/cubicle.css` navigation and trees: `.cb-nav` with headings, 24px link rows (`aria-current`),
+  `<details>` branches, counts and lamps; ARIA trees with `aria-expanded` / `aria-selected`, a focus
+  ring on the row, `.cb-nav__kind` RDN chips, busy branches (shared spinner) and `--lines`
+  connectors; `.cb-breadcrumb`. `dist/cubicle.js` adds the APG tree keys inside `[data-cb-tree]`,
+  click/Enter/Space select and toggle, and a `cb-toggle` event for lazy loading.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only
