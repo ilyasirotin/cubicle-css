@@ -94,6 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catalogue "Status badges & LEDs" section: tags and statuses (with a busy badge), solid marks,
   counts in buttons and a panel head, an LED status line, an account panel in context,
   accessibility notes and a reference table.
+- Catalogue "Tabs" section: ARIA tabs with a count, a lamp and a disabled tab, scrolling link
+  tabs, tabs in a panel head, vertical tabs, a keyboard table and a reference table.
 - Catalogue "Data tables" section: a sticky, selectable, sortable VPN session grid, a certificate
   table with a selected row, an audit log in a flush panel with wrapping cells and a scrolling
   sticky header, a compact table with caption and totals, an empty state, accessibility notes

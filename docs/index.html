@@ -44,6 +44,7 @@
         <li><a class="docs-nav__link" href="#fields">Inputs &amp; fields</a></li>
         <li><a class="docs-nav__link" href="#secrets">Secret boxes</a></li>
         <li><a class="docs-nav__link" href="#panels">Fieldsets &amp; panels</a></li>
+        <li><a class="docs-nav__link" href="#tabs">Tabs</a></li>
         <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
@@ -1519,6 +1520,259 @@
               <tr><th scope="row"><code>.cb-panel--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code></th><td>Panel</td><td>3px status edge; pair with a status word</td></tr>
               <tr><th scope="row"><code>.cb-panel--inset</code></th><td>Panel, <code>&lt;pre&gt;</code></td><td>Recessed well with its own padding and scrolling</td></tr>
               <tr><th scope="row"><code>open</code></th><td><code>&lt;details class="cb-panel"&gt;</code></td><td>Expanded; the chevron points down</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="tabs" aria-labelledby="tabs-title">
+        <h2 class="docs-h2" id="tabs-title">Tabs</h2>
+        <p class="docs-text">Folder tabs that switch between views of one object: links to separate pages,
+          or ARIA tabs that switch panels in place.</p>
+
+        <h3 class="docs-h3" id="tabs-aria">ARIA tabs</h3>
+        <p class="docs-text">The markup holds the state (<code>aria-selected</code>, <code>tabindex</code>,
+          <code>hidden</code>); <code>cubicle.js</code> switches it on click and with the arrow keys. Without
+          the script every panel shows under its own <code>.cb-tabs__heading</code>.</p>
+        <div class="docs-demo">
+          <div class="cb-tabs" data-cb-tabs>
+            <div class="cb-tabs__list" role="tablist" aria-label="Gateway settings">
+              <button class="cb-tabs__tab" type="button" role="tab" id="tg-tab-general" aria-controls="tg-general" aria-selected="true">General</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tg-tab-peers" aria-controls="tg-peers" aria-selected="false" tabindex="-1">Peers <span class="cb-badge cb-badge--count">12</span></button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tg-tab-routing" aria-controls="tg-routing" aria-selected="false" tabindex="-1">Routing <span class="cb-led cb-led--warn">1 conflict</span></button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tg-tab-logs" aria-controls="tg-logs" aria-selected="false" tabindex="-1" aria-disabled="true">Logs</button>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tg-general" aria-labelledby="tg-tab-general">
+              <h4 class="cb-tabs__heading">General</h4>
+              <div class="cb-grid cb-grid--2">
+                <div class="cb-field">
+                  <label class="cb-field__label" for="tg-name">Name</label>
+                  <input class="cb-input" id="tg-name" type="text" value="gw-eu-1">
+                </div>
+                <div class="cb-field">
+                  <label class="cb-field__label" for="tg-port">Listen port</label>
+                  <input class="cb-input" id="tg-port" type="text" value="51820">
+                </div>
+              </div>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tg-peers" aria-labelledby="tg-tab-peers" hidden>
+              <h4 class="cb-tabs__heading">Peers</h4>
+              <p>12 peers, 9 connected in the last 5 minutes.</p>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tg-routing" aria-labelledby="tg-tab-routing" hidden>
+              <h4 class="cb-tabs__heading">Routing</h4>
+              <p>Route 10.20.0.0/16 overlaps with gw-eu-2.</p>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tg-logs" aria-labelledby="tg-tab-logs" hidden>
+              <h4 class="cb-tabs__heading">Logs</h4>
+              <p>Logging is off for this gateway.</p>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-tabs&quot; data-cb-tabs&gt;
+  &lt;div class=&quot;cb-tabs__list&quot; role=&quot;tablist&quot; aria-label=&quot;Gateway settings&quot;&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tg-tab-general&quot; aria-controls=&quot;tg-general&quot; aria-selected=&quot;true&quot;&gt;General&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tg-tab-peers&quot; aria-controls=&quot;tg-peers&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Peers &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;12&lt;/span&gt;&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tg-tab-routing&quot; aria-controls=&quot;tg-routing&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Routing &lt;span class=&quot;cb-led cb-led--warn&quot;&gt;1 conflict&lt;/span&gt;&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tg-tab-logs&quot; aria-controls=&quot;tg-logs&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot; aria-disabled=&quot;true&quot;&gt;Logs&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tg-general&quot; aria-labelledby=&quot;tg-tab-general&quot;&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;General&lt;/h4&gt;
+    &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;tg-name&quot;&gt;Name&lt;/label&gt;
+        &lt;input class=&quot;cb-input&quot; id=&quot;tg-name&quot; type=&quot;text&quot; value=&quot;gw-eu-1&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;tg-port&quot;&gt;Listen port&lt;/label&gt;
+        &lt;input class=&quot;cb-input&quot; id=&quot;tg-port&quot; type=&quot;text&quot; value=&quot;51820&quot;&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tg-peers&quot; aria-labelledby=&quot;tg-tab-peers&quot; hidden&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Peers&lt;/h4&gt;
+    &lt;p&gt;12 peers, 9 connected in the last 5 minutes.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tg-routing&quot; aria-labelledby=&quot;tg-tab-routing&quot; hidden&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Routing&lt;/h4&gt;
+    &lt;p&gt;Route 10.20.0.0/16 overlaps with gw-eu-2.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tg-logs&quot; aria-labelledby=&quot;tg-tab-logs&quot; hidden&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Logs&lt;/h4&gt;
+    &lt;p&gt;Logging is off for this gateway.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tabs-links">Link tabs</h3>
+        <p class="docs-text">Each tab is a link to its own page; <code>aria-current="page"</code> marks the
+          current one. No script. On narrow screens the list scrolls sideways.</p>
+        <div class="docs-demo">
+          <nav class="cb-tabs" aria-label="Account alice.ng">
+            <div class="cb-tabs__list">
+              <a class="cb-tabs__tab" href="#tabs-links" aria-current="page">Profile</a>
+              <a class="cb-tabs__tab" href="#tabs-links">Groups <span class="cb-badge cb-badge--count">4</span></a>
+              <a class="cb-tabs__tab" href="#tabs-links">Roles</a>
+              <a class="cb-tabs__tab" href="#tabs-links">Sessions</a>
+              <a class="cb-tabs__tab" href="#tabs-links">Devices</a>
+              <a class="cb-tabs__tab" href="#tabs-links">API keys</a>
+              <a class="cb-tabs__tab" href="#tabs-links">Audit</a>
+              <a class="cb-tabs__tab" href="#tabs-links">Delegation</a>
+            </div>
+            <div class="cb-tabs__panel">
+              <p>Alice Ng, network operations. Member since 2023-04-11; last sign-in 4 minutes ago from 10.8.0.11.</p>
+            </div>
+          </nav>
+        </div>
+        <pre class="docs-snippet"><code>&lt;nav class=&quot;cb-tabs&quot; aria-label=&quot;Account alice.ng&quot;&gt;
+  &lt;div class=&quot;cb-tabs__list&quot;&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot; aria-current=&quot;page&quot;&gt;Profile&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;Groups &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;4&lt;/span&gt;&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;Roles&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;Sessions&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;Devices&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;API keys&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;Audit&lt;/a&gt;
+    &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#tabs-links&quot;&gt;Delegation&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot;&gt;
+    &lt;p&gt;Alice Ng, network operations. Member since 2023-04-11; last sign-in 4 minutes ago from 10.8.0.11.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tabs-panel">In a panel head</h3>
+        <p class="docs-text">The tabs sit at the end of the head bar and open onto the panel body.</p>
+        <div class="docs-demo">
+          <section class="cb-panel cb-tabs" data-cb-tabs aria-labelledby="tp-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="tp-title">gw-eu-1</h4>
+              <div class="cb-tabs__list" role="tablist" aria-label="gw-eu-1 views">
+                <button class="cb-tabs__tab" type="button" role="tab" id="tp-tab-overview" aria-controls="tp-overview" aria-selected="true">Overview</button>
+                <button class="cb-tabs__tab" type="button" role="tab" id="tp-tab-peers" aria-controls="tp-peers" aria-selected="false" tabindex="-1">Peers</button>
+                <button class="cb-tabs__tab" type="button" role="tab" id="tp-tab-config" aria-controls="tp-config" aria-selected="false" tabindex="-1">Config</button>
+              </div>
+            </header>
+            <div class="cb-panel__body cb-tabs__panel" role="tabpanel" id="tp-overview" aria-labelledby="tp-tab-overview">
+              <h5 class="cb-tabs__heading">Overview</h5>
+              <p><span class="cb-badge cb-badge--ok">Online</span> 412 peers, 1.21 TB received in the last 24 hours.</p>
+            </div>
+            <div class="cb-panel__body cb-tabs__panel" role="tabpanel" id="tp-peers" aria-labelledby="tp-tab-peers" hidden>
+              <h5 class="cb-tabs__heading">Peers</h5>
+              <p>alice.ng, b.kowalski, d.ivanova and 409 more.</p>
+            </div>
+            <div class="cb-panel__body cb-tabs__panel" role="tabpanel" id="tp-config" aria-labelledby="tp-tab-config" hidden>
+              <h5 class="cb-tabs__heading">Config</h5>
+              <p>Interface wg0, listen port 51820, MTU 1420.</p>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel cb-tabs&quot; data-cb-tabs aria-labelledby=&quot;tp-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;tp-title&quot;&gt;gw-eu-1&lt;/h4&gt;
+    &lt;div class=&quot;cb-tabs__list&quot; role=&quot;tablist&quot; aria-label=&quot;gw-eu-1 views&quot;&gt;
+      &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tp-tab-overview&quot; aria-controls=&quot;tp-overview&quot; aria-selected=&quot;true&quot;&gt;Overview&lt;/button&gt;
+      &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tp-tab-peers&quot; aria-controls=&quot;tp-peers&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Peers&lt;/button&gt;
+      &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tp-tab-config&quot; aria-controls=&quot;tp-config&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Config&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tp-overview&quot; aria-labelledby=&quot;tp-tab-overview&quot;&gt;
+    &lt;h5 class=&quot;cb-tabs__heading&quot;&gt;Overview&lt;/h5&gt;
+    &lt;p&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt; 412 peers, 1.21 TB received in the last 24 hours.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-panel__body cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tp-peers&quot; aria-labelledby=&quot;tp-tab-peers&quot; hidden&gt;
+    &lt;h5 class=&quot;cb-tabs__heading&quot;&gt;Peers&lt;/h5&gt;
+    &lt;p&gt;alice.ng, b.kowalski, d.ivanova and 409 more.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-panel__body cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tp-config&quot; aria-labelledby=&quot;tp-tab-config&quot; hidden&gt;
+    &lt;h5 class=&quot;cb-tabs__heading&quot;&gt;Config&lt;/h5&gt;
+    &lt;p&gt;Interface wg0, listen port 51820, MTU 1420.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tabs-vertical">Vertical</h3>
+        <p class="docs-text">For settings pages. Set <code>aria-orientation="vertical"</code> so the up and
+          down arrows move between tabs. Below 30rem of its own width the list returns to the top.</p>
+        <div class="docs-demo">
+          <div class="cb-tabs cb-tabs--vertical" data-cb-tabs>
+            <div class="cb-tabs__list" role="tablist" aria-label="Settings" aria-orientation="vertical">
+              <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-auth" aria-controls="tv-auth" aria-selected="true">Authentication</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-directory" aria-controls="tv-directory" aria-selected="false" tabindex="-1">Directory</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-network" aria-controls="tv-network" aria-selected="false" tabindex="-1">Network</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-audit" aria-controls="tv-audit" aria-selected="false" tabindex="-1">Audit</button>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tv-auth" aria-labelledby="tv-tab-auth">
+              <h4 class="cb-tabs__heading">Authentication</h4>
+              <p>Password and hardware key; sessions expire after 12 hours.</p>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tv-directory" aria-labelledby="tv-tab-directory" hidden>
+              <h4 class="cb-tabs__heading">Directory</h4>
+              <p>LDAP <code>ldaps://ldap.corp.example.net:636</code>, sync every 15 minutes.</p>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tv-network" aria-labelledby="tv-tab-network" hidden>
+              <h4 class="cb-tabs__heading">Network</h4>
+              <p>Tunnel range <code>10.8.0.0/24</code>, DNS <code>10.8.0.53</code>.</p>
+            </div>
+            <div class="cb-tabs__panel" role="tabpanel" id="tv-audit" aria-labelledby="tv-tab-audit" hidden>
+              <h4 class="cb-tabs__heading">Audit</h4>
+              <p>Events kept for 400 days and exported nightly.</p>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-tabs cb-tabs--vertical&quot; data-cb-tabs&gt;
+  &lt;div class=&quot;cb-tabs__list&quot; role=&quot;tablist&quot; aria-label=&quot;Settings&quot; aria-orientation=&quot;vertical&quot;&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-auth&quot; aria-controls=&quot;tv-auth&quot; aria-selected=&quot;true&quot;&gt;Authentication&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-directory&quot; aria-controls=&quot;tv-directory&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Directory&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-network&quot; aria-controls=&quot;tv-network&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Network&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-audit&quot; aria-controls=&quot;tv-audit&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Audit&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tv-auth&quot; aria-labelledby=&quot;tv-tab-auth&quot;&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Authentication&lt;/h4&gt;
+    &lt;p&gt;Password and hardware key; sessions expire after 12 hours.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tv-directory&quot; aria-labelledby=&quot;tv-tab-directory&quot; hidden&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Directory&lt;/h4&gt;
+    &lt;p&gt;LDAP &lt;code&gt;ldaps://ldap.corp.example.net:636&lt;/code&gt;, sync every 15 minutes.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tv-network&quot; aria-labelledby=&quot;tv-tab-network&quot; hidden&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Network&lt;/h4&gt;
+    &lt;p&gt;Tunnel range &lt;code&gt;10.8.0.0/24&lt;/code&gt;, DNS &lt;code&gt;10.8.0.53&lt;/code&gt;.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tv-audit&quot; aria-labelledby=&quot;tv-tab-audit&quot; hidden&gt;
+    &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Audit&lt;/h4&gt;
+    &lt;p&gt;Events kept for 400 days and exported nightly.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="tabs-keys">Keyboard</h3>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><kbd>Tab</kbd></th><td>Moves into the tab list (to the selected tab), then into its panel</td></tr>
+              <tr><th scope="row"><kbd>←</kbd> <kbd>→</kbd></th><td>Previous or next tab, wrapping; disabled tabs are skipped</td></tr>
+              <tr><th scope="row"><kbd>↑</kbd> <kbd>↓</kbd></th><td>The same, in a vertical list</td></tr>
+              <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>First or last tab</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-tabs</code></th><td><code>&lt;div&gt;</code>, <code>&lt;nav&gt;</code>, <code>.cb-panel</code></td><td>Tab set; in a panel the selected tab takes the panel colour</td></tr>
+              <tr><th scope="row"><code>data-cb-tabs</code></th><td>Tab set</td><td>Hands its ARIA tabs to the script; without it they stay static</td></tr>
+              <tr><th scope="row"><code>.cb-tabs__list</code> + <code>role="tablist"</code></th><td><code>&lt;div&gt;</code></td><td>Row of tabs over a line; scrolls sideways when full</td></tr>
+              <tr><th scope="row"><code>.cb-tabs__tab</code> + <code>role="tab"</code></th><td><code>&lt;button&gt;</code></td><td>Tab; needs <code>aria-controls</code>, <code>aria-selected</code> and <code>tabindex="-1"</code> unless selected</td></tr>
+              <tr><th scope="row"><code>aria-current="page"</code></th><td><code>&lt;a class="cb-tabs__tab"&gt;</code></td><td>Current link tab</td></tr>
+              <tr><th scope="row"><code>aria-disabled="true"</code></th><td>Tab</td><td>Muted; ignored by pointer and skipped by arrow keys</td></tr>
+              <tr><th scope="row"><code>.cb-tabs__panel</code> + <code>role="tabpanel"</code></th><td><code>&lt;div&gt;</code></td><td>Framed panel; <code>hidden</code> unless its tab is selected</td></tr>
+              <tr><th scope="row"><code>.cb-tabs__heading</code></th><td>In a panel</td><td>Panel title shown only without the script</td></tr>
+              <tr><th scope="row"><code>.cb-tabs--vertical</code> + <code>aria-orientation="vertical"</code></th><td>Tab set, list</td><td>List at the start; horizontal below 30rem</td></tr>
             </tbody>
           </table>
         </div>
