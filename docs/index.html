@@ -46,6 +46,7 @@
         <li><a class="docs-nav__link" href="#panels">Fieldsets &amp; panels</a></li>
         <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
+        <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
       </ul>
     </nav>
 
@@ -366,6 +367,7 @@
             <tbody>
               <tr><th scope="row"><code>.cb-app</code></th><td><code>div</code></td><td>Grid frame; fills the viewport or its size container</td></tr>
               <tr><th scope="row"><code>.cb-app__top</code></th><td><code>header</code></td><td>Top bar: product name, scope, global actions</td></tr>
+              <tr><th scope="row"><code>.cb-app__banner</code></th><td><code>div</code></td><td>Optional strip of <code>.cb-alert--banner</code> under the top bar; collapses when empty</td></tr>
               <tr><th scope="row"><code>.cb-app__side</code></th><td><code>nav</code> / <code>aside</code></td><td>Optional sidebar; scrolls independently; stacks below 800px</td></tr>
               <tr><th scope="row"><code>.cb-app__main</code></th><td><code>main</code></td><td>Workspace; scrolls independently</td></tr>
               <tr><th scope="row"><code>.cb-app__status</code></th><td><code>footer</code></td><td>Status bar: connection, counters, tabular figures</td></tr>
@@ -2170,6 +2172,205 @@
               <tr><th scope="row"><code>aria-busy="true"</code></th><td>Badge</td><td>Stepped spinner in place of the lamp; stops turning under reduced motion</td></tr>
               <tr><th scope="row"><code>.cb-led</code></th><td><code>&lt;span&gt;</code></td><td>Lamp plus text, no frame; grey lamp without a modifier</td></tr>
               <tr><th scope="row"><code>.cb-led--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code> / <code>--off</code></th><td>LED</td><td>Lamp tone; <code>--off</code> is hollow</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="alerts" aria-labelledby="alerts-title">
+        <h2 class="docs-h2" id="alerts-title">Alerts</h2>
+        <p class="docs-text">Messages about the system or the last action: a tinted box with a 4px tone edge,
+          a glyph and a title that names the state.</p>
+
+        <h3 class="docs-h3" id="alerts-tones">Tones, actions and dismiss</h3>
+        <p class="docs-text">Without a modifier an alert is informational. The close key needs
+          <code>cubicle.js</code>; it hides the alert and moves focus to the next control.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-alert">
+              <p class="cb-alert__title">Maintenance window tonight</p>
+              <p>Gateways gw-eu-1 and gw-eu-2 restart between 23:00 and 23:30 UTC. Sessions reconnect on their own.</p>
+            </div>
+            <div class="cb-alert cb-alert--ok" role="status">
+              <p class="cb-alert__title">LDAP sync completed</p>
+              <p>12 users updated, 0 disabled, 1 group renamed.</p>
+            </div>
+            <div class="cb-alert cb-alert--warn">
+              <p class="cb-alert__title">Certificate expires in 6 days</p>
+              <p>The server certificate for <code>ldap.corp.example.net</code> is valid until 2026-10-25.</p>
+              <div class="cb-alert__actions">
+                <button class="cb-btn cb-btn--sm cb-btn--primary" type="button">Renew certificate</button>
+                <a class="cb-btn cb-btn--sm" href="#tables-selected">View certificate</a>
+              </div>
+            </div>
+            <div class="cb-alert cb-alert--danger" id="a-gw" role="alert">
+              <p class="cb-alert__title">Gateway gw-ap-2 unreachable</p>
+              <p>No handshake for 4 minutes. 57 peers fail over to gw-ap-1.</p>
+              <button class="cb-alert__close cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-dismiss="a-gw" aria-label="Dismiss gateway alert">✕</button>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-alert&quot;&gt;
+    &lt;p class=&quot;cb-alert__title&quot;&gt;Maintenance window tonight&lt;/p&gt;
+    &lt;p&gt;Gateways gw-eu-1 and gw-eu-2 restart between 23:00 and 23:30 UTC. Sessions reconnect on their own.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-alert cb-alert--ok&quot; role=&quot;status&quot;&gt;
+    &lt;p class=&quot;cb-alert__title&quot;&gt;LDAP sync completed&lt;/p&gt;
+    &lt;p&gt;12 users updated, 0 disabled, 1 group renamed.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-alert cb-alert--warn&quot;&gt;
+    &lt;p class=&quot;cb-alert__title&quot;&gt;Certificate expires in 6 days&lt;/p&gt;
+    &lt;p&gt;The server certificate for &lt;code&gt;ldap.corp.example.net&lt;/code&gt; is valid until 2026-10-25.&lt;/p&gt;
+    &lt;div class=&quot;cb-alert__actions&quot;&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--primary&quot; type=&quot;button&quot;&gt;Renew certificate&lt;/button&gt;
+      &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#tables-selected&quot;&gt;View certificate&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-alert cb-alert--danger&quot; id=&quot;a-gw&quot; role=&quot;alert&quot;&gt;
+    &lt;p class=&quot;cb-alert__title&quot;&gt;Gateway gw-ap-2 unreachable&lt;/p&gt;
+    &lt;p&gt;No handshake for 4 minutes. 57 peers fail over to gw-ap-1.&lt;/p&gt;
+    &lt;button class=&quot;cb-alert__close cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-dismiss=&quot;a-gw&quot; aria-label=&quot;Dismiss gateway alert&quot;&gt;✕&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="alerts-compact">Compact</h3>
+        <p class="docs-text"><code>--sm</code> keeps one line at 28px, the height of a table row, for forms and
+          tool bars.</p>
+        <div class="docs-demo">
+          <div class="cb-stack cb-stack--tight">
+            <div class="cb-alert cb-alert--sm cb-alert--warn" role="status">Unsaved changes in RBAC rules.</div>
+            <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key. <a href="#tables-grid">Show peers</a></div>
+            <table class="cb-table">
+              <thead>
+                <tr><th scope="col">Rule</th><th scope="col">Subject</th><th scope="col">Permission</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">14</th><td>group:vpn-admins</td><td>gateways:write</td></tr>
+                <tr><th scope="row">15</th><td>group:helpdesk</td><td>sessions:disconnect</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+  &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--warn&quot; role=&quot;status&quot;&gt;Unsaved changes in RBAC rules.&lt;/div&gt;
+  &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--danger&quot;&gt;2 peers use a revoked key. &lt;a href=&quot;#tables-grid&quot;&gt;Show peers&lt;/a&gt;&lt;/div&gt;
+  &lt;table class=&quot;cb-table&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Subject&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Permission&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td&gt;group:vpn-admins&lt;/td&gt;&lt;td&gt;gateways:write&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td&gt;group:helpdesk&lt;/td&gt;&lt;td&gt;sessions:disconnect&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="alerts-summary">Error summary</h3>
+        <p class="docs-text">After a failed submit, list every problem as a link to its field. Give the alert
+          <code>tabindex="-1"</code> and focus it, so keyboard and screen reader users start there.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-alert cb-alert--danger" role="alert" tabindex="-1">
+              <p class="cb-alert__title">2 fields need attention</p>
+              <ul>
+                <li><a href="#e-cidr">Allowed IPs: 10.8.0.300/32 is not a valid CIDR block</a></li>
+                <li><a href="#e-keepalive">Keepalive: enter a number of seconds from 0 to 600</a></li>
+              </ul>
+            </div>
+            <div class="cb-grid cb-grid--2">
+              <div class="cb-field">
+                <label class="cb-field__label" for="e-cidr">Allowed IPs</label>
+                <input class="cb-input" id="e-cidr" type="text" value="10.8.0.300/32" aria-invalid="true" aria-describedby="e-cidr-error">
+                <p class="cb-field__error" id="e-cidr-error">10.8.0.300/32 is not a valid CIDR block.</p>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="e-keepalive">Keepalive</label>
+                <input class="cb-input" id="e-keepalive" type="text" value="-5" aria-invalid="true" aria-describedby="e-keepalive-error">
+                <p class="cb-field__error" id="e-keepalive-error">Enter a number of seconds from 0 to 600.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-alert cb-alert--danger&quot; role=&quot;alert&quot; tabindex=&quot;-1&quot;&gt;
+    &lt;p class=&quot;cb-alert__title&quot;&gt;2 fields need attention&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#e-cidr&quot;&gt;Allowed IPs: 10.8.0.300/32 is not a valid CIDR block&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#e-keepalive&quot;&gt;Keepalive: enter a number of seconds from 0 to 600&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;e-cidr&quot;&gt;Allowed IPs&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;e-cidr&quot; type=&quot;text&quot; value=&quot;10.8.0.300/32&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;e-cidr-error&quot;&gt;
+      &lt;p class=&quot;cb-field__error&quot; id=&quot;e-cidr-error&quot;&gt;10.8.0.300/32 is not a valid CIDR block.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;e-keepalive&quot;&gt;Keepalive&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;e-keepalive&quot; type=&quot;text&quot; value=&quot;-5&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;e-keepalive-error&quot;&gt;
+      &lt;p class=&quot;cb-field__error&quot; id=&quot;e-keepalive-error&quot;&gt;Enter a number of seconds from 0 to 600.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="alerts-banner">Shell banner</h3>
+        <p class="docs-text">Page-wide notices go into <code>.cb-app__banner</code> under the top bar. They stay
+          in view in the fixed frame, and the strip collapses when the last banner is dismissed.</p>
+        <div class="docs-demo docs-frame">
+          <div class="cb-app">
+            <header class="cb-app__top"><strong>VPN Console</strong><span>corp.example.net</span></header>
+            <div class="cb-app__banner">
+              <div class="cb-alert cb-alert--banner cb-alert--sm cb-alert--warn" id="a-licence">Licence expires on 2026-11-01: 13 days left. <a href="#alerts-banner">Renew</a><button class="cb-alert__close cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-dismiss="a-licence" aria-label="Dismiss licence notice">✕</button></div>
+              <div class="cb-alert cb-alert--banner cb-alert--sm">Maintenance tonight 23:00–23:30 UTC.</div>
+            </div>
+            <div class="cb-app__main">
+              <div class="cb-stack">
+                <div class="docs-box">Workspace</div>
+                <div class="docs-box">Workspace</div>
+              </div>
+            </div>
+            <footer class="cb-app__status"><span>Connected</span><span>10.8.0.1</span></footer>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-app&quot;&gt;
+  &lt;header class=&quot;cb-app__top&quot;&gt;&lt;strong&gt;VPN Console&lt;/strong&gt;&lt;span&gt;corp.example.net&lt;/span&gt;&lt;/header&gt;
+  &lt;div class=&quot;cb-app__banner&quot;&gt;
+    &lt;div class=&quot;cb-alert cb-alert--banner cb-alert--sm cb-alert--warn&quot; id=&quot;a-licence&quot;&gt;Licence expires on 2026-11-01: 13 days left. &lt;a href=&quot;#alerts-banner&quot;&gt;Renew&lt;/a&gt;&lt;button class=&quot;cb-alert__close cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-dismiss=&quot;a-licence&quot; aria-label=&quot;Dismiss licence notice&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;
+    &lt;div class=&quot;cb-alert cb-alert--banner cb-alert--sm&quot;&gt;Maintenance tonight 23:00–23:30 UTC.&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-app__main&quot;&gt;
+    &lt;div class=&quot;cb-stack&quot;&gt;
+      &lt;div class=&quot;docs-box&quot;&gt;Workspace&lt;/div&gt;
+      &lt;div class=&quot;docs-box&quot;&gt;Workspace&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;footer class=&quot;cb-app__status&quot;&gt;&lt;span&gt;Connected&lt;/span&gt;&lt;span&gt;10.8.0.1&lt;/span&gt;&lt;/footer&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="alerts-a11y">Accessibility</h3>
+        <ul class="docs-list">
+          <li><code>role="alert"</code> for urgent messages that appear after an action, such as errors;
+            <code>role="status"</code> for polite updates; no role for notices rendered with the page.</li>
+          <li>The glyph is decoration; the title or first words name the state.</li>
+          <li>Give the close key an <code>aria-label</code> that names the alert.</li>
+        </ul>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-alert</code></th><td><code>&lt;div&gt;</code></td><td>Informational alert: tint, 4px tone edge, glyph tile</td></tr>
+              <tr><th scope="row"><code>.cb-alert--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code></th><td>Alert</td><td>Tone and glyph: ✓, !, ✕, i</td></tr>
+              <tr><th scope="row"><code>.cb-alert--sm</code></th><td>Alert</td><td>One line, 28px high</td></tr>
+              <tr><th scope="row"><code>.cb-alert--banner</code></th><td>Alert</td><td>Page-wide strip: no radius, no top or end border</td></tr>
+              <tr><th scope="row"><code>.cb-alert__title</code></th><td><code>&lt;p&gt;</code>, <code>&lt;h2&gt;</code>–<code>&lt;h4&gt;</code></td><td>Bold title in the tone colour</td></tr>
+              <tr><th scope="row"><code>.cb-alert__actions</code></th><td><code>&lt;div&gt;</code></td><td>Row of <code>.cb-btn--sm</code> keys</td></tr>
+              <tr><th scope="row"><code>.cb-alert__close</code> + <code>data-cb-dismiss="id"</code></th><td><code>&lt;button&gt;</code></td><td>Close key at the end of the first line; hides the alert (script)</td></tr>
+              <tr><th scope="row"><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code></th><td>In an alert</td><td>Indented list, for error summaries</td></tr>
+              <tr><th scope="row"><code>.cb-app__banner</code></th><td><code>&lt;div&gt;</code> in <code>.cb-app</code></td><td>Banner strip under the top bar; collapses when empty</td></tr>
             </tbody>
           </table>
         </div>

@@ -89,6 +89,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   table with a selected row, an audit log in a flush panel with wrapping cells and a scrolling
   sticky header, a compact table with caption and totals, an empty state, accessibility notes
   and a reference table.
+- Catalogue "Alerts" section: tones with actions and dismiss, compact alerts above a table, an
+  error summary linking to invalid fields, banners in a shell frame, accessibility notes and a
+  reference table; the shell reference lists `.cb-app__banner`.
 
 ### Changed
 
