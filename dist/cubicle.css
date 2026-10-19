@@ -211,10 +211,13 @@
     font-variant-ligatures: none;
   }
 
-  /* The single focus indicator for every interactive element. */
+  /* The single focus indicator for every interactive element. The scroll
+     margin keeps the whole ring in view when focus scrolls the page or a
+     container; without it the browser stops at the element's own edge. */
   :focus-visible {
     outline: var(--cb-focus-ring);
     outline-offset: var(--cb-focus-offset);
+    scroll-margin: var(--cb-space-2);
   }
 
   /* The same ring drawn inside scroll containers and the keys of a scrolling
