@@ -160,6 +160,11 @@
     --cb-space-4: 1rem;            /* 16px - section separation */
     --cb-space-5: 1.5rem;          /* 24px - major layout gap */
 
+    --cb-control-h: 1.625rem;      /* 26px - buttons, fields, tabs */
+    --cb-control-h-sm: 1.25rem;    /* 20px - small keys, table actions */
+    --cb-row-h: 1.75rem;           /* 28px - table rows, details summaries */
+    --cb-row-h-sm: 1.5rem;         /* 24px - navigation rows, compact tables */
+
     /* 2.7 Typography scale & stacks */
     --cb-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --cb-font-mono: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, monospace;
@@ -176,6 +181,28 @@
     --cb-duration-spin: 800ms;     /* One stepped revolution of the busy spinner */
     --cb-focus-ring: 2px solid var(--cb-accent);
     --cb-focus-offset: 1px;
+  }
+
+  /* Density: the same screen tighter or roomier, on <html> or any subtree.
+     Heights and the small spacing steps change; type sizes do not. */
+  [data-cb-density="compact"] {
+    --cb-space-1: 0.125rem;        /* 2px */
+    --cb-space-2: 0.375rem;        /* 6px */
+    --cb-space-3: 0.5rem;          /* 8px */
+    --cb-control-h: 1.375rem;      /* 22px */
+    --cb-control-h-sm: 1.125rem;   /* 18px */
+    --cb-row-h: 1.5rem;            /* 24px */
+    --cb-row-h-sm: 1.25rem;        /* 20px */
+  }
+
+  [data-cb-density="comfortable"] {
+    --cb-space-1: 0.375rem;        /* 6px */
+    --cb-space-2: 0.625rem;        /* 10px */
+    --cb-space-3: 1rem;            /* 16px */
+    --cb-control-h: 1.875rem;      /* 30px */
+    --cb-control-h-sm: 1.5rem;     /* 24px */
+    --cb-row-h: 2rem;              /* 32px */
+    --cb-row-h-sm: 1.75rem;        /* 28px */
   }
 }
 
@@ -390,7 +417,7 @@
      micro-gradient. Variants set only the private --_* properties; states
      swap them, so no rule repeats the paint logic. */
   .cb-btn {
-    --_h: 1.625rem;
+    --_h: var(--cb-control-h);
     --_bg: var(--cb-bg-btn);
     --_bg-hover: color-mix(in srgb, var(--cb-bg-btn) 50%, var(--cb-bg-raised));
     --_ink: var(--cb-text-main);
@@ -531,7 +558,7 @@
 
   /* Sizes and shape. --icon follows --sm so the pair stays square. */
   .cb-btn--sm {
-    --_h: 1.25rem;
+    --_h: var(--cb-control-h-sm);
     padding-inline: var(--cb-space-2);
     font-size: var(--cb-text-xs);
   }
@@ -577,7 +604,7 @@
      side and bottom edges mix in the strong border to reach 3:1 against
      canvas, surface and raised (WCAG 1.4.11). */
   :is(.cb-input, .cb-select) {
-    --_h: 1.625rem;
+    --_h: var(--cb-control-h);
     --_bg: var(--cb-bg-raised);
     --_ink: var(--cb-text-main);
     --_border: color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main));
@@ -653,7 +680,7 @@
   }
 
   :is(.cb-input--sm, .cb-select--sm) {
-    --_h: 1.25rem;
+    --_h: var(--cb-control-h-sm);
     padding-inline-start: var(--cb-space-1);
     font-size: var(--cb-text-xs);
   }
@@ -862,7 +889,7 @@
       grid-column: 1;
       display: flex;
       align-items: center;
-      min-block-size: 1.625rem;
+      min-block-size: var(--cb-control-h);
     }
 
     & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret) {
@@ -871,7 +898,7 @@
 
     /* Centre a lone checkbox row on the label line. */
     & > .cb-choice {
-      min-block-size: 1.625rem;
+      min-block-size: var(--cb-control-h);
     }
   }
 
@@ -942,7 +969,7 @@
   .cb-range {
     appearance: none;
     inline-size: 100%;
-    min-block-size: 1.625rem;
+    min-block-size: var(--cb-control-h);
     margin: 0;
     background: none;
     cursor: pointer;
@@ -1388,8 +1415,8 @@
      cells paint it, so sticky cells stay opaque. Every row has one height,
      with or without .cb-btn--sm actions. */
   .cb-table {
-    --_row: 1.75rem; /* 28px including the bottom border */
-    --_pad: 0.1875rem; /* leaves room for a 20px .cb-btn--sm */
+    --_row: var(--cb-row-h); /* including the bottom border */
+    --_pad: calc((var(--_row) - var(--cb-control-h-sm) - 1px) / 2); /* a .cb-btn--sm always fits */
 
     inline-size: 100%;
     border-collapse: separate;
@@ -1550,8 +1577,7 @@
 
   /* Modifiers */
   .cb-table--compact {
-    --_row: 1.5rem;
-    --_pad: 1px;
+    --_row: var(--cb-row-h-sm);
   }
 
   /* Data cells wrap; column and row headers stay on one line. */
@@ -1720,7 +1746,7 @@
     flex: none;
     align-items: center;
     gap: var(--cb-space-1);
-    min-block-size: 1.625rem;
+    min-block-size: var(--cb-control-h);
     margin: 0;
     padding: 0 var(--cb-space-3);
     font-size: var(--cb-text-sm);
@@ -1742,7 +1768,7 @@
     }
 
     &:is([aria-selected="true"], [aria-current]:not([aria-current="false"])) {
-      min-block-size: calc(1.625rem + 2px);
+      min-block-size: calc(var(--cb-control-h) + 2px);
       font-weight: 600;
       color: var(--cb-text-main);
       background: var(--_active);
@@ -1833,7 +1859,7 @@
     }
 
     .cb-tabs--vertical .cb-tabs__tab {
-      min-block-size: 1.625rem;
+      min-block-size: var(--cb-control-h);
       border-radius: var(--cb-radius-none);
       border-start-start-radius: var(--cb-radius-sm);
       border-end-start-radius: var(--cb-radius-sm);
@@ -1909,7 +1935,7 @@
     display: flex;
     align-items: center;
     gap: var(--cb-space-1);
-    min-block-size: 1.5rem;
+    min-block-size: var(--cb-row-h-sm);
     padding: 0 var(--cb-space-2) 0 calc(var(--cb-space-1) + 0.875rem + var(--cb-space-1));
     color: var(--cb-text-main);
     text-decoration: none;
@@ -1990,7 +2016,7 @@
 
   /* Tree lines: a vertical under the parent's chevron, a stub to each node,
      and a corner at the last one. Pure geometry from the row metrics: the
-     chevron centre sits 0.4375rem into the slot, each row is 1.5rem high. */
+     chevron centre sits 0.4375rem into the slot, each row is --cb-row-h-sm high. */
   .cb-nav--lines .cb-nav__list .cb-nav__list > li {
     position: relative;
 
@@ -2009,11 +2035,11 @@
 
     &:last-child::before {
       inset-block-end: auto;
-      block-size: 0.75rem;
+      block-size: calc(var(--cb-row-h-sm) / 2);
     }
 
     &::after {
-      inset-block-start: 0.75rem;
+      inset-block-start: calc(var(--cb-row-h-sm) / 2);
       inline-size: calc(var(--_indent) - 0.4375rem);
       border-block-start: 1px solid var(--cb-border-subtle);
     }
@@ -2258,7 +2284,7 @@
       display: flex;
       align-items: center;
       gap: var(--cb-space-1);
-      min-block-size: 1.75rem;
+      min-block-size: var(--cb-row-h);
       padding: 0 var(--cb-space-2) 0 var(--cb-space-1);
       font-weight: 600;
       border-radius: inherit;
@@ -2315,7 +2341,7 @@
 
   .cb-details--sm {
     & > summary {
-      min-block-size: 1.5rem;
+      min-block-size: var(--cb-row-h-sm);
     }
 
     & > .cb-details__body {
@@ -2330,7 +2356,7 @@
 
     & > summary {
       display: inline-flex;
-      min-block-size: 1.5rem;
+      min-block-size: var(--cb-row-h-sm);
       padding-inline: 0;
       font-weight: 500;
     }
@@ -2453,7 +2479,7 @@
     display: inline-flex;
 
     & > * {
-      min-inline-size: 1.75rem;
+      min-inline-size: var(--cb-row-h);
       font-variant-numeric: tabular-nums;
       border-radius: var(--cb-radius-none);
     }
@@ -2483,7 +2509,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    block-size: 1.25rem;
+    block-size: var(--cb-control-h-sm);
     color: var(--cb-text-muted);
     background: var(--cb-bg-surface);
     border: 1px solid var(--cb-border-main);

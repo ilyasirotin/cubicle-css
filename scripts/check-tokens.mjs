@@ -8,7 +8,9 @@
 // Checks:         1. every token declared in @layer tokens is documented in the catalogue;
 //                 2. every documented token exists in the stylesheet;
 //                 3. every documented value equals the declared value (whitespace-normalised);
-//                 4. every var(--cb-*) used in the stylesheet and docs/docs.css is declared.
+//                 4. every var(--cb-*) used in the stylesheet and docs/docs.css is declared;
+//                 5. density blocks ([data-cb-density]) only redefine tokens that :root declares.
+//                 Default values are read from the :root block of @layer tokens.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { readFileSync } from 'node:fs';
@@ -36,6 +38,7 @@ const same = (a, b) => (/^#[0-9a-f]+$/i.test(a) ? a.toLowerCase() === b.toLowerC
 // 0. Declared tokens: the body of @layer tokens { ... }.
 const css = stripComments(readFileSync(cssFile, 'utf8'));
 const declared = new Map();
+const overrides = [];
 const layerAt = css.search(/@layer\s+tokens\s*\{/);
 if (layerAt < 0) {
   check(false, '@layer tokens block found', relative(root, cssFile));
@@ -46,8 +49,13 @@ if (layerAt < 0) {
     if (css[end] === '{') depth++;
     if (css[end] === '}' && --depth === 0) break;
   }
-  for (const [, name, value] of css.slice(open, end).matchAll(/(--cb-[a-z0-9-]+)\s*:\s*([^;]+);/g)) {
-    declared.set(name, squash(value));
+  // Defaults come from the :root block; other blocks (density modes) may only redefine
+  // tokens that :root declares.
+  const body = css.slice(open + 1, end);
+  for (const [, selector, block] of body.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const pairs = [...block.matchAll(/(--cb-[a-z0-9-]+)\s*:\s*([^;]+);/g)];
+    if (selector.trim() === ':root') pairs.forEach(([, name, value]) => declared.set(name, squash(value)));
+    else overrides.push([selector.trim(), pairs.map(([, name]) => name)]);
   }
 }
 
@@ -93,6 +101,12 @@ for (const file of [cssFile, docsCssFile]) {
   const unknown = [...refs].filter((n) => !declared.has(n));
   for (const n of unknown) check(false, `var(${n}) in ${relative(root, file)} is declared`);
   if (!unknown.length) check(true, `all ${refs.size} var(--cb-*) references in ${relative(root, file)} are declared`);
+}
+
+// 5. Density blocks redefine declared tokens only
+for (const [selector, names] of overrides) {
+  const unknown = names.filter((n) => !declared.has(n));
+  check(unknown.length === 0, `${selector} redefines declared tokens only`, unknown.join(', ') || `${names.length} tokens`);
 }
 
 const failed = results.filter((r) => !r.ok);

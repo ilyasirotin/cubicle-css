@@ -101,6 +101,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-info`, `.cb-text-xs`, `.cb-truncate` (also in table cells), `.cb-nowrap`, `.cb-break`,
   `.cb-sr-only` (one rule with the script's `[data-cb-sr]`) and `.cb-skip-link`. No spacing
   utilities.
+- Density modes: tokens `--cb-control-h`, `--cb-control-h-sm`, `--cb-row-h` and `--cb-row-h-sm`
+  size buttons, fields, tabs, table rows, navigation rows, details summaries and pagination keys;
+  `data-cb-density="compact"` or `"comfortable"` on `<html>` or any subtree redefines them and
+  the small spacing steps. Table cell padding is derived so a `.cb-btn--sm` fits every row.
+  `scripts/check-tokens.mjs` reads defaults from `:root` and checks that density blocks only
+  redefine declared tokens.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only

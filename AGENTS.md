@@ -43,6 +43,7 @@ Modern flat design often blurs the line between static text and interactive cont
 ### 3.1. High Information Density
 Sysadmins and security engineers hate excessive scrolling and empty whitespace.
 * **Compact Spacing:** Padding and margins should be tight and purposeful. A standard 1080p screen should comfortably display 20–30 rows of a data table or a complex multi-section configuration form without scrolling.
+* **Density Modes:** `data-cb-density="compact"` or `"comfortable"` on `<html>` or any subtree redefines the control and row heights (`--cb-control-h`, `--cb-row-h` and their `-sm` steps) and the small spacing steps; type sizes never change. The default needs no attribute.
 * **Explicit Grouping:** Use classic structural primitives like `<fieldset>` with `<legend>`, bordered panels, and distinct header bars to group related settings (e.g., "TLS Configuration", "RBAC Rules", "Tunnel Routing").
 
 ### 3.2. Adaptive & Responsive Engineering
@@ -183,6 +184,11 @@ All visual rules in `dist/cubicle.css` must build upon this core token table ins
     --cb-space-3: 0.75rem;         /* 12px - panel padding */
     --cb-space-4: 1rem;            /* 16px - section separation */
     --cb-space-5: 1.5rem;          /* 24px - major layout gap */
+
+    --cb-control-h: 1.625rem;      /* 26px - buttons, fields, tabs */
+    --cb-control-h-sm: 1.25rem;    /* 20px - small keys, table actions */
+    --cb-row-h: 1.75rem;           /* 28px - table rows, details summaries */
+    --cb-row-h-sm: 1.5rem;         /* 24px - navigation rows, compact tables */
 
     /* 7. Typography Scale & Stacks */
     --cb-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
