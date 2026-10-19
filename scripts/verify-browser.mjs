@@ -518,7 +518,9 @@ if (await page.locator('.docs-demo .cb-table').count()) {
   // Tables inside closed dialogs are not rendered; they are measured by check 18 instead.
   const heights = await page.$$eval('.docs-demo .cb-table', (tables) => tables.filter((t) => t.getClientRects().length).map((t, i) => {
     const rows = [...t.querySelectorAll('tbody tr, thead tr, tfoot tr')].filter((r) => !r.querySelector('.cb-table__empty'));
-    const want = t.classList.contains('cb-table--compact') ? 24 : 28;
+    // The row height comes from the density tokens in force on this table (rem -> px).
+    const token = getComputedStyle(t).getPropertyValue(t.classList.contains('cb-table--compact') ? '--cb-row-h-sm' : '--cb-row-h').trim();
+    const want = Math.round(parseFloat(token) * parseFloat(getComputedStyle(document.documentElement).fontSize));
     const wraps = t.classList.contains('cb-table--wrap');
     return { i, want, wraps, got: [...new Set(rows.map((r) => Math.round(r.getBoundingClientRect().height)))] };
   }));
@@ -838,10 +840,11 @@ if (await page.locator('.docs-demo .cb-segmented').count()) {
   check(look.wrong.length === 0, 'segmented: checked keys are sunk on the selected tint, others are not', `${look.keys} keys${look.wrong.length ? ', wrong: ' + look.wrong.join(', ') : ''}`);
   check(look.covers, 'segmented: each input covers its key exactly, so the focus ring frames the key');
 
-  const group = page.locator('.docs-demo .cb-segmented[role="radiogroup"]').first();
+  // A group of three or more keys, so ArrowRight from a first key needs no wrap-around (WebKit does not wrap).
+  const group = page.locator('.docs-demo .cb-segmented[role="radiogroup"]:has(> .cb-btn:nth-child(3))').first();
   const checkedValue = () => group.evaluate((g) => g.querySelector(':checked')?.value);
   const start = await checkedValue();
-  await group.locator('.cb-btn').first().click(); const clicked = await checkedValue();
+  await group.locator('.cb-btn:not(:has(:checked))').first().click(); const clicked = await checkedValue();
   await group.locator(':checked').focus(); await page.keyboard.press('ArrowRight'); const arrowed = await checkedValue();
   check(clicked !== start && arrowed !== clicked, 'segmented: a click and the arrow keys move the choice', `${start} -> click ${clicked} -> ArrowRight ${arrowed}`);
 
@@ -1124,6 +1127,27 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
     await section.screenshot({ path: `${shots}/utilities-${width}.png` });
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 24. Density: inside [data-cb-density] (and at the default) fields and keys take
+//     --cb-control-h, small keys --cb-control-h-sm, table rows --cb-row-h, and a small key
+//     fits its row: 22 / 18 / 24 compact, 26 / 20 / 28 default, 30 / 24 / 32 comfortable.
+if (await page.locator('.docs-demo [data-cb-density]').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const sizes = { compact: [22, 18, 24], default: [26, 20, 28], comfortable: [30, 24, 32] };
+  const panels = await page.$$eval('.docs-demo .cb-grid:has([data-cb-density]) > .cb-panel', (ps) => ps.map((p) => {
+    const h = (sel) => Math.round(p.querySelector(sel).getBoundingClientRect().height);
+    const row = p.querySelector('tbody tr'); const key = row.querySelector('.cb-btn--sm');
+    return { mode: p.getAttribute('data-cb-density') ?? 'default', field: h('.cb-input'), segment: h('.cb-segmented > .cb-btn'),
+      small: h('.cb-panel__head .cb-btn--sm'), row: Math.round(row.getBoundingClientRect().height),
+      fits: key.getBoundingClientRect().bottom <= row.getBoundingClientRect().bottom && key.getBoundingClientRect().top >= row.getBoundingClientRect().top };
+  }));
+  for (const d of panels) {
+    const [control, small, row] = sizes[d.mode];
+    check(d.field === control && d.segment === control && d.small === small && d.row === row && d.fits,
+      `density ${d.mode}: controls ${control}px, small keys ${small}px, rows ${row}px with the key inside`,
+      `field ${d.field}, segment ${d.segment}, small ${d.small}, row ${d.row}, key fits ${d.fits}`);
+  }
 }
 
 // 21. Keyboard audit: Tab from the top of a fresh page through every stop until focus leaves

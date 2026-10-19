@@ -158,6 +158,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   360px (a ring on every stop, no trap, no clipped ring; controls partly scrolled out of a
   container or the viewport are listed, as WCAG 2.4.11 allows), and a check that the catalogue
   contrast table matches the live ratios.
+- `scripts/verify-browser.mjs`: density checks (field, segment, small key and row heights per
+  mode, small keys inside their rows); table-row checks read the row height from the density tokens
+  in force, and the segmented check clicks an unchecked key.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
