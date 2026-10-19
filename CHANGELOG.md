@@ -66,3 +66,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   copy, certificate and client configuration wells with copy and save, behaviour and fallback notes.
 - Catalogue "Fieldsets & panels" section: group boxes (one disabled), panel anatomy, flush body
   with a log well, status stripes and collapsible panels, with a reference table.
+- Catalogue "Status badges & LEDs" section: tags and statuses (with a busy badge), solid marks,
+  counts in buttons and a panel head, an LED status line, an account panel in context,
+  accessibility notes and a reference table.

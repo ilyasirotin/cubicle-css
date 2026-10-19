@@ -44,6 +44,7 @@
         <li><a class="docs-nav__link" href="#fields">Inputs &amp; fields</a></li>
         <li><a class="docs-nav__link" href="#secrets">Secret boxes</a></li>
         <li><a class="docs-nav__link" href="#panels">Fieldsets &amp; panels</a></li>
+        <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
       </ul>
     </nav>
 
@@ -1515,6 +1516,192 @@
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-panel--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code></td><td class="docs-table__td">Panel</td><td class="docs-table__td">3px status edge; pair with a status word</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-panel--inset</code></td><td class="docs-table__td">Panel, <code>&lt;pre&gt;</code></td><td class="docs-table__td">Recessed well with its own padding and scrolling</td></tr>
               <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>open</code></td><td class="docs-table__td"><code>&lt;details class="cb-panel"&gt;</code></td><td class="docs-table__td">Expanded; the chevron points down</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="badges" aria-labelledby="badges-title">
+        <h2 class="docs-h2" id="badges-title">Status badges &amp; LEDs</h2>
+        <p class="docs-text">Static chips and lamps that label an object or report its state at a glance;
+          they are never controls.</p>
+
+        <h3 class="docs-h3" id="badges-status">Tags and statuses</h3>
+        <p class="docs-text">Without a modifier a badge is a neutral tag. Status modifiers tint it and add
+          an LED lamp; <code>--off</code> has a hollow lamp. <code>aria-busy="true"</code> swaps the lamp
+          for the stepped spinner.</p>
+        <div class="docs-demo">
+          <div class="cb-stack cb-stack--tight">
+            <div class="cb-cluster">
+              <span class="cb-badge">LDAP</span>
+              <span class="cb-badge">TLS 1.3</span>
+              <span class="cb-badge">admin</span>
+            </div>
+            <div class="cb-cluster">
+              <span class="cb-badge cb-badge--ok">Online</span>
+              <span class="cb-badge cb-badge--warn">Degraded</span>
+              <span class="cb-badge cb-badge--danger">Revoked</span>
+              <span class="cb-badge cb-badge--info">Maintenance</span>
+              <span class="cb-badge cb-badge--off">Disabled</span>
+              <span class="cb-badge cb-badge--info" aria-busy="true">Syncing</span>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span class=&quot;cb-badge&quot;&gt;LDAP&lt;/span&gt;
+    &lt;span class=&quot;cb-badge&quot;&gt;TLS 1.3&lt;/span&gt;
+    &lt;span class=&quot;cb-badge&quot;&gt;admin&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;
+    &lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Degraded&lt;/span&gt;
+    &lt;span class=&quot;cb-badge cb-badge--danger&quot;&gt;Revoked&lt;/span&gt;
+    &lt;span class=&quot;cb-badge cb-badge--info&quot;&gt;Maintenance&lt;/span&gt;
+    &lt;span class=&quot;cb-badge cb-badge--off&quot;&gt;Disabled&lt;/span&gt;
+    &lt;span class=&quot;cb-badge cb-badge--info&quot; aria-busy=&quot;true&quot;&gt;Syncing&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="badges-solid">Solid</h3>
+        <p class="docs-text">Inverse ink on the full tone, for marks that must stop the eye. The fill is
+          the signal, so there is no lamp.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <span class="cb-badge cb-badge--solid cb-badge--danger">REVOKED</span>
+            <span class="cb-badge cb-badge--solid cb-badge--warn">EXPIRED</span>
+            <span class="cb-badge cb-badge--solid">LOCKED</span>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;span class=&quot;cb-badge cb-badge--solid cb-badge--danger&quot;&gt;REVOKED&lt;/span&gt;
+  &lt;span class=&quot;cb-badge cb-badge--solid cb-badge--warn&quot;&gt;EXPIRED&lt;/span&gt;
+  &lt;span class=&quot;cb-badge cb-badge--solid&quot;&gt;LOCKED&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="badges-count">Counts</h3>
+        <p class="docs-text">A compact number with tabular figures inside buttons, panel heads and
+          navigation. It takes any tone, solid or tinted.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-cluster">
+              <button class="cb-btn" type="button">Pending requests <span class="cb-badge cb-badge--count cb-badge--warn">12</span></button>
+              <button class="cb-btn cb-btn--sm" type="button">Alerts <span class="cb-badge cb-badge--count cb-badge--solid cb-badge--danger">3</span></button>
+              <button class="cb-btn cb-btn--sm" type="button">Sessions <span class="cb-badge cb-badge--count">148</span></button>
+            </div>
+            <section class="cb-panel" aria-labelledby="b-req-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="b-req-title">Access requests <span class="cb-badge cb-badge--count">7</span></h4>
+                <button class="cb-btn cb-btn--sm" type="button">Review</button>
+              </header>
+              <div class="cb-panel__body">Seven requests wait for approval; the oldest was filed 2 days ago.</div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Pending requests &lt;span class=&quot;cb-badge cb-badge--count cb-badge--warn&quot;&gt;12&lt;/span&gt;&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Alerts &lt;span class=&quot;cb-badge cb-badge--count cb-badge--solid cb-badge--danger&quot;&gt;3&lt;/span&gt;&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Sessions &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;148&lt;/span&gt;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;b-req-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;b-req-title&quot;&gt;Access requests &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;7&lt;/span&gt;&lt;/h4&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Review&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body&quot;&gt;Seven requests wait for approval; the oldest was filed 2 days ago.&lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="badges-led">LEDs</h3>
+        <p class="docs-text">A lamp beside plain text, without a frame, for status bars and dense lists.
+          The text keeps the surrounding ink; without a modifier the lamp is grey.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <span class="cb-led cb-led--ok">Gateway eu-1 up</span>
+            <span class="cb-led cb-led--warn">LDAP sync lagging</span>
+            <span class="cb-led cb-led--danger">Node ap-2 down</span>
+            <span class="cb-led cb-led--info">Backup window</span>
+            <span class="cb-led cb-led--off">Peer never connected</span>
+            <span class="cb-led">Unknown</span>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;span class=&quot;cb-led cb-led--ok&quot;&gt;Gateway eu-1 up&lt;/span&gt;
+  &lt;span class=&quot;cb-led cb-led--warn&quot;&gt;LDAP sync lagging&lt;/span&gt;
+  &lt;span class=&quot;cb-led cb-led--danger&quot;&gt;Node ap-2 down&lt;/span&gt;
+  &lt;span class=&quot;cb-led cb-led--info&quot;&gt;Backup window&lt;/span&gt;
+  &lt;span class=&quot;cb-led cb-led--off&quot;&gt;Peer never connected&lt;/span&gt;
+  &lt;span class=&quot;cb-led&quot;&gt;Unknown&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="badges-context">In context</h3>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="b-acct-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="b-acct-title">svc-backup</h4>
+              <span class="cb-badge cb-badge--ok">Active</span>
+            </header>
+            <div class="cb-panel__body cb-stack cb-stack--tight">
+              <div class="cb-cluster cb-cluster--between">
+                <span>Groups</span>
+                <span class="cb-cluster"><span class="cb-badge">backup-operators</span><span class="cb-badge">vpn-users</span></span>
+              </div>
+              <div class="cb-cluster cb-cluster--between">
+                <span>API key</span>
+                <span class="cb-badge cb-badge--warn">Expires in 6 days</span>
+              </div>
+              <div class="cb-cluster cb-cluster--between">
+                <span>Last sign-in</span>
+                <span class="cb-led cb-led--ok">10.8.0.11, 4 minutes ago</span>
+              </div>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;b-acct-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;b-acct-title&quot;&gt;svc-backup&lt;/h4&gt;
+    &lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Active&lt;/span&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-stack cb-stack--tight&quot;&gt;
+    &lt;div class=&quot;cb-cluster cb-cluster--between&quot;&gt;
+      &lt;span&gt;Groups&lt;/span&gt;
+      &lt;span class=&quot;cb-cluster&quot;&gt;&lt;span class=&quot;cb-badge&quot;&gt;backup-operators&lt;/span&gt;&lt;span class=&quot;cb-badge&quot;&gt;vpn-users&lt;/span&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-cluster cb-cluster--between&quot;&gt;
+      &lt;span&gt;API key&lt;/span&gt;
+      &lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Expires in 6 days&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-cluster cb-cluster--between&quot;&gt;
+      &lt;span&gt;Last sign-in&lt;/span&gt;
+      &lt;span class=&quot;cb-led cb-led--ok&quot;&gt;10.8.0.11, 4 minutes ago&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="badges-a11y">Accessibility</h3>
+        <ul class="docs-list">
+          <li>Colour is never the only signal: every badge and LED carries its status word.</li>
+          <li>Badges are not announced when they change. For live status, place them inside an existing
+            <code>role="status"</code> region.</li>
+          <li>A count is read with its button or heading, so write the label as a full phrase
+            (“Pending requests 12”).</li>
+        </ul>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr><th class="docs-table__th" scope="col">Class / attribute</th><th class="docs-table__th" scope="col">Element</th><th class="docs-table__th" scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-badge</code></td><td class="docs-table__td"><code>&lt;span&gt;</code></td><td class="docs-table__td">Neutral bordered tag, 18px high, tabular figures</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-badge--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code></td><td class="docs-table__td">Badge</td><td class="docs-table__td">Tinted status with a filled LED lamp</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-badge--off</code></td><td class="docs-table__td">Badge</td><td class="docs-table__td">Muted status with a hollow lamp: disabled, unknown, never connected</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-badge--solid</code></td><td class="docs-table__td">Badge</td><td class="docs-table__td">Inverse ink on the full tone; no lamp. Combine with a tone modifier</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-badge--count</code></td><td class="docs-table__td">Badge</td><td class="docs-table__td">Compact centred number; no lamp. Combine with a tone or <code>--solid</code></td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>aria-busy="true"</code></td><td class="docs-table__td">Badge</td><td class="docs-table__td">Stepped spinner in place of the lamp; stops turning under reduced motion</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-led</code></td><td class="docs-table__td"><code>&lt;span&gt;</code></td><td class="docs-table__td">Lamp plus text, no frame; grey lamp without a modifier</td></tr>
+              <tr class="docs-table__row"><td class="docs-table__td docs-table__td--nowrap"><code>.cb-led--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code> / <code>--off</code></td><td class="docs-table__td">LED</td><td class="docs-table__td">Lamp tone; <code>--off</code> is hollow</td></tr>
             </tbody>
           </table>
         </div>
