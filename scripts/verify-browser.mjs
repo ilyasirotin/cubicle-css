@@ -9,7 +9,8 @@
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
-//                 segmented-<width>.png, details-<width>.png and dialog-<id>.png.
+//                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
+//                 pagination-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -1045,6 +1046,57 @@ if (await page.locator('.docs-demo [data-cb-modal]').count()) {
   await page.screenshot({ path: `${shots}/dialog-${ids[0]}-360.png` });
   await page.keyboard.press('Escape');
   check(narrow.w === 360 && narrow.h === 900 && narrow.radius === '0px', 'below 40rem a dialog fills the screen', JSON.stringify(narrow));
+  await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 19. Pagination: current page and size keys are sunk and the others are not, keys are 20px
+//     high and at least 28px wide, attached strips overlap by 1px and spaced ones keep 4px,
+//     disabled arrows have no href and leave the tab order, gap cells are silent and key-high,
+//     narrow navs keep only the arrows and the current page (at 360px the wide one too),
+//     and the jump field refuses a page above max.
+if (await page.locator('.docs-demo .cb-pagination').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const look = await page.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-bg-selected)'; const selected = getComputedStyle(probe).color;
+    probe.style.boxShadow = 'var(--cb-shadow-pressed)'; const pressed = getComputedStyle(probe).boxShadow; probe.remove();
+    const keys = [...document.querySelectorAll('.docs-demo :is(.cb-pagination__pages, .cb-pagination__sizes) > .cb-btn')].filter((k) => k.getClientRects().length && k.getAttribute('aria-disabled') !== 'true');
+    const wrongSink = keys.filter((k) => { const cs = getComputedStyle(k); const on = k.hasAttribute('aria-current'); return on !== (cs.backgroundColor === selected && cs.boxShadow === pressed); }).map((k) => k.textContent.trim());
+    const wrongSize = keys.filter((k) => { const r = k.getBoundingClientRect(); return Math.round(r.height) !== 20 || r.width < 27.5; }).map((k) => k.textContent.trim());
+    const strips = [...document.querySelectorAll('.docs-demo :is(.cb-pagination__pages, .cb-pagination__sizes)')].filter((s) => s.getClientRects().length);
+    const badGaps = strips.flatMap((s) => {
+      const kids = [...s.children].filter((c) => c.getClientRects().length); const spaced = s.closest('.cb-pagination--spaced');
+      return kids.slice(1).map((k, i) => k.getBoundingClientRect().left - kids[i].getBoundingClientRect().right).filter((g) => Math.abs(g - (spaced ? 4 : -1)) > 0.5);
+    });
+    const disabled = [...document.querySelectorAll('.docs-demo .cb-pagination [aria-disabled="true"]')].map((a) => { a.focus(); return { href: a.hasAttribute('href'), tab: document.activeElement === a ? 0 : -1, ink: getComputedStyle(a).color }; });
+    probe.style.color = 'var(--cb-text-disabled)'; document.body.append(probe); const muted = getComputedStyle(probe).color; probe.remove();
+    const gapsOk = [...document.querySelectorAll('.docs-demo .cb-pagination__gap')].filter((g) => g.getClientRects().length).every((g) => g.getAttribute('aria-hidden') === 'true' && Math.round(g.getBoundingClientRect().height) === 20);
+    const shown = (nav) => [...nav.querySelectorAll('.cb-pagination__pages > *')].filter((c) => c.getClientRects().length).map((c) => c.textContent.trim()).join(' ');
+    const navs = [...document.querySelectorAll('.docs-demo .cb-pagination')];
+    const narrowNav = navs.find((n) => n.closest('.cb-grid')); const wideNav = navs.find((n) => n.closest('.cb-panel__foot'));
+    const jump = document.querySelector('.docs-demo .cb-pagination__jump input');
+    const old = jump.value; jump.value = String(Number(jump.max) + 1); const over = jump.matches(':invalid'); jump.value = old;
+    return { keys: keys.length, wrongSink, wrongSize, badGaps, disabled: disabled.every((d) => !d.href && d.tab === -1 && d.ink === muted) && disabled.length > 0,
+      gapsOk, narrow: shown(narrowNav), wide: shown(wideNav), jump: jump.type === 'number' && jump.hasAttribute('min') && jump.hasAttribute('max') && over };
+  });
+  check(look.wrongSink.length === 0, 'pagination: current page and size keys are sunk, the others are not', `${look.keys} keys${look.wrongSink.length ? ', wrong: ' + look.wrongSink.join(' ') : ''}`);
+  check(look.wrongSize.length === 0, 'pagination keys are 20px high and at least 28px wide', look.wrongSize.join(' ') || 'all keys');
+  check(look.badGaps.length === 0, 'pagination strips overlap by 1px; spaced strips keep 4px', look.badGaps.join(', ') || 'all seams');
+  check(look.disabled, 'disabled arrows have no href, leave the tab order and are muted');
+  check(look.gapsOk, 'gap cells are aria-hidden and as high as a key');
+  check(look.narrow === '‹ 7 ›' && look.wide.split(' ').length > 3, 'a narrow pagination keeps only the arrows and the current page', `narrow "${look.narrow}", wide "${look.wide}"`);
+  check(look.jump, 'the jump field is a number with min and max, and refuses a page above max');
+
+  await page.setViewportSize({ width: 360, height: 900 });
+  const at360 = await page.evaluate(() => ({ wide: [...document.querySelector('.docs-demo .cb-panel__foot .cb-pagination__pages').children].filter((c) => c.getClientRects().length).map((c) => c.textContent.trim()).join(' '), overflow: document.documentElement.scrollWidth > innerWidth }));
+  check(at360.wide === '‹ 7 ›' && !at360.overflow, 'at 360px the full pagination collapses with no page overflow', JSON.stringify(at360));
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-pagination)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/pagination-${width}.png` });
+  }
   await page.setViewportSize({ width: 1360, height: 900 });
 }
 

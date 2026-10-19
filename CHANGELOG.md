@@ -131,6 +131,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   page, backdrop token, widths and the danger stripe, Escape returning focus to the opener, a
   scrolling long body, typed confirmation, full screen below 40rem) and their no-JS hiding;
   tables inside closed dialogs are left out of the row-height check.
+- `scripts/verify-browser.mjs`: pagination checks (sunk current keys, key size, seams and spaced
+  gaps, disabled arrows out of the tab order, silent gap cells, the narrow collapse at 1360 and
+  360px, the jump field's range) and screenshots.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
