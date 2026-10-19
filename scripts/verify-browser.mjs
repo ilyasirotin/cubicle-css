@@ -8,7 +8,7 @@
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
-//                 alerts-<width>.png, tabs-<width>.png and nav-<width>.png.
+//                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png and meters-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -143,6 +143,8 @@ const PAIRS = [
   // Alert bodies (10% tone tint) and links in a danger alert
   ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].map((c) => ['--cb-text-main', `color-mix(in srgb, var(${c}) 10%, var(--cb-bg-surface))`, 4.5]),
   ['--cb-accent', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-surface))', 4.5],
+  // Meter and progress fills against the recessed track (non-text, >= 3)
+  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-accent'].map((c) => [c, '--cb-bg-recessed', 3]),
   // Idle tabs (muted ink on the darker tab tint)
   ['--cb-text-muted', 'color-mix(in srgb, var(--cb-bg-header) 60%, var(--cb-bg-surface))', 4.5],
 
@@ -261,7 +263,7 @@ const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
 check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
 
 // 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
-//    table select-all, alert dismiss, ARIA tabs and trees, the plain-HTTP copy fallback, and hiding of script-only controls
+//    table select-all, alert dismiss, ARIA tabs and trees, meter marks, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
 const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]';
@@ -432,6 +434,25 @@ if (await page.locator(ACTIONS).count()) {
       check(after[0] !== before && after[1] === 'true', `tree ${i + 1}: a click selects the row and toggles its branch`, `${before} -> ${after[0]}, selected ${after[1]}`);
     }
 
+    // Meter marks follow attribute changes and meters swapped in later, with no call.
+    if (await p.locator('meter[data-cb-marks]').count()) {
+      const marks = await p.evaluate(async () => {
+        const m = document.querySelector('meter[data-cb-marks]');
+        const frac = (meter, v) => String((v - meter.min) / (meter.max - meter.min));
+        const before = m.style.getPropertyValue('--_high');
+        m.setAttribute('high', String(m.min + (m.max - m.min) / 2));
+        await new Promise((r) => setTimeout(r, 0));
+        const changed = m.style.getPropertyValue('--_high') === frac(m, m.high);
+        const clone = m.cloneNode(true); clone.removeAttribute('style'); clone.removeAttribute('id');
+        m.parentElement.append(clone);
+        await new Promise((r) => setTimeout(r, 0));
+        const inserted = clone.style.getPropertyValue('--_low') === frac(clone, clone.low);
+        clone.remove();
+        return { before, changed, inserted };
+      });
+      check(marks.changed && marks.inserted, 'meter marks follow a changed high and a meter inserted later', JSON.stringify(marks));
+    }
+
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
@@ -463,6 +484,8 @@ if (await page.locator(ACTIONS).count()) {
   if (t.sets) check(t.listsHidden && t.panelsShown && t.headings, 'without JavaScript, ARIA tab sets show every panel under its heading', JSON.stringify(t));
   const g = await pn.$$eval('[data-cb-tree] [role="group"]', (gs) => ({ groups: gs.length, shown: gs.filter((x) => getComputedStyle(x).display !== 'none').length }));
   if (g.groups) check(g.shown === g.groups, 'without JavaScript, ARIA trees show every branch', JSON.stringify(g));
+  const unmarked = await pn.$$eval('meter[data-cb-marks]', (ms) => ms.filter((m) => m.style.getPropertyValue('--_low') || m.style.getPropertyValue('--_high')).length);
+  check(unmarked === 0, 'without JavaScript, meters carry no marks', `${unmarked} marked`);
   await noJs.close();
 }
 
@@ -722,6 +745,98 @@ if (await page.locator('.docs-demo .cb-nav').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/nav-${width}.png` });
+  }
+}
+
+// 15. Meters and progress. Engine pseudo-elements cannot be read through getComputedStyle,
+//     so the fill and the ruler are checked on pixels: the element is screenshotted and the
+//     PNG decoded in the page. The fill at 5% must be nearest to the tone the browser's own
+//     reading implies (low / high / optimum; neutral meters and progress use the accent) and
+//     stand >= 3:1 against the empty track; tracks are 12px (6px compact); indeterminate
+//     progress stands still; --ticks and data-cb-marks draw into the strip under the track.
+const pixelsOf = async (locator) => {
+  const png = (await locator.screenshot({ animations: 'disabled' })).toString('base64');
+  return (fx, fy) => page.evaluate(async ([b64, x, y]) => {
+    const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+    const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+    const g = cv.getContext('2d'); g.drawImage(img, 0, 0);
+    return [...g.getImageData(Math.min(img.width - 1, Math.floor(x * img.width)), Math.min(img.height - 1, Math.floor(y * img.height)), 1, 1).data].slice(0, 3);
+  }, [png, fx, fy]);
+};
+if (await page.locator('.docs-demo .cb-meter').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const tones = await page.evaluate(() => {
+    const out = {}; const probe = document.body.appendChild(document.createElement('i'));
+    for (const t of ['ok', 'warn', 'danger', 'accent', 'border-main', 'text-main', 'bg-surface']) { probe.style.color = `var(--cb-${t})`; out[t] = getComputedStyle(probe).color.match(/\d+/g).slice(0, 3).map(Number); }
+    probe.remove(); return out;
+  });
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const nearest = (px, names) => names.reduce((best, n) => (dist(px, tones[n]) < dist(px, tones[best]) ? n : best));
+  const meters = page.locator('.docs-demo .cb-meter');
+  const seen = new Set();
+  for (let i = 0; i < await meters.count(); i++) {
+    const m = meters.nth(i);
+    const info = await m.evaluate((el) => {
+      const meter = el.tagName === 'METER';
+      const has = (a) => el.hasAttribute(a);
+      let tone = 'accent';
+      if (meter && (has('low') || has('high'))) {
+        const { min, max, low, high, value } = el; const optimum = has('optimum') ? el.optimum : (min + max) / 2;
+        if (optimum < low) tone = value < low ? 'ok' : value <= high ? 'warn' : 'danger';
+        else if (optimum > high) tone = value > high ? 'ok' : value >= low ? 'warn' : 'danger';
+        else tone = value >= low && value <= high ? 'ok' : 'warn';
+      }
+      const cs = getComputedStyle(el);
+      const strip = parseFloat(cs.paddingBottom);
+      return { key: `${el.tagName.toLowerCase()} ${el.className} ${tone}${el.matches(':indeterminate') ? ' indeterminate' : ''}`, tone, indeterminate: el.matches(':indeterminate'),
+        h: el.getBoundingClientRect().height, track: el.getBoundingClientRect().height - strip, strip, sm: el.classList.contains('cb-meter--sm'),
+        fraction: meter || !el.matches(':indeterminate') ? (el.value - (el.min ?? 0)) / ((el.max ?? 1) - (el.min ?? 0)) : 0,
+        ticks: el.classList.contains('cb-meter--ticks'), low: el.style.getPropertyValue('--_low'), high: el.style.getPropertyValue('--_high'), animation: cs.animationName };
+    });
+    if (seen.has(info.key)) continue;
+    seen.add(info.key);
+    await m.scrollIntoViewIfNeeded();
+    const px = await pixelsOf(m);
+    const midTrack = (info.track / 2) / info.h;
+    const wantH = info.sm ? 6 : 12;
+    const results = [];
+    let ok = Math.round(info.track) === wantH;
+    results.push(`track ${info.track}px`);
+    if (!info.indeterminate) {
+      const fill = await px(0.05, midTrack); const empty = await px(0.98, midTrack);
+      const got = nearest(fill, ['ok', 'warn', 'danger', 'accent']); const r = ratio(fill, empty);
+      ok &&= got === info.tone && (info.fraction > 0.97 || r >= 3);
+      results.push(`fill ${got} (want ${info.tone}), vs track ${r.toFixed(2)}`);
+    } else {
+      const a = (await m.screenshot()).toString('base64'); await page.waitForTimeout(300); const b = (await m.screenshot()).toString('base64');
+      ok &&= info.animation === 'none' && a === b;
+      results.push(`still ${a === b}, animation ${info.animation}`);
+    }
+    const stripY = (info.h - 1) / info.h;
+    if (info.ticks) {
+      const tick = await px(0.5, stripY); const t = nearest(tick, ['border-main', 'bg-surface', 'text-main']);
+      ok &&= t !== 'bg-surface';
+      results.push(`tick at 50% ${t}`);
+    }
+    if (info.low || info.high) {
+      const w = (await m.boundingBox()).width;
+      for (const f of [info.low, info.high].filter(Boolean).map(Number)) {
+        const x = ((w - 2) * f + 1) / w; const mark = await px(x, stripY);
+        const t = nearest(mark, ['text-main', 'border-main', 'bg-surface']);
+        ok &&= t === 'text-main';
+        results.push(`mark at ${(f * 100).toFixed(0)}% ${t}`);
+      }
+    }
+    check(ok, `meter: ${info.key.trim()}`, results.join(', '));
+  }
+  const rows = await page.$$eval('.docs-demo .cb-table:has(.cb-meter--sm) tbody tr', (rs) => [...new Set(rs.map((r) => Math.round(r.getBoundingClientRect().height)))]);
+  if (rows.length) check(rows.length === 1 && rows[0] === 28, 'table rows with compact meters stay 28px', `${rows.join(', ')}px`);
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-gauge)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/meters-${width}.png` });
   }
 }
 

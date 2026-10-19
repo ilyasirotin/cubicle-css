@@ -98,6 +98,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   select and toggle, the focus ring on the row, and the no-script open tree; navigation checks for
   24px rows, the current or selected paint, label alignment, tree lines, the loading spinner (and
   its reduced-motion stop), silent breadcrumb separators, and screenshots.
+- `scripts/verify-browser.mjs`: pixel checks for meters and progress (fill tone from the browser's
+  low / high / optimum reading, contrast against the track, 12px and 6px tracks, a still
+  indeterminate bar, ruler ticks and threshold marks), marks that follow changed and inserted
+  meters, no marks without JavaScript, fill contrast pairs and screenshots.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
