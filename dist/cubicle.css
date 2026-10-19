@@ -283,6 +283,7 @@
   .cb-app__top {
     grid-area: top;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--cb-space-3);
     padding: var(--cb-space-1) var(--cb-space-3);
@@ -1886,10 +1887,6 @@
       border-inline-start-width: 1px;
     }
 
-    & [role="tabpanel"][hidden] {
-      display: block;
-    }
-
     & > .cb-panel__head {
       padding-block-end: var(--cb-space-1);
     }
@@ -2632,6 +2629,17 @@
   :is(td, th).cb-truncate {
     inline-size: 100%;
     max-inline-size: 0;
+  }
+
+  /* hidden always hides, even on elements whose class sets a display (a tab
+     panel that is also a .cb-stack). The one exception: without the script
+     ARIA tab panels all show (5.8). */
+  [hidden]:not([hidden="until-found"]) {
+    display: none;
+  }
+
+  :root:not([data-cb-js]) [data-cb-tabs] [role="tabpanel"][hidden] {
+    display: block;
   }
 
   /* Visually hidden but announced: captions, labels of icon-only controls,

@@ -224,6 +224,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The `hidden` attribute now hides elements whose Cubicle class sets a display (a tab panel that is
+  also a `.cb-stack` showed every panel); without the script ARIA tab panels still all show.
+- `.cb-app__top` wraps its items, so a full top bar no longer overflows at 360px.
 - Table cells use the tight line height, so one line of text fits the 20px row of a compact
   table in compact density (it measured 24.5px in a 24px row).
 - Focus rings on scroll containers (`.cb-app__main`, `.cb-app__side`, `.cb-table-wrap`,
