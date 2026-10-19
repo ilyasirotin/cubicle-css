@@ -9,7 +9,7 @@
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
-//                 and segmented-<width>.png.
+//                 segmented-<width>.png and details-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -906,6 +906,73 @@ if (await page.locator('.docs-demo .cb-segmented').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/segmented-${width}.png` });
+  }
+}
+
+// 17. Details and disclosure: one chevron rule reaches every summary (panels, nav, tree,
+//     details): -45deg closed, 45deg open, 0.25rem margin, no native marker. Summary rows are
+//     28px (24px compact and inline), stacked blocks share a 1px seam, Enter and Space toggle,
+//     a named group keeps one block open, meta sits at the row end, and inline blocks have no
+//     frame and line their body up with the summary text.
+if (await page.locator('.docs-demo .cb-details').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const chevrons = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll('.docs-demo :is(summary.cb-panel__head, summary.cb-nav__link, [aria-expanded]:not([aria-busy="true"]) > .cb-nav__link, .cb-details > summary)')]
+      .filter((r) => r.getClientRects().length);
+    const bad = rows.filter((r) => {
+      const b = getComputedStyle(r, '::before');
+      const open = r.parentElement.matches('details[open], [aria-expanded="true"]');
+      return b.rotate !== (open ? '45deg' : '-45deg') || b.marginLeft !== '4px' || !/flex/.test(getComputedStyle(r).display);
+    }).map((r) => r.textContent.trim().slice(0, 20));
+    return { rows: rows.length, bad };
+  });
+  check(chevrons.rows > 0 && chevrons.bad.length === 0, 'one chevron rule: every summary row turns -45deg / 45deg with a 0.25rem margin and no marker',
+    `${chevrons.rows} rows${chevrons.bad.length ? ', wrong: ' + chevrons.bad.join(' | ') : ''}`);
+
+  const geo = await page.evaluate(() => {
+    const blocks = [...document.querySelectorAll('.docs-demo .cb-details')];
+    const heights = blocks.map((d) => {
+      const h = Math.round(d.querySelector(':scope > summary').getBoundingClientRect().height);
+      const want = d.matches('.cb-details--sm, .cb-details--inline') ? 24 : 28;
+      return h === want ? null : `${d.querySelector(':scope > summary').textContent.trim()} ${h}px`;
+    }).filter(Boolean);
+    const seams = blocks.filter((d) => d.nextElementSibling?.matches('.cb-details') && !d.parentElement.matches('.cb-stack, .cb-grid, .cb-cluster')).map((d) => {
+      const gap = d.nextElementSibling.getBoundingClientRect().top - d.getBoundingClientRect().bottom;
+      return Math.abs(gap + 1) < 0.5 ? null : `${gap}px`;
+    }).filter(Boolean);
+    const meta = [...document.querySelectorAll('.docs-demo .cb-details > summary > :is(.cb-badge, .cb-led):last-child')].map((m) => {
+      const s = m.parentElement.getBoundingClientRect(); return Math.abs(s.right - parseFloat(getComputedStyle(m.parentElement).paddingRight) - m.getBoundingClientRect().right);
+    });
+    const inline = document.querySelector('.docs-demo .cb-details--inline');
+    const ics = getComputedStyle(inline);
+    const text = (() => { const r = document.createRange(); r.selectNodeContents(inline.querySelector('summary').firstChild); return r.getBoundingClientRect().left; })();
+    inline.open = true;
+    const bodyLeft = inline.querySelector('.cb-details__body').getBoundingClientRect().left + parseFloat(getComputedStyle(inline.querySelector('.cb-details__body')).paddingLeft);
+    inline.open = false;
+    return { heights, seams, metaOff: Math.max(...meta), inlineFrame: ics.borderTopWidth === '0px' && ics.backgroundColor === 'rgba(0, 0, 0, 0)', align: Math.abs(text - bodyLeft) };
+  });
+  check(geo.heights.length === 0, 'summary rows are 28px (24px compact and inline)', geo.heights.join(', ') || 'all match');
+  check(geo.seams.length === 0, 'stacked details share a 1px seam (outside gap layouts)', geo.seams.join(', ') || 'all seams 1px');
+  check(geo.metaOff < 1, 'summary meta sits at the end of the row', `${geo.metaOff.toFixed(2)}px off`);
+  check(geo.inlineFrame && geo.align < 1, 'inline details have no frame and their body lines up with the summary text', `frameless ${geo.inlineFrame}, offset ${geo.align.toFixed(2)}px`);
+
+  const named = page.locator('.docs-demo .cb-details[name]');
+  const toggled = [];
+  const first = named.nth(0).locator('summary'); const second = named.nth(1).locator('summary');
+  await first.scrollIntoViewIfNeeded();
+  await second.focus(); await page.keyboard.press('Enter');
+  const afterEnter = await named.evaluateAll((ds) => ds.map((d) => d.open));
+  await page.keyboard.press('Space');
+  const afterSpace = await named.evaluateAll((ds) => ds.map((d) => d.open));
+  toggled.push(afterEnter.join(), afterSpace.join());
+  check(afterEnter[1] && !afterEnter[0] && !afterSpace[1], 'Enter and Space toggle a summary; a named group keeps one block open', `Enter ${afterEnter}, Space ${afterSpace}`);
+  await first.click();
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-details--inline)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/details-${width}.png` });
   }
 }
 

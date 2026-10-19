@@ -115,6 +115,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   inputs that cover their keys, disabled keys and fieldsets, checkbox groups, equal `--fill` keys at
   1360 and 360px); state captures judge a segment by its key's text and follow the radio that
   takes focus in a group.
+- `scripts/verify-browser.mjs`: details checks (one chevron rule across panels, nav, trees and
+  details; summary heights; 1px seams; Enter, Space and named groups; meta at the row end; the
+  frameless inline variant) and screenshots.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
