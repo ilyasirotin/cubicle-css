@@ -7,7 +7,8 @@
 // Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
-//                 tables-sticky-360.png of the wide grid scrolled sideways.
+//                 tables-sticky-360.png of the wide grid scrolled sideways, and
+//                 alerts-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -139,6 +140,9 @@ const PAIRS = [
   // Table rows: selected + hover, totals row
   ['--cb-text-main', 'color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised))', 4.5],
   ['--cb-text-main', 'color-mix(in srgb, var(--cb-bg-header) 50%, var(--cb-bg-surface))', 4.5],
+  // Alert bodies (10% tone tint) and links in a danger alert
+  ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].map((c) => ['--cb-text-main', `color-mix(in srgb, var(${c}) 10%, var(--cb-bg-surface))`, 4.5]),
+  ['--cb-accent', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-surface))', 4.5],
 
   // Non-text structural & focus contrast (>= 3.0)
   ['--cb-border-strong', '--cb-bg-surface', 3],
@@ -255,10 +259,10 @@ const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
 check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
 
 // 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
-//    table select-all, the plain-HTTP copy fallback, and hiding of script-only controls
+//    table select-all, alert dismiss, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
-const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all]';
+const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]';
 if (await page.locator(ACTIONS).count()) {
   const fresh = async (ctx = context, before) => {
     const p = await ctx.newPage();
@@ -345,6 +349,19 @@ if (await page.locator(ACTIONS).count()) {
         `start ${start.master} ${start.on}/${start.n}; all ${all.on}/${all.n} lit ${all.lit}, ${changes} change events; one off -> ${mixed.master}; cleared -> ${none.master} ${none.on}`);
     }
 
+    // Dismiss from the keyboard: the target is hidden and focus moves to a rendered control
+    // outside it, never to <body>.
+    for (const id of await ids(p, 'data-cb-dismiss')) {
+      const btn = p.locator(`[data-cb-dismiss="${id}"]`);
+      await btn.scrollIntoViewIfNeeded(); await btn.focus(); await p.keyboard.press('Enter');
+      const r = await p.evaluate((i) => {
+        const t = document.getElementById(i); const f = document.activeElement;
+        return { hidden: t.hidden && getComputedStyle(t).display === 'none', focus: f === document.body ? 'body' : f.outerHTML.slice(0, 60),
+          ok: f !== document.body && !t.contains(f) && f.getClientRects().length > 0 };
+      }, id);
+      check(r.hidden && r.ok, `dismiss #${id} hides the alert and moves focus on`, `hidden ${r.hidden}, focus ${r.focus}`);
+    }
+
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
@@ -363,7 +380,7 @@ if (await page.locator(ACTIONS).count()) {
   const pn = await fresh(noJs);
   const r = await pn.evaluate((sel) => {
     const buttons = [...document.querySelectorAll(sel)];
-    const targets = buttons.map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all')));
+    const targets = buttons.map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all') ?? b.getAttribute('data-cb-dismiss')));
     return { hidden: buttons.every((b) => getComputedStyle(b).display === 'none'), visible: targets.every((t) => t && getComputedStyle(t).display !== 'none') };
   }, ACTIONS);
   check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
@@ -493,6 +510,43 @@ if (await page.locator('.docs-demo .cb-table').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/tables-${width}.png` });
+  }
+}
+
+// 12. Alerts: a 4px edge in the tone, a rendered glyph tile with readable inverse ink,
+//     readable title and body text, one-line compact alerts 28px high (27px as a banner,
+//     which has no top border), and square banners.
+if (await page.locator('.docs-demo .cb-alert').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const alerts = await page.$$eval('.docs-demo .cb-alert', (els) => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    const rgb = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); };
+    return els.map((a) => {
+      const cs = getComputedStyle(a); const glyph = getComputedStyle(a, '::before');
+      const title = a.querySelector('.cb-alert__title');
+      const lines = Math.round((a.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth)) / parseFloat(cs.lineHeight));
+      return {
+        key: a.className + (a.id ? `#${a.id}` : ''), banner: a.classList.contains('cb-alert--banner'), sm: a.classList.contains('cb-alert--sm'),
+        edge: cs.borderInlineStartWidth, edgeColour: rgb(cs.borderLeftColor), tone: rgb(glyph.backgroundColor),
+        glyph: glyph.content, glyphInk: rgb(glyph.color), bg: rgb(cs.backgroundColor), ink: rgb(cs.color),
+        titleInk: title ? rgb(getComputedStyle(title).color) : null, height: a.getBoundingClientRect().height, lines, radius: cs.borderTopLeftRadius,
+      };
+    });
+  });
+  for (const a of alerts) {
+    const glyphR = ratio(a.glyphInk, a.tone); const textR = ratio(a.ink, a.bg); const titleR = a.titleInk ? ratio(a.titleInk, a.bg) : null;
+    const want = a.banner ? 27 : 28;
+    const ok = a.edge === '4px' && a.edgeColour.join() === a.tone.join() && /"\S+"/.test(a.glyph) && glyphR >= 4.5 && textR >= 4.5
+      && (titleR === null || titleR >= 4.5) && (!a.sm || a.lines > 1 || Math.round(a.height) === want) && (!a.banner || a.radius === '0px');
+    check(ok, `alert .${a.key.replace(/ /g, '.')}: edge, glyph, contrast${a.sm ? ', height' : ''}${a.banner ? ', square' : ''}`,
+      `edge ${a.edge}, glyph ${a.glyph.split(' /')[0]} ${glyphR.toFixed(2)}, text ${textR.toFixed(2)}${titleR ? `, title ${titleR.toFixed(2)}` : ''}${a.sm ? `, ${Math.round(a.height)}px` : ''}`);
+  }
+  const section = page.locator('.docs-section:has(.docs-demo .cb-alert)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/alerts-${width}.png` });
   }
 }
 

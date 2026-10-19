@@ -70,6 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/verify-browser.mjs`: select-all behaviour (row sync, indeterminate, highlight, change
   events) and its no-JS hiding; table checks for row heights, sticky columns and header while
   scrolled, cell text contrast in every row paint, sort arrows, and table screenshots.
+- `scripts/verify-browser.mjs`: alert dismiss from the keyboard (target hidden, focus moved on) and
+  its no-JS hiding; alert checks for the 4px tone edge, glyph tile and its contrast, text and title
+  contrast, compact height and square banners; alert contrast pairs and screenshots.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
