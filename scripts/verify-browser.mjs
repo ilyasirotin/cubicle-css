@@ -44,6 +44,15 @@ const TAB = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
 const SHIFT_TAB = engine === 'webkit' ? 'Alt+Shift+Tab' : 'Shift+Tab';
 // Reading the clipboard from automation is refused in WebKit; null means "could not read".
 const readClipboard = (pg) => pg.evaluate(() => navigator.clipboard.readText()).catch(() => null);
+// A control inside an idle ARIA tab panel or a closed <details> (as on the example screen) is
+// shown first: its tab is clicked and its details opened.
+const expose = (pg, selector) => pg.evaluate((sel) => {
+  const el = document.querySelector(sel);
+  for (let n = el; n; n = n.parentElement) {
+    if (n.matches('[role="tabpanel"][hidden]')) document.querySelector(`[role="tab"][aria-controls="${n.id}"]`)?.click();
+    if (n.matches('details:not([open])')) n.open = true;
+  }
+}, selector);
 
 const ENGINE_LIMITS = [
   { engine: 'firefox', check: /^meter ruler:/, reason: 'Firefox paints the meter track on the element itself, so there is no ruler strip for ticks and marks' },
@@ -93,7 +102,7 @@ await page.setViewportSize({ width: 1360, height: 900 });
 // 3. Visible focus ring on the first instance of each control type
 const controls = ['a[href]', 'button:not([disabled])', 'input:not([type=hidden])', 'select', 'textarea', 'summary'];
 for (const sel of controls) {
-  const el = page.locator(sel).first();
+  const el = page.locator(`${sel}:visible`).first();
   if (await el.count() === 0) continue;
   // Tab away and back with Shift+Tab: keyboard focus, and it stays inside the page even for
   // the first control (Shift+Tab from it would leave for the browser UI).
@@ -104,8 +113,8 @@ for (const sel of controls) {
   check(r.fv && r.w >= 2 && r.s !== 'none', `focus ring visible on ${sel}`, `${r.w}px ${r.s}`);
 }
 
-// 4. Key travel on press (first .cb-btn)
-const btn = page.locator('.cb-btn:not([disabled]):not([aria-disabled])').first();
+// 4. Key travel on press (first plain button key: a link key would navigate, a modal opener open)
+const btn = page.locator('button.cb-btn[type="button"]:not([disabled], [aria-disabled], [data-cb-modal], [data-cb-dismiss], [popovertarget]):visible').first();
 if (await btn.count()) {
   await btn.scrollIntoViewIfNeeded();
   const box = await btn.boundingBox();
@@ -265,6 +274,7 @@ if (await page.locator(ACTIONS).count()) {
 
   if (marked) await attempt('script behaviours run without errors', async () => {
     for (const id of await ids(p, 'data-cb-copy')) {
+      await expose(p, `[data-cb-copy="${id}"]`);
       const btn = p.locator(`[data-cb-copy="${id}"]`);
       await btn.scrollIntoViewIfNeeded(); await btn.click(); await p.waitForTimeout(100);
       const got = await readClipboard(p);
@@ -275,6 +285,7 @@ if (await page.locator(ACTIONS).count()) {
     }
 
     for (const id of await ids(p, 'data-cb-reveal')) {
+      await expose(p, `[data-cb-reveal="${id}"]`);
       const btn = p.locator(`[data-cb-reveal="${id}"]`);
       const state = async () => `${await p.$eval(`#${id}`, (e) => e.type)}/${await btn.getAttribute('aria-pressed')}`;
       const before = await state(); await btn.click(); const shown = await state(); await btn.click(); const after = await state();
@@ -293,6 +304,7 @@ if (await page.locator(ACTIONS).count()) {
     }
 
     for (const id of await ids(p, 'data-cb-download')) {
+      await expose(p, `[data-cb-download="${id}"]`);
       const btn = p.locator(`[data-cb-download="${id}"]`);
       await btn.scrollIntoViewIfNeeded();
       const [download] = await Promise.all([p.waitForEvent('download'), btn.click()]);
@@ -305,6 +317,7 @@ if (await page.locator(ACTIONS).count()) {
     // Select-all: checks every row, follows the rows (indeterminate when mixed), highlights the
     // checked rows and fires a bubbling change event for each box it changes.
     for (const id of await ids(p, 'data-cb-select-all')) {
+      await expose(p, `[data-cb-select-all="${id}"]`);
       const master = p.locator(`[data-cb-select-all="${id}"]`);
       await master.scrollIntoViewIfNeeded(); await p.mouse.move(2, 2);
       const state = () => p.evaluate((i) => {
@@ -329,6 +342,7 @@ if (await page.locator(ACTIONS).count()) {
     // Dismiss from the keyboard: the target is hidden and focus moves to a rendered control
     // outside it, never to <body>.
     for (const id of await ids(p, 'data-cb-dismiss')) {
+      await expose(p, `[data-cb-dismiss="${id}"]`);
       const btn = p.locator(`[data-cb-dismiss="${id}"]`);
       await btn.scrollIntoViewIfNeeded(); await btn.focus(); await p.keyboard.press('Enter');
       const r = await p.evaluate((i) => {
@@ -431,6 +445,7 @@ if (await page.locator(ACTIONS).count()) {
     if (copyId) {
       await p.evaluate(() => navigator.clipboard.writeText('sentinel')).catch(() => {});
       const ph = await fresh(context, (q) => q.addInitScript(() => Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true })));
+      await expose(ph, `[data-cb-copy="${copyId}"]`);
       await ph.locator(`[data-cb-copy="${copyId}"]`).click(); await ph.waitForTimeout(100);
       const got = await readClipboard(p);
       check(got === await valueOf(ph, copyId), `copy #${copyId} falls back when the async clipboard is missing`, got === 'sentinel' ? 'clipboard unchanged' : '');
@@ -1129,6 +1144,44 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
 }
 
+// 23. Application frame (a page whose body holds a .cb-app, such as docs/example.html): at
+//     1360 the shell fills the viewport with the top and status bars in view and main as its own
+//     scroller; at 360 the sidebar stacks above main and the page scrolls; a sticky table keeps
+//     its first column while its wrapper scrolls sideways.
+if (await page.locator('body > .cb-app').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const wide = await page.evaluate(() => {
+    const app = document.querySelector('body > .cb-app'); const r = (sel) => app.querySelector(sel).getBoundingClientRect();
+    return { app: Math.round(app.getBoundingClientRect().height), top: r('.cb-app__top').top, status: Math.round(r('.cb-app__status').bottom),
+      main: getComputedStyle(app.querySelector('.cb-app__main')).overflowY, page: document.documentElement.scrollHeight - innerHeight };
+  });
+  check(wide.app === 900 && wide.top === 0 && wide.status === 900 && wide.main === 'auto' && wide.page <= 0,
+    'application frame at 1360px: fills the viewport, bars in view, main scrolls on its own', JSON.stringify(wide));
+  await page.setViewportSize({ width: 360, height: 900 });
+  const narrow = await page.evaluate(() => {
+    const app = document.querySelector('body > .cb-app'); const r = (sel) => app.querySelector(sel).getBoundingClientRect();
+    return { stacked: r('.cb-app__side').bottom <= r('.cb-app__main').top + 1, page: document.documentElement.scrollHeight > innerHeight,
+      overflow: document.documentElement.scrollWidth > innerWidth };
+  });
+  check(narrow.stacked && narrow.page && !narrow.overflow, 'application frame at 360px: sidebar above main, page scrolls, no overflow', JSON.stringify(narrow));
+  const sticky = page.locator('body > .cb-app .cb-table--sticky').first();
+  if (await sticky.count()) {
+    await expose(page, 'body > .cb-app .cb-table--sticky');
+    await sticky.scrollIntoViewIfNeeded();
+    const pinned = await sticky.evaluate((t) => {
+      const wrap = t.closest('.cb-table-wrap'); const cell = t.querySelector('tbody tr > :nth-child(2)');
+      const before = cell.getBoundingClientRect().left; wrap.scrollLeft = wrap.scrollWidth; const after = cell.getBoundingClientRect().left;
+      const moved = wrap.scrollLeft; wrap.scrollLeft = 0; return { before, after, moved };
+    });
+    check(pinned.moved > 0 && Math.abs(pinned.before - pinned.after) < 1, 'application frame: the sticky table keeps its pinned column at 360px', JSON.stringify(pinned));
+  }
+  for (const width of [1360, 800, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.screenshot({ path: `${shots}/example-${width}.png` });
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+}
+
 // 24. Density: inside [data-cb-density] (and at the default) fields and keys take
 //     --cb-control-h, small keys --cb-control-h-sm, table rows --cb-row-h, and a small key
 //     fits its row: 22 / 18 / 24 compact, 26 / 20 / 28 default, 30 / 24 / 32 comfortable.
@@ -1210,7 +1263,7 @@ for (const width of [1360, 360]) {
     else if (stop.partial) partly.push(`${stop.name} in ${stop.partial}`);
   }
   await pa.close();
-  check(stops > 50 && !trap && invisible.length === 0, `keyboard audit at ${width}px: every Tab stop shows the focus ring, no trap`,
+  check(stops >= 5 && !trap && invisible.length === 0, `keyboard audit at ${width}px: every Tab stop shows the focus ring, no trap`,
     `${stops} stops${trap ? `, trap at ${trap}` : ''}${invisible.length ? `; no ring: ${invisible.slice(0, 5).join(' | ')}` : ''}`);
   // Firefox applies scroll-margin only when Tab has to scroll; a control already fully in view at the
   // viewport edge keeps a ring cut by at most the ring itself (3px). Those are listed, not failed.

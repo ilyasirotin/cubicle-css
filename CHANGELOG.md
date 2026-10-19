@@ -161,6 +161,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/verify-browser.mjs`: density checks (field, segment, small key and row heights per
   mode, small keys inside their rows); table-row checks read the row height from the density tokens
   in force, and the segmented check clicks an unchecked key.
+- `scripts/verify-browser.mjs` runs on any page (`docs/example.html` included): controls in idle tab
+  panels or closed details are revealed before use, focus and key-travel spot checks take visible
+  controls, and a new application-frame check covers the fixed shell, the stacked layout at
+  360px and sticky tables.
 - `dist/cubicle.css` fieldsets and panels: `.cb-fieldset` group box (legend on the border, native
   `disabled` cascade); `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; flush body whose
   children lose their own frame; recessed `--inset` well for logs and config previews; `--ok`,
