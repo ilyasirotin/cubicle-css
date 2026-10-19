@@ -137,6 +137,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catalogue "Meters & progress" section: gauges in every state with ticks and threshold marks,
   determinate and indeterminate progress, compact meters in a table, accessibility notes and a
   reference table.
+- Catalogue "Segmented controls" section: a range picker and a panel-head toolbar, a full-width
+  form field, log-level checkboxes with counts, a status filter with lamps, disabled keys and a
+  disabled fieldset, keyboard and reference tables.
 
 ### Changed
 

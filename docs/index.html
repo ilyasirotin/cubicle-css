@@ -50,6 +50,7 @@
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
         <li><a class="docs-nav__link" href="#meters">Meters &amp; progress</a></li>
+        <li><a class="docs-nav__link" href="#segmented">Segmented controls</a></li>
       </ul>
     </nav>
 
@@ -3009,6 +3010,192 @@
               <tr><th scope="row"><code>data-cb-marks</code></th><td><code>&lt;meter&gt;</code></td><td>Marks <code>low</code> and <code>high</code> on the ruler (script)</td></tr>
               <tr><th scope="row"><code>.cb-gauge</code></th><td><code>&lt;div&gt;</code></td><td>Label and reading over the bar</td></tr>
               <tr><th scope="row"><code>.cb-gauge__label</code>, <code>__value</code>, <code>__note</code></th><td><code>&lt;label&gt;</code>, <code>&lt;span&gt;</code>, <code>&lt;p&gt;</code></td><td>Bold label, muted tabular reading, small note under the bar</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="segmented" aria-labelledby="segmented-title">
+        <h2 class="docs-h2" id="segmented-title">Segmented controls</h2>
+        <p class="docs-text">A short set of options as attached keys: native radios for one choice, checkboxes
+          for several. The checked key is sunk, like a pressed toggle.</p>
+
+        <h3 class="docs-h3" id="segmented-single">One choice</h3>
+        <p class="docs-text">Each key is a <code>&lt;label class="cb-btn"&gt;</code> around its input; the input
+          covers the key, so clicks, arrow keys, the focus ring and form values are the browser's own.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <div class="cb-field">
+              <span class="cb-field__label" id="s-range-label">Range</span>
+              <div class="cb-btn-group cb-segmented" role="radiogroup" aria-labelledby="s-range-label">
+                <label class="cb-btn"><input type="radio" name="s-range" value="1h">1 h</label>
+                <label class="cb-btn"><input type="radio" name="s-range" value="24h" checked>24 h</label>
+                <label class="cb-btn"><input type="radio" name="s-range" value="7d">7 d</label>
+                <label class="cb-btn"><input type="radio" name="s-range" value="30d">30 d</label>
+              </div>
+            </div>
+            <section class="cb-panel" aria-labelledby="s-traffic-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="s-traffic-title">Traffic, gw-eu-1</h4>
+                <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="Traffic range">
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="s-traffic" value="1h" checked>1 h</label>
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="s-traffic" value="24h">24 h</label>
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="s-traffic" value="7d">7 d</label>
+                </div>
+              </header>
+              <div class="cb-panel__body">1.21 TB received, 38.4 GB sent in the last hour.</div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;span class=&quot;cb-field__label&quot; id=&quot;s-range-label&quot;&gt;Range&lt;/span&gt;
+    &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-labelledby=&quot;s-range-label&quot;&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-range&quot; value=&quot;1h&quot;&gt;1 h&lt;/label&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-range&quot; value=&quot;24h&quot; checked&gt;24 h&lt;/label&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-range&quot; value=&quot;7d&quot;&gt;7 d&lt;/label&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-range&quot; value=&quot;30d&quot;&gt;30 d&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;s-traffic-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;s-traffic-title&quot;&gt;Traffic, gw-eu-1&lt;/h4&gt;
+      &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;Traffic range&quot;&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-traffic&quot; value=&quot;1h&quot; checked&gt;1 h&lt;/label&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-traffic&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-traffic&quot; value=&quot;7d&quot;&gt;7 d&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body&quot;&gt;1.21 TB received, 38.4 GB sent in the last hour.&lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="segmented-fill">Full width</h3>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2">
+            <div class="cb-field">
+              <span class="cb-field__label" id="s-mode-label">Tunnel mode</span>
+              <div class="cb-btn-group cb-segmented cb-segmented--fill" role="radiogroup" aria-labelledby="s-mode-label">
+                <label class="cb-btn"><input type="radio" name="s-mode" value="full">Full</label>
+                <label class="cb-btn"><input type="radio" name="s-mode" value="split" checked>Split</label>
+                <label class="cb-btn"><input type="radio" name="s-mode" value="off">Off</label>
+              </div>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="s-dns">DNS server</label>
+              <input class="cb-input" id="s-dns" type="text" value="10.8.0.53">
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;span class=&quot;cb-field__label&quot; id=&quot;s-mode-label&quot;&gt;Tunnel mode&lt;/span&gt;
+    &lt;div class=&quot;cb-btn-group cb-segmented cb-segmented--fill&quot; role=&quot;radiogroup&quot; aria-labelledby=&quot;s-mode-label&quot;&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-mode&quot; value=&quot;full&quot;&gt;Full&lt;/label&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-mode&quot; value=&quot;split&quot; checked&gt;Split&lt;/label&gt;
+      &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-mode&quot; value=&quot;off&quot;&gt;Off&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;s-dns&quot;&gt;DNS server&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;s-dns&quot; type=&quot;text&quot; value=&quot;10.8.0.53&quot;&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="segmented-multi">Several choices</h3>
+        <div class="docs-demo">
+          <div class="cb-field">
+            <span class="cb-field__label" id="s-levels-label">Log levels</span>
+            <div class="cb-btn-group cb-segmented" role="group" aria-labelledby="s-levels-label">
+              <label class="cb-btn"><input type="checkbox" name="s-level" value="debug">Debug</label>
+              <label class="cb-btn"><input type="checkbox" name="s-level" value="info" checked>Info</label>
+              <label class="cb-btn"><input type="checkbox" name="s-level" value="warn" checked>Warn <span class="cb-badge cb-badge--count cb-badge--warn">12</span></label>
+              <label class="cb-btn"><input type="checkbox" name="s-level" value="error" checked>Error <span class="cb-badge cb-badge--count cb-badge--solid cb-badge--danger">3</span></label>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-field&quot;&gt;
+  &lt;span class=&quot;cb-field__label&quot; id=&quot;s-levels-label&quot;&gt;Log levels&lt;/span&gt;
+  &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;group&quot; aria-labelledby=&quot;s-levels-label&quot;&gt;
+    &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;checkbox&quot; name=&quot;s-level&quot; value=&quot;debug&quot;&gt;Debug&lt;/label&gt;
+    &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;checkbox&quot; name=&quot;s-level&quot; value=&quot;info&quot; checked&gt;Info&lt;/label&gt;
+    &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;checkbox&quot; name=&quot;s-level&quot; value=&quot;warn&quot; checked&gt;Warn &lt;span class=&quot;cb-badge cb-badge--count cb-badge--warn&quot;&gt;12&lt;/span&gt;&lt;/label&gt;
+    &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;checkbox&quot; name=&quot;s-level&quot; value=&quot;error&quot; checked&gt;Error &lt;span class=&quot;cb-badge cb-badge--count cb-badge--solid cb-badge--danger&quot;&gt;3&lt;/span&gt;&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="segmented-lamps">With lamps</h3>
+        <div class="docs-demo">
+          <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="Peer status">
+            <label class="cb-btn"><input type="radio" name="s-status" value="all" checked>All</label>
+            <label class="cb-btn"><input type="radio" name="s-status" value="online"><span class="cb-led cb-led--ok">Online</span></label>
+            <label class="cb-btn"><input type="radio" name="s-status" value="offline"><span class="cb-led cb-led--danger">Offline</span></label>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;Peer status&quot;&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-status&quot; value=&quot;all&quot; checked&gt;All&lt;/label&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-status&quot; value=&quot;online&quot;&gt;&lt;span class=&quot;cb-led cb-led--ok&quot;&gt;Online&lt;/span&gt;&lt;/label&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-status&quot; value=&quot;offline&quot;&gt;&lt;span class=&quot;cb-led cb-led--danger&quot;&gt;Offline&lt;/span&gt;&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="segmented-disabled">Disabled</h3>
+        <p class="docs-text">A disabled key is flat; a disabled checked key keeps a muted sunk tint.
+          <code>&lt;fieldset disabled&gt;</code> disables the whole group.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="Export format">
+            <label class="cb-btn"><input type="radio" name="s-format" value="csv" checked>CSV</label>
+            <label class="cb-btn"><input type="radio" name="s-format" value="json">JSON</label>
+            <label class="cb-btn"><input type="radio" name="s-format" value="custom" disabled>Custom</label>
+            </div>
+            <fieldset class="cb-btn-group cb-segmented" aria-label="Retention" disabled>
+            <label class="cb-btn"><input type="radio" name="s-retention" value="30d">30 d</label>
+            <label class="cb-btn"><input type="radio" name="s-retention" value="90d" checked>90 d</label>
+            <label class="cb-btn"><input type="radio" name="s-retention" value="1y">1 y</label>
+            </fieldset>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;Export format&quot;&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-format&quot; value=&quot;csv&quot; checked&gt;CSV&lt;/label&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-format&quot; value=&quot;json&quot;&gt;JSON&lt;/label&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-format&quot; value=&quot;custom&quot; disabled&gt;Custom&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;fieldset class=&quot;cb-btn-group cb-segmented&quot; aria-label=&quot;Retention&quot; disabled&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-retention&quot; value=&quot;30d&quot;&gt;30 d&lt;/label&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-retention&quot; value=&quot;90d&quot; checked&gt;90 d&lt;/label&gt;
+  &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;s-retention&quot; value=&quot;1y&quot;&gt;1 y&lt;/label&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="segmented-keys">Keyboard</h3>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><kbd>Tab</kbd></th><td>Into a radio group at its checked key; through checkbox keys one by one</td></tr>
+              <tr><th scope="row"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></th><td>Moves the choice within a radio group</td></tr>
+              <tr><th scope="row"><kbd>Space</kbd></th><td>Checks the focused key; toggles a checkbox key</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-btn-group.cb-segmented</code></th><td><code>&lt;div&gt;</code>, <code>&lt;fieldset&gt;</code></td><td>Attached keys; name the group with <code>aria-labelledby</code> or <code>aria-label</code></td></tr>
+              <tr><th scope="row"><code>role="radiogroup"</code>, <code>role="group"</code></th><td><code>&lt;div&gt;</code></td><td>One choice (radios) or several (checkboxes)</td></tr>
+              <tr><th scope="row"><code>&lt;label class="cb-btn"&gt;</code> + input</th><td>Key</td><td>The input covers the key and carries the focus ring</td></tr>
+              <tr><th scope="row"><code>:checked</code></th><td>Input</td><td>Key sunk on the selected tint</td></tr>
+              <tr><th scope="row"><code>disabled</code></th><td>Input, <code>&lt;fieldset&gt;</code></td><td>Key flat and muted; a checked one keeps a muted tint</td></tr>
+              <tr><th scope="row"><code>.cb-segmented--fill</code></th><td>Group</td><td>Equal keys across the container</td></tr>
+              <tr><th scope="row"><code>.cb-btn--sm</code></th><td>Key</td><td>20px keys for toolbars and panel heads</td></tr>
             </tbody>
           </table>
         </div>
