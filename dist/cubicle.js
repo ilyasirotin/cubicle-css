@@ -15,6 +15,8 @@
  *   data-cb-select-all="id"                    header checkbox: (un)check every row
  *                                              checkbox of the table; it shows the
  *                                              rows' state, indeterminate when mixed
+ *   data-cb-dismiss="id"                       hide the target (an alert); focus
+ *                                              moves to the next focusable element
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -22,7 +24,8 @@
   'use strict';
 
   const COPIED_MS = 1500;
-  const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download]';
+  const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss]';
+  const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled, [type="hidden"]), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])';
   const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
   const remaskTimers = new WeakMap();
   let liveRegion;
@@ -155,11 +158,25 @@
 
   document.querySelectorAll(SELECT_ALL).forEach(syncSelectAll);
 
+  // Hiding the target would drop focus to <body>: move it to the next
+  // focusable element outside the target, or the previous one at the end.
+  const dismiss = (target) => {
+    const hadFocus = target.contains(document.activeElement);
+    target.hidden = true;
+    if (!hadFocus) return;
+    const candidates = [...document.querySelectorAll(FOCUSABLE)]
+      .filter((el) => !target.contains(el) && el.getClientRects().length);
+    const next = candidates.find((el) => target.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
+      ?? candidates.findLast((el) => target.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING);
+    if (next) next.focus();
+  };
+
   document.addEventListener('click', (event) => {
+    // A click cancelled by the host (or a cancelled box toggle) means: do nothing.
+    if (event.defaultPrevented) return;
+
     const box = event.target;
     if (box instanceof HTMLInputElement && box.type === 'checkbox') {
-      // A cancelled click puts the box back, so there is nothing to follow.
-      if (event.defaultPrevented) return;
       if (box.matches(SELECT_ALL)) selectAll(box);
       else syncFromRow(box);
       return;
@@ -174,9 +191,12 @@
     } else if (button.hasAttribute('data-cb-reveal')) {
       const target = targetOf(button, 'data-cb-reveal');
       if (target instanceof HTMLInputElement) reveal(button, target);
-    } else {
+    } else if (button.hasAttribute('data-cb-download')) {
       const target = targetOf(button, 'data-cb-download');
       if (target) download(button, target);
+    } else {
+      const target = targetOf(button, 'data-cb-dismiss');
+      if (target) dismiss(target);
     }
   });
 })();

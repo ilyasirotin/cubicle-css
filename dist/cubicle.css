@@ -12,7 +12,7 @@
    2. Tokens .......... colour, depth, geometry, spacing, type, motion
    3. Base ............ document typography, links, monospace (no ligatures), focus ring
    4. Layout
-      4.1 Application shell .. .cb-app top / side / main / status regions
+      4.1 Application shell .. .cb-app top / banner / side / main / status regions
       4.2 Scroll model ....... fixed frame
       4.3 Stack .............. .cb-stack vertical rhythm
       4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
@@ -27,6 +27,8 @@
       5.5 Badges & LEDs ...... .cb-badge tags, status, solid, count, busy; .cb-led
       5.6 Data tables ........ .cb-table-wrap, .cb-table rows, selection, sorting,
                                compact, wrap, sticky; select-all (cubicle.js)
+      5.7 Alerts ............. .cb-alert tones, glyph, title, actions, close
+                               (cubicle.js), --sm, --banner
    ========================================================================== */
 
 
@@ -210,13 +212,14 @@
     --_side: 15rem;
     display: grid;
     grid-template:
-      "top    top"  auto
-      "side   main" 1fr
+      "top    top"    auto
+      "banner banner" auto
+      "side   main"   1fr
       "status status" auto
       / var(--_side) minmax(0, 1fr);
 
     &:not(:has(> .cb-app__side)) {
-      grid-template: "top" auto "main" 1fr "status" auto / minmax(0, 1fr);
+      grid-template: "top" auto "banner" auto "main" 1fr "status" auto / minmax(0, 1fr);
     }
   }
 
@@ -228,6 +231,13 @@
     padding: var(--cb-space-1) var(--cb-space-3);
     background: var(--cb-grad-surface), var(--cb-bg-header);
     border-block-end: 1px solid var(--cb-border-main);
+  }
+
+  /* Optional strip of .cb-alert--banner under the top bar. It stays put in
+     the fixed frame and collapses when empty. */
+  .cb-app__banner {
+    grid-area: banner;
+    display: grid;
   }
 
   .cb-app__side {
@@ -259,7 +269,7 @@
   /* Narrow viewports: the sidebar stacks above main. */
   @media (width < 50rem) {
     .cb-app {
-      grid-template: "top" auto "side" auto "main" 1fr "status" auto / minmax(0, 1fr);
+      grid-template: "top" auto "banner" auto "side" auto "main" 1fr "status" auto / minmax(0, 1fr);
     }
 
     .cb-app__side {
@@ -1115,7 +1125,7 @@
   /* Script-only actions stay hidden until cubicle.js marks the root, so a page
      without the script shows the value (still selectable) and no dead buttons.
      Markup swapped in later is covered too; nothing needs re-initialising. */
-  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all]) {
+  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]) {
     display: none;
   }
 
@@ -1538,5 +1548,107 @@
   .cb-table--sticky thead th:first-child,
   .cb-table--sticky thead .cb-table__select:first-child + th {
     z-index: 3;
+  }
+
+  /* 5.7 Alerts ------------------------------------------------------------ */
+
+  /* Alert: tinted box with a 4px tone edge and a glyph tile, so the tone never
+     rests on colour alone; the title states it in words. Content is normal
+     flow (text, links, paragraphs, lists): the glyph and the close key sit in
+     reserved padding. Roles: role="alert" for urgent messages that appear
+     after an action, role="status" for polite updates, none for notices
+     rendered with the page. Modifiers set only --_tone and --_glyph. */
+  .cb-alert {
+    --_tone: var(--cb-info);
+    --_glyph: "i";
+
+    position: relative;
+    padding: var(--cb-space-2) var(--cb-space-3);
+    padding-inline-start: calc(var(--cb-space-3) + 1.125rem + var(--cb-space-2));
+    color: var(--cb-text-main);
+    background: color-mix(in srgb, var(--_tone) 10%, var(--cb-bg-surface));
+    border: 1px solid color-mix(in srgb, var(--_tone) 35%, var(--cb-border-main));
+    border-inline-start: 4px solid var(--_tone);
+    border-radius: var(--cb-radius-sm);
+
+    & > * {
+      margin-block: 0;
+    }
+
+    & > * + * {
+      margin-block-start: var(--cb-space-1);
+    }
+
+    /* Glyph tile as high as the first line; its meaning is in the title, so
+       screen readers skip it. */
+    &::before {
+      content: var(--_glyph) / "";
+      position: absolute;
+      inset-block-start: var(--cb-space-2);
+      inset-inline-start: var(--cb-space-3);
+      display: grid;
+      place-content: center;
+      inline-size: 1.125rem;
+      block-size: 1.125rem;
+      font: 700 var(--cb-text-xs) / 1 var(--cb-font-sans);
+      color: var(--cb-text-inverse);
+      background: var(--_tone);
+      border-radius: var(--cb-radius-sm);
+    }
+
+    &:has(> .cb-alert__close) {
+      padding-inline-end: calc(var(--cb-space-3) + 1.25rem + var(--cb-space-2));
+    }
+  }
+
+  .cb-alert--info { --_tone: var(--cb-info); --_glyph: "i"; }
+  .cb-alert--ok { --_tone: var(--cb-ok); --_glyph: "✓"; }
+  .cb-alert--warn { --_tone: var(--cb-warn); --_glyph: "!"; }
+  .cb-alert--danger { --_tone: var(--cb-danger); --_glyph: "✕"; }
+
+  .cb-alert__title {
+    font-weight: 600;
+    color: var(--_tone);
+  }
+
+  .cb-alert > .cb-alert__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cb-space-2);
+    margin-block-start: var(--cb-space-2);
+  }
+
+  /* Error summary: a list of links to the invalid fields. */
+  .cb-alert :is(ul, ol) {
+    padding-inline-start: 1.25em;
+  }
+
+  /* Close key: a .cb-btn--sm.cb-btn--icon with data-cb-dismiss (cubicle.js).
+     It is 2px taller than the 18px first line, so it starts 1px higher. */
+  .cb-alert > .cb-alert__close {
+    position: absolute;
+    margin: 0;
+    inset-block-start: calc(var(--cb-space-2) - 1px);
+    inset-inline-end: var(--cb-space-2);
+  }
+
+  /* Compact: one line is 28px, the height of a table row. */
+  .cb-alert--sm {
+    padding-block: var(--cb-space-1);
+
+    &::before {
+      inset-block-start: var(--cb-space-1);
+    }
+
+    & > .cb-alert__close {
+      inset-block-start: calc(var(--cb-space-1) - 1px);
+    }
+  }
+
+  /* Page-wide strip, for .cb-app__banner or the top of a page. */
+  .cb-alert--banner {
+    border-block-start-width: 0;
+    border-inline-end-width: 0;
+    border-radius: var(--cb-radius-none);
   }
 }

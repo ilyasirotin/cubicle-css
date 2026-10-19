@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   helpers `__num`, `__select`, `__actions`, `__empty`; sortable headers (`__sort` + `aria-sort`);
   modifiers `--compact`, `--wrap` and `--sticky` (header and first column). `dist/cubicle.js`
   adds `data-cb-select-all` with indeterminate sync; the box stays hidden without the script.
+- `dist/cubicle.css` alerts: `.cb-alert` with a 4px tone edge and a glyph tile (`--info`, `--ok`,
+  `--warn`, `--danger`), `__title`, `__actions`, lists for error summaries, a `__close` key, `--sm`
+  (one 28px line) and `--banner`; the shell gains an optional `.cb-app__banner` strip under the top
+  bar. `dist/cubicle.js` adds `data-cb-dismiss`, which hides the target and moves focus on; the key
+  stays hidden without the script.
 - `scripts/build-min.sh` minifies `dist/cubicle.js` with terser (pinned dev dependency).
 - `scripts/verify-browser.mjs`: `--js` override for the minified script, and checks for copy (incl.
   the plain-HTTP fallback), reveal and timed re-masking, download, and hiding of script-only
