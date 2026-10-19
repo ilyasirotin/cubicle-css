@@ -200,6 +200,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `.claude/hooks/guard-git.sh` blocks only a real `git push`, `git tag` or `git reset --hard`
+  subcommand at a command start (after optional global options); the words inside commit
+  messages or quoted strings no longer trip it.
 - The catalogue uses its own utilities: `.cb-skip-link`, `.cb-nowrap` and `.cb-kbd` replace the
   docs-only skip link, nowrap cells and bare `<kbd>` (the base typography demo keeps a bare `<kbd>`).
 - Collapsible panels, navigation and tree rows, and details share one disclosure chevron rule
