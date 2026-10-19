@@ -169,6 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catalogue "Modals & dialogs" section: a popover dialog, a modal revoke confirmation, a typed
   delete confirmation, a long form with a scrolling body, notes and a reference table; demo blocks
   no longer reset a dialog's auto margins.
+- Catalogue "Pagination" section: full pagination under a table in a panel footer, separate keys
+  on the first page, cursor paging, the narrow collapse, notes and a reference table.
 
 ### Changed
 

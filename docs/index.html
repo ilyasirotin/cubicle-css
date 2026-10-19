@@ -53,6 +53,7 @@
         <li><a class="docs-nav__link" href="#segmented">Segmented controls</a></li>
         <li><a class="docs-nav__link" href="#details">Details &amp; disclosure</a></li>
         <li><a class="docs-nav__link" href="#dialogs">Modals &amp; dialogs</a></li>
+        <li><a class="docs-nav__link" href="#pagination">Pagination</a></li>
       </ul>
     </nav>
 
@@ -3717,6 +3718,249 @@
               <tr><th scope="row"><code>autofocus</code></th><td>Button</td><td>Focus on opening; put it on the safe action</td></tr>
               <tr><th scope="row"><code>formnovalidate</code></th><td>Button</td><td>Closes without checking the fields</td></tr>
               <tr><th scope="row"><code>required</code> + <code>pattern</code></th><td><code>&lt;input&gt;</code></td><td>Typed confirmation, checked by the browser</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="pagination" aria-labelledby="pagination-title">
+        <h2 class="docs-h2" id="pagination-title">Pagination</h2>
+        <p class="docs-text">Page links for long lists: a range summary, a strip of keys with the current page
+          sunk, rows per page and a jump form. Links only, no script.</p>
+
+        <h3 class="docs-h3" id="pagination-full">Under a table</h3>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="pg-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="pg-title">Sessions</h4>
+            </header>
+            <div class="cb-panel__body cb-panel__body--flush">
+              <table class="cb-table" aria-labelledby="pg-title">
+                <thead>
+                  <tr><th scope="col">User</th><th scope="col">Gateway</th><th class="cb-table__num" scope="col">Received</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">alice.ng</th><td>gw-eu-1</td><td class="cb-table__num">1.42 GB</td></tr>
+                  <tr><th scope="row">b.kowalski</th><td>gw-eu-1</td><td class="cb-table__num">86.0 MB</td></tr>
+                  <tr><th scope="row">c.okafor</th><td>gw-us-2</td><td class="cb-table__num">4.07 GB</td></tr>
+                  <tr><th scope="row">d.ivanova</th><td>gw-ap-1</td><td class="cb-table__num">512.3 MB</td></tr>
+                  <tr><th scope="row">svc-backup</th><td>gw-eu-2</td><td class="cb-table__num">38.9 GB</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <footer class="cb-panel__foot">
+              <nav class="cb-pagination" aria-label="Sessions pages">
+                <p class="cb-pagination__summary">301–350 of 1 248</p>
+                <div class="cb-pagination__pages">
+                  <a class="cb-btn cb-btn--sm" href="#pagination" rel="prev" aria-label="Previous page">‹</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 1">1</a>
+                  <span class="cb-pagination__gap" aria-hidden="true">…</span>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 6">6</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-current="page" aria-label="Page 7">7</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 8">8</a>
+                  <span class="cb-pagination__gap" aria-hidden="true">…</span>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 25">25</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" rel="next" aria-label="Next page">›</a>
+                </div>
+                <div class="cb-pagination__sizes" role="group" aria-label="Rows per page">
+                  <a class="cb-btn cb-btn--sm" href="#pagination">25</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-current="true">50</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination">100</a>
+                </div>
+                <form class="cb-pagination__jump" method="get" action="#pagination">
+                  <label for="pg-page">Page</label>
+                  <input class="cb-input cb-input--sm" id="pg-page" name="page" type="number" min="1" max="25" value="7">
+                  <span>of 25</span>
+                  <button class="cb-btn cb-btn--sm" type="submit">Go</button>
+                </form>
+              </nav>
+            </footer>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;pg-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;pg-title&quot;&gt;Sessions&lt;/h4&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+    &lt;table class=&quot;cb-table&quot; aria-labelledby=&quot;pg-title&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;User&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;alice.ng&lt;/th&gt;&lt;td&gt;gw-eu-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;b.kowalski&lt;/th&gt;&lt;td&gt;gw-eu-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;c.okafor&lt;/th&gt;&lt;td&gt;gw-us-2&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;4.07 GB&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;d.ivanova&lt;/th&gt;&lt;td&gt;gw-ap-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;512.3 MB&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;svc-backup&lt;/th&gt;&lt;td&gt;gw-eu-2&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;38.9 GB&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+  &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+    &lt;nav class=&quot;cb-pagination&quot; aria-label=&quot;Sessions pages&quot;&gt;
+      &lt;p class=&quot;cb-pagination__summary&quot;&gt;301–350 of 1 248&lt;/p&gt;
+      &lt;div class=&quot;cb-pagination__pages&quot;&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;prev&quot; aria-label=&quot;Previous page&quot;&gt;‹&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 1&quot;&gt;1&lt;/a&gt;
+        &lt;span class=&quot;cb-pagination__gap&quot; aria-hidden=&quot;true&quot;&gt;…&lt;/span&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 6&quot;&gt;6&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-current=&quot;page&quot; aria-label=&quot;Page 7&quot;&gt;7&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 8&quot;&gt;8&lt;/a&gt;
+        &lt;span class=&quot;cb-pagination__gap&quot; aria-hidden=&quot;true&quot;&gt;…&lt;/span&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 25&quot;&gt;25&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;next&quot; aria-label=&quot;Next page&quot;&gt;›&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-pagination__sizes&quot; role=&quot;group&quot; aria-label=&quot;Rows per page&quot;&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot;&gt;25&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-current=&quot;true&quot;&gt;50&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot;&gt;100&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;form class=&quot;cb-pagination__jump&quot; method=&quot;get&quot; action=&quot;#pagination&quot;&gt;
+        &lt;label for=&quot;pg-page&quot;&gt;Page&lt;/label&gt;
+        &lt;input class=&quot;cb-input cb-input--sm&quot; id=&quot;pg-page&quot; name=&quot;page&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;25&quot; value=&quot;7&quot;&gt;
+        &lt;span&gt;of 25&lt;/span&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;submit&quot;&gt;Go&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/nav&gt;
+  &lt;/footer&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="pagination-spaced">Separate keys</h3>
+        <p class="docs-text">On the first page the previous arrow has no <code>href</code> and is disabled.</p>
+        <div class="docs-demo">
+          <nav class="cb-pagination cb-pagination--spaced" aria-label="Users pages">
+            <p class="cb-pagination__summary">1–50 of 1 248</p>
+            <div class="cb-pagination__pages">
+              <a class="cb-btn cb-btn--sm" rel="prev" aria-disabled="true" aria-label="Previous page">‹</a>
+              <a class="cb-btn cb-btn--sm" href="#pagination" aria-current="page" aria-label="Page 1">1</a>
+              <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 2">2</a>
+              <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 3">3</a>
+              <span class="cb-pagination__gap" aria-hidden="true">…</span>
+              <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 25">25</a>
+              <a class="cb-btn cb-btn--sm" href="#pagination" rel="next" aria-label="Next page">›</a>
+            </div>
+          </nav>
+        </div>
+        <pre class="docs-snippet"><code>&lt;nav class=&quot;cb-pagination cb-pagination--spaced&quot; aria-label=&quot;Users pages&quot;&gt;
+  &lt;p class=&quot;cb-pagination__summary&quot;&gt;1–50 of 1 248&lt;/p&gt;
+  &lt;div class=&quot;cb-pagination__pages&quot;&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; rel=&quot;prev&quot; aria-disabled=&quot;true&quot; aria-label=&quot;Previous page&quot;&gt;‹&lt;/a&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-current=&quot;page&quot; aria-label=&quot;Page 1&quot;&gt;1&lt;/a&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 2&quot;&gt;2&lt;/a&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 3&quot;&gt;3&lt;/a&gt;
+    &lt;span class=&quot;cb-pagination__gap&quot; aria-hidden=&quot;true&quot;&gt;…&lt;/span&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 25&quot;&gt;25&lt;/a&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;next&quot; aria-label=&quot;Next page&quot;&gt;›&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="pagination-cursor">Cursor</h3>
+        <p class="docs-text">For logs and cursor-based APIs without a total: only newer and older.</p>
+        <div class="docs-demo">
+          <nav class="cb-pagination" aria-label="Audit log pages">
+            <p class="cb-pagination__summary">50 events from 10:42:07</p>
+            <div class="cb-pagination__pages">
+              <a class="cb-btn cb-btn--sm" href="#pagination" rel="prev">‹ Newer</a>
+              <a class="cb-btn cb-btn--sm" href="#pagination" rel="next">Older ›</a>
+            </div>
+          </nav>
+        </div>
+        <pre class="docs-snippet"><code>&lt;nav class=&quot;cb-pagination&quot; aria-label=&quot;Audit log pages&quot;&gt;
+  &lt;p class=&quot;cb-pagination__summary&quot;&gt;50 events from 10:42:07&lt;/p&gt;
+  &lt;div class=&quot;cb-pagination__pages&quot;&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;prev&quot;&gt;‹ Newer&lt;/a&gt;
+    &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;next&quot;&gt;Older ›&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="pagination-narrow">Narrow</h3>
+        <p class="docs-text">Below 30rem of its own width the strip keeps the arrows and the current page, and
+          the summary takes its own line.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <div>
+              <nav class="cb-pagination" aria-label="Peers pages">
+                <p class="cb-pagination__summary">301–350 of 1 248</p>
+                <div class="cb-pagination__pages">
+                  <a class="cb-btn cb-btn--sm" href="#pagination" rel="prev" aria-label="Previous page">‹</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 1">1</a>
+                  <span class="cb-pagination__gap" aria-hidden="true">…</span>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 6">6</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-current="page" aria-label="Page 7">7</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 8">8</a>
+                  <span class="cb-pagination__gap" aria-hidden="true">…</span>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-label="Page 25">25</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" rel="next" aria-label="Next page">›</a>
+                </div>
+                <div class="cb-pagination__sizes" role="group" aria-label="Rows per page">
+                  <a class="cb-btn cb-btn--sm" href="#pagination">25</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination" aria-current="true">50</a>
+                  <a class="cb-btn cb-btn--sm" href="#pagination">100</a>
+                </div>
+                <form class="cb-pagination__jump" method="get" action="#pagination">
+                  <label for="pn-page">Page</label>
+                  <input class="cb-input cb-input--sm" id="pn-page" name="page" type="number" min="1" max="25" value="7">
+                  <span>of 25</span>
+                  <button class="cb-btn cb-btn--sm" type="submit">Go</button>
+                </form>
+              </nav>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;div&gt;
+    &lt;nav class=&quot;cb-pagination&quot; aria-label=&quot;Peers pages&quot;&gt;
+      &lt;p class=&quot;cb-pagination__summary&quot;&gt;301–350 of 1 248&lt;/p&gt;
+      &lt;div class=&quot;cb-pagination__pages&quot;&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;prev&quot; aria-label=&quot;Previous page&quot;&gt;‹&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 1&quot;&gt;1&lt;/a&gt;
+        &lt;span class=&quot;cb-pagination__gap&quot; aria-hidden=&quot;true&quot;&gt;…&lt;/span&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 6&quot;&gt;6&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-current=&quot;page&quot; aria-label=&quot;Page 7&quot;&gt;7&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 8&quot;&gt;8&lt;/a&gt;
+        &lt;span class=&quot;cb-pagination__gap&quot; aria-hidden=&quot;true&quot;&gt;…&lt;/span&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-label=&quot;Page 25&quot;&gt;25&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; rel=&quot;next&quot; aria-label=&quot;Next page&quot;&gt;›&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-pagination__sizes&quot; role=&quot;group&quot; aria-label=&quot;Rows per page&quot;&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot;&gt;25&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot; aria-current=&quot;true&quot;&gt;50&lt;/a&gt;
+        &lt;a class=&quot;cb-btn cb-btn--sm&quot; href=&quot;#pagination&quot;&gt;100&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;form class=&quot;cb-pagination__jump&quot; method=&quot;get&quot; action=&quot;#pagination&quot;&gt;
+        &lt;label for=&quot;pn-page&quot;&gt;Page&lt;/label&gt;
+        &lt;input class=&quot;cb-input cb-input--sm&quot; id=&quot;pn-page&quot; name=&quot;page&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;25&quot; value=&quot;7&quot;&gt;
+        &lt;span&gt;of 25&lt;/span&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;submit&quot;&gt;Go&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="pagination-notes">Notes</h3>
+        <ul class="docs-list">
+          <li>Label the <code>&lt;nav&gt;</code>. Mark the current page with <code>aria-current="page"</code> and
+            the active size with <code>aria-current="true"</code>.</li>
+          <li>Keep <code>rel="prev"</code> and <code>rel="next"</code> on the arrows, with an
+            <code>aria-label</code>; the narrow layout keeps them by that attribute.</li>
+          <li>With HTMX, <code>hx-boost="true"</code> on the nav turns every key into a partial swap.</li>
+        </ul>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-pagination</code></th><td><code>&lt;nav&gt;</code></td><td>Wrapping row; collapses below 30rem of its own width</td></tr>
+              <tr><th scope="row"><code>.cb-pagination__summary</code></th><td><code>&lt;p&gt;</code></td><td>Muted range, tabular figures; pushes the controls to the end</td></tr>
+              <tr><th scope="row"><code>.cb-pagination__pages</code></th><td><code>&lt;div&gt;</code></td><td>Attached strip of <code>.cb-btn--sm</code> link keys</td></tr>
+              <tr><th scope="row"><code>.cb-pagination__sizes</code></th><td><code>&lt;div role="group"&gt;</code></td><td>The same strip for rows per page; never collapses</td></tr>
+              <tr><th scope="row"><code>.cb-pagination__gap</code></th><td><code>&lt;span aria-hidden="true"&gt;</code></td><td>Skipped pages: a flat, key-high cell</td></tr>
+              <tr><th scope="row"><code>.cb-pagination__jump</code></th><td><code>&lt;form method="get"&gt;</code></td><td>Page number field and Go</td></tr>
+              <tr><th scope="row"><code>.cb-pagination--spaced</code></th><td>Nav</td><td>Keys apart, 4px gaps</td></tr>
+              <tr><th scope="row"><code>aria-current</code></th><td>Key</td><td>Current page or size, sunk</td></tr>
+              <tr><th scope="row"><code>aria-disabled="true"</code> without <code>href</code></th><td>Arrow</td><td>First or last page: flat and out of the tab order</td></tr>
+              <tr><th scope="row"><code>rel="prev"</code>, <code>rel="next"</code></th><td>Arrow</td><td>Kept when the strip collapses</td></tr>
             </tbody>
           </table>
         </div>
