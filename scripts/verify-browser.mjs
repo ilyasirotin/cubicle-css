@@ -8,7 +8,7 @@
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
-//                 alerts-<width>.png.
+//                 alerts-<width>.png and tabs-<width>.png.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { chromium } from 'playwright';
@@ -143,6 +143,8 @@ const PAIRS = [
   // Alert bodies (10% tone tint) and links in a danger alert
   ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].map((c) => ['--cb-text-main', `color-mix(in srgb, var(${c}) 10%, var(--cb-bg-surface))`, 4.5]),
   ['--cb-accent', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-surface))', 4.5],
+  // Idle tabs (muted ink on the darker tab tint)
+  ['--cb-text-muted', 'color-mix(in srgb, var(--cb-bg-header) 60%, var(--cb-bg-surface))', 4.5],
 
   // Non-text structural & focus contrast (>= 3.0)
   ['--cb-border-strong', '--cb-bg-surface', 3],
@@ -259,7 +261,7 @@ const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
 check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
 
 // 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
-//    table select-all, alert dismiss, the plain-HTTP copy fallback, and hiding of script-only controls
+//    table select-all, alert dismiss, ARIA tabs, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
 const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss]';
@@ -362,6 +364,37 @@ if (await page.locator(ACTIONS).count()) {
       check(r.hidden && r.ok, `dismiss #${id} hides the alert and moves focus on`, `hidden ${r.hidden}, focus ${r.focus}`);
     }
 
+    // ARIA tabs: a click selects, arrows (by orientation), Home and End move focus and
+    // selection, wrap and skip disabled tabs; exactly one tab and one panel are live.
+    const lists = await p.$$eval('[data-cb-tabs] [role="tablist"]', (ls) => ls.map((l, i) => { l.dataset.vbList = i; return { i, vertical: l.getAttribute('aria-orientation') === 'vertical' }; }));
+    for (const { i, vertical } of lists) {
+      const state = () => p.$eval(`[data-vb-list="${i}"]`, (l) => {
+        const tabs = [...l.querySelectorAll('[role="tab"]')];
+        const on = tabs.filter((t) => t.getAttribute('aria-selected') === 'true');
+        const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')));
+        return { on: on.map((t) => t.id).join(), roving: tabs.filter((t) => t.tabIndex === 0).map((t) => t.id).join(),
+          shown: panels.filter((x) => x && !x.hidden && getComputedStyle(x).display !== 'none').map((x) => x.id).join(),
+          focus: document.activeElement?.id ?? '', enabled: tabs.filter((t) => t.getAttribute('aria-disabled') !== 'true').map((t) => t.id),
+          panelOf: Object.fromEntries(tabs.map((t) => [t.id, t.getAttribute('aria-controls')])) };
+      });
+      const first = await state();
+      const consistent = (st, id) => st.on === id && st.roving === id && st.shown === st.panelOf[id];
+      const second = first.enabled[1];
+      await p.locator(`#${second}`).scrollIntoViewIfNeeded(); await p.locator(`#${second}`).click();
+      const clicked = await state();
+      const [next, prev] = vertical ? ['ArrowDown', 'ArrowUp'] : ['ArrowRight', 'ArrowLeft'];
+      const trail = [];
+      for (const key of ['End', next, 'Home', prev]) {
+        await p.keyboard.press(key); const st = await state();
+        trail.push(`${key}:${st.focus === st.on && consistent(st, st.on) ? st.on : 'BROKEN ' + JSON.stringify(st)}`);
+      }
+      const e = first.enabled;
+      const want = [e.at(-1), e[0], e[0], e.at(-1)];
+      const ok = consistent(clicked, second) && trail.every((t, k) => t.endsWith(`:${want[k]}`));
+      check(ok, `tabs ${i + 1}${vertical ? ' (vertical)' : ''}: click, ${next}/${prev}, Home and End select one tab and its panel`,
+        `click ${clicked.on}; ${trail.join(', ')}`);
+    }
+
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
@@ -384,6 +417,13 @@ if (await page.locator(ACTIONS).count()) {
     return { hidden: buttons.every((b) => getComputedStyle(b).display === 'none'), visible: targets.every((t) => t && getComputedStyle(t).display !== 'none') };
   }, ACTIONS);
   check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
+  const t = await pn.evaluate(() => {
+    const sets = [...document.querySelectorAll('[data-cb-tabs]')];
+    return { sets: sets.length, listsHidden: sets.every((s) => [...s.querySelectorAll('[role="tablist"]')].every((l) => getComputedStyle(l).display === 'none')),
+      panelsShown: sets.every((s) => [...s.querySelectorAll('[role="tabpanel"]')].every((x) => getComputedStyle(x).display !== 'none')),
+      headings: sets.every((s) => [...s.querySelectorAll('.cb-tabs__heading')].every((h) => getComputedStyle(h).display !== 'none')) };
+  });
+  if (t.sets) check(t.listsHidden && t.panelsShown && t.headings, 'without JavaScript, ARIA tab sets show every panel under its heading', JSON.stringify(t));
   await noJs.close();
 }
 
@@ -547,6 +587,50 @@ if (await page.locator('.docs-demo .cb-alert').count()) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${shots}/alerts-${width}.png` });
+  }
+}
+
+// 13. Tabs: the selected tab takes its panel's colour and hides the line under it (one
+//     sheet), long link lists scroll inside themselves at 360px, the tab chosen with End
+//     stays in view, and vertical lists turn horizontal below 30rem.
+if (await page.locator('.docs-demo .cb-tabs').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const merged = await page.$$eval('.docs-demo .cb-tabs', (sets) => sets.map((set, i) => {
+    const tab = set.querySelector('.cb-tabs__tab:is([aria-selected="true"], [aria-current="page"])');
+    const panel = set.querySelector('.cb-tabs__panel:not([hidden])');
+    const surface = (el) => { for (let n = el; n; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (c !== 'rgba(0, 0, 0, 0)') return c; } return ''; };
+    const vertical = getComputedStyle(tab.parentElement).flexDirection === 'column';
+    const edge = getComputedStyle(tab)[vertical ? 'borderRightColor' : 'borderBottomColor'];
+    return { i, bg: getComputedStyle(tab).backgroundColor, panel: surface(panel), edge, vertical };
+  }));
+  for (const m of merged) {
+    check(m.bg === m.panel && m.edge === m.bg, `tab set ${m.i + 1}: selected tab and panel form one sheet${m.vertical ? ' (vertical)' : ''}`,
+      `tab ${m.bg}, panel ${m.panel}, ${m.vertical ? 'end' : 'bottom'} edge ${m.edge}`);
+  }
+
+  await page.setViewportSize({ width: 360, height: 900 });
+  const narrow = await page.evaluate(() => {
+    const lists = [...document.querySelectorAll('.docs-demo .cb-tabs__list')];
+    const long = lists.find((l) => l.scrollWidth > l.clientWidth);
+    const vertical = document.querySelector('.docs-demo .cb-tabs--vertical > .cb-tabs__list');
+    return { scrolls: Boolean(long), overflow: document.documentElement.scrollWidth > innerWidth,
+      verticalRow: vertical ? getComputedStyle(vertical).flexDirection : 'none' };
+  });
+  check(narrow.scrolls && !narrow.overflow, 'tab lists scroll inside themselves at 360px, page does not', JSON.stringify(narrow));
+  const scrolled = page.locator('.docs-demo [data-cb-tabs] [role="tablist"]').first();
+  await scrolled.locator('[aria-selected="true"]').focus(); await page.keyboard.press('End');
+  const inView = await scrolled.evaluate((l) => { const t = l.querySelector('[aria-selected="true"]').getBoundingClientRect(); const b = l.getBoundingClientRect(); return t.left >= b.left - 1 && t.right <= b.right + 1; });
+  await page.keyboard.press('Home');
+  check(inView, 'the tab selected with End is scrolled into view');
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const wide = await page.$eval('.docs-demo .cb-tabs--vertical > .cb-tabs__list', (l) => getComputedStyle(l).flexDirection).catch(() => 'none');
+  check(wide === 'column' && narrow.verticalRow === 'row', 'vertical tabs stand at 1360px and lie flat at 360px', `${wide} / ${narrow.verticalRow}`);
+
+  const section = page.locator('.docs-section:has(.docs-demo .cb-tabs)').first();
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await section.screenshot({ path: `${shots}/tabs-${width}.png` });
   }
 }
 
