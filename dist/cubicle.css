@@ -706,13 +706,16 @@
     padding-inline-start: 0;
   }
 
+  /* The key sits 2px inside the well; a one-line label fits down to the
+     18px compact small field. */
   .cb-input::file-selector-button {
-    block-size: calc(var(--_h) - 0.375rem);
+    block-size: calc(var(--_h) - 0.25rem);
     margin: 0 var(--cb-space-2) 0 0.125rem;
     padding: 0 var(--cb-space-2);
     font: inherit;
     font-size: var(--cb-text-sm);
     font-weight: 500;
+    line-height: 1;
     color: var(--cb-text-main);
     background: var(--cb-grad-btn), var(--cb-bg-btn);
     border: 1px solid;
@@ -730,6 +733,11 @@
     background: var(--cb-bg-btn);
     box-shadow: var(--cb-shadow-pressed);
     translate: 0 1px;
+  }
+
+  /* Small text, as on .cb-btn--sm. */
+  .cb-input--sm::file-selector-button {
+    font-size: var(--cb-text-xs);
   }
 
   .cb-input:disabled::file-selector-button {

@@ -1435,6 +1435,16 @@ if (snippets) {
     check(off.length === 0, `native fields take the control height (${d.density})`,
       `${d.sizes.map((s) => `${s.size} ${s.probe}px`).join(', ')}${off.length ? `; off: ${off.join(', ')}` : ''}`);
   }
+  // The file key is an engine pseudo-element; its computed box is readable in every engine.
+  const keys = await pf.$$eval('[data-vb-density] input[type="file"]', (fs) => fs.map((f) => {
+    const k = getComputedStyle(f, '::file-selector-button');
+    const line = k.lineHeight === 'normal' ? parseFloat(k.fontSize) * 1.2 : parseFloat(k.lineHeight);
+    const inner = parseFloat(k.blockSize) - parseFloat(k.borderTopWidth) - parseFloat(k.borderBottomWidth);
+    return { name: `${f.closest('[data-vb-density]').getAttribute('data-vb-density')} ${f.getAttribute('aria-label')}`, line, inner };
+  }));
+  const cut = keys.filter((k) => k.line > k.inner + 0.01);
+  check(keys.length === 6 && cut.length === 0, 'the file key label fits its key in every size and density',
+    cut.length ? cut.map((k) => `${k.name}: ${k.line}px line in ${k.inner}px`).join(', ') : `${keys.length} keys`);
   // <select> ignores readonly, so it must not look locked; inputs keep the recessed mono look.
   const readonly = await pf.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
