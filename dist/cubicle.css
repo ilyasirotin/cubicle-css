@@ -659,6 +659,12 @@
     }
   }
 
+  /* Single-line fields hold the control height exactly: date, time and file
+     inputs carry engine inner boxes that would push a min-height past it. */
+  input.cb-input {
+    block-size: var(--_h);
+  }
+
   textarea.cb-input {
     min-block-size: 5lh;
     padding-block: var(--cb-space-1);

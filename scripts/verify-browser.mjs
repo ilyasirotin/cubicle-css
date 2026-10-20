@@ -1430,6 +1430,11 @@ if (snippets) {
   const proportional = [...new Set(everyField.filter((f) => !f.num.includes('tabular-nums')).map((f) => f.name))];
   check(proportional.length === 0, 'native fields use tabular figures',
     proportional.length ? `proportional: ${proportional.join(', ')}` : `${everyField.length} fields`);
+  for (const d of matrix) {
+    const off = d.sizes.flatMap((s) => s.fields.filter((f) => Math.abs(f.h - s.probe) >= 0.5).map((f) => `${f.name} ${f.h}`));
+    check(off.length === 0, `native fields take the control height (${d.density})`,
+      `${d.sizes.map((s) => `${s.size} ${s.probe}px`).join(', ')}${off.length ? `; off: ${off.join(', ')}` : ''}`);
+  }
   // <select> ignores readonly, so it must not look locked; inputs keep the recessed mono look.
   const readonly = await pf.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
