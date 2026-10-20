@@ -634,8 +634,10 @@
       --_border: var(--cb-border-strong);
     }
 
-    /* Read-only values are data to copy, not to edit: recessed and monospace. */
-    &[readonly] {
+    /* Read-only values are data to copy, not to edit: recessed and monospace.
+       <select> ignores readonly and stays editable, so it never looks locked;
+       :where() keeps the specificity, so invalid and disabled still win. */
+    &[readonly]:where(input, textarea) {
       --_bg: var(--cb-bg-recessed);
       font-family: var(--cb-font-mono);
       font-variant-ligatures: none;

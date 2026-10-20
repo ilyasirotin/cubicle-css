@@ -1430,6 +1430,16 @@ if (snippets) {
   const proportional = [...new Set(everyField.filter((f) => !f.num.includes('tabular-nums')).map((f) => f.name))];
   check(proportional.length === 0, 'native fields use tabular figures',
     proportional.length ? `proportional: ${proportional.join(', ')}` : `${everyField.length} fields`);
+  // <select> ignores readonly, so it must not look locked; inputs keep the recessed mono look.
+  const readonly = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-bg-raised)'; const raised = getComputedStyle(probe).color;
+    probe.style.color = 'var(--cb-bg-recessed)'; const recessed = getComputedStyle(probe).color; probe.remove();
+    const look = (sel) => { const cs = getComputedStyle(document.querySelector(sel)); return { bg: cs.backgroundColor, mono: /mono/i.test(cs.fontFamily.split(',')[0]) }; };
+    return { raised, recessed, select: look('[aria-label="select readonly"]'), input: look('[aria-label="input readonly"]') };
+  });
+  check(readonly.select.bg === readonly.raised && !readonly.select.mono && readonly.input.bg === readonly.recessed && readonly.input.mono,
+    'the readonly look stays off <select>, which ignores readonly', JSON.stringify({ select: readonly.select, input: readonly.input }));
   const forms = pf.locator('[data-vb-forms]');
   await forms.scrollIntoViewIfNeeded();
   await forms.screenshot({ path: `${shots}/forms-matrix.png` });

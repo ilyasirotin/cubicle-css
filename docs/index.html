@@ -1284,7 +1284,7 @@
               <tr><th scope="row"><code>.cb-field__label</code> / <code>__hint</code> / <code>__error</code></th><td>Field parts</td><td>Error shows only while a control in the field is invalid</td></tr>
               <tr><th scope="row"><code>.cb-input-group</code> / <code>__addon</code></th><td>Wrapper / text</td><td>Attached addons, fields and buttons</td></tr>
               <tr><th scope="row"><code>.cb-range</code></th><td>Range <code>&lt;input&gt;</code></td><td>Recessed track, raised thumb</td></tr>
-              <tr><th scope="row"><code>readonly</code></th><td>Field</td><td>Recessed monospace; focusable and submitted</td></tr>
+              <tr><th scope="row"><code>readonly</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed monospace; focusable and submitted. <code>&lt;select&gt;</code> has no read-only state: use <code>disabled</code> and send the value in a hidden input</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Any control</td><td>Flat and muted; skipped by Tab, not submitted</td></tr>
               <tr><th scope="row"><code>required</code></th><td>Any control</td><td>Asterisk after the field label</td></tr>
               <tr><th scope="row"><code>aria-invalid="true"</code></th><td>Any control</td><td>Crimson border and tint; error shown (server validation)</td></tr>
