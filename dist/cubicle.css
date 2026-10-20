@@ -248,6 +248,15 @@
     scroll-margin: var(--cb-space-2);
   }
 
+  /* WebKit never matches :focus-visible on a date or time field, even from
+     the keyboard. Text-entry fields match it on any focus in the other
+     engines, so :focus here draws the same ring in all three. */
+  input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"]):focus {
+    outline: var(--cb-focus-ring);
+    outline-offset: var(--cb-focus-offset);
+    scroll-margin: var(--cb-space-2);
+  }
+
   /* The same ring drawn inside scroll containers and the keys of a scrolling
      tab list, where an outer ring would be clipped by the scroll edge. */
   :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab):focus-visible {

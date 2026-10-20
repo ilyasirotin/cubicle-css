@@ -55,6 +55,10 @@ const expose = (pg, selector) => pg.evaluate((sel) => {
   }
 }, selector);
 
+// Date and time fields: Tab walks their segments, and WebKit never matches :focus-visible on them
+// (the stylesheet draws the same ring on :focus there), so focus checks accept :focus.
+const SEGMENTED = 'input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"])';
+
 const ENGINE_LIMITS = [
   { engine: 'firefox', check: /^meter ruler:/, reason: 'Firefox paints the meter track on the element itself, so there is no ruler strip for ticks and marks' },
   { engine: 'webkit', check: /reaches the clipboard|falls back when the async clipboard/, reason: 'WebKit refuses clipboard reads from automation, so the copied text cannot be compared' },
@@ -228,10 +232,10 @@ for (const el of controls7) {
 
   await el.focus(); await page.keyboard.press(SHIFT_TAB); await page.keyboard.press(TAB);
   // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
-  const ring = await el.evaluate((n) => {
+  const ring = await el.evaluate((n, segmented) => {
     const f = n.type === 'radio' && document.activeElement?.name === n.name ? document.activeElement : n;
-    const cs = getComputedStyle(f); return f.matches(':focus-visible') && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
-  });
+    const cs = getComputedStyle(f); return (f.matches(':focus-visible') || (f.matches(segmented) && f.matches(':focus'))) && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
+  }, SEGMENTED);
   await shot('focus');
   await el.evaluate((n) => n.blur());
 
@@ -1215,7 +1219,6 @@ if (await page.locator('.docs-demo [data-cb-density]').count()) {
 //     those stops are listed, not failed. A fully shown control with a cut ring fails.
 //     Date and time fields take several Tab presses (one per segment) while focus stays on the
 //     same element, so a repeat of such a field walks on instead of ending the audit.
-const SEGMENTED = 'input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"])';
 for (const width of [1360, 360]) {
   const pa = await context.newPage(); await applyOverrides(pa);
   await pa.setViewportSize({ width, height: 900 }); await pa.goto(pathToFileURL(page_path).href);
@@ -1234,7 +1237,7 @@ for (const width of [1360, 360]) {
       const r = target.getBoundingClientRect();
       const ring = { l: r.left - grow, t: r.top - grow, r: r.right + grow, b: r.bottom + grow };
       const name = `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''} "${(el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 24)}"`;
-      const visible = el.matches(':focus-visible') && cs.outlineStyle !== 'none' && w >= 2;
+      const visible = (el.matches(':focus-visible') || (el.matches(segmented) && el.matches(':focus'))) && cs.outlineStyle !== 'none' && w >= 2;
       let clip = ''; let partial = '';
       // The ring must fit wherever the control itself is fully shown. A control partly scrolled
       // out (of a scroller or of the viewport) is reported; one hidden entirely, or a whole control
@@ -1497,6 +1500,24 @@ if (snippets) {
   await search.focus(); await pf.keyboard.press('Escape');
   const left = await search.inputValue();
   check(left === '', 'Escape clears a search field', JSON.stringify(left));
+  // Date and time fields reached with Tab show the standard ring (walking the segments of the
+  // fields before them).
+  const unringed = [];
+  for (const type of ['date', 'time', 'datetime-local', 'month', 'week']) {
+    await pf.locator('[data-vb-density="default"] [data-vb-size="md"] [aria-label="number"]').focus();
+    let ring = null;
+    for (let i = 0; i < 24 && ring === null; i++) {
+      await pf.keyboard.press(TAB);
+      ring = await pf.evaluate(([t, seg]) => {
+        const el = document.activeElement;
+        if (el?.getAttribute('aria-label') !== t) return null;
+        const cs = getComputedStyle(el);
+        return (el.matches(':focus-visible') || (el.matches(seg) && el.matches(':focus'))) && cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) >= 2;
+      }, [type, SEGMENTED]);
+    }
+    if (!ring) unringed.push(`${type}${ring === null ? ' (not reached)' : ''}`);
+  }
+  check(unringed.length === 0, 'date and time fields show the focus ring when tabbed to', unringed.join(', ') || '5 types');
   // <select> ignores readonly, so it must not look locked; inputs keep the recessed mono look.
   const readonly = await pf.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
