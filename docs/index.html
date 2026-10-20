@@ -969,6 +969,116 @@
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
+        <h3 class="docs-h3" id="fields-types">Numbers, addresses and search</h3>
+        <p class="docs-text">Native input types bring the right on-screen keyboard, built-in checks and
+          autofill, in the same recessed well. Number and search fields drop the engines' spin and clear
+          keys: the arrow keys step a number, and Escape clears a search field (except in Safari). A
+          filter the server applies offers a plain “Clear” link next to it.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-port">Listen port</label>
+              <input class="cb-input" id="t-port" type="number" required min="1" max="65535" value="51820">
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-vlan">VLAN ID</label>
+              <input class="cb-input" id="t-vlan" type="number" min="1" max="4094" value="4095" aria-invalid="true" aria-describedby="t-vlan-error">
+              <p class="cb-field__error" id="t-vlan-error">VLAN IDs run from 1 to 4094.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-ttl">Record TTL</label>
+              <div class="cb-input-group">
+                <input class="cb-input" id="t-ttl" type="number" min="60" step="60" value="300" aria-describedby="t-ttl-hint">
+                <span class="cb-input-group__addon">s</span>
+              </div>
+              <p class="cb-field__hint" id="t-ttl-hint">In steps of 60 seconds.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-uid">Assigned UID</label>
+              <input class="cb-input" id="t-uid" type="number" readonly value="40213">
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-seats">Licence seats</label>
+              <input class="cb-input" id="t-seats" type="number" disabled value="250" aria-describedby="t-seats-hint">
+              <p class="cb-field__hint" id="t-seats-hint">Set by the licence file.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-issuer">OIDC issuer</label>
+              <input class="cb-input" id="t-issuer" type="url" required value="https://login.corp.example.net/realms/ops">
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-phone">On-call phone</label>
+              <input class="cb-input" id="t-phone" type="tel" autocomplete="tel" placeholder="+1 555 0100">
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-region">Region</label>
+              <input class="cb-input" id="t-region" type="text" list="t-regions" value="eu-central-1" aria-describedby="t-region-hint">
+              <datalist id="t-regions">
+                <option value="eu-central-1"></option>
+                <option value="eu-west-2"></option>
+                <option value="us-east-1"></option>
+                <option value="ap-south-1"></option>
+              </datalist>
+              <p class="cb-field__hint" id="t-region-hint">Suggestions from a datalist; any value is accepted.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="t-filter">Filter peers</label>
+              <input class="cb-input" id="t-filter" type="search" value="laptop">
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-port&quot;&gt;Listen port&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-port&quot; type=&quot;number&quot; required min=&quot;1&quot; max=&quot;65535&quot; value=&quot;51820&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-vlan&quot;&gt;VLAN ID&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-vlan&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;4094&quot; value=&quot;4095&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;t-vlan-error&quot;&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;t-vlan-error&quot;&gt;VLAN IDs run from 1 to 4094.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-ttl&quot;&gt;Record TTL&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;t-ttl&quot; type=&quot;number&quot; min=&quot;60&quot; step=&quot;60&quot; value=&quot;300&quot; aria-describedby=&quot;t-ttl-hint&quot;&gt;
+      &lt;span class=&quot;cb-input-group__addon&quot;&gt;s&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;t-ttl-hint&quot;&gt;In steps of 60 seconds.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-uid&quot;&gt;Assigned UID&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-uid&quot; type=&quot;number&quot; readonly value=&quot;40213&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-seats&quot;&gt;Licence seats&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-seats&quot; type=&quot;number&quot; disabled value=&quot;250&quot; aria-describedby=&quot;t-seats-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;t-seats-hint&quot;&gt;Set by the licence file.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-issuer&quot;&gt;OIDC issuer&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-issuer&quot; type=&quot;url&quot; required value=&quot;https://login.corp.example.net/realms/ops&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-phone&quot;&gt;On-call phone&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-phone&quot; type=&quot;tel&quot; autocomplete=&quot;tel&quot; placeholder=&quot;+1 555 0100&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-region&quot;&gt;Region&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-region&quot; type=&quot;text&quot; list=&quot;t-regions&quot; value=&quot;eu-central-1&quot; aria-describedby=&quot;t-region-hint&quot;&gt;
+    &lt;datalist id=&quot;t-regions&quot;&gt;
+      &lt;option value=&quot;eu-central-1&quot;&gt;&lt;/option&gt;
+      &lt;option value=&quot;eu-west-2&quot;&gt;&lt;/option&gt;
+      &lt;option value=&quot;us-east-1&quot;&gt;&lt;/option&gt;
+      &lt;option value=&quot;ap-south-1&quot;&gt;&lt;/option&gt;
+    &lt;/datalist&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;t-region-hint&quot;&gt;Suggestions from a datalist; any value is accepted.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;t-filter&quot;&gt;Filter peers&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;t-filter&quot; type=&quot;search&quot; value=&quot;laptop&quot;&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
         <h3 class="docs-h3" id="fields-select">Select &amp; textarea</h3>
         <p class="docs-text">A list box (<code>multiple</code> or <code>size</code>) assigns several values
           without script, such as roles. Its checked options take the selected tint; while it has focus
@@ -1334,6 +1444,8 @@
               <tr><th scope="row"><code>multiple</code> / <code>size</code></th><td><code>.cb-select</code></td><td>List box without a chevron; checked options take the selected tint (with grey text when disabled)</td></tr>
               <tr><th scope="row"><code>type="number"</code></th><td><code>.cb-input</code></td><td>No engine spin keys; the arrow keys step the value within <code>min</code>, <code>max</code> and <code>step</code></td></tr>
               <tr><th scope="row"><code>type="search"</code></th><td><code>.cb-input</code></td><td>No engine clear key; Escape clears the field where the browser supports it</td></tr>
+              <tr><th scope="row"><code>type="url"</code>, <code>"tel"</code>, <code>"email"</code></th><td><code>.cb-input</code></td><td>The matching on-screen keyboard and native checks; the same well as text</td></tr>
+              <tr><th scope="row"><code>list</code> + <code>&lt;datalist&gt;</code></th><td><code>.cb-input</code></td><td>Native suggestions under the field; any value is still accepted</td></tr>
               <tr><th scope="row"><code>.cb-input--sm</code> / <code>.cb-select--sm</code></th><td>Field</td><td>20px, 12px text; pairs with <code>.cb-btn--sm</code></td></tr>
               <tr><th scope="row"><code>.cb-check</code></th><td>Checkbox or radio <code>&lt;input&gt;</code></td><td>Recessed box (radio round); navy fill when checked</td></tr>
               <tr><th scope="row"><code>.cb-choice</code></th><td><code>&lt;label&gt;</code></td><td>Aligns a check with its text; mutes it when disabled</td></tr>
