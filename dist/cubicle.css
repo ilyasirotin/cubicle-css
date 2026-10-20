@@ -19,7 +19,8 @@
       4.5 Grid ............... .cb-grid container-relative columns
    5. Components
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
-      5.2 Form controls ...... .cb-input, .cb-select, .cb-check, .cb-choice,
+      5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key,
+                               hidden engine keys, .cb-check, .cb-choice,
                                .cb-field, .cb-input-group, .cb-range
       5.3 Fieldsets & panels . .cb-fieldset; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, shared disclosure
@@ -761,6 +762,29 @@
     box-shadow: none;
     translate: none;
     cursor: not-allowed;
+  }
+
+  /* Engine keys inside fields: number spin buttons and the search clear key
+     differ in every engine and show on a readonly field too. They are
+     hidden: arrow keys step a number, Escape clears a search where the engine
+     supports it. Firefox drops its spin buttons with the standard property;
+     Chromium and WebKit have no standard way, so these engine-specific
+     pseudo-elements are the only one (AGENTS.md section 6). Each sits in its
+     own rule: an engine drops a selector list it cannot parse whole. */
+  .cb-input[type="number"] {
+    appearance: textfield;
+  }
+
+  .cb-input::-webkit-inner-spin-button {
+    display: none;
+  }
+
+  .cb-input::-webkit-outer-spin-button {
+    display: none;
+  }
+
+  .cb-input::-webkit-search-cancel-button {
+    display: none;
   }
 
   /* Checkbox and radio: a small recessed well on the native input. The mark is

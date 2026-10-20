@@ -1332,6 +1332,8 @@
               <tr><th scope="row"><code>.cb-input</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed field, 26px, 14px text with tabular figures</td></tr>
               <tr><th scope="row"><code>.cb-select</code></th><td><code>&lt;select&gt;</code></td><td>Recessed field with a chevron</td></tr>
               <tr><th scope="row"><code>multiple</code> / <code>size</code></th><td><code>.cb-select</code></td><td>List box without a chevron; checked options take the selected tint (with grey text when disabled)</td></tr>
+              <tr><th scope="row"><code>type="number"</code></th><td><code>.cb-input</code></td><td>No engine spin keys; the arrow keys step the value within <code>min</code>, <code>max</code> and <code>step</code></td></tr>
+              <tr><th scope="row"><code>type="search"</code></th><td><code>.cb-input</code></td><td>No engine clear key; Escape clears the field where the browser supports it</td></tr>
               <tr><th scope="row"><code>.cb-input--sm</code> / <code>.cb-select--sm</code></th><td>Field</td><td>20px, 12px text; pairs with <code>.cb-btn--sm</code></td></tr>
               <tr><th scope="row"><code>.cb-check</code></th><td>Checkbox or radio <code>&lt;input&gt;</code></td><td>Recessed box (radio round); navy fill when checked</td></tr>
               <tr><th scope="row"><code>.cb-choice</code></th><td><code>&lt;label&gt;</code></td><td>Aligns a check with its text; mutes it when disabled</td></tr>
@@ -4482,7 +4484,7 @@
             <tbody>
               <tr><th scope="row">Chromium</th><td class="cb-table__num">156</td><td>None</td></tr>
               <tr><th scope="row">Firefox</th><td class="cb-table__num">157</td><td>No ruler strip under meters: ticks and threshold marks are not drawn</td></tr>
-              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds</td></tr>
+              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds; Escape does not clear a search field</td></tr>
             </tbody>
           </table>
         </div>

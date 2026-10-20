@@ -59,6 +59,7 @@ const ENGINE_LIMITS = [
   { engine: 'firefox', check: /^meter ruler:/, reason: 'Firefox paints the meter track on the element itself, so there is no ruler strip for ticks and marks' },
   { engine: 'webkit', check: /reaches the clipboard|falls back when the async clipboard/, reason: 'WebKit refuses clipboard reads from automation, so the copied text cannot be compared' },
   { engine: 'webkit', check: /^selected options in a multi-select/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
+  { engine: 'webkit', check: /^Escape clears a search field/, reason: 'WebKit does not clear a search field on Escape' },
 ];
 
 const results = [];
@@ -1466,6 +1467,31 @@ if (snippets) {
   }
   check(rows.every((r) => r.off < 8), 'selected options in a multi-select take the selected tint (enabled and disabled)',
     `${rows.map((r) => `${r.state} ${r.px.join(',')}`).join('; ')} vs ${want.join(',')}`);
+  // Engine keys (number spin buttons, the search clear key) show on hover or focus in some
+  // engines and always in others: hovered and focused, the band before the end padding holds no
+  // dark pixel. Escape is the remaining way to clear a search field.
+  const engineKeys = [];
+  for (const type of ['number', 'search']) {
+    const field = pf.locator(`[data-vb-density="default"] [data-vb-size="md"] [aria-label="${type}"]`);
+    await field.scrollIntoViewIfNeeded(); await field.hover(); await field.focus();
+    const geo = await field.evaluate((f) => { const cs = getComputedStyle(f); return { w: f.offsetWidth, h: f.offsetHeight, end: parseFloat(cs.borderRightWidth) + parseFloat(cs.paddingRight) }; });
+    const png = (await field.screenshot()).toString('base64');
+    const dark = await page.evaluate(async ([b64, g]) => {
+      const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+      const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height;
+      const ctx = cv.getContext('2d'); ctx.drawImage(img, 0, 0);
+      const sx = img.width / g.w; const x0 = Math.floor((g.w - g.end - 20) * sx); const x1 = Math.floor((g.w - g.end) * sx);
+      const d = ctx.getImageData(x0, Math.floor(3 * sx), x1 - x0, Math.floor((g.h - 6) * sx)).data;
+      let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i] + d[i + 1] + d[i + 2] < 600) n++;
+      return n;
+    }, [png, geo]);
+    engineKeys.push(`${type} ${dark}`);
+  }
+  check(engineKeys.every((k) => k.endsWith(' 0')), 'number and search fields show no engine keys', `dark pixels in the end band: ${engineKeys.join(', ')}`);
+  const search = pf.locator('[data-vb-density="default"] [data-vb-size="md"] [aria-label="search"]');
+  await search.focus(); await pf.keyboard.press('Escape');
+  const left = await search.inputValue();
+  check(left === '', 'Escape clears a search field', JSON.stringify(left));
   // <select> ignores readonly, so it must not look locked; inputs keep the recessed mono look.
   const readonly = await pf.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
