@@ -1213,15 +1213,18 @@ if (await page.locator('.docs-demo [data-cb-density]').count()) {
 //     partly visible control further on Tab, so a control may stay partly scrolled out of a
 //     container or the viewport (allowed by WCAG 2.4.11 as long as it is not hidden entirely);
 //     those stops are listed, not failed. A fully shown control with a cut ring fails.
+//     Date and time fields take several Tab presses (one per segment) while focus stays on the
+//     same element, so a repeat of such a field walks on instead of ending the audit.
+const SEGMENTED = 'input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"])';
 for (const width of [1360, 360]) {
   const pa = await context.newPage(); await applyOverrides(pa);
   await pa.setViewportSize({ width, height: 900 }); await pa.goto(pathToFileURL(page_path).href);
-  const seen = new Set(); const invisible = []; const clipped = []; const partly = []; let stops = 0; let trap = ''; let lastId = '';
+  const seen = new Set(); const invisible = []; const clipped = []; const partly = []; let stops = 0; let trap = ''; let lastId = ''; let segments = 0;
   for (let i = 0; i < 3000; i++) {
     await pa.keyboard.press(TAB);
     // Firefox and WebKit scroll to the focused control a frame later; measure after it.
     await pa.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
-    const stop = await pa.evaluate(() => {
+    const stop = await pa.evaluate((segmented) => {
       const el = document.activeElement;
       if (!el || el === document.body || el === document.documentElement) return null;
       if (!el.dataset.vbStop) el.dataset.vbStop = String(document.querySelectorAll('[data-vb-stop]').length);
@@ -1254,12 +1257,14 @@ for (const width of [1360, 360]) {
       }
       // A control taller or wider than the viewport cannot show its whole ring; judge the rest.
       if (ring.b - ring.t <= innerHeight && ring.r - ring.l <= innerWidth) inside({ l: 0, t: 0, r: innerWidth, b: innerHeight }, 'viewport', true);
-      return { id: el.dataset.vbStop, name, visible, clip, partial };
-    });
+      return { id: el.dataset.vbStop, name, visible, clip, partial, segmented: el.matches(segmented) };
+    }, SEGMENTED);
     if (!stop) break;
+    // The next segment of a date or time field (at most 8): keep walking.
+    if (stop.id === lastId && stop.segmented && segments < 8) { segments++; continue; }
     // Back at the first stop, or still on the last one (focus could not move on): the end.
     if (seen.has(stop.id)) { if (stop.id !== '0' && stop.id !== lastId) trap = stop.name; break; }
-    lastId = stop.id;
+    lastId = stop.id; segments = 0;
     seen.add(stop.id); stops++;
     if (!stop.visible) invisible.push(stop.name);
     if (stop.clip) clipped.push(`${stop.name} by ${stop.clip}`);
