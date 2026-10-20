@@ -61,8 +61,8 @@ The first release of Cubicle.
   visually hidden text and skip links. The `hidden` attribute always hides.
 - **`dist/cubicle.js`.** Optional progressive enhancement through `data-cb-*` attributes and
   delegated listeners: copy (with a plain-HTTP fallback), reveal, download, select-all, dismiss,
-  ARIA tabs, ARIA trees, meter marks and modal dialogs. Script-only controls stay hidden without
-  it.
+  ARIA tabs, ARIA trees, meter marks, modal dialogs and output readouts. Script-only controls stay
+  hidden without it.
 - **Catalogue and example.** `docs/index.html` shows every token and component in every state,
   with a copy-paste snippet identical to the live markup and a reference table. It also has a
   generated contrast table and a keyboard map. `docs/example.html` is a complete VPN console screen.

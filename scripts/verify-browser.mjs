@@ -448,6 +448,28 @@ if (await page.locator(ACTIONS).count()) {
       check(marks.changed && marks.inserted, 'meter marks follow a changed high and a meter inserted later', JSON.stringify(marks));
     }
 
+    // Readouts: an <output data-cb-output for> follows its control, also when both arrive later.
+    if (await p.locator('output[data-cb-output]').count()) {
+      const id = await p.locator('output[data-cb-output]').first().evaluate((o) => o.htmlFor[0]);
+      const read = (cid) => p.evaluate((i) => ({ control: document.getElementById(i).value,
+        output: document.querySelector(`output[data-cb-output][for~="${i}"]`).value }), cid);
+      const start = await read(id);
+      await expose(p, `#${id}`); await p.locator(`#${id}`).focus();
+      await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight');
+      const moved = await read(id);
+      check(moved.control !== start.control && moved.output === moved.control, 'an output readout follows its control', `${JSON.stringify(start)} -> ${JSON.stringify(moved)}`);
+      const later = await p.evaluate(async (i) => {
+        const field = document.getElementById(i).closest('.cb-field').cloneNode(true);
+        const control = field.querySelector(`#${i}`); const out = field.querySelector('output[data-cb-output]');
+        control.id = `${i}-later`; out.id = `${out.id}-later`; out.htmlFor.value = control.id;
+        document.getElementById(i).closest('.cb-field').after(field);
+        control.value = control.max; control.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise((r) => setTimeout(r, 0));
+        const got = { control: control.value, output: out.value }; field.remove(); return got;
+      }, id);
+      check(later.output === later.control, 'an output readout swapped in later follows its control', JSON.stringify(later));
+    }
+
     // Plain-HTTP pages have no navigator.clipboard: the hidden-buffer fallback must still copy.
     const copyId = (await ids(p, 'data-cb-copy'))[0];
     if (copyId) {
@@ -483,6 +505,8 @@ if (await page.locator(ACTIONS).count()) {
   if (g.groups) check(g.shown === g.groups, 'without JavaScript, ARIA trees show every branch', JSON.stringify(g));
   const unmarked = await pn.$$eval('meter[data-cb-marks]', (ms) => ms.filter((m) => m.style.getPropertyValue('--_low') || m.style.getPropertyValue('--_high')).length);
   check(unmarked === 0, 'without JavaScript, meters carry no marks', `${unmarked} marked`);
+  const outs = await pn.$$eval('output[data-cb-output]', (os) => os.map((o) => ({ out: o.textContent, control: document.getElementById(o.htmlFor[0])?.value, shown: getComputedStyle(o).display !== 'none' })));
+  if (outs.length) check(outs.every((o) => o.shown && o.out === o.control), 'without JavaScript, output readouts show the value they were served with', JSON.stringify(outs));
   await noJs.close();
 }
 

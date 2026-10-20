@@ -1492,7 +1492,7 @@
             <div class="cb-field">
               <label class="cb-field__label" for="f-timeout">Session timeout</label>
               <input class="cb-range" id="f-timeout" type="range" min="5" max="120" step="5" value="30" aria-describedby="f-timeout-hint">
-              <p class="cb-field__hint" id="f-timeout-hint">5–120 minutes; 30 selected.</p>
+              <p class="cb-field__hint" id="f-timeout-hint"><output class="cb-num" id="f-timeout-out" for="f-timeout" data-cb-output>30</output> minutes (5–120)</p>
             </div>
             <div class="cb-field">
               <label class="cb-field__label" for="f-idle">Idle lock (policy)</label>
@@ -1509,7 +1509,7 @@
   &lt;div class=&quot;cb-field&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-timeout&quot;&gt;Session timeout&lt;/label&gt;
     &lt;input class=&quot;cb-range&quot; id=&quot;f-timeout&quot; type=&quot;range&quot; min=&quot;5&quot; max=&quot;120&quot; step=&quot;5&quot; value=&quot;30&quot; aria-describedby=&quot;f-timeout-hint&quot;&gt;
-    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-timeout-hint&quot;&gt;5–120 minutes; 30 selected.&lt;/p&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-timeout-hint&quot;&gt;&lt;output class=&quot;cb-num&quot; id=&quot;f-timeout-out&quot; for=&quot;f-timeout&quot; data-cb-output&gt;30&lt;/output&gt; minutes (5–120)&lt;/p&gt;
   &lt;/div&gt;
   &lt;div class=&quot;cb-field&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-idle&quot;&gt;Idle lock (policy)&lt;/label&gt;
@@ -1538,6 +1538,7 @@
               <tr><th scope="row"><code>.cb-field__label</code> / <code>__hint</code> / <code>__error</code></th><td>Field parts</td><td>Error shows only while a control in the field is invalid</td></tr>
               <tr><th scope="row"><code>.cb-input-group</code> / <code>__addon</code></th><td>Wrapper / text</td><td>Attached addons, fields and buttons</td></tr>
               <tr><th scope="row"><code>.cb-range</code></th><td>Range <code>&lt;input&gt;</code></td><td>Recessed track, raised thumb</td></tr>
+              <tr><th scope="row"><code>data-cb-output</code></th><td><code>&lt;output for="id"&gt;</code></td><td>Shows the current value of its control (script); without it, the value the page was served with</td></tr>
               <tr><th scope="row"><code>readonly</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed monospace; focusable and submitted. <code>&lt;select&gt;</code> has no read-only state: use <code>disabled</code> and send the value in a hidden input</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Any control</td><td>Flat and muted; skipped by Tab, not submitted</td></tr>
               <tr><th scope="row"><code>required</code></th><td>Any control</td><td>Asterisk after the field label</td></tr>

@@ -91,6 +91,7 @@ id of the target element.
 | `data-cb-tree` | tree | Arrow keys, Home, End, Enter and Space walk, open and select tree items; fires `cb-toggle` |
 | `data-cb-marks` | `<meter>` | Marks `low` and `high` on the ruler |
 | `data-cb-modal="id"` | button | Opens the `<dialog>` as a modal |
+| `data-cb-output` | `<output for="id">` | Shows the current value of its control (a range, a number) |
 
 Without the script, buttons that only the script can serve are hidden, ARIA tab sets show every
 panel, and trees show every branch.

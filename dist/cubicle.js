@@ -5,9 +5,9 @@
 
 /*
  * Behaviour hooks are data-cb-* attributes on controls; each value is the id of
- * the target element. Delegated click and keydown listeners on the document
- * serve them, so markup inserted later (HTMX swaps, frameworks) works without
- * re-initialisation.
+ * the target element. Delegated click, keydown and input listeners on the
+ * document serve them, so markup inserted later (HTMX swaps, frameworks) works
+ * without re-initialisation.
  *
  *   data-cb-copy="id"                          copy the target's text
  *   data-cb-reveal="id" aria-pressed="false"   toggle a password field
@@ -29,6 +29,8 @@
  *                                              follows attribute changes and new meters
  *   data-cb-modal="id"                         open the <dialog> as a modal (showModal);
  *                                              closing stays native: method="dialog", Escape
+ *   data-cb-output (no value, on <output for>) show the current value of the control
+ *                                              named in for (a range, a number)
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -41,6 +43,7 @@
   const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
   const TAB = '[data-cb-tabs] [role="tab"]';
   const TREE_ITEM = '[data-cb-tree] [role="treeitem"]';
+  const OUTPUTS = 'output[data-cb-output]';
   const remaskTimers = new WeakMap();
   let liveRegion;
 
@@ -314,6 +317,16 @@
     const tab = event.target.closest(TAB);
     if (tab) return tabKey(event, tab);
     if (event.target.matches(TREE_ITEM)) treeKey(event, event.target);
+  });
+
+  // Readouts: the server renders the first value, and a form reset restores
+  // the control and its output natively; this keeps them in step in between.
+  document.addEventListener('input', (event) => {
+    const control = event.target;
+    if (!(control instanceof HTMLInputElement) || !control.id) return;
+    for (const output of document.querySelectorAll(OUTPUTS)) {
+      if (output.htmlFor.contains(control.id)) output.value = control.value;
+    }
   });
 
   document.addEventListener('click', (event) => {
