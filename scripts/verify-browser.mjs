@@ -64,6 +64,7 @@ const ENGINE_LIMITS = [
   { engine: 'webkit', check: /reaches the clipboard|falls back when the async clipboard/, reason: 'WebKit refuses clipboard reads from automation, so the copied text cannot be compared' },
   { engine: 'webkit', check: /^selected options in a multi-select/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
   { engine: 'webkit', check: /^Escape clears a search field/, reason: 'WebKit does not clear a search field on Escape' },
+  { engine: 'firefox', check: /^states of input\.cb-input\[type=(date|time|datetime-local)\]\[readonly\]/, reason: 'Firefox does not let a readonly date or time field take focus' },
 ];
 
 const results = [];
