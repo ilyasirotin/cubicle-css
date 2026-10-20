@@ -1265,11 +1265,11 @@ for (const width of [1360, 360]) {
   await pa.close();
   check(stops >= 5 && !trap && invisible.length === 0, `keyboard audit at ${width}px: every Tab stop shows the focus ring, no trap`,
     `${stops} stops${trap ? `, trap at ${trap}` : ''}${invisible.length ? `; no ring: ${invisible.slice(0, 5).join(' | ')}` : ''}`);
-  // Firefox applies scroll-margin only when Tab has to scroll; a control already fully in view at the
-  // viewport edge keeps a ring cut by at most the ring itself (3px). Those are listed, not failed.
-  const edge = engine === 'firefox' ? clipped.filter((c) => /by viewport \((\d+(?:\.\d+)?)px\)$/.test(c) && Number(c.match(/\((\d+(?:\.\d+)?)px\)$/)[1]) <= 4) : [];
+  // Firefox and WebKit apply scroll-margin only when Tab has to scroll; a control already fully in view
+  // at the viewport edge keeps a ring cut by at most the ring itself (3px). Those are listed, not failed.
+  const edge = engine !== 'chromium' ? clipped.filter((c) => /by viewport \((\d+(?:\.\d+)?)px\)$/.test(c) && Number(c.match(/\((\d+(?:\.\d+)?)px\)$/)[1]) <= 4) : [];
   clipped.splice(0, clipped.length, ...clipped.filter((c) => !edge.includes(c)));
-  if (edge.length) partly.push(...edge.map((c) => `${c} [firefox: no scroll-margin when already in view]`));
+  if (edge.length) partly.push(...edge.map((c) => `${c} [${engine}: no scroll-margin when already in view]`));
   check(clipped.length === 0, `keyboard audit at ${width}px: no focus ring is clipped`,
     `${partly.length ? `${partly.length} partly scrolled out (${partly.join(' | ')})` : 'none partly scrolled out'}${clipped.length ? `; clipped: ${clipped.slice(0, 6).join(' | ')}${clipped.length > 6 ? ` (+${clipped.length - 6})` : ''}` : ''}`);
 }
@@ -1288,18 +1288,22 @@ if (docRows.length) {
   check(stale.length === 0, 'the catalogue contrast table matches the live ratios', stale.slice(0, 3).join(' | ') || `${docRows.length} rows`);
 }
 
-// 23. Catalogue snippets: highlighted, white, readable, and copied whole by click or key.
-//     A mouse selection is left to the browser's own Ctrl+C.
+// 24. Catalogue snippets: highlighted, numbered, white, collapsed by default, scrolling past 20 lines,
+//     and copied whole by click or key. A mouse selection is left to the browser's own Ctrl+C.
 const snippets = await page.locator('pre.docs-snippet').count();
 if (snippets) {
   const ps = await context.newPage(); await applyOverrides(ps); await ps.goto(pathToFileURL(page_path).href);
-  const bare = await ps.$$eval('pre.docs-snippet', (els) => els.filter((e) => !e.querySelector('.token') || !e.hasAttribute('data-docs-copy') || e.hasAttribute('tabindex') || !e.querySelector('code[tabindex="0"]')).length);
-  check(bare === 0, 'every catalogue snippet is highlighted, clickable and has one Tab stop (its code)', `${bare} of ${snippets} are not`);
+  const frames = await ps.$$eval('details.docs-code', (els) => els.map((e) => e.open));
+  check(frames.length === snippets && frames.every((o) => !o), 'every catalogue snippet sits in a frame that starts collapsed', `${frames.length} frames, ${frames.filter(Boolean).length} open`);
+
+  const bare = await ps.$$eval('pre.docs-snippet', (els) => els.filter((e) => !e.querySelector('.token') || !e.hasAttribute('data-docs-copy') || e.getAttribute('tabindex') !== '0' || e.querySelector('code[tabindex]')).length);
+  check(bare === 0, 'every catalogue snippet is highlighted, clickable and has one Tab stop (the block)', `${bare} of ${snippets} are not`);
 
   const rgb = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number);
   const painted = await ps.evaluate(() => {
     const pre = document.querySelector('pre.docs-snippet');
-    const out = { bg: getComputedStyle(pre).backgroundColor, kinds: {} };
+    const rows = pre.querySelector('.line-numbers-rows');
+    const out = { bg: getComputedStyle(pre).backgroundColor, gutter: [getComputedStyle(rows).color, getComputedStyle(rows).backgroundColor], kinds: {} };
     for (const k of ['tag', 'attr-name', 'attr-value', 'punctuation']) {
       const t = pre.querySelector(`.token.${k}`); if (t) out.kinds[k] = getComputedStyle(t).color;
     }
@@ -1307,25 +1311,61 @@ if (snippets) {
   });
   const weak = Object.entries(painted.kinds).filter(([, c]) => ratio(rgb(c), rgb(painted.bg)) < 4.5).map(([k]) => k);
   check(Object.keys(painted.kinds).length === 4 && weak.length === 0, 'snippet token colours reach 4.5:1 on the snippet background', weak.join(', ') || Object.keys(painted.kinds).join(', '));
+  const gutter = ratio(rgb(painted.gutter[0]), rgb(painted.gutter[1]));
+  check(gutter >= 4.5, 'snippet line numbers reach 4.5:1 on the gutter', gutter.toFixed(2));
   check(painted.bg === 'rgb(255, 255, 255)', 'snippet background is white', painted.bg);
 
-  const pre = ps.locator('pre.docs-snippet').nth(3);
+  // Frames: summary opens and closes by pointer and by key; the hint shows only while open.
+  const sizes = await ps.$$eval('details.docs-code', (els) => els.map((e) => +e.querySelector('.docs-code__meta').textContent.match(/\d+/)[0]));
+  const longAt = sizes.findIndex((n) => n > 40), shortAt = sizes.findIndex((n) => n < 10);
+  const frame = ps.locator('details.docs-code').nth(longAt);
+  const summary = frame.locator('summary');
+  await frame.scrollIntoViewIfNeeded();
+  const hintClosed = await frame.locator('.docs-code__hint').isVisible();
+  await summary.click();
+  const openByClick = await frame.evaluate((e) => e.open);
+  const hintOpen = await frame.locator('.docs-code__hint').isVisible();
+  await summary.focus(); await ps.keyboard.press('Enter');
+  const closedByEnter = await frame.evaluate((e) => !e.open);
+  await ps.keyboard.press('Space');
+  const openBySpace = await frame.evaluate((e) => e.open);
+  check(openByClick && closedByEnter && openBySpace && !hintClosed && hintOpen, 'a snippet frame opens and closes by click, Enter and Space; its hint shows only when open',
+    `click ${openByClick}, Enter ${closedByEnter}, Space ${openBySpace}, hint closed/open ${hintClosed}/${hintOpen}`);
+
+  // Scroll: a long block stops at 20 lines and scrolls, a short one shows whole; the gutter holds still sideways.
+  const pre = frame.locator('pre');
   const code = pre.locator('code');
-  await pre.scrollIntoViewIfNeeded();
-  const rest = await pre.evaluate((e) => getComputedStyle(e).borderColor);
+  const lineH = await code.evaluate((e) => parseFloat(getComputedStyle(e).lineHeight));
+  const geo = await pre.evaluate((e) => ({ ch: e.clientHeight, sh: e.scrollHeight, rows: e.querySelector('.line-numbers-rows').children.length }));
+  const lines = (await code.evaluate((e) => e.textContent)).replace(/\n$/, '').split('\n').length;
+  check(geo.sh > geo.ch && Math.abs(geo.ch - (20 * lineH + 2 * 8)) <= 2, `a ${lines}-line snippet stops at 20 lines and scrolls`, `client ${geo.ch}px, content ${geo.sh}px, line ${lineH}px`);
+  check(geo.rows === lines, 'a snippet shows one line number per line', `${geo.rows} numbers, ${lines} lines`);
+  const wide = await pre.evaluate((e) => { e.scrollLeft = 60; e.scrollTop = 100; const g = e.querySelector('.line-numbers-rows').getBoundingClientRect(); return [Math.abs(g.left - e.getBoundingClientRect().left) < 2 && e.scrollLeft > 0, e.scrollTop > 0]; });
+  check(wide[0] && wide[1], 'the line-number gutter stays at the left edge while the code scrolls', `sideways ${wide[0]}, down ${wide[1]}`);
+  await frame.screenshot({ path: resolve(shots, 'snippet-long.png') });
+  await pre.evaluate((e) => { e.scrollLeft = 0; e.scrollTop = 0; });
+  const short = ps.locator('details.docs-code').nth(shortAt);
+  await short.locator('summary').click();
+  const flat = await short.locator('pre').evaluate((e) => e.scrollHeight <= e.clientHeight);
+  check(flat, 'a short snippet is shown whole, without a scroll bar');
+  await short.screenshot({ path: resolve(shots, 'snippet-short.png') });
+
+  // Pointer: no highlight on hover.
+  const look = (e) => { const c = getComputedStyle(e); return `${c.backgroundColor}|${c.borderColor}|${c.boxShadow}`; };
+  const rest = await pre.evaluate(look);
   await pre.hover();
-  const hover = await pre.evaluate((e) => getComputedStyle(e).borderColor);
-  check(hover !== rest, 'a snippet is highlighted under the pointer', `${rest} -> ${hover}`);
+  check(await pre.evaluate(look) === rest, 'a snippet does not change under the pointer');
 
   const text = await code.evaluate((e) => e.textContent);
   await ps.evaluate(() => navigator.clipboard.writeText('stale').catch(() => {}));
   const box = await pre.boundingBox();
-  await ps.mouse.click(box.x + box.width - 4, box.y + box.height - 4);
+  await ps.mouse.click(box.x + box.width - 30, box.y + box.height - 30);
   await ps.waitForTimeout(100);
   const got = await readClipboard(ps);
-  check(got === text, 'clicking a snippet reaches the clipboard whole', got === null ? 'clipboard unreadable' : got === text ? '' : 'MISMATCH');
-  check(await pre.evaluate((e) => e.hasAttribute('data-docs-copied')) && /copied/i.test(await ps.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '')),
-    'a snippet confirms the copy on the block and in the live region');
+  check(got === text, 'clicking a snippet reaches the clipboard whole, without line numbers', got === null ? 'clipboard unreadable' : got === text ? '' : 'MISMATCH');
+  const hint = await frame.locator('.docs-code__hint').textContent();
+  check(await frame.evaluate((e) => e.hasAttribute('data-docs-copied')) && hint === 'Copied' && /copied/i.test(await ps.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '')),
+    'a snippet confirms the copy in its header and in the live region', `hint "${hint}"`);
 
   await ps.evaluate(() => navigator.clipboard.writeText('stale').catch(() => {}));
   await ps.evaluate((el) => { const r = document.createRange(); r.selectNodeContents(el.querySelector('code .token')); getSelection().removeAllRanges(); getSelection().addRange(r); }, await pre.elementHandle());
@@ -1335,7 +1375,7 @@ if (snippets) {
   check(await readClipboard(ps) === before, 'a click with text selected inside the snippet does not copy', 'selection kept for Ctrl+C');
 
   await ps.evaluate(() => { getSelection().removeAllRanges(); navigator.clipboard.writeText('stale').catch(() => {}); });
-  await code.focus();
+  await pre.focus();
   await ps.keyboard.press('Enter');
   await ps.waitForTimeout(100);
   check(await readClipboard(ps) === text, 'Enter on a focused snippet reaches the clipboard whole');

@@ -25,8 +25,9 @@ The first release of Cubicle.
 - **Fields.** Recessed `.cb-input` and `.cb-select` with readonly, invalid (`aria-invalid`,
   `:user-invalid`) and disabled states. Also check boxes and radios, horizontal and stacked
   `.cb-field` layouts with hints, errors and required marks, input groups, file and range inputs.
-- **Catalogue snippets.** Syntax-highlighted (Prism, inlined in `docs/index.html`, nothing shipped in
-  `dist/`) and copied whole by a click or Enter, with a corner label and a live-region message.
+- **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
+  nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
+  click or Enter, with a "Copied" note in the header and a live-region message.
 - **Secret boxes.** `.cb-secret` wells and single-line secrets with copy, reveal and save actions.
 - **Fieldsets and panels.** `.cb-fieldset` group boxes. `.cb-panel` with head, title, body (also
   flush) and foot, status stripes, recessed wells and collapsible `<details>` panels.

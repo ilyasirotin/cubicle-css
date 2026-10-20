@@ -55,8 +55,8 @@ The catalogue is the test. For every component, `docs/index.html` has:
 1. one sentence on what it is for;
 2. a live demo of every state it supports;
 3. a `<pre class="docs-snippet"><code>` snippet byte-identical to the demo — generate it from the
-   demo markup with a small script rather than escaping by hand (the catalogue highlights and
-   copies it on click by itself, so add no classes or buttons);
+   demo markup with a small script rather than escaping by hand (the catalogue highlights, numbers,
+   collapses and copies it by itself, so add no classes or buttons);
 4. a reference table of classes and attributes.
 
 `docs/docs.css` styles the catalogue only and never reaches into demos. Show the change in

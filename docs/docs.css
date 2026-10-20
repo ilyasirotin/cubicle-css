@@ -149,12 +149,16 @@
     }
   }
 
-  /* Copy-paste snippet: a white recessed well. The code scrolls, so the corner
-     label sits on the pre and stays put. Without the script a block stays plain
-     text; the script sets data-docs-copy to make it clickable. */
+  /* Copy-paste snippet: a white recessed well that scrolls past 20 lines. Without
+     the script it is a plain block; the script wraps it in a collapsed .docs-code,
+     numbers its lines (Prism line-numbers) and sets data-docs-copy so a click
+     copies it. The gutter is a sticky first grid column: it stays put while the
+     code scrolls sideways and moves with it vertically. */
   .docs-snippet {
-    position: relative;
+    --_line: calc(var(--cb-text-xs) * var(--cb-line-base));
     margin: 0 0 var(--cb-space-3);
+    overflow: auto;
+    max-block-size: calc(20 * var(--_line) + 2 * var(--cb-space-2));
     font-size: var(--cb-text-xs);
     line-height: var(--cb-line-base);
     color: var(--cb-text-main);
@@ -166,45 +170,21 @@
 
     & > code {
       display: block;
-      overflow: auto;
+      min-inline-size: max-content;
       padding: var(--cb-space-2) var(--cb-space-3);
+    }
+
+    &.line-numbers {
+      display: grid;
+      grid-template-columns: auto minmax(max-content, 1fr);
+      counter-reset: docs-line;
     }
 
     &[data-docs-copy] {
       cursor: pointer;
-
-      &:hover {
-        background: color-mix(in srgb, var(--cb-accent) 5%, var(--cb-bg-raised));
-        border-color: var(--cb-accent);
-      }
-
-      &:is(:hover, :focus-within)::after {
-        content: "Copy";
-      }
-
-      &:is(:hover, :focus-within)::after,
-      &[data-docs-copied]::after {
-        position: absolute;
-        inset-block-start: 0;
-        inset-inline-end: 0;
-        padding: 0 var(--cb-space-2);
-        font-family: var(--cb-font-sans);
-        line-height: var(--cb-line-base);
-        color: var(--cb-text-main);
-        background: var(--cb-bg-header);
-        border-block-end: 1px solid var(--cb-border-main);
-        border-inline-start: 1px solid var(--cb-border-main);
-        border-end-start-radius: var(--cb-radius-sm);
-        pointer-events: none;
-      }
-
-      &[data-docs-copied]::after {
-        content: "Copied";
-        color: var(--cb-ok);
-      }
     }
 
-    & > code:focus-visible {
+    &:focus-visible {
       outline-offset: calc(-2px - var(--cb-focus-offset));
     }
 
@@ -236,6 +216,59 @@
         font-style: italic;
       }
     }
+  }
+
+  /* Line numbers: one empty span per line (made by Prism), numbered by a counter
+     so they are never part of the selection or of the copied text. */
+  .docs-snippet > .line-numbers-rows {
+    position: sticky;
+    inset-inline-start: 0;
+    padding: var(--cb-space-2);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+    color: var(--cb-text-muted);
+    background: var(--cb-bg-surface);
+    border-inline-end: 1px solid var(--cb-border-subtle);
+
+    & > span {
+      display: block;
+      counter-increment: docs-line;
+    }
+
+    & > span::before {
+      content: counter(docs-line);
+    }
+  }
+
+  /* Collapsible frame around a snippet (a .cb-details), closed by default. */
+  .docs-code {
+    margin-block-end: var(--cb-space-3);
+
+    & > .docs-snippet {
+      margin: 0;
+      border: 0;
+      border-radius: 0 0 var(--cb-radius-sm) var(--cb-radius-sm);
+    }
+  }
+
+  .docs-code__meta,
+  .docs-code__hint {
+    font-size: var(--cb-text-xs);
+    font-weight: 400;
+    color: var(--cb-text-muted);
+  }
+
+  .docs-code__hint {
+    margin-inline-start: auto;
+  }
+
+  .docs-code:not([open]) .docs-code__hint {
+    display: none;
+  }
+
+  .docs-code[data-docs-copied] .docs-code__hint {
+    font-weight: 600;
+    color: var(--cb-ok);
   }
 
   /* Fixed-height size container: the .cb-app demo fills it as it would fill the viewport. */
@@ -272,7 +305,7 @@
     border: 1px solid var(--cb-border-subtle);
   }
 
-  .docs-demo + .docs-snippet {
+  .docs-demo + :is(.docs-snippet, .docs-code) {
     border-radius: 0 0 var(--cb-radius-md) var(--cb-radius-md);
   }
 
