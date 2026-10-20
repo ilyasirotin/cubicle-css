@@ -245,7 +245,7 @@ This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicl
   2. A live rendered example demonstrating **every supported state** (default, hover, focus, active/pressed, disabled, readonly, invalid, current/selected, busy).
   3. An escaped copy-paste HTML snippet inside `<pre><code>` that is byte-for-byte identical to the live markup above it.
   4. A compact reference table of accepted modifiers and state attributes.
-- **Snippet Integrity:** `scripts/check-snippets.mjs` parses `docs/index.html`, compares every live demo against its `<pre><code>` block, and fails on any mismatch. Note: While Cubicle ships a `cb-secret` / copy pattern for application UIs (API keys, hashes), documentation code snippets themselves remain plain `<pre><code>` blocks without JS copy buttons.
+- **Snippet Integrity:** `scripts/check-snippets.mjs` parses `docs/index.html`, compares every live demo against its `<pre><code>` block, and fails on any mismatch. Documentation snippets stay plain `<pre><code>` blocks, with no copy buttons and no extra markup. The catalogue alone adds, from an inline script in `docs/index.html`, syntax highlighting (Prism, markup grammar, inlined unmodified with its MIT notice, coloured in `docs/docs.css` with `--cb-*` tokens) and copy-the-whole-block on click or Enter/Space; a mouse selection inside the block is left for Ctrl+C. None of this reaches `dist/`.
 - **Token Integrity:** `scripts/check-tokens.mjs` fails when a token in `@layer tokens` is missing from the catalogue, a documented token or value differs from the stylesheet, or a `var(--cb-*)` reference names an undeclared token.
 
 ---

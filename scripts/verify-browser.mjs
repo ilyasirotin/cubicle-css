@@ -1288,6 +1288,64 @@ if (docRows.length) {
   check(stale.length === 0, 'the catalogue contrast table matches the live ratios', stale.slice(0, 3).join(' | ') || `${docRows.length} rows`);
 }
 
+// 23. Catalogue snippets: highlighted, white, readable, and copied whole by click or key.
+//     A mouse selection is left to the browser's own Ctrl+C.
+const snippets = await page.locator('pre.docs-snippet').count();
+if (snippets) {
+  const ps = await context.newPage(); await applyOverrides(ps); await ps.goto(pathToFileURL(page_path).href);
+  const bare = await ps.$$eval('pre.docs-snippet', (els) => els.filter((e) => !e.querySelector('.token') || !e.hasAttribute('data-docs-copy') || e.hasAttribute('tabindex') || !e.querySelector('code[tabindex="0"]')).length);
+  check(bare === 0, 'every catalogue snippet is highlighted, clickable and has one Tab stop (its code)', `${bare} of ${snippets} are not`);
+
+  const rgb = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number);
+  const painted = await ps.evaluate(() => {
+    const pre = document.querySelector('pre.docs-snippet');
+    const out = { bg: getComputedStyle(pre).backgroundColor, kinds: {} };
+    for (const k of ['tag', 'attr-name', 'attr-value', 'punctuation']) {
+      const t = pre.querySelector(`.token.${k}`); if (t) out.kinds[k] = getComputedStyle(t).color;
+    }
+    return out;
+  });
+  const weak = Object.entries(painted.kinds).filter(([, c]) => ratio(rgb(c), rgb(painted.bg)) < 4.5).map(([k]) => k);
+  check(Object.keys(painted.kinds).length === 4 && weak.length === 0, 'snippet token colours reach 4.5:1 on the snippet background', weak.join(', ') || Object.keys(painted.kinds).join(', '));
+  check(painted.bg === 'rgb(255, 255, 255)', 'snippet background is white', painted.bg);
+
+  const pre = ps.locator('pre.docs-snippet').nth(3);
+  const code = pre.locator('code');
+  await pre.scrollIntoViewIfNeeded();
+  const rest = await pre.evaluate((e) => getComputedStyle(e).borderColor);
+  await pre.hover();
+  const hover = await pre.evaluate((e) => getComputedStyle(e).borderColor);
+  check(hover !== rest, 'a snippet is highlighted under the pointer', `${rest} -> ${hover}`);
+
+  const text = await code.evaluate((e) => e.textContent);
+  await ps.evaluate(() => navigator.clipboard.writeText('stale').catch(() => {}));
+  const box = await pre.boundingBox();
+  await ps.mouse.click(box.x + box.width - 4, box.y + box.height - 4);
+  await ps.waitForTimeout(100);
+  const got = await readClipboard(ps);
+  check(got === text, 'clicking a snippet reaches the clipboard whole', got === null ? 'clipboard unreadable' : got === text ? '' : 'MISMATCH');
+  check(await pre.evaluate((e) => e.hasAttribute('data-docs-copied')) && /copied/i.test(await ps.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '')),
+    'a snippet confirms the copy on the block and in the live region');
+
+  await ps.evaluate(() => navigator.clipboard.writeText('stale').catch(() => {}));
+  await ps.evaluate((el) => { const r = document.createRange(); r.selectNodeContents(el.querySelector('code .token')); getSelection().removeAllRanges(); getSelection().addRange(r); }, await pre.elementHandle());
+  const before = await readClipboard(ps);
+  await pre.evaluate((e) => e.click());
+  await ps.waitForTimeout(100);
+  check(await readClipboard(ps) === before, 'a click with text selected inside the snippet does not copy', 'selection kept for Ctrl+C');
+
+  await ps.evaluate(() => { getSelection().removeAllRanges(); navigator.clipboard.writeText('stale').catch(() => {}); });
+  await code.focus();
+  await ps.keyboard.press('Enter');
+  await ps.waitForTimeout(100);
+  check(await readClipboard(ps) === text, 'Enter on a focused snippet reaches the clipboard whole');
+  await pre.screenshot({ path: resolve(shots, 'snippet-focus.png') });
+  await ps.setViewportSize({ width: 360, height: 800 });
+  const over = await ps.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  check(over <= 0, 'snippets do not widen the page at 360px', `${over}px`);
+  await ps.close();
+}
+
 await browser.close();
 
 const failed = results.filter((r) => !r.ok);

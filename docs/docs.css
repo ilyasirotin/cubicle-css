@@ -149,17 +149,93 @@
     }
   }
 
+  /* Copy-paste snippet: a white recessed well. The code scrolls, so the corner
+     label sits on the pre and stays put. Without the script a block stays plain
+     text; the script sets data-docs-copy to make it clickable. */
   .docs-snippet {
-    overflow: auto;
+    position: relative;
     margin: 0 0 var(--cb-space-3);
-    padding: var(--cb-space-2) var(--cb-space-3);
     font-size: var(--cb-text-xs);
     line-height: var(--cb-line-base);
-    background: var(--cb-bg-recessed);
+    color: var(--cb-text-main);
+    background: var(--cb-bg-raised);
     border: 1px solid var(--cb-border-main);
     border-block-start-color: var(--cb-border-strong);
     border-radius: var(--cb-radius-sm);
     box-shadow: var(--cb-shadow-inset);
+
+    & > code {
+      display: block;
+      overflow: auto;
+      padding: var(--cb-space-2) var(--cb-space-3);
+    }
+
+    &[data-docs-copy] {
+      cursor: pointer;
+
+      &:hover {
+        background: color-mix(in srgb, var(--cb-accent) 5%, var(--cb-bg-raised));
+        border-color: var(--cb-accent);
+      }
+
+      &:is(:hover, :focus-within)::after {
+        content: "Copy";
+      }
+
+      &:is(:hover, :focus-within)::after,
+      &[data-docs-copied]::after {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-end: 0;
+        padding: 0 var(--cb-space-2);
+        font-family: var(--cb-font-sans);
+        line-height: var(--cb-line-base);
+        color: var(--cb-text-main);
+        background: var(--cb-bg-header);
+        border-block-end: 1px solid var(--cb-border-main);
+        border-inline-start: 1px solid var(--cb-border-main);
+        border-end-start-radius: var(--cb-radius-sm);
+        pointer-events: none;
+      }
+
+      &[data-docs-copied]::after {
+        content: "Copied";
+        color: var(--cb-ok);
+      }
+    }
+
+    & > code:focus-visible {
+      outline-offset: calc(-2px - var(--cb-focus-offset));
+    }
+
+    /* Prism token colours, markup grammar only: ink for text, navy tags,
+       ochre attribute names, green values, crimson entities, muted punctuation. */
+    & .token {
+      &.tag {
+        color: var(--cb-accent);
+      }
+
+      &.attr-name {
+        color: var(--cb-warn);
+      }
+
+      &.attr-value {
+        color: var(--cb-ok);
+      }
+
+      &.entity {
+        color: var(--cb-danger);
+      }
+
+      &.punctuation {
+        color: var(--cb-text-muted);
+      }
+
+      &:is(.comment, .prolog, .doctype, .cdata) {
+        color: var(--cb-text-muted);
+        font-style: italic;
+      }
+    }
   }
 
   /* Fixed-height size container: the .cb-app demo fills it as it would fill the viewport. */
