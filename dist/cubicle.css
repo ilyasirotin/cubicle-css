@@ -689,6 +689,20 @@
     }
   }
 
+  /* List box: checked options take the selected tint of table rows and tree
+     nodes; engines paint a faint grey at rest (Firefox: near white). A
+     focused list keeps the engine's own high-contrast highlight, and WebKit
+     always paints its own. Disabled, the tint stays (a muted one vanishes
+     into the recessed fill) and the text greys. */
+  .cb-select:is([multiple], [size]) option:checked {
+    color: var(--cb-text-main);
+    background: var(--cb-bg-selected);
+  }
+
+  .cb-select:is([multiple], [size]):disabled option:checked {
+    color: var(--cb-text-disabled);
+  }
+
   :is(.cb-input--sm, .cb-select--sm) {
     --_h: var(--cb-control-h-sm);
     padding-inline-start: var(--cb-space-1);

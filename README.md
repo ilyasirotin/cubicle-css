@@ -134,8 +134,10 @@ Chromium, Firefox and WebKit. Known engine differences:
 
 - Firefox draws no ruler strip under meters, so ticks and threshold marks are absent there.
 - In Safari, Tab reaches links and buttons only with Option+Tab (the platform default).
+- Safari keeps its own grey selection in list boxes (`<select multiple>`); other engines show the
+  selected tint.
 
-Sizes: `cubicle.css` 84 KB (20 KB gzip), minified 44 KB (8.4 KB gzip); `cubicle.js` 15 KB
+Sizes: `cubicle.css` 85 KB (20 KB gzip), minified 44 KB (8.5 KB gzip); `cubicle.js` 15 KB
 (4.9 KB gzip), minified 6.9 KB (2.7 KB gzip).
 
 ## Development

@@ -58,6 +58,7 @@ const expose = (pg, selector) => pg.evaluate((sel) => {
 const ENGINE_LIMITS = [
   { engine: 'firefox', check: /^meter ruler:/, reason: 'Firefox paints the meter track on the element itself, so there is no ruler strip for ticks and marks' },
   { engine: 'webkit', check: /reaches the clipboard|falls back when the async clipboard/, reason: 'WebKit refuses clipboard reads from automation, so the copied text cannot be compared' },
+  { engine: 'webkit', check: /^selected options in a multi-select/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
 ];
 
 const results = [];
@@ -1445,6 +1446,26 @@ if (snippets) {
   const cut = keys.filter((k) => k.line > k.inner + 0.01);
   check(keys.length === 6 && cut.length === 0, 'the file key label fits its key in every size and density',
     cut.length ? cut.map((k) => `${k.name}: ${k.line}px line in ${k.inner}px`).join(', ') : `${keys.length} keys`);
+  // List boxes: the checked row of a resting list (no hover, no focus; a focused list takes the
+  // system highlight in every engine) is read on pixels near its end edge, away from the text.
+  const want = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-bg-selected)'; const c = getComputedStyle(probe).color; probe.remove();
+    return c.match(/\d+/g).slice(0, 3).map(Number);
+  });
+  const lists = pf.locator('[data-vb-extras] select[multiple]');
+  const rows = [];
+  for (const [i, state] of ['enabled', 'disabled'].entries()) {
+    const list = lists.nth(i); await list.scrollIntoViewIfNeeded();
+    const geo = await list.evaluate((s) => {
+      const cs = getComputedStyle(s); const r = s.getBoundingClientRect();
+      return { w: r.width, h: r.height, top: parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop), end: parseFloat(cs.borderRightWidth) + parseFloat(cs.paddingRight) };
+    });
+    const px = await (await pixelsOf(list))((geo.w - geo.end - 4) / geo.w, (geo.top + 4) / geo.h);
+    rows.push({ state, px, off: Math.hypot(px[0] - want[0], px[1] - want[1], px[2] - want[2]) });
+  }
+  check(rows.every((r) => r.off < 8), 'selected options in a multi-select take the selected tint (enabled and disabled)',
+    `${rows.map((r) => `${r.state} ${r.px.join(',')}`).join('; ')} vs ${want.join(',')}`);
   // <select> ignores readonly, so it must not look locked; inputs keep the recessed mono look.
   const readonly = await pf.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));

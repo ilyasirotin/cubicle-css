@@ -970,6 +970,9 @@
 &lt;/div&gt;</code></pre>
 
         <h3 class="docs-h3" id="fields-select">Select &amp; textarea</h3>
+        <p class="docs-text">A list box (<code>multiple</code> or <code>size</code>) assigns several values
+          without script, such as roles. Its checked options take the selected tint; while it has focus
+          the browser draws its own highlight, and WebKit always does.</p>
         <div class="docs-demo">
           <div class="cb-stack">
             <div class="cb-grid cb-grid--3">
@@ -995,6 +998,32 @@
                   <option>Entra ID</option>
                 </select>
                 <p class="cb-field__error" id="f-idp-error">Select an identity provider.</p>
+              </div>
+            </div>
+            <div class="cb-grid cb-grid--2">
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-roles">Roles</label>
+                <select class="cb-select" id="f-roles" name="roles" multiple size="7" aria-describedby="f-roles-hint">
+                  <optgroup label="Built-in">
+                    <option selected>Viewer</option>
+                    <option>Operator</option>
+                    <option>Administrator</option>
+                  </optgroup>
+                  <optgroup label="Custom">
+                    <option selected>VPN auditor</option>
+                    <option>Certificate issuer</option>
+                  </optgroup>
+                </select>
+                <p class="cb-field__hint" id="f-roles-hint">Ctrl-click (⌘-click on a Mac), or Shift with the arrow keys, selects several.</p>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-inherited">Inherited roles</label>
+                <select class="cb-select" id="f-inherited" multiple size="3" disabled aria-describedby="f-inherited-hint">
+                  <option selected>Viewer</option>
+                  <option selected>VPN user</option>
+                  <option>Helpdesk</option>
+                </select>
+                <p class="cb-field__hint" id="f-inherited-hint">From the directory group finance-readonly; change them there.</p>
               </div>
             </div>
             <div class="cb-grid cb-grid--2">
@@ -1034,6 +1063,32 @@
         &lt;option&gt;Entra ID&lt;/option&gt;
       &lt;/select&gt;
       &lt;p class=&quot;cb-field__error&quot; id=&quot;f-idp-error&quot;&gt;Select an identity provider.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-roles&quot;&gt;Roles&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;f-roles&quot; name=&quot;roles&quot; multiple size=&quot;7&quot; aria-describedby=&quot;f-roles-hint&quot;&gt;
+        &lt;optgroup label=&quot;Built-in&quot;&gt;
+          &lt;option selected&gt;Viewer&lt;/option&gt;
+          &lt;option&gt;Operator&lt;/option&gt;
+          &lt;option&gt;Administrator&lt;/option&gt;
+        &lt;/optgroup&gt;
+        &lt;optgroup label=&quot;Custom&quot;&gt;
+          &lt;option selected&gt;VPN auditor&lt;/option&gt;
+          &lt;option&gt;Certificate issuer&lt;/option&gt;
+        &lt;/optgroup&gt;
+      &lt;/select&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-roles-hint&quot;&gt;Ctrl-click (⌘-click on a Mac), or Shift with the arrow keys, selects several.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-inherited&quot;&gt;Inherited roles&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;f-inherited&quot; multiple size=&quot;3&quot; disabled aria-describedby=&quot;f-inherited-hint&quot;&gt;
+        &lt;option selected&gt;Viewer&lt;/option&gt;
+        &lt;option selected&gt;VPN user&lt;/option&gt;
+        &lt;option&gt;Helpdesk&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-inherited-hint&quot;&gt;From the directory group finance-readonly; change them there.&lt;/p&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
@@ -1276,6 +1331,7 @@
             <tbody>
               <tr><th scope="row"><code>.cb-input</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed field, 26px, 14px text with tabular figures</td></tr>
               <tr><th scope="row"><code>.cb-select</code></th><td><code>&lt;select&gt;</code></td><td>Recessed field with a chevron</td></tr>
+              <tr><th scope="row"><code>multiple</code> / <code>size</code></th><td><code>.cb-select</code></td><td>List box without a chevron; checked options take the selected tint (with grey text when disabled)</td></tr>
               <tr><th scope="row"><code>.cb-input--sm</code> / <code>.cb-select--sm</code></th><td>Field</td><td>20px, 12px text; pairs with <code>.cb-btn--sm</code></td></tr>
               <tr><th scope="row"><code>.cb-check</code></th><td>Checkbox or radio <code>&lt;input&gt;</code></td><td>Recessed box (radio round); navy fill when checked</td></tr>
               <tr><th scope="row"><code>.cb-choice</code></th><td><code>&lt;label&gt;</code></td><td>Aligns a check with its text; mutes it when disabled</td></tr>
@@ -4426,7 +4482,7 @@
             <tbody>
               <tr><th scope="row">Chromium</th><td class="cb-table__num">156</td><td>None</td></tr>
               <tr><th scope="row">Firefox</th><td class="cb-table__num">157</td><td>No ruler strip under meters: ticks and threshold marks are not drawn</td></tr>
-              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin</td></tr>
+              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds</td></tr>
             </tbody>
           </table>
         </div>
