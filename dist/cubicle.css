@@ -616,6 +616,7 @@
     padding: 0 var(--cb-space-2);
     font-size: var(--cb-text-md);
     line-height: var(--cb-line-tight);
+    font-variant-numeric: tabular-nums; /* ports, IDs, dates and counts line up */
     color: var(--_ink);
     background-color: var(--_bg);
     border: 1px solid var(--_border);

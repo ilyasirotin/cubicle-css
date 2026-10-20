@@ -13,7 +13,8 @@
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
-//                 pagination-<width>.png and utilities-<width>.png.
+//                 pagination-<width>.png and utilities-<width>.png, and
+//                 forms-matrix.png of the native form-control fixture.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -1384,6 +1385,55 @@ if (snippets) {
   const over = await ps.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   check(over <= 0, 'snippets do not widen the page at 360px', `${over}px`);
   await ps.close();
+}
+
+// 25. Native form controls, on a fixture appended to a fresh tab, so the stylesheet is tested
+//     whatever the page documents: every single-line input type and the select, at both sizes
+//     and in every density, against probes sized by that density's own tokens; plus readonly
+//     fields and list boxes once.
+{
+  const TYPES = { text: 'gw-eu-1', password: 'secret', search: 'peer', email: 'soc@corp.example.net', url: 'https://idp.corp.example.net',
+    tel: '+1 555 0100', number: '51820', date: '2026-11-01', time: '23:30', 'datetime-local': '2026-11-01T23:30', month: '2026-11', week: '2026-W44', file: '' };
+  const pf = await context.newPage(); await applyOverrides(pf);
+  await pf.setViewportSize({ width: 1360, height: 900 });
+  await pf.goto(pathToFileURL(page_path).href);
+  await pf.evaluate((types) => {
+    const fields = (sm) => Object.entries(types).map(([t, v]) =>
+      `<input class="cb-input${sm ? ' cb-input--sm' : ''}" type="${t}"${v ? ` value="${v}"` : ''} aria-label="${t}${sm ? '--sm' : ''}">`).join('')
+      + `<select class="cb-select${sm ? ' cb-select--sm' : ''}" aria-label="select${sm ? '--sm' : ''}"><option>Operator</option></select>`;
+    const density = (d) => `<div data-vb-density="${d}"${d === 'default' ? '' : ` data-cb-density="${d}"`}>`
+      + `<div data-vb-size="md"><i data-vb-probe></i>${fields(false)}</div><div data-vb-size="sm"><i data-vb-probe></i>${fields(true)}</div></div>`;
+    const roles = (attrs) => `<select class="cb-select" multiple size="4" aria-label="roles"${attrs}><option selected>admin</option><option>auditor</option><option selected>operator</option><option>viewer</option></select>`;
+    const box = document.createElement('section');
+    box.setAttribute('data-vb-forms', '');
+    box.innerHTML = '<style>[data-vb-forms] { display: grid; gap: 8px; padding: 8px; background: var(--cb-bg-canvas); }'
+      + '[data-vb-forms] :is([data-vb-size], [data-vb-extras]) { display: grid; grid-template-columns: repeat(7, 11rem); gap: 4px; align-items: start; }'
+      + '[data-vb-probe] { inline-size: 1px; } [data-vb-size="md"] > [data-vb-probe] { block-size: var(--cb-control-h); }'
+      + '[data-vb-size="sm"] > [data-vb-probe] { block-size: var(--cb-control-h-sm); }</style>'
+      + ['compact', 'default', 'comfortable'].map(density).join('')
+      + `<div data-vb-extras><select class="cb-select" readonly aria-label="select readonly"><option>Operator</option></select>`
+      + `<input class="cb-input" type="text" readonly value="3f9c2a71" aria-label="input readonly">${roles('')}${roles(' disabled')}</div>`;
+    document.body.append(box);
+  }, TYPES);
+  const matrix = await pf.$$eval('[data-vb-density]', (ds) => ds.map((d) => ({
+    density: d.getAttribute('data-vb-density'),
+    sizes: [...d.querySelectorAll('[data-vb-size]')].map((s) => ({
+      size: s.getAttribute('data-vb-size'),
+      probe: s.querySelector('[data-vb-probe]').getBoundingClientRect().height,
+      fields: [...s.querySelectorAll('.cb-input, .cb-select')].map((f) => ({
+        name: f.getAttribute('aria-label'), h: Math.round(f.getBoundingClientRect().height * 10) / 10,
+        num: getComputedStyle(f).fontVariantNumeric,
+      })),
+    })),
+  })));
+  const everyField = matrix.flatMap((d) => d.sizes.flatMap((s) => s.fields));
+  const proportional = [...new Set(everyField.filter((f) => !f.num.includes('tabular-nums')).map((f) => f.name))];
+  check(proportional.length === 0, 'native fields use tabular figures',
+    proportional.length ? `proportional: ${proportional.join(', ')}` : `${everyField.length} fields`);
+  const forms = pf.locator('[data-vb-forms]');
+  await forms.scrollIntoViewIfNeeded();
+  await forms.screenshot({ path: `${shots}/forms-matrix.png` });
+  await pf.close();
 }
 
 await browser.close();
