@@ -406,7 +406,7 @@ if (want('script') && await page.locator(ACTIONS).count()) {
         const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')));
         return { on: on.map((t) => t.id).join(), roving: tabs.filter((t) => t.tabIndex === 0).map((t) => t.id).join(),
           shown: panels.filter((x) => x && !x.hidden && getComputedStyle(x).display !== 'none').map((x) => x.id).join(),
-          focus: document.activeElement?.id ?? '', enabled: tabs.filter((t) => t.getAttribute('aria-disabled') !== 'true').map((t) => t.id),
+          focus: document.activeElement?.id ?? '', enabled: tabs.filter((t) => !t.matches(':disabled, [aria-disabled="true"]')).map((t) => t.id),
           panelOf: Object.fromEntries(tabs.map((t) => [t.id, t.getAttribute('aria-controls')])) };
       });
       const first = await state();
@@ -753,6 +753,16 @@ if (want('tabs') && await page.locator('.docs-demo .cb-tabs').count()) {
     await section.scrollIntoViewIfNeeded();
     await snap(section, `tabs-${width}.png`);
   }
+}
+
+// 13b. A native disabled tab (a <button role="tab" disabled>) looks like an aria-disabled one.
+if (want('tabs') && await page.locator('.docs-demo .cb-tabs__tab:disabled').count()) {
+  const look = await page.locator('.docs-demo .cb-tabs__tab:disabled').first().evaluate((t) => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-text-disabled)'; const want = getComputedStyle(probe).color; probe.remove();
+    const cs = getComputedStyle(t); return { want, ink: cs.color, cursor: cs.cursor };
+  });
+  check(look.ink === look.want && look.cursor === 'not-allowed', 'a native disabled tab takes the disabled ink', JSON.stringify(look));
 }
 
 // 14. Navigation and trees: 24px rows, the current or selected row paints the selected

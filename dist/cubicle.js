@@ -221,7 +221,7 @@
   // ARIA tabs: the selected tab is the only one in the tab order, and only its
   // panel is shown. The state is written by the server; this keeps it in step.
   const tabsOf = (tab) => [...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')];
-  const isEnabled = (tab) => tab.getAttribute('aria-disabled') !== 'true';
+  const isEnabled = (tab) => !tab.matches(':disabled, [aria-disabled="true"]');
 
   const selectTab = (tab) => {
     for (const other of tabsOf(tab)) {

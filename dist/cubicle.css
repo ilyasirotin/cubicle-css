@@ -1872,7 +1872,8 @@
       border-block-end-color: var(--_active);
     }
 
-    &[aria-disabled="true"] {
+    /* A link tab can only be aria-disabled; an ARIA tab button may be either. */
+    &:is(:disabled, [aria-disabled="true"]) {
       color: var(--cb-text-disabled);
       cursor: not-allowed;
       pointer-events: none;

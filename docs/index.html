@@ -2276,14 +2276,15 @@
 
         <h3 class="docs-h3" id="tabs-vertical">Vertical</h3>
         <p class="docs-text">For settings pages. Set <code>aria-orientation="vertical"</code> so the up and
-          down arrows move between tabs. Below 30rem of its own width the list returns to the top.</p>
+          down arrows move between tabs. Below 30rem of its own width the list returns to the top. A tab
+          button can be <code>disabled</code> natively (Audit, here); the arrow keys skip it.</p>
         <div class="docs-demo">
           <div class="cb-tabs cb-tabs--vertical" data-cb-tabs>
             <div class="cb-tabs__list" role="tablist" aria-label="Settings" aria-orientation="vertical">
               <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-auth" aria-controls="tv-auth" aria-selected="true">Authentication</button>
               <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-directory" aria-controls="tv-directory" aria-selected="false" tabindex="-1">Directory</button>
               <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-network" aria-controls="tv-network" aria-selected="false" tabindex="-1">Network</button>
-              <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-audit" aria-controls="tv-audit" aria-selected="false" tabindex="-1">Audit</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="tv-tab-audit" aria-controls="tv-audit" aria-selected="false" tabindex="-1" disabled>Audit</button>
             </div>
             <div class="cb-tabs__panel" role="tabpanel" id="tv-auth" aria-labelledby="tv-tab-auth">
               <h4 class="cb-tabs__heading">Authentication</h4>
@@ -2308,7 +2309,7 @@
     &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-auth&quot; aria-controls=&quot;tv-auth&quot; aria-selected=&quot;true&quot;&gt;Authentication&lt;/button&gt;
     &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-directory&quot; aria-controls=&quot;tv-directory&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Directory&lt;/button&gt;
     &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-network&quot; aria-controls=&quot;tv-network&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Network&lt;/button&gt;
-    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-audit&quot; aria-controls=&quot;tv-audit&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot;&gt;Audit&lt;/button&gt;
+    &lt;button class=&quot;cb-tabs__tab&quot; type=&quot;button&quot; role=&quot;tab&quot; id=&quot;tv-tab-audit&quot; aria-controls=&quot;tv-audit&quot; aria-selected=&quot;false&quot; tabindex=&quot;-1&quot; disabled&gt;Audit&lt;/button&gt;
   &lt;/div&gt;
   &lt;div class=&quot;cb-tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;tv-auth&quot; aria-labelledby=&quot;tv-tab-auth&quot;&gt;
     &lt;h4 class=&quot;cb-tabs__heading&quot;&gt;Authentication&lt;/h4&gt;
@@ -2354,7 +2355,7 @@
               <tr><th scope="row"><code>.cb-tabs__list</code> + <code>role="tablist"</code></th><td><code>&lt;div&gt;</code></td><td>Row of tabs over a line; scrolls sideways when full</td></tr>
               <tr><th scope="row"><code>.cb-tabs__tab</code> + <code>role="tab"</code></th><td><code>&lt;button&gt;</code></td><td>Tab; needs <code>aria-controls</code>, <code>aria-selected</code> and <code>tabindex="-1"</code> unless selected</td></tr>
               <tr><th scope="row"><code>aria-current="page"</code></th><td><code>&lt;a class="cb-tabs__tab"&gt;</code></td><td>Current link tab</td></tr>
-              <tr><th scope="row"><code>aria-disabled="true"</code></th><td>Tab</td><td>Muted; ignored by pointer and skipped by arrow keys</td></tr>
+              <tr><th scope="row"><code>disabled</code> or <code>aria-disabled="true"</code></th><td>Tab (a link tab: <code>aria-disabled</code> only)</td><td>Muted; ignored by pointer and skipped by arrow keys</td></tr>
               <tr><th scope="row"><code>.cb-tabs__panel</code> + <code>role="tabpanel"</code></th><td><code>&lt;div&gt;</code></td><td>Framed panel; <code>hidden</code> unless its tab is selected</td></tr>
               <tr><th scope="row"><code>.cb-tabs__heading</code></th><td>In a panel</td><td>Panel title shown only without the script</td></tr>
               <tr><th scope="row"><code>.cb-tabs--vertical</code> + <code>aria-orientation="vertical"</code></th><td>Tab set, list</td><td>List at the start; horizontal below 30rem</td></tr>

@@ -34,8 +34,8 @@ The first release of Cubicle.
 - **Fieldsets and panels.** `.cb-fieldset` group boxes with a group error. `.cb-panel` with head,
   title, body (also flush) and foot, status stripes, recessed wells and collapsible `<details>`
   panels.
-- **Tabs.** `.cb-tabs` folder tabs for links and for ARIA tabs, with counts, lamps, disabled tabs,
-  tabs in a panel head and vertical tabs.
+- **Tabs.** `.cb-tabs` folder tabs for links and for ARIA tabs, with counts, lamps, disabled tabs
+  (native or `aria-disabled`), tabs in a panel head and vertical tabs.
 - **Data tables.** `.cb-table` styled by element, in a scrolling `.cb-table-wrap`. Zebra rows,
   instant hover, row selection, sortable headers, a sticky header and first column, compact and
   wrapping modes, totals, captions and an empty state.
