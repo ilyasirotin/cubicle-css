@@ -2242,11 +2242,14 @@
     background: var(--cb-grad-btn-dark), var(--cb-danger);
   }
 
-  /* Waiting with no known amount: a still hatch, no motion (AGENTS.md section 5). */
+  /* Waiting with no known amount: a still hatch, no motion (AGENTS.md section 5).
+     A tiled gradient, not a repeating one: Firefox draws a repeating gradient
+     with a color-mix() stop almost flat. The 17px square (12px times the
+     square root of 2) holds one 6px stripe of each colour across the slant. */
   .cb-meter:indeterminate::-webkit-progress-bar {
-    background: repeating-linear-gradient(-45deg,
-      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 0 6px,
-      var(--cb-bg-recessed) 6px 12px);
+    background: linear-gradient(-45deg,
+      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 25%, var(--cb-bg-recessed) 25% 50%,
+      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 50% 75%, var(--cb-bg-recessed) 75%) 0 0 / 17px 17px;
   }
 
   /* Firefox draws the track on the element itself and offers only the value
@@ -2276,9 +2279,9 @@
     }
 
     .cb-meter:indeterminate {
-      background: repeating-linear-gradient(-45deg,
-        color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 0 6px,
-        var(--cb-bg-recessed) 6px 12px);
+      background: linear-gradient(-45deg,
+        color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 25%, var(--cb-bg-recessed) 25% 50%,
+        color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 50% 75%, var(--cb-bg-recessed) 75%) 0 0 / 17px 17px;
     }
 
     .cb-meter:indeterminate::-moz-progress-bar {

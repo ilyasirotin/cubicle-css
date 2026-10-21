@@ -945,6 +945,13 @@ if (want('meters') && await page.locator('.docs-demo .cb-meter').count()) {
       const a = (await m.screenshot()).toString('base64'); await page.waitForTimeout(300); const b = (await m.screenshot()).toString('base64');
       ok &&= info.animation === 'none' && a === b;
       results.push(`still ${a === b}, animation ${info.animation}`);
+      // The hatch is drawn: about half of the track is the darker stripe (Firefox once drew a
+      // repeating gradient with a color-mix() stop as hairlines on a flat track).
+      const samples = []; for (let k = 0; k < 40; k++) samples.push(await px(0.05 + 0.9 * k / 39, midTrack));
+      const light = samples.reduce((x, y) => (ratio(y, [0, 0, 0]) > ratio(x, [0, 0, 0]) ? y : x));
+      const dark = samples.filter((c) => ratio(c, light) >= 1.4).length;
+      ok &&= dark >= 10;
+      results.push(`${dark}/40 samples on a stripe`);
     }
     check(ok, `meter: ${info.key.trim()}`, results.join(', '));
     const ruler = []; let rulerOk = true;
