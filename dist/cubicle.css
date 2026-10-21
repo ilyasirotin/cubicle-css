@@ -741,14 +741,17 @@
       --_border-top: var(--cb-danger);
     }
 
-    /* aria-disabled keeps a locked value in the tab order, so its hint can be
-       read; pair it with readonly, as aria-disabled alone does not stop typing. */
     /* A value the server is checking; the spinner sits in an addon (5.1). */
     &[aria-busy="true"] {
       cursor: progress;
     }
 
-    &:is(:disabled, [aria-disabled="true"]) {
+    /* aria-disabled keeps a locked value in the tab order, so its hint can be
+       read; pair it with readonly, as aria-disabled alone does not stop typing.
+       A select has no readonly and stays editable under aria-disabled, so only
+       disabled locks it (the catalogue's readonly row says how to submit its
+       value). */
+    &:is(:disabled, [aria-disabled="true"]:where(input, textarea)) {
       --_bg: var(--cb-bg-recessed);
       --_ink: var(--cb-text-disabled);
       --_border: var(--cb-border-main);
@@ -1116,7 +1119,7 @@
       border-color: var(--cb-danger);
     }
 
-    &:has(> :is(.cb-input, .cb-select):is(:disabled, [aria-disabled="true"])) > .cb-input-group__addon {
+    &:has(> :is(.cb-input, .cb-select):is(:disabled, [aria-disabled="true"]:where(input, textarea))) > .cb-input-group__addon {
       color: var(--cb-text-disabled);
     }
   }
@@ -3179,11 +3182,12 @@
       color: HighlightText;
     }
 
-    :is(.cb-btn, .cb-input, .cb-select, .cb-menu__item, .cb-nav__link, .cb-tabs__tab):is(:disabled, [aria-disabled="true"]),
+    :is(.cb-btn, .cb-input, .cb-select, .cb-menu__item, .cb-tabs__tab):disabled,
+    :is(.cb-btn, .cb-input, .cb-menu__item, .cb-nav__link, .cb-tabs__tab)[aria-disabled="true"],
     .cb-table tbody tr[aria-disabled="true"] > :is(th, td),
     .cb-choice:has(:disabled),
     .cb-fieldset:disabled > legend,
-    .cb-input-group:has(> :is(.cb-input, .cb-select):is(:disabled, [aria-disabled="true"])) > .cb-input-group__addon {
+    .cb-input-group:has(> :is(.cb-input, .cb-select):is(:disabled, [aria-disabled="true"]:where(input, textarea))) > .cb-input-group__addon {
       color: GrayText;
     }
 

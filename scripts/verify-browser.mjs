@@ -1604,6 +1604,7 @@ if (want('forms')) {
       + `<input class="cb-input" type="text" readonly value="3f9c2a71" aria-label="input readonly">${roles('')}${roles(' disabled')}`
       + '<input class="cb-input" type="text" aria-disabled="true" readonly value="ou=staff" aria-label="input aria-disabled">'
       + '<div class="cb-input-group"><input class="cb-input" type="number" disabled value="25" aria-label="group disabled"><span class="cb-input-group__addon">s</span></div>'
+      + '<div class="cb-input-group"><select class="cb-select" aria-disabled="true" aria-label="select aria-disabled"><option>Operator</option></select><span class="cb-input-group__addon">role</span></div>'
       + ['invalid', 'valid'].map((g) => `<fieldset class="cb-fieldset" data-vb-group="${g}"><legend>Roles</legend>`
         + `<label class="cb-choice"><input class="cb-check" type="checkbox"${g === 'invalid' ? ' aria-invalid="true"' : ''}>Viewer</label>`
         + '<p class="cb-field__error">Choose at least one role.</p></fieldset>').join('')
@@ -1731,6 +1732,17 @@ if (want('forms')) {
   });
   check(locked.field.fill === locked.want.fill && locked.field.ink === locked.want.ink && locked.addon === locked.want.ink,
     'aria-disabled fields look disabled, and a disabled field mutes its addon', JSON.stringify(locked));
+  // A <select> has no readonly, so aria-disabled leaves it editable: it must not look locked.
+  const open = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const token = (t) => { probe.style.color = `var(--cb-${t})`; return getComputedStyle(probe).color; };
+    const want = { fill: token('bg-raised'), ink: token('text-main'), muted: token('text-disabled') }; probe.remove();
+    const field = getComputedStyle(document.querySelector('[aria-label="select aria-disabled"]'));
+    const addon = getComputedStyle(document.querySelector('[aria-label="select aria-disabled"] + .cb-input-group__addon'));
+    return { want, field: { fill: field.backgroundColor, ink: field.color, cursor: field.cursor }, addon: addon.color };
+  });
+  check(open.field.fill === open.want.fill && open.field.ink === open.want.ink && open.field.cursor !== 'not-allowed' && open.addon !== open.want.muted,
+    'an aria-disabled <select> keeps the editable look, as it stays editable', JSON.stringify(open));
   // A group whose choices are invalid frames itself and its legend in crimson and shows its error.
   const groups = await pf.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));

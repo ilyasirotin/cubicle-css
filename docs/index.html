@@ -1849,7 +1849,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>readonly</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed monospace; focusable and submitted. <code>&lt;select&gt;</code> has no read-only state: use <code>disabled</code> and send the value in a hidden input</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Any control</td><td>Flat and muted; skipped by Tab, not submitted</td></tr>
               <tr><th scope="row"><code>aria-busy="true"</code></th><td><code>.cb-input</code>, <code>.cb-input-group__addon</code></td><td>Field: progress cursor. Addon: stepped spinner before its word (still under reduced motion)</td></tr>
-              <tr><th scope="row"><code>aria-disabled="true"</code> + <code>readonly</code></th><td><code>.cb-input</code></td><td>The disabled look, but focusable and submitted, so its hint can be read</td></tr>
+              <tr><th scope="row"><code>aria-disabled="true"</code> + <code>readonly</code></th><td><code>.cb-input</code></td><td>The disabled look, but focusable and submitted, so its hint can be read. Not on <code>&lt;select&gt;</code>: it stays editable, so use <code>disabled</code></td></tr>
               <tr><th scope="row"><code>required</code></th><td>Any control</td><td>Asterisk after the field label</td></tr>
               <tr><th scope="row"><code>aria-invalid="true"</code></th><td>Any control</td><td>Crimson border and tint; error shown (server validation)</td></tr>
               <tr><th scope="row"><code>:user-invalid</code></th><td>Any control</td><td>Same look after the user interacts (native constraints)</td></tr>
