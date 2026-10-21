@@ -128,6 +128,13 @@ if (want('layout')) {
     await snap(page, `page-${width}.png`, { fullPage: true }).catch(() => snap(page, `page-${width}.png`));
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+  // A flush panel body frames its children: each one loses margin, border and radius, whatever
+  // component it is (tables, wrappers, lists and wells come later in the stylesheet).
+  const framed = await page.$$eval('.cb-panel__body--flush > *', (els) => els.filter((e) => e.getClientRects().length).map((e) => {
+    const s = getComputedStyle(e);
+    return { el: `${e.localName}.${[...e.classList].join('.')}`, edge: [s.margin, s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth, s.borderTopLeftRadius] };
+  }).filter((c) => c.edge.some((v) => v !== '0px')));
+  check(!framed.length, 'children of a flush panel body have no margin, border or radius', framed.map((c) => `${c.el} ${c.edge.join(' ')}`).join('; '));
 }
 
 // 3. Visible focus ring on the first instance of each control type
@@ -624,14 +631,14 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
     const after = [...row.children].slice(0, pinned).map((c) => c.getBoundingClientRect().left - box().left);
     const scrolledX = wrap.scrollLeft;
     wrap.scrollTop = wrap.scrollHeight;
-    const headTop = t.querySelector('thead th').getBoundingClientRect().top - box().top;
+    const headTop = t.querySelector('thead th').getBoundingClientRect().top - box().top - wrap.clientTop; // from the inner edge
     const scrolledY = wrap.scrollTop;
     wrap.scrollLeft = 0; wrap.scrollTop = 0;
     return { i, pinned, before, after, scrolledX, headTop, scrolledY };
   }));
   for (const s of sticky.filter((x) => !x.skip)) {
     const columnsHold = !s.scrolledX || s.after.every((x, k) => Math.abs(x - s.before[k]) < 1);
-    const headHolds = !s.scrolledY || Math.abs(s.headTop - 1) < 1;
+    const headHolds = !s.scrolledY || Math.abs(s.headTop) < 1;
     check(columnsHold && headHolds && (s.scrolledX || s.scrolledY), `sticky table ${s.i + 1}: pinned columns and header stay in place while scrolled`,
       `scrolled x ${s.scrolledX} y ${s.scrolledY}; first ${s.pinned} column(s) ${s.before.map(Math.round)} -> ${s.after.map(Math.round)}; header top ${Math.round(s.headTop)}`);
   }

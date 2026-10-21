@@ -1226,16 +1226,17 @@
   }
 
   /* Flush body: tables, lists and wells run edge to edge, framed only by the
-     panel border. */
+     panel border. The children's own frames come later in the file (5.4 on),
+     so the child rule takes both body classes to outrank a component class. */
   .cb-panel__body--flush {
     display: grid;
     padding: 0;
+  }
 
-    & > * {
-      margin: 0;
-      border: 0;
-      border-radius: var(--cb-radius-none);
-    }
+  .cb-panel__body.cb-panel__body--flush > * {
+    margin: 0;
+    border: 0;
+    border-radius: var(--cb-radius-none);
   }
 
   .cb-panel__foot {
@@ -2719,13 +2720,6 @@
     & > div {
       display: contents;
     }
-  }
-
-  /* In a flush panel body the panel frames the list; the generic flush rule
-     (5.3) comes earlier with the same specificity, so it cannot. */
-  .cb-panel__body--flush > .cb-props {
-    border: 0;
-    border-radius: var(--cb-radius-none);
   }
 
   /* align-content centres one line in the row height, as a table cell does;
