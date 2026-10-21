@@ -389,6 +389,31 @@ if (want('script') && await page.locator(ACTIONS).count()) {
         `start ${start.master} ${start.on}/${start.n}; all ${all.on}/${all.n} lit ${all.lit}, ${changes} change events; one off -> ${mixed.master}; cleared -> ${none.master} ${none.on}`);
     }
 
+    // Select-all after server swaps, with no click: new rows, a row box turned disabled and a
+    // whole table inserted with its master inside resync the master. On a fresh page, because
+    // the table is replaced.
+    const [swapId] = await ids(p, 'data-cb-select-all');
+    if (swapId) {
+      const ps = await fresh();
+      const swaps = await ps.evaluate(async (i) => {
+        const tick = () => new Promise((r) => setTimeout(r, 0));
+        const look = () => { const m = document.querySelector(`[data-cb-select-all="${i}"]`); return m.checked ? 'on' : m.indeterminate ? 'mixed' : 'off'; };
+        const row = (on) => `<tr><td><input class="cb-check" type="checkbox"${on ? ' checked' : ''} aria-label="row"></td></tr>`;
+        const table = () => document.getElementById(i);
+        document.querySelector(`[data-cb-select-all="${i}"]`).click(); await tick(); const all = look();
+        table().tBodies[0].outerHTML = `<tbody>${row(false)}${row(false)}</tbody>`; await tick(); const swapped = look();
+        table().tBodies[0].innerHTML = row(true) + row(false); await tick(); const mixed = look();
+        table().tBodies[0].rows[1].querySelector('input').disabled = true; await tick(); const disabled = look();
+        const fresh = document.createElement('table'); fresh.id = i;
+        fresh.innerHTML = `<thead><tr><th><input type="checkbox" data-cb-select-all="${i}" aria-label="all"></th></tr></thead><tbody>${row(true)}${row(true)}</tbody>`;
+        table().replaceWith(fresh); await tick(); const inserted = look();
+        return { all, swapped, mixed, disabled, inserted };
+      }, swapId);
+      await ps.close();
+      check(swaps.all === 'on' && swaps.swapped === 'off' && swaps.mixed === 'mixed' && swaps.disabled === 'on' && swaps.inserted === 'on',
+        `select-all #${swapId} follows rows swapped in or disabled and a table inserted with its master`, JSON.stringify(swaps));
+    }
+
     // Dismiss from the keyboard: the target is hidden and focus moves to a rendered control
     // outside it, never to <body>.
     for (const id of await ids(p, 'data-cb-dismiss')) {

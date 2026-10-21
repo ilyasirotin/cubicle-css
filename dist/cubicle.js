@@ -15,7 +15,8 @@
  *   data-cb-download="id" data-cb-filename=""  save the target's text as a file
  *   data-cb-select-all="id"                    header checkbox: (un)check every row
  *                                              checkbox of the table; it shows the
- *                                              rows' state, indeterminate when mixed
+ *                                              rows' state, indeterminate when mixed,
+ *                                              and follows rows swapped in or disabled
  *   data-cb-dismiss="id"                       hide the target (an alert); focus
  *                                              moves to the next focusable element
  *   data-cb-tabs (no value)                    container of ARIA tabs: click,
@@ -189,20 +190,28 @@
   };
 
   document.querySelectorAll(MARKS).forEach(placeMarks);
+  // The same observer keeps select-all boxes true to their rows when the
+  // server swaps rows or a whole table in, or disables a row box. Syncing
+  // sets properties only, so it never wakes the observer.
   new MutationObserver((records) => {
+    let resync = false;
     for (const record of records) {
       if (record.type === 'attributes') {
         if (record.target.matches(MARKS)) placeMarks(record.target);
+        if (record.attributeName === 'disabled' && record.target.closest('table')) resync = true;
         continue;
       }
+      if (record.target.closest('table')) resync = true;
       for (const node of record.addedNodes) {
         if (!(node instanceof Element)) continue;
         if (node.matches(MARKS)) placeMarks(node);
         node.querySelectorAll(MARKS).forEach(placeMarks);
+        if (node.matches(`${SELECT_ALL}, table`) || node.querySelector(`${SELECT_ALL}, table`)) resync = true;
       }
     }
+    if (resync) document.querySelectorAll(SELECT_ALL).forEach(syncSelectAll);
   }).observe(document.documentElement, {
-    childList: true, subtree: true, attributes: true, attributeFilter: ['low', 'high', 'min', 'max', 'data-cb-marks'],
+    childList: true, subtree: true, attributes: true, attributeFilter: ['low', 'high', 'min', 'max', 'data-cb-marks', 'disabled'],
   });
 
   // Hiding the target would drop focus to <body>: move it to the next

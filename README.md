@@ -86,7 +86,7 @@ id of the target element.
 | `data-cb-copy="id"` | button | Copies the target's value or text; falls back to a hidden buffer on plain HTTP and announces the result |
 | `data-cb-reveal="id"` | button with `aria-pressed` | Shows or masks a password field; `data-cb-reveal-timeout="30"` masks it again |
 | `data-cb-download="id"` | button | Saves the target's text as a file named by `data-cb-filename` |
-| `data-cb-select-all="id"` | header checkbox | Checks every row box of the table; shows the mixed state |
+| `data-cb-select-all="id"` | header checkbox | Checks every row box of the table; shows the mixed state and follows rows swapped in or disabled |
 | `data-cb-dismiss="id"` | button | Hides the target (an alert) and moves focus on |
 | `data-cb-tabs` | tab set | Click, arrow keys, Home and End switch ARIA tabs |
 | `data-cb-tree` | tree | Arrow keys, Home, End, Enter and Space walk, open and select tree items; fires `cb-toggle` |
