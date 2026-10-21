@@ -1287,7 +1287,7 @@ for (const width of want('keyboard') ? [1360, 360] : []) {
     await pa.keyboard.press(TAB);
     // Firefox and WebKit scroll to the focused control a frame later; measure after it.
     await pa.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
-    const stop = await pa.evaluate((segmented) => {
+    const measure = () => pa.evaluate((segmented) => {
       const el = document.activeElement;
       if (!el || el === document.body || el === document.documentElement) return null;
       if (!el.dataset.vbStop) el.dataset.vbStop = String(document.querySelectorAll('[data-vb-stop]').length);
@@ -1322,6 +1322,10 @@ for (const width of want('keyboard') ? [1360, 360] : []) {
       if (ring.b - ring.t <= innerHeight && ring.r - ring.l <= innerWidth) inside({ l: 0, t: 0, r: innerWidth, b: innerHeight }, 'viewport', true);
       return { id: el.dataset.vbStop, name, visible, clip, partial, segmented: el.matches(segmented) };
     }, SEGMENTED);
+    let stop = await measure();
+    // Under load an engine can scroll to the control later still (seen in WebKit with runs side by
+    // side): a stop the viewport cuts is measured again before it counts.
+    for (let tries = 0; stop?.clip.includes('viewport') && tries < 5; tries++) { await pa.waitForTimeout(50); stop = await measure(); }
     if (!stop) break;
     // The next segment of a date or time field (at most 8): keep walking.
     if (stop.id === lastId && stop.segmented && segments < 8) { segments++; continue; }
