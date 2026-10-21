@@ -60,10 +60,10 @@ text, links, monospace elements and the focus ring.
 | Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
 | Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
 | Secret boxes | `.cb-secret`; `data-cb-copy`, `data-cb-reveal`, `data-cb-download` | [Secret boxes](docs/index.html#secrets) |
-| Fieldsets and panels | `.cb-fieldset`, `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; `--inset`, status stripes, `<details>` panels; group errors through `aria-invalid` choices | [Fieldsets & panels](docs/index.html#panels) |
+| Fieldsets and panels | `.cb-fieldset`, `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; `--inset`, status stripes, `<details>` panels; group errors through `aria-invalid` choices; `aria-busy` on a body | [Fieldsets & panels](docs/index.html#panels) |
 | Tabs | `.cb-tabs`, `__list`, `__tab`, `__panel`; link tabs with `aria-current`, ARIA tabs with `data-cb-tabs`; `disabled`, `aria-disabled` | [Tabs](docs/index.html#tabs) |
-| Data tables | `.cb-table-wrap`, `.cb-table`, `--compact`, `--wrap`, `--sticky`, `__num`, `__select`, `__actions`, `__sort`; `aria-selected`, `aria-disabled`, `aria-sort`, `data-cb-select-all` | [Data tables](docs/index.html#tables) |
-| Property lists | `.cb-props` on `<dl>`; `dt` / `dd` or a `<div>` per row | [Property lists](docs/index.html#props) |
+| Data tables | `.cb-table-wrap`, `.cb-table`, `--compact`, `--wrap`, `--sticky`, `__num`, `__select`, `__actions`, `__sort`; `aria-selected`, `aria-disabled`, `aria-sort`, `aria-busy` (body or table), `data-cb-select-all` | [Data tables](docs/index.html#tables) |
+| Property lists | `.cb-props` on `<dl>`; `dt` / `dd` or a `<div>` per row; `aria-busy` | [Property lists](docs/index.html#props) |
 | Badges and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-led` | [Status badges & LEDs](docs/index.html#badges) |
 | Alerts | `.cb-alert` (tones, `--sm`, `--banner`), `__title`, `__actions`, `__close`; `data-cb-dismiss` | [Alerts](docs/index.html#alerts) |
 | Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `aria-disabled`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |
@@ -142,8 +142,8 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 91 KB (22 KB gzip), minified 46 KB (8.8 KB gzip); `cubicle.js` 16 KB
-(5.1 KB gzip), minified 7.1 KB (2.7 KB gzip).
+Sizes: `cubicle.css` 93 KB (22 KB gzip), minified 47 KB (8.9 KB gzip); `cubicle.js` 17 KB
+(5.3 KB gzip), minified 7.4 KB (2.8 KB gzip).
 
 ## Development
 

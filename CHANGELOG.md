@@ -42,6 +42,10 @@ The first release of Cubicle.
 - **Property lists.** `.cb-props` key-value lists on `<dl>` for inspector views, framed like a
   table: bare `dt` / `dd` pairs or a `<div>` per row, extra values under the first, 28px rows that
   follow the density, and key above value when the list is narrower than 28rem.
+- **Busy containers.** `aria-busy="true"` on a table body (or a whole table, head excluded), a
+  panel body or a property list mutes its text over a still hatch fixed to the viewport and shows
+  a progress cursor, with no layout shift and nothing blocked. Tables and lists inside a busy
+  panel body are hatched too.
 - **Badges and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a busy
   badge, and frameless `.cb-led`.
 - **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a

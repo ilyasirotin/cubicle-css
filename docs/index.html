@@ -2088,6 +2088,53 @@
   &lt;/details&gt;
 &lt;/div&gt;</code></pre>
 
+        <h3 class="docs-h3" id="panels-busy">Busy body</h3>
+        <p class="docs-text">A body the server is saving or replacing takes <code>aria-busy="true"</code>:
+          muted text over a still hatch, with tables and property lists inside it hatched too. Fields
+          keep working; disable what must not change. A form is busy through the panel body it sits in.</p>
+        <div class="docs-demo">
+          <form class="cb-panel" method="post" action="#panels-busy" aria-labelledby="p-busy-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="p-busy-title">LDAP connection</h4>
+            </header>
+            <div class="cb-panel__body cb-stack" aria-busy="true">
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="p-busy-url">Server</label>
+                <input class="cb-input" id="p-busy-url" name="url" type="url" value="ldaps://dc1.corp.example.net:636">
+              </div>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="p-busy-dn">Bind DN</label>
+                <input class="cb-input" id="p-busy-dn" name="bind" type="text" value="CN=svc-vpn,OU=Service,DC=corp,DC=example,DC=net">
+              </div>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" name="verify" checked>Verify the server certificate</label>
+            </div>
+            <footer class="cb-panel__foot">
+              <button class="cb-btn" type="reset">Discard</button>
+              <button class="cb-btn cb-btn--primary" type="submit" aria-busy="true" disabled>Save</button>
+            </footer>
+          </form>
+        </div>
+        <pre class="docs-snippet"><code>&lt;form class=&quot;cb-panel&quot; method=&quot;post&quot; action=&quot;#panels-busy&quot; aria-labelledby=&quot;p-busy-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;p-busy-title&quot;&gt;LDAP connection&lt;/h4&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-stack&quot; aria-busy=&quot;true&quot;&gt;
+    &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;p-busy-url&quot;&gt;Server&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;p-busy-url&quot; name=&quot;url&quot; type=&quot;url&quot; value=&quot;ldaps://dc1.corp.example.net:636&quot;&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;p-busy-dn&quot;&gt;Bind DN&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;p-busy-dn&quot; name=&quot;bind&quot; type=&quot;text&quot; value=&quot;CN=svc-vpn,OU=Service,DC=corp,DC=example,DC=net&quot;&gt;
+    &lt;/div&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;verify&quot; checked&gt;Verify the server certificate&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;reset&quot;&gt;Discard&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;submit&quot; aria-busy=&quot;true&quot; disabled&gt;Save&lt;/button&gt;
+  &lt;/footer&gt;
+&lt;/form&gt;</code></pre>
+
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap">
             <thead>
@@ -2102,6 +2149,7 @@
               <tr><th scope="row"><code>.cb-panel__title</code></th><td><code>&lt;h2&gt;</code>–<code>&lt;h4&gt;</code></td><td>16px panel title</td></tr>
               <tr><th scope="row"><code>.cb-panel__body</code></th><td><code>&lt;div&gt;</code>, <code>&lt;pre&gt;</code></td><td>12px padding</td></tr>
               <tr><th scope="row"><code>.cb-panel__body--flush</code></th><td>Body</td><td>No padding; direct children lose margin, border and radius</td></tr>
+              <tr><th scope="row"><code>aria-busy="true"</code></th><td>Body</td><td>Muted text over a still hatch, progress cursor; tables and property lists inside are hatched too</td></tr>
               <tr><th scope="row"><code>.cb-panel__foot</code></th><td><code>&lt;footer&gt;</code></td><td>Action bar aligned to the end</td></tr>
               <tr><th scope="row"><code>.cb-panel--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code></th><td>Panel</td><td>3px status edge; pair with a status word</td></tr>
               <tr><th scope="row"><code>.cb-panel--inset</code></th><td>Panel, <code>&lt;pre&gt;</code></td><td>Recessed well with its own padding and scrolling</td></tr>
@@ -2811,6 +2859,55 @@
   &lt;/tbody&gt;
 &lt;/table&gt;</code></pre>
 
+        <h3 class="docs-h3" id="tables-busy">Busy while reloading</h3>
+        <p class="docs-text">While the server replaces the rows (a new page, filter or sort), mark the
+          <code>&lt;tbody&gt;</code>, or the whole table, <code>aria-busy="true"</code>: body cells take a still
+          hatch and muted text, and the cursor shows progress. Zebra, hover and selection go quiet; the head
+          stays as it is, and nothing changes size or stops working. Give the key that started it
+          <code>aria-busy="true"</code> too.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="t-busy-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="t-busy-title">Peers on gw-eu-1</h4>
+              <button class="cb-btn cb-btn--sm" type="button" aria-busy="true" disabled>Refresh</button>
+            </header>
+            <div class="cb-panel__body cb-panel__body--flush">
+              <div class="cb-table-wrap">
+                <table class="cb-table cb-table--sticky" aria-labelledby="t-busy-title">
+                  <thead>
+                    <tr><th scope="col">Peer</th><th scope="col">Status</th><th scope="col">Tunnel IP</th><th scope="col">Endpoint</th><th class="cb-table__num" scope="col">Received</th><th scope="col">Last handshake</th></tr>
+                  </thead>
+                  <tbody aria-busy="true">
+                    <tr><th scope="row">laptop-an-1</th><td><span class="cb-badge cb-badge--ok">Online</span></td><td class="cb-mono">10.8.0.11</td><td class="cb-mono">203.0.113.24:51820</td><td class="cb-table__num">1.42 GB</td><td>14 s ago</td></tr>
+                    <tr aria-selected="true"><th scope="row">phone-bk-2</th><td><span class="cb-badge cb-badge--warn">Stale</span></td><td class="cb-mono">10.8.0.12</td><td class="cb-mono">198.51.100.7:51820</td><td class="cb-table__num">86.0 MB</td><td>6 min ago</td></tr>
+                    <tr><th scope="row">svc-backup</th><td><span class="cb-badge cb-badge--info">Service</span></td><td class="cb-mono">10.8.0.40</td><td class="cb-mono">10.20.4.15:51820</td><td class="cb-table__num">38.9 GB</td><td>3 s ago</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;t-busy-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;t-busy-title&quot;&gt;Peers on gw-eu-1&lt;/h4&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; aria-busy=&quot;true&quot; disabled&gt;Refresh&lt;/button&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+    &lt;div class=&quot;cb-table-wrap&quot;&gt;
+      &lt;table class=&quot;cb-table cb-table--sticky&quot; aria-labelledby=&quot;t-busy-title&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Endpoint&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Last handshake&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody aria-busy=&quot;true&quot;&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;laptop-an-1&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.11&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;203.0.113.24:51820&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;&lt;td&gt;14 s ago&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr aria-selected=&quot;true&quot;&gt;&lt;th scope=&quot;row&quot;&gt;phone-bk-2&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.12&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;198.51.100.7:51820&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;&lt;td&gt;6 min ago&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;svc-backup&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--info&quot;&gt;Service&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.40&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.20.4.15:51820&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;38.9 GB&lt;/td&gt;&lt;td&gt;3 s ago&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
         <h3 class="docs-h3" id="tables-a11y">Accessibility</h3>
         <ul class="docs-list">
           <li>Name every table: a <code>&lt;caption&gt;</code>, or <code>aria-labelledby</code> pointing at
@@ -2839,6 +2936,7 @@
               <tr><th scope="row"><code>.cb-table__empty</code></th><td><code>&lt;td colspan&gt;</code></td><td>Centred, muted “no data” row</td></tr>
               <tr><th scope="row"><code>aria-selected="true"</code></th><td><code>&lt;tr&gt;</code></td><td>Selected row</td></tr>
               <tr><th scope="row"><code>aria-disabled="true"</code></th><td><code>&lt;tr&gt;</code></td><td>Muted text, no hover fill; give its check box <code>disabled</code></td></tr>
+              <tr><th scope="row"><code>aria-busy="true"</code></th><td><code>&lt;tbody&gt;</code>, <code>&lt;table&gt;</code></td><td>Body rows muted over a still hatch, progress cursor; the head stays as it is</td></tr>
               <tr><th scope="row"><code>.cb-check:checked</code></th><td>Row checkbox</td><td>Selects its row</td></tr>
               <tr><th scope="row"><code>data-cb-select-all="id"</code></th><td>Header checkbox</td><td>Checks every row box of the table; indeterminate when mixed; follows rows swapped in or disabled (script)</td></tr>
               <tr><th scope="row"><code>&lt;caption&gt;</code>, <code>&lt;tfoot&gt;</code></th><td>Table</td><td>Label above the frame; totals row</td></tr>
@@ -2959,6 +3057,32 @@
   &lt;/div&gt;
 &lt;/section&gt;</code></pre>
 
+        <h3 class="docs-h3" id="props-busy">Busy</h3>
+        <p class="docs-text">While the server refreshes the facts, <code>aria-busy="true"</code> on the list
+          mutes its text over a still hatch.</p>
+        <div class="docs-demo">
+          <dl class="cb-props" aria-busy="true">
+            <dt>Hostname</dt>
+            <dd class="cb-mono">ws-0142.corp.example.net</dd>
+            <dt>Last seen</dt>
+            <dd><time datetime="2026-10-21T10:41:58Z">2026-10-21 10:41:58 UTC</time></dd>
+            <dt>Agent</dt>
+            <dd>cubicle-agent 4.2.1</dd>
+            <dt>Disk encryption</dt>
+            <dd><span class="cb-badge cb-badge--ok">On</span></dd>
+          </dl>
+        </div>
+        <pre class="docs-snippet"><code>&lt;dl class=&quot;cb-props&quot; aria-busy=&quot;true&quot;&gt;
+  &lt;dt&gt;Hostname&lt;/dt&gt;
+  &lt;dd class=&quot;cb-mono&quot;&gt;ws-0142.corp.example.net&lt;/dd&gt;
+  &lt;dt&gt;Last seen&lt;/dt&gt;
+  &lt;dd&gt;&lt;time datetime=&quot;2026-10-21T10:41:58Z&quot;&gt;2026-10-21 10:41:58 UTC&lt;/time&gt;&lt;/dd&gt;
+  &lt;dt&gt;Agent&lt;/dt&gt;
+  &lt;dd&gt;cubicle-agent 4.2.1&lt;/dd&gt;
+  &lt;dt&gt;Disk encryption&lt;/dt&gt;
+  &lt;dd&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;On&lt;/span&gt;&lt;/dd&gt;
+&lt;/dl&gt;</code></pre>
+
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap">
             <thead>
@@ -2971,6 +3095,7 @@
               <tr><th scope="row"><code>.cb-mono</code></th><td><code>&lt;dd&gt;</code></td><td>Monospace for DNs, serials, addresses and hashes</td></tr>
               <tr><th scope="row"><code>.cb-panel__body--flush</code></th><td>Parent</td><td>The panel frames the list edge to edge</td></tr>
               <tr><th scope="row"><code>data-cb-density</code></th><td>Any ancestor</td><td>Row height follows the density (24px compact, 32px comfortable)</td></tr>
+              <tr><th scope="row"><code>aria-busy="true"</code></th><td><code>&lt;dl&gt;</code></td><td>Muted text over a still hatch, progress cursor</td></tr>
             </tbody>
           </table>
         </div>

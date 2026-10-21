@@ -20,7 +20,8 @@
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
 //                 pagination-<width>.png and utilities-<width>.png, and
-//                 forms-matrix.png of the native form-control fixture, and props-<width>.png.
+//                 forms-matrix.png of the native form-control fixture, props-<width>.png and
+//                 busy-<n>-<width>.png of each busy container's demo.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -50,7 +51,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -675,8 +676,9 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
 
   // Contrast of every row paint, live: hover is forced by moving the pointer onto a row.
-  // Disabled rows are exempt (WCAG 1.4.3) and checked on their own below.
-  const paints = async () => page.$$eval('.docs-demo .cb-table :is(tbody, tfoot) tr:not([aria-disabled="true"])', (rows) => {
+  // Disabled rows are exempt (WCAG 1.4.3) and checked on their own below; busy rows paint a
+  // hatch, not a colour, and are measured by check 27.
+  const paints = async () => page.$$eval('.docs-demo .cb-table :is(tbody, tfoot) tr:not([aria-disabled="true"], [aria-busy="true"] tr)', (rows) => {
     const cv = document.createElement('canvas'); cv.width = cv.height = 1;
     const g = cv.getContext('2d', { willReadFrequently: true });
     const rgb = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); };
@@ -1788,6 +1790,90 @@ if (want('props') && await page.locator('.cb-props').count()) {
       await page.setViewportSize({ width, height: 900 });
       await section.scrollIntoViewIfNeeded();
       await snap(section, `props-${width}.png`);
+    }
+    await page.setViewportSize({ width: 1360, height: 900 });
+  }
+}
+
+// 27. Busy containers (a table body or whole table, a panel body, a property list): a progress
+//     cursor and muted ink, one still hatch fixed to the viewport on the container or its body
+//     cells (never the head), with plain rgb stripes (Firefox draws color() stops in a repeating
+//     gradient almost flat), muted ink >= 4.5 on every stripe, no hover paint on busy rows, and
+//     nothing moves when aria-busy is set. A busy panel body hatches tables and lists inside it.
+const BUSY = '[aria-busy="true"]:is(.cb-panel__body, .cb-props, .cb-table, .cb-table > tbody)';
+if (want('busy') && await page.locator(BUSY).count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  await page.mouse.move(2, 2);
+  // The painting element of a container: its first body cell for tables, itself otherwise.
+  const paintOf = (sel) => page.evaluate((s) => [...document.querySelectorAll(s)].filter((c) => c.getClientRects().length).map((c) => {
+    const body = c.matches('.cb-table') ? c.tBodies[0] : c.matches('tbody') ? c : null;
+    const painter = body ? body.querySelector(':scope > tr > :is(th, td)') : c;
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    const rgb = (col) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = col; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); };
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-text-muted)'; const muted = getComputedStyle(probe).color; probe.remove();
+    const ps = getComputedStyle(painter); const ink = getComputedStyle(body ?? c);
+    const head = c.closest('.cb-table')?.querySelector('thead th');
+    return { name: `${c.localName}${c.className ? `.${c.className.split(' ')[0]}` : ''}`, cursor: ink.cursor, ink: ink.color, muted,
+      image: ps.backgroundImage, attach: ps.backgroundAttachment, head: head ? getComputedStyle(head).backgroundImage : 'none',
+      stripes: (ps.backgroundImage.match(/(?:rgba?|color)\([^)]*\)/g) ?? []).map(rgb), ink3: rgb(ink.color) };
+  }), sel);
+  const judge = (b) => {
+    const problems = [];
+    if (b.cursor !== 'progress') problems.push(`cursor ${b.cursor}`);
+    if (b.ink !== b.muted) problems.push(`ink ${b.ink}`);
+    if (!b.image.startsWith('repeating-linear-gradient') || b.attach !== 'fixed') problems.push(`paint ${b.image.slice(0, 40)} ${b.attach}`);
+    if (b.head.includes('repeating')) problems.push('head hatched');
+    const low = b.stripes.map((c) => ratio(b.ink3, c)).filter((r) => r < 4.5);
+    if (b.stripes.length < 2 || low.length) problems.push(`stripes ${b.stripes.length}, low ${low.map((r) => r.toFixed(2))}`);
+    // Firefox draws a repeating gradient with a color() stop (any color-mix) almost flat.
+    if (b.image.includes('color(')) problems.push('a stripe is a color() value');
+    return problems;
+  };
+  const busy = await paintOf(BUSY);
+  for (const b of busy) check(!judge(b).length, `busy ${b.name}: progress cursor, muted ink on a still hatch, head untouched`, judge(b).join('; ') || b.image.slice(0, 60));
+  check(new Set(busy.map((b) => b.image)).size === 1, 'every busy container paints the same hatch', `${new Set(busy.map((b) => b.image)).size} patterns`);
+
+  // Setting aria-busy moves nothing: every box inside each container stays where it was.
+  const shift = await page.evaluate((s) => [...document.querySelectorAll(s)].filter((c) => c.getClientRects().length).map((c) => {
+    const boxes = () => [c, ...c.querySelectorAll('*')].map((e) => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; });
+    const on = boxes(); c.removeAttribute('aria-busy'); const off = boxes(); c.setAttribute('aria-busy', 'true');
+    return Math.max(0, ...on.flatMap((b, i) => b.map((v, k) => Math.abs(v - off[i][k]))));
+  }), BUSY);
+  check(shift.every((d) => d < 0.01), 'setting aria-busy on a container moves nothing inside it', `largest shift ${Math.max(...shift).toFixed(3)}px`);
+
+  // A busy row keeps its paint under the pointer.
+  const row = page.locator('.cb-table > tbody[aria-busy="true"] > tr, .cb-table[aria-busy="true"] > tbody > tr').first();
+  if (await row.count()) {
+    const paint = () => row.evaluate((r) => { const c = getComputedStyle(r.querySelector('td')); return `${c.backgroundImage} ${c.backgroundColor}`; });
+    await row.scrollIntoViewIfNeeded(); const rest = await paint(); await row.hover(); const hovered = await paint(); await page.mouse.move(2, 2);
+    check(rest === hovered, 'a busy table row keeps its hatch under the pointer', rest === hovered ? '' : `${rest.slice(0, 40)} -> ${hovered.slice(0, 40)}`);
+  }
+
+  // Tables and property lists inside a busy panel body are hatched too.
+  const nested = await page.evaluate(() => {
+    const body = (inner) => [...document.querySelectorAll(`.docs-demo .cb-panel__body:not([aria-busy]):has(${inner})`)].find((b) => b.getClientRects().length);
+    const out = {};
+    for (const [key, inner, cell] of [['props', '.cb-props', '.cb-props'], ['table', '.cb-table > tbody', '.cb-table > tbody > tr > td']]) {
+      const b = body(inner); if (!b) continue;
+      b.setAttribute('aria-busy', 'true');
+      const s = getComputedStyle(b.querySelector(cell)); out[key] = `${s.backgroundImage.slice(0, 25)} ${s.backgroundAttachment}`;
+      b.removeAttribute('aria-busy');
+    }
+    return out;
+  });
+  check(Object.keys(nested).length === 2 && Object.values(nested).every((v) => v.startsWith('repeating-linear-gradient') && v.endsWith('fixed')),
+    'a busy panel body hatches the tables and property lists inside it', JSON.stringify(nested));
+
+  if (saving) {
+    const demos = page.locator(`.docs-demo:has(${BUSY})`);
+    for (const width of [1360, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (let i = 0; i < await demos.count(); i++) {
+        await demos.nth(i).scrollIntoViewIfNeeded();
+        await snap(demos.nth(i), `busy-${i + 1}-${width}.png`);
+      }
     }
     await page.setViewportSize({ width: 1360, height: 900 });
   }
