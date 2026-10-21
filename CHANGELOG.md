@@ -80,8 +80,8 @@ The first release of Cubicle.
 - **Catalogue and example.** `docs/index.html` shows every token and component in every state,
   with a copy-paste snippet identical to the live markup and a reference table. It also has a
   generated contrast table, a keyboard map and framework-neutral recipes for server updates (htmx
-  attributes, an htmx page listener, plain `fetch`). `docs/example.html` is a complete VPN console
-  screen.
+  attributes, an htmx page listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM
+  helper, optional auto-hide). `docs/example.html` is a complete VPN console screen.
 - **Development tools.**
   - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs`.
   - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state and behaviour

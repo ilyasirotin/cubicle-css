@@ -3640,6 +3640,41 @@ async function reloadRows(url) {
   &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--info&quot; id=&quot;toast-42&quot;&gt;LDAP sync finished: 12 users updated.&lt;button class=&quot;cb-alert__close cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-dismiss=&quot;toast-42&quot; aria-label=&quot;Dismiss&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
+        <h3 class="docs-h3" id="toasts-server">Server-pushed messages</h3>
+        <p class="docs-text">The server appends a message to the stack; <code>cubicle.js</code> serves its close key
+          with no set-up. With htmx, any response can carry one out of band:</p>
+        <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="htmx out-of-band toast"><code>&lt;!-- Part of any htmx response: the wrapper is dropped, the message is appended to #toast-stack. --&gt;
+&lt;div hx-swap-oob=&quot;beforeend:#toast-stack&quot;&gt;
+  &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--ok&quot; id=&quot;toast-43&quot;&gt;Peer laptop-an-1 revoked.&lt;button class=&quot;cb-alert__close cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-dismiss=&quot;toast-43&quot; aria-label=&quot;Dismiss&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        <p class="docs-text">Without a framework, a small host helper builds the message:</p>
+        <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="toast helper"><code>// Host code: append a message. Server text goes in as text, never as HTML.
+let toastCount = 0;
+function toast(text, tone = 'info') {
+  const message = document.createElement('div');
+  message.className = `cb-alert cb-alert--sm cb-alert--${tone}`;
+  message.id = `toast-${++toastCount}`;
+  if (tone === 'danger') message.setAttribute('role', 'alert');
+  const close = document.createElement('button');
+  close.className = 'cb-alert__close cb-btn cb-btn--sm cb-btn--icon';
+  close.type = 'button';
+  close.dataset.cbDismiss = message.id;
+  close.setAttribute('aria-label', 'Dismiss');
+  close.textContent = '✕';
+  message.append(text, close);
+  document.getElementById('toast-stack').append(message);
+  return message;
+}</code></pre>
+        <p class="docs-text">Cubicle sets no timers. A host that wants confirmations to go away on their own can
+          hide them later:</p>
+        <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="auto-hide recipe"><code>// Host code, optional: hide a confirmation after 10 s, but not while the pointer or focus is on it.
+// Warnings and errors never time out: they stay until read (WCAG 2.2.1).
+function hideLater(message, ms = 10000) {
+  if (!message.matches('.cb-alert--ok, .cb-alert--info')) return;
+  const hide = () =&gt; (message.matches(':hover, :focus-within') ? setTimeout(hide, 1000) : (message.hidden = true));
+  setTimeout(hide, ms);
+}</code></pre>
+
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap">
             <thead>
