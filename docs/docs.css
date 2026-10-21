@@ -279,6 +279,11 @@
     padding: 0;
   }
 
+  /* A taller stand-in viewport for a whole page, such as the sign-in recipe. */
+  .docs-frame--tall {
+    block-size: 26rem;
+  }
+
   /* Stand-in viewport for fixed overlays (the toast stack): layout containment
      makes the frame the containing block of fixed descendants. Not a scroll
      container: WebKit lays out but never paints a fixed box inside a

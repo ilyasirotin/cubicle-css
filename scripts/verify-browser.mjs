@@ -88,6 +88,7 @@ const ENGINE_LIMITS = [
   { engine: 'webkit', check: /reaches the clipboard|falls back when the async clipboard/, reason: 'WebKit refuses clipboard reads from automation, so the copied text cannot be compared' },
   { engine: 'webkit', check: /^selected options in a multi-select/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
   { engine: 'webkit', check: /^Escape clears a search field/, reason: 'WebKit does not clear a search field on Escape' },
+  { engine: 'webkit', check: /^states of input\.cb-input\[type=color\]/, reason: 'WebKit leaves colour fields out of the Tab order, even with Option+Tab' },
   { engine: 'firefox', check: /^states of input\.cb-input\[type=(date|time|datetime-local)\]\[readonly\]/, reason: 'Firefox does not let a readonly date or time field take focus' },
   { engine: 'firefox', check: /^forced colours: selected list-box options/, reason: 'Firefox paints list-box selection itself in forced colours (a light grey), not option backgrounds' },
   { engine: 'webkit', check: /^forced colours: selected list-box options/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
@@ -2240,7 +2241,7 @@ if (want('split') && await page.locator('.docs-demo .cb-split').count()) {
     });
     const ok = !sp.overflow && (width === 1360 ? sp.side && sp.ratio > 1.8 && sp.ratio < 2.2 : sp.stacked);
     check(ok, `master-detail at ${width}px: ${width === 1360 ? 'side by side, 2:1' : 'detail under the master'}`, JSON.stringify(sp));
-    await snap(page.locator('.docs-demo:has(> .cb-split)'), `split-${width}.png`);
+    await snap(page.locator('.docs-demo:has(> .cb-split)').first(), `split-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 }
@@ -2393,6 +2394,39 @@ if (want('recipes') && await page.locator('.docs-demo .cb-center').count()) {
       return { dx: (k.left + k.width / 2) - (r.left + r.width / 2), dy: (k.top + k.height / 2) - (r.top + r.height / 2), w: k.width, want: Math.min(24 * rem, r.width - 32), h: r.height, frame: el.parentElement.clientHeight };
     });
     check(Math.abs(c.dx) < 1 && Math.abs(c.dy) < 1 && Math.abs(c.w - c.want) < 1 && Math.abs(c.h - c.frame) < 1, `centre at ${width}px: the child sits in the middle, ${Math.round(c.want)}px wide`, JSON.stringify(c));
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+}
+// The recipes themselves: the filter bar wraps inside its panel at 360px, the code field asks
+// for digits and one-time codes, the current wizard step is bold, the colour readout follows
+// its field, and the masked secret shows nothing until its details open.
+if (want('recipes') && await page.locator('#recipes').count()) {
+  await page.setViewportSize({ width: 360, height: 900 });
+  const bar = await page.$eval('#recipes-filter ~ .docs-demo form[role="search"]', (f) => {
+    const panel = f.closest('.cb-panel').getBoundingClientRect(); const kids = [...f.children].map((k) => k.getBoundingClientRect());
+    return { rows: new Set(kids.map((k) => Math.round(k.top))).size, inside: kids.every((k) => k.left >= panel.left && k.right <= panel.right + 0.5), overflow: document.documentElement.scrollWidth > innerWidth };
+  });
+  check(bar.rows > 1 && bar.inside && !bar.overflow, 'recipe filter bar: wraps inside its panel at 360px', JSON.stringify(bar));
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const r = await page.evaluate(async () => {
+    const code = document.getElementById('rs-code');
+    const step = document.querySelector('#recipes-steps ~ .docs-demo [aria-current="step"]');
+    const colour = document.getElementById('rc-colour'); const out = document.querySelector('output[for="rc-colour"]');
+    colour.value = '#991b1b'; colour.dispatchEvent(new Event('input', { bubbles: true })); await new Promise((x) => setTimeout(x, 0));
+    const read = out.value; colour.value = '#1e4b85'; colour.dispatchEvent(new Event('input', { bubbles: true }));
+    // Earlier checks may have opened it (expose() for the copy key): start closed.
+    const well = document.getElementById('rm-key'); const details = well.closest('details'); details.open = false;
+    // A closed details hides its content with content-visibility, which keeps boxes: ask for visibility.
+    const closed = !well.checkVisibility(); details.open = true; const opened = well.checkVisibility(); details.open = false;
+    return { code: `${code.inputMode} ${code.getAttribute("autocomplete")} ${code.pattern}`, step: getComputedStyle(step).fontWeight, read, closed, opened };
+  });
+  check(r.code === 'numeric one-time-code [0-9]{6}' && r.step === '600' && r.read === '#991b1b' && r.closed && r.opened,
+    'recipes: one-time code field, current step, colour readout, masked secret', JSON.stringify(r));
+  for (const id of saving ? ['recipes-filter', 'recipes-inspector', 'recipes-signin'] : []) {
+    for (const width of [1360, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      const demo = page.locator(`#${id} ~ .docs-demo`).first(); await demo.scrollIntoViewIfNeeded(); await snap(demo, `${id}-${width}.png`);
+    }
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 }

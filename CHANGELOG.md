@@ -101,7 +101,8 @@ The first release of Cubicle.
   with a copy-paste snippet identical to the live markup and a reference table. It also has a
   generated contrast table, a keyboard map and framework-neutral recipes for server updates (htmx
   attributes, an htmx page listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM
-  helper, optional auto-hide). `docs/example.html` is a complete VPN console screen.
+  helper, optional auto-hide), and a Recipes section (filter bar, inspector, sign-in with MFA, masked
+  secret, tag colour, wizard steps, tooltips, print). `docs/example.html` is a complete VPN console screen.
 - **Development tools.**
   - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs`.
   - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state and behaviour

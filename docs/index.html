@@ -64,6 +64,17 @@
         <li><a class="docs-nav__link" href="#menu">Menus</a></li>
         <li><a class="docs-nav__link" href="#log">Logs</a></li>
       </ul>
+      <p class="docs-nav__label">Recipes</p>
+      <ul class="docs-nav__list">
+        <li><a class="docs-nav__link" href="#recipes-filter">Filter bar</a></li>
+        <li><a class="docs-nav__link" href="#recipes-inspector">Inspector</a></li>
+        <li><a class="docs-nav__link" href="#recipes-signin">Sign-in with MFA</a></li>
+        <li><a class="docs-nav__link" href="#recipes-secret">Masked secret</a></li>
+        <li><a class="docs-nav__link" href="#recipes-colour">Tag colour</a></li>
+        <li><a class="docs-nav__link" href="#recipes-steps">Wizard steps</a></li>
+        <li><a class="docs-nav__link" href="#recipes-tooltips">Tooltips</a></li>
+        <li><a class="docs-nav__link" href="#recipes-print">Print</a></li>
+      </ul>
       <p class="docs-nav__label">Utilities</p>
       <ul class="docs-nav__list">
         <li><a class="docs-nav__link" href="#utilities">Utilities</a></li>
@@ -5470,6 +5481,321 @@ function hideLater(message, ms = 10000) {
       </section>
 
       <!-- ================================================================ -->
+      <section class="docs-section" id="recipes" aria-labelledby="recipes-title">
+        <h2 class="docs-h2" id="recipes-title">Recipes</h2>
+        <p class="docs-text">Whole tasks built only from the components above: no extra CSS, ready to copy.</p>
+
+        <h3 class="docs-h3" id="recipes-filter">Filter bar</h3>
+        <p class="docs-text">Small fields, a segmented status and a reset key in a cluster over the table they
+          filter. The cluster wraps on narrow screens; give the form <code>role="search"</code> and a name.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="rf-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="rf-title">Peers</h4>
+            </header>
+            <div class="cb-panel__body cb-stack">
+              <form class="cb-cluster" role="search" aria-label="Filter peers" method="get" action="#recipes-filter">
+                <input class="cb-input cb-input--sm" type="search" name="q" placeholder="Name or address" aria-label="Name or address">
+                <select class="cb-select cb-select--sm" name="gateway" aria-label="Gateway">
+                  <option>All gateways</option>
+                  <option>gw-eu-1</option>
+                  <option>gw-us-2</option>
+                </select>
+                <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="Status">
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="all" checked>All</label>
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="online">Online</label>
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="stale">Stale</label>
+                </div>
+                <button class="cb-btn cb-btn--sm" type="reset">Clear</button>
+              </form>
+              <div class="cb-table-wrap">
+                <table class="cb-table" aria-labelledby="rf-title">
+                  <thead>
+                    <tr><th scope="col">Peer</th><th scope="col">Status</th><th scope="col">Tunnel IP</th><th class="cb-table__num" scope="col">Received</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">laptop-an-1</th><td><span class="cb-badge cb-badge--ok">Online</span></td><td class="cb-mono">10.8.0.11</td><td class="cb-table__num">1.42 GB</td></tr>
+                    <tr><th scope="row">phone-bk-2</th><td><span class="cb-badge cb-badge--warn">Stale</span></td><td class="cb-mono">10.8.0.12</td><td class="cb-table__num">86.0 MB</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;rf-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rf-title&quot;&gt;Peers&lt;/h4&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+    &lt;form class=&quot;cb-cluster&quot; role=&quot;search&quot; aria-label=&quot;Filter peers&quot; method=&quot;get&quot; action=&quot;#recipes-filter&quot;&gt;
+      &lt;input class=&quot;cb-input cb-input--sm&quot; type=&quot;search&quot; name=&quot;q&quot; placeholder=&quot;Name or address&quot; aria-label=&quot;Name or address&quot;&gt;
+      &lt;select class=&quot;cb-select cb-select--sm&quot; name=&quot;gateway&quot; aria-label=&quot;Gateway&quot;&gt;
+        &lt;option&gt;All gateways&lt;/option&gt;
+        &lt;option&gt;gw-eu-1&lt;/option&gt;
+        &lt;option&gt;gw-us-2&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;Status&quot;&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;all&quot; checked&gt;All&lt;/label&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;online&quot;&gt;Online&lt;/label&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;stale&quot;&gt;Stale&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;reset&quot;&gt;Clear&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;div class=&quot;cb-table-wrap&quot;&gt;
+      &lt;table class=&quot;cb-table&quot; aria-labelledby=&quot;rf-title&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;laptop-an-1&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.11&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;phone-bk-2&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.12&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-inspector">Inspector</h3>
+        <p class="docs-text">The selected row's details beside the list: a property list for the facts and a
+          readonly field with a copy key for the value people paste elsewhere. Below 48rem the detail goes under
+          the list.</p>
+        <div class="docs-demo">
+          <div class="cb-split">
+            <section class="cb-panel" aria-labelledby="ri-list-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="ri-list-title">Peers</h4>
+              </header>
+              <div class="cb-panel__body cb-panel__body--flush">
+                <table class="cb-table" aria-labelledby="ri-list-title">
+                  <thead>
+                    <tr><th scope="col">Peer</th><th scope="col">Gateway</th><th class="cb-table__num" scope="col">Received</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">laptop-an-1</th><td>gw-eu-1</td><td class="cb-table__num">1.42 GB</td></tr>
+                    <tr aria-selected="true"><th scope="row">phone-bk-2</th><td>gw-eu-1</td><td class="cb-table__num">86.0 MB</td></tr>
+                    <tr><th scope="row">svc-backup</th><td>gw-eu-2</td><td class="cb-table__num">38.9 GB</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section class="cb-panel" aria-labelledby="ri-detail-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="ri-detail-title">phone-bk-2</h4>
+                <span class="cb-badge cb-badge--warn">Stale</span>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <dl class="cb-props">
+                  <dt>Tunnel IP</dt>
+                  <dd class="cb-mono">10.8.0.12</dd>
+                  <dt>Endpoint</dt>
+                  <dd class="cb-mono">198.51.100.7:51820</dd>
+                  <dt>Last handshake</dt>
+                  <dd>6 min ago</dd>
+                </dl>
+                <div class="cb-field">
+                  <label class="cb-field__label" for="ri-key">Public key</label>
+                  <div class="cb-input-group">
+                    <input class="cb-input" id="ri-key" type="text" readonly value="hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=">
+                    <button class="cb-btn" type="button" data-cb-copy="ri-key">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-split&quot;&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;ri-list-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;ri-list-title&quot;&gt;Peers&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+      &lt;table class=&quot;cb-table&quot; aria-labelledby=&quot;ri-list-title&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;laptop-an-1&lt;/th&gt;&lt;td&gt;gw-eu-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr aria-selected=&quot;true&quot;&gt;&lt;th scope=&quot;row&quot;&gt;phone-bk-2&lt;/th&gt;&lt;td&gt;gw-eu-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;svc-backup&lt;/th&gt;&lt;td&gt;gw-eu-2&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;38.9 GB&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;ri-detail-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;ri-detail-title&quot;&gt;phone-bk-2&lt;/h4&gt;
+      &lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;dl class=&quot;cb-props&quot;&gt;
+        &lt;dt&gt;Tunnel IP&lt;/dt&gt;
+        &lt;dd class=&quot;cb-mono&quot;&gt;10.8.0.12&lt;/dd&gt;
+        &lt;dt&gt;Endpoint&lt;/dt&gt;
+        &lt;dd class=&quot;cb-mono&quot;&gt;198.51.100.7:51820&lt;/dd&gt;
+        &lt;dt&gt;Last handshake&lt;/dt&gt;
+        &lt;dd&gt;6 min ago&lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;ri-key&quot;&gt;Public key&lt;/label&gt;
+        &lt;div class=&quot;cb-input-group&quot;&gt;
+          &lt;input class=&quot;cb-input&quot; id=&quot;ri-key&quot; type=&quot;text&quot; readonly value=&quot;hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&quot;&gt;
+          &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-copy=&quot;ri-key&quot;&gt;Copy&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-signin">Sign-in with MFA</h3>
+        <p class="docs-text">The second step of a sign-in, centred on its own page. The code field is a text field
+          with <code>inputmode="numeric"</code> (a number field would drop leading zeros and show steppers) and
+          <code>autocomplete="one-time-code"</code>, so phones offer the code from a message. The first step uses
+          <code>autocomplete="username"</code> and <code>"current-password"</code>; the browser's
+          <a href="#a11y-autofill">autofill tint</a> stays.</p>
+        <div class="docs-demo docs-frame docs-frame--tall">
+          <div class="cb-center">
+            <form class="cb-panel" method="post" action="#recipes-signin" aria-labelledby="rs-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="rs-title">Two-step verification</h4>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <p>Signed in as <strong>alice.ng</strong>. Enter the code from your authenticator app.</p>
+                <div class="cb-field">
+                  <label class="cb-field__label" for="rs-code">Code</label>
+                  <input class="cb-input cb-mono" id="rs-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required aria-describedby="rs-code-hint rs-code-error">
+                  <p class="cb-field__hint" id="rs-code-hint">6 digits; the code changes every 30 seconds.</p>
+                  <p class="cb-field__error" id="rs-code-error">Enter the 6 digits shown in the app.</p>
+                </div>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="trust">Trust this device for 30 days</label>
+              </div>
+              <footer class="cb-panel__foot">
+                <a href="#recipes-signin">Use a recovery code</a>
+                <button class="cb-btn cb-btn--primary" type="submit">Verify</button>
+              </footer>
+            </form>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-center&quot;&gt;
+  &lt;form class=&quot;cb-panel&quot; method=&quot;post&quot; action=&quot;#recipes-signin&quot; aria-labelledby=&quot;rs-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rs-title&quot;&gt;Two-step verification&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;p&gt;Signed in as &lt;strong&gt;alice.ng&lt;/strong&gt;. Enter the code from your authenticator app.&lt;/p&gt;
+      &lt;div class=&quot;cb-field&quot;&gt;
+        &lt;label class=&quot;cb-field__label&quot; for=&quot;rs-code&quot;&gt;Code&lt;/label&gt;
+        &lt;input class=&quot;cb-input cb-mono&quot; id=&quot;rs-code&quot; name=&quot;code&quot; type=&quot;text&quot; inputmode=&quot;numeric&quot; autocomplete=&quot;one-time-code&quot; pattern=&quot;[0-9]{6}&quot; maxlength=&quot;6&quot; required aria-describedby=&quot;rs-code-hint rs-code-error&quot;&gt;
+        &lt;p class=&quot;cb-field__hint&quot; id=&quot;rs-code-hint&quot;&gt;6 digits; the code changes every 30 seconds.&lt;/p&gt;
+        &lt;p class=&quot;cb-field__error&quot; id=&quot;rs-code-error&quot;&gt;Enter the 6 digits shown in the app.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;trust&quot;&gt;Trust this device for 30 days&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+      &lt;a href=&quot;#recipes-signin&quot;&gt;Use a recovery code&lt;/a&gt;
+      &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;submit&quot;&gt;Verify&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/form&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-secret">Masked multi-line secret</h3>
+        <p class="docs-text">A private key or token kept out of sight until asked for: a closed details block
+          around a secret box. It hides the value from the screen and from shoulder surfers, not from the page
+          source; render it only for users allowed to read it.</p>
+        <div class="docs-demo">
+          <details class="cb-details">
+            <summary>Private key of wg-edge-01</summary>
+            <div class="cb-details__body">
+              <div class="cb-secret">
+                <pre class="cb-secret__value" id="rm-key" aria-label="Private key of wg-edge-01">-----BEGIN PRIVATE KEY-----&#10;MC4CAQAwBQYDK2VwBCIEIEPqJ8xV0dYq3rN7tLmW2cZk9bF4aH1sG6eUoT5iR8yQ&#10;-----END PRIVATE KEY-----</pre>
+                <div class="cb-secret__actions">
+                  <button class="cb-btn cb-btn--sm" type="button" data-cb-copy="rm-key" aria-label="Copy private key">Copy</button>
+                  <button class="cb-btn cb-btn--sm" type="button" data-cb-download="rm-key" data-cb-filename="wg-edge-01.key" aria-label="Save private key">Save</button>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+        <pre class="docs-snippet"><code>&lt;details class=&quot;cb-details&quot;&gt;
+  &lt;summary&gt;Private key of wg-edge-01&lt;/summary&gt;
+  &lt;div class=&quot;cb-details__body&quot;&gt;
+    &lt;div class=&quot;cb-secret&quot;&gt;
+      &lt;pre class=&quot;cb-secret__value&quot; id=&quot;rm-key&quot; aria-label=&quot;Private key of wg-edge-01&quot;&gt;-----BEGIN PRIVATE KEY-----&amp;#10;MC4CAQAwBQYDK2VwBCIEIEPqJ8xV0dYq3rN7tLmW2cZk9bF4aH1sG6eUoT5iR8yQ&amp;#10;-----END PRIVATE KEY-----&lt;/pre&gt;
+      &lt;div class=&quot;cb-secret__actions&quot;&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-copy=&quot;rm-key&quot; aria-label=&quot;Copy private key&quot;&gt;Copy&lt;/button&gt;
+        &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-download=&quot;rm-key&quot; data-cb-filename=&quot;wg-edge-01.key&quot; aria-label=&quot;Save private key&quot;&gt;Save&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/details&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-colour">Tag colour</h3>
+        <p class="docs-text">A colour field with its hex value as a readout (<code>data-cb-output</code>, script),
+          for tags and environment markers.</p>
+        <div class="docs-demo">
+          <div class="cb-field cb-field--horizontal">
+            <label class="cb-field__label" for="rc-colour">Tag colour</label>
+            <div class="cb-cluster">
+              <input class="cb-input" id="rc-colour" name="colour" type="color" value="#1e4b85">
+              <output class="cb-mono" for="rc-colour" data-cb-output>#1e4b85</output>
+            </div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+  &lt;label class=&quot;cb-field__label&quot; for=&quot;rc-colour&quot;&gt;Tag colour&lt;/label&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;rc-colour&quot; name=&quot;colour&quot; type=&quot;color&quot; value=&quot;#1e4b85&quot;&gt;
+    &lt;output class=&quot;cb-mono&quot; for=&quot;rc-colour&quot; data-cb-output&gt;#1e4b85&lt;/output&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-steps">Wizard steps</h3>
+        <p class="docs-text">The breadcrumb as a step list: done steps are links, the current step has
+          <code>aria-current="step"</code>, and steps ahead are muted text.</p>
+        <div class="docs-demo">
+          <nav aria-label="Steps">
+            <ol class="cb-breadcrumb">
+              <li><a href="#recipes-steps">1. Gateway</a></li>
+              <li><span aria-current="step">2. Peers</span></li>
+              <li><span class="cb-muted">3. Routes</span></li>
+              <li><span class="cb-muted">4. Review</span></li>
+            </ol>
+          </nav>
+        </div>
+        <pre class="docs-snippet"><code>&lt;nav aria-label=&quot;Steps&quot;&gt;
+  &lt;ol class=&quot;cb-breadcrumb&quot;&gt;
+    &lt;li&gt;&lt;a href=&quot;#recipes-steps&quot;&gt;1. Gateway&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;span aria-current=&quot;step&quot;&gt;2. Peers&lt;/span&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;span class=&quot;cb-muted&quot;&gt;3. Routes&lt;/span&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;span class=&quot;cb-muted&quot;&gt;4. Review&lt;/span&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-tooltips">Tooltips</h3>
+        <p class="docs-text">A <code>title</code> shows a native hint under the pointer: use it to repeat an icon
+          key's name or to add detail to a badge. It never replaces the accessible name, since keyboards, touch
+          and many screen readers never show it; put anything needed in visible text.</p>
+        <div class="docs-demo">
+          <div class="cb-cluster">
+            <button class="cb-btn cb-btn--icon" type="button" aria-label="Refresh peers" title="Refresh peers">↻</button>
+            <button class="cb-btn cb-btn--icon" type="button" aria-label="Copy endpoint" title="Copy endpoint">⧉</button>
+            <span class="cb-badge" title="Issued 2026-03-14, expires 2027-03-14">TLS 1.3</span>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-cluster&quot;&gt;
+  &lt;button class=&quot;cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Refresh peers&quot; title=&quot;Refresh peers&quot;&gt;↻&lt;/button&gt;
+  &lt;button class=&quot;cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Copy endpoint&quot; title=&quot;Copy endpoint&quot;&gt;⧉&lt;/button&gt;
+  &lt;span class=&quot;cb-badge&quot; title=&quot;Issued 2026-03-14, expires 2027-03-14&quot;&gt;TLS 1.3&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-print">Print</h3>
+        <p class="docs-text">Audit reports and certificate details print without extra markup: the frame unrolls
+          into one column without the sidebar, actions and toasts are left out, scrolling tables and logs print in
+          full, and rows stay whole across pages. Browsers drop backgrounds by default, so borders and words carry
+          the meaning, and meters print their value text. Page margins (<code>@page</code>) and a printed header
+          with the date are the host's.</p>
+      </section>
+
+      <!-- ================================================================ -->
       <section class="docs-section" id="utilities" aria-labelledby="utilities-title">
         <h2 class="docs-h2" id="utilities-title">Utilities</h2>
         <p class="docs-text">Single-purpose helpers in the last cascade layer, so they win over component
@@ -5848,7 +6174,7 @@ function hideLater(message, ms = 10000) {
             <tbody>
               <tr><th scope="row">Chromium</th><td class="cb-table__num">156</td><td>None</td></tr>
               <tr><th scope="row">Firefox</th><td class="cb-table__num">157</td><td>No ruler strip under meters: ticks and threshold marks are not drawn; month and week fields are plain text fields; a readonly date or time field cannot take focus In forced colours it paints list-box selection itself, in a light grey.</td></tr>
-              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds; Escape does not clear a search field; month and week fields are plain text fields; date and time fields never match <code>:focus-visible</code>, so the stylesheet draws their ring on <code>:focus</code> It does not force colours, so forced-colours rules are checked as written there; it paints list-box selection natively.</td></tr>
+              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds; Escape does not clear a search field; month and week fields are plain text fields; date and time fields never match <code>:focus-visible</code>, so the stylesheet draws their ring on <code>:focus</code> It does not force colours, so forced-colours rules are checked as written there; it paints list-box selection natively. Colour fields are left out of the Tab order, even with Option+Tab.</td></tr>
             </tbody>
           </table>
         </div>
