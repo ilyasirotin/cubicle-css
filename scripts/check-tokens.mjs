@@ -9,7 +9,9 @@
 //                 2. every documented token exists in the stylesheet;
 //                 3. every documented value equals the declared value (whitespace-normalised);
 //                 4. every var(--cb-*) used in the stylesheet and docs/docs.css is declared;
-//                 5. density blocks ([data-cb-density]) only redefine tokens that :root declares.
+//                 5. density blocks ([data-cb-density]) only redefine tokens that :root declares;
+//                 6. CSS system colour keywords (Canvas, Highlight, GrayText...) appear only
+//                    inside @media (forced-colors: active).
 //                 Default values are read from the :root block of @layer tokens.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -107,6 +109,28 @@ for (const file of [cssFile, docsCssFile]) {
 for (const [selector, names] of overrides) {
   const unknown = names.filter((n) => !declared.has(n));
   check(unknown.length === 0, `${selector} redefines declared tokens only`, unknown.join(', ') || `${names.length} tokens`);
+}
+
+// 6. System colours only in forced-colours blocks (AGENTS.md section 6): they are the user's
+//    theme there, and hard-coded colours anywhere else.
+const SYSTEM = /(?<![\w-])(Canvas|CanvasText|LinkText|VisitedText|ActiveText|ButtonFace|ButtonText|ButtonBorder|Field|FieldText|Highlight|HighlightText|SelectedItem|SelectedItemText|Mark|MarkText|GrayText|AccentColor|AccentColorText)(?![\w-])/i;
+{
+  const text = css.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, '""');
+  const stack = []; let start = 0; const misplaced = []; let inside = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '{') { stack.push(text.slice(start, i).trim()); start = i + 1; }
+    else if (ch === '}' || ch === ';') {
+      const chunk = text.slice(start, i).trim(); start = i + 1;
+      const colon = chunk.indexOf(':');
+      if (stack.length && colon > 0 && !chunk.startsWith('@') && SYSTEM.test(chunk.slice(colon + 1))) {
+        if (stack.some((p) => /^@media\b[^{]*forced-colors\s*:\s*active/i.test(p))) inside++;
+        else misplaced.push(`${stack.at(-1).slice(0, 50)} { ${chunk.slice(0, 60)} }`);
+      }
+      if (ch === '}') stack.pop();
+    }
+  }
+  check(!misplaced.length, 'system colour keywords appear only inside @media (forced-colors: active)', misplaced.slice(0, 3).join(' | ') || `${inside} declarations`);
 }
 
 const failed = results.filter((r) => !r.ok);
