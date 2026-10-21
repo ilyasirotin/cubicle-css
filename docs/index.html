@@ -317,7 +317,7 @@ async function reloadRows(url) {
               <tr><td></td><th scope="row"><code>--cb-control-h</code></th><td class="cb-nowrap"><code>1.625rem</code> (26px)</td><td>Buttons, fields, tabs; changes with density</td></tr>
               <tr><td></td><th scope="row"><code>--cb-control-h-sm</code></th><td class="cb-nowrap"><code>1.25rem</code> (20px)</td><td>Small keys, table actions; changes with density</td></tr>
               <tr><td></td><th scope="row"><code>--cb-row-h</code></th><td class="cb-nowrap"><code>1.75rem</code> (28px)</td><td>Table rows, details summaries; changes with density</td></tr>
-              <tr><td></td><th scope="row"><code>--cb-row-h-sm</code></th><td class="cb-nowrap"><code>1.5rem</code> (24px)</td><td>Navigation rows, compact tables; changes with density</td></tr>
+              <tr><td></td><th scope="row"><code>--cb-row-h-sm</code></th><td class="cb-nowrap"><code>1.5rem</code> (24px)</td><td>Navigation rows, compact tables, choices; changes with density</td></tr>
             </tbody>
           </table>
         </div>
@@ -1853,7 +1853,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>list</code> + <code>&lt;datalist&gt;</code></th><td><code>.cb-input</code></td><td>Native suggestions under the field; any value is still accepted</td></tr>
               <tr><th scope="row"><code>.cb-input--sm</code> / <code>.cb-select--sm</code></th><td>Field</td><td>20px, 12px text; pairs with <code>.cb-btn--sm</code></td></tr>
               <tr><th scope="row"><code>.cb-check</code></th><td>Checkbox or radio <code>&lt;input&gt;</code></td><td>Recessed box (radio round); navy fill when checked</td></tr>
-              <tr><th scope="row"><code>.cb-choice</code></th><td><code>&lt;label&gt;</code></td><td>Aligns a check with its text; mutes it when disabled</td></tr>
+              <tr><th scope="row"><code>.cb-choice</code></th><td><code>&lt;label&gt;</code></td><td>Aligns a check with its text on a <code>--cb-row-h-sm</code> row, so stacked choices keep 24px targets; mutes it when disabled</td></tr>
               <tr><th scope="row"><code>.cb-field</code></th><td>Wrapper</td><td>Label, control, hint and error stacked</td></tr>
               <tr><th scope="row"><code>.cb-field--horizontal</code></th><td>Wrapper</td><td>Label column of 11rem; stacks below 28rem of its own width</td></tr>
               <tr><th scope="row"><code>.cb-field__label</code> / <code>__hint</code> / <code>__error</code></th><td>Field parts</td><td>Error shows only while a control in the field is invalid</td></tr>

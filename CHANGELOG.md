@@ -29,9 +29,9 @@ The first release of Cubicle.
 - **Fields.** Recessed `.cb-input` and `.cb-select` with tabular figures and readonly, invalid
   (`aria-invalid`, `:user-invalid`), disabled, focusable disabled inputs (`aria-disabled` with
   `readonly`) and busy states.
-  Also check boxes and radios, horizontal and stacked `.cb-field` layouts with hints, errors and
-  required marks, input groups, file and range inputs, and list boxes whose checked options take
-  the selected tint. Number and search fields drop the engines' spin and clear keys, and colour
+  Also check boxes and radios on 24px rows, so stacked lists meet the WCAG 2.5.8 target size,
+  horizontal and stacked `.cb-field` layouts with hints, errors and required marks, input groups,
+  file and range inputs, and list boxes whose checked options take the selected tint. Number and search fields drop the engines' spin and clear keys, and colour
   fields are a swatch key two control heights wide.
 - **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a

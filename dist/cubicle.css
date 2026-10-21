@@ -184,7 +184,7 @@
     --cb-control-h: 1.625rem;      /* 26px - buttons, fields, tabs */
     --cb-control-h-sm: 1.25rem;    /* 20px - small keys, table actions */
     --cb-row-h: 1.75rem;           /* 28px - table rows, details summaries */
-    --cb-row-h-sm: 1.5rem;         /* 24px - navigation rows, compact tables */
+    --cb-row-h-sm: 1.5rem;         /* 24px - navigation rows, compact tables, choices */
 
     /* 2.7 Typography scale & stacks */
     --cb-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -982,10 +982,13 @@
     }
   }
 
+  /* A choice is a row of its own height, so stacked check boxes and radios
+     keep 24px targets (WCAG 2.5.8) at default density, like navigation rows. */
   .cb-choice {
     display: inline-flex;
     align-items: center;
     gap: var(--cb-space-2);
+    min-block-size: var(--cb-row-h-sm);
     cursor: pointer;
 
     &:has(:disabled) {
