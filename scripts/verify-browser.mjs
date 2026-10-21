@@ -53,7 +53,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'example'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -2465,6 +2465,33 @@ if (want('print')) {
   check(!problems.length, 'print: the frame unrolls without the sidebar, actions are hidden, wrappers and logs print in full', problems.join('; ') || JSON.stringify(r));
   if (saving && engine === 'chromium' && r.frame) await pp.pdf({ path: resolve(shots, 'print-example.pdf'), printBackground: false });
   await pp.close();
+}
+
+// 37. The example console's refresh (host code standing in for the server): Enter on Refresh
+//     makes the key and the peer table's body busy (the key stays focusable but inert), then
+//     clears both, keeps focus on the key, and drops a confirmation into the toast stack, whose
+//     close key hides it.
+if (want('example') && await page.locator('body > .cb-app [data-cb-tabs]').count()) {
+  const px = await context.newPage(); await applyOverrides(px); await px.goto(pathToFileURL(page_path).href);
+  const has = await px.locator('#x-refresh').count();
+  if (!has) check(false, 'example: the Peers tab has a Refresh key', 'missing #x-refresh');
+  else {
+    await px.click('#x-tab-peers'); await px.focus('#x-refresh'); await px.keyboard.press('Enter');
+    const state = () => px.evaluate(() => { const k = document.getElementById('x-refresh'); const b = document.querySelector('#x-peer-table > tbody');
+      return { key: k.getAttribute('aria-busy'), inert: k.getAttribute('aria-disabled'), rows: b.getAttribute('aria-busy'), hatch: getComputedStyle(b.querySelector('td')).backgroundImage.startsWith('repeating'),
+        focus: document.activeElement === k, toasts: document.querySelectorAll('#x-toasts > .cb-alert').length }; });
+    const busy = await state();
+    await px.waitForFunction(() => !document.getElementById('x-refresh').hasAttribute('aria-busy'), null, { timeout: 5000 });
+    const done = await state();
+    const toast = await px.evaluate(() => { const t = document.querySelector('#x-toasts > .cb-alert:last-child'); return t ? { ok: t.matches('.cb-alert--sm.cb-alert--ok'), text: t.textContent, close: !!t.querySelector('[data-cb-dismiss]') } : null; });
+    await px.click('#x-toasts > .cb-alert:last-child [data-cb-dismiss]');
+    const hidden = await px.evaluate(() => document.querySelector('#x-toasts > .cb-alert:last-child').hidden);
+    check(busy.key === 'true' && busy.inert === 'true' && busy.rows === 'true' && busy.hatch && busy.focus
+      && done.key === null && done.inert === null && done.rows === null && done.focus && done.toasts === busy.toasts + 1
+      && toast?.ok && /refreshed/.test(toast.text) && toast.close && hidden,
+      'example: Refresh shows a busy table, then a confirmation toast that closes', JSON.stringify({ busy, done, toast, hidden }));
+  }
+  await px.close();
 }
 
 await browser.close();

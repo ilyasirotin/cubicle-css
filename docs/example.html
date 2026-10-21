@@ -141,6 +141,9 @@
           <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-peers" aria-labelledby="x-tab-peers" data-cb-density="compact" hidden>
             <h2 class="cb-tabs__heading">Peers</h2>
             <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key and cannot connect.</div>
+            <div class="cb-cluster cb-cluster--end">
+              <button class="cb-btn cb-btn--sm" type="button" id="x-refresh">Refresh</button>
+            </div>
             <div class="cb-split">
               <div class="cb-stack">
                 <div class="cb-table-wrap">
@@ -389,5 +392,40 @@
       </footer>
     </form>
   </dialog>
+  <div class="cb-toasts" id="x-toasts" aria-live="polite"></div>
+
+  <!-- Host code for this example only, standing in for the server; not part of Cubicle. Refresh
+       marks the peer rows busy while they "reload", then confirms in the toast stack. -->
+  <script>
+    (() => {
+      let toastCount = 0;
+      const toast = (text, tone = 'info') => {
+        const message = document.createElement('div');
+        message.className = `cb-alert cb-alert--sm cb-alert--${tone}`;
+        message.id = `x-toast-${++toastCount}`;
+        const close = document.createElement('button');
+        close.className = 'cb-alert__close cb-btn cb-btn--sm cb-btn--icon';
+        close.type = 'button';
+        close.dataset.cbDismiss = message.id;
+        close.setAttribute('aria-label', 'Dismiss');
+        close.textContent = '✕';
+        message.append(text, close);
+        document.getElementById('x-toasts').append(message);
+      };
+
+      document.getElementById('x-refresh').addEventListener('click', async (event) => {
+        const key = event.currentTarget;
+        if (key.getAttribute('aria-busy') === 'true') return;
+        const rows = document.querySelector('#x-peer-table > tbody');
+        // aria-disabled, not disabled: the key keeps focus while the rows reload.
+        for (const el of [key, rows]) el.setAttribute('aria-busy', 'true');
+        key.setAttribute('aria-disabled', 'true');
+        await new Promise((done) => setTimeout(done, 1200));
+        for (const el of [key, rows]) el.removeAttribute('aria-busy');
+        key.removeAttribute('aria-disabled');
+        toast(`Peer list refreshed at ${new Date().toLocaleTimeString('en-GB')}.`, 'ok');
+      });
+    })();
+  </script>
 </body>
 </html>
