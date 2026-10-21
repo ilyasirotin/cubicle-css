@@ -141,6 +141,7 @@ check(problems.length === 0, 'no console errors or warnings', problems.join(' | 
 
 // 2. No horizontal overflow at three widths
 if (want('layout')) {
+  const unreachable = new Set();
   for (const width of [360, 800, 1360]) {
     await page.setViewportSize({ width, height: 900 });
     const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -156,9 +157,22 @@ if (want('layout')) {
       }));
       check(!wide.length, 'at 360px no demo content runs past its frame outside a scroll wrapper', wide.join('; '));
     }
+    // A box that scrolls must be reachable from the keyboard, or WebKit (Safari, which never focuses
+    // a scroll box itself) cannot scroll it: a native field, a box that holds a control, or a box
+    // with tabindex plus a role and a name (catalogue, Accessibility > Focus).
+    const boxes = await page.evaluate(() => [...document.querySelectorAll(document.querySelector('.docs-demo') ? '.docs-demo *' : 'body *')].filter((el) => {
+      const o = getComputedStyle(el);
+      if (!el.getClientRects().length || !(/auto|scroll/.test(o.overflowX) && el.scrollWidth > el.clientWidth + 1 || /auto|scroll/.test(o.overflowY) && el.scrollHeight > el.clientHeight + 1)) return false;
+      if (el.matches('textarea, select') || el.querySelector('a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])')) return false;
+      // A name on a generic box (div, pre, span) needs a role to count; a list or a table has one.
+      const role = el.getAttribute('role') || !el.matches('div, pre, span');
+      return !(el.getAttribute('tabindex') === '0' && role && (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')));
+    }).map((el) => `#${el.parentElement.closest('[id]')?.id} ${el.localName}.${[...el.classList].join('.')}`));
+    boxes.forEach((b) => unreachable.add(`${b} (${width}px)`));
     // Firefox refuses screenshots taller than 32767px; the catalogue is longer, so it gets the viewport.
     await snap(page, `page-${width}.png`, { fullPage: true }).catch(() => snap(page, `page-${width}.png`));
   }
+  check(!unreachable.size, 'every scroll box can be reached with the keyboard (a control inside, or tabindex, role and name)', [...unreachable].join('; '));
   await page.setViewportSize({ width: 1360, height: 900 });
   // Ids are unique: a duplicate sends labels, dismiss keys and getElementById to the wrong element.
   const dupes = await page.evaluate(() => { const n = {}; for (const e of document.querySelectorAll('[id]')) n[e.id] = (n[e.id] ?? 0) + 1; return Object.keys(n).filter((k) => n[k] > 1); });
@@ -762,6 +776,29 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
   }
 
   await sectionShots('tables');
+}
+
+// 11b. Names in data tables, on the catalogue's demos or on any other page: every table has a name
+//     (a caption, aria-label, or aria-labelledby pointing at text), and the keys in a table body
+//     name their row, so no two share a name ("Disconnect alice.ng", not six "Disconnect").
+if (want('tables') && await page.locator('.cb-table').count()) {
+  const names = await page.evaluate(() => {
+    const tables = [...document.querySelectorAll(document.querySelector('.docs-demo') ? '.docs-demo table.cb-table' : 'table.cb-table')];
+    const where = (t) => `#${t.parentElement.closest('[id]')?.id}`;
+    const text = (ids) => ids.split(/\s+/).map((id) => document.getElementById(id)?.textContent.trim() ?? '').join(' ').trim();
+    const name = (el) => el.getAttribute('aria-label')?.trim() || (el.getAttribute('aria-labelledby') ? text(el.getAttribute('aria-labelledby')) : '') || el.textContent.trim();
+    const unnamed = tables.filter((t) => !t.caption?.textContent.trim() && !t.getAttribute('aria-label')?.trim() && !(t.getAttribute('aria-labelledby') && text(t.getAttribute('aria-labelledby'))))
+      .map((t) => `${where(t)} [${[...t.querySelectorAll('thead th')].map((th) => th.textContent.trim()).filter(Boolean).slice(0, 2).join(', ')}]`);
+    const repeated = tables.flatMap((t) => {
+      const seen = {};
+      // Items of a row's menu are named within the menu, which its key names.
+      for (const k of t.querySelectorAll('tbody :is(button, a[href]):not([role="menu"] *)')) { const n = name(k); seen[n] = (seen[n] ?? 0) + 1; }
+      return Object.entries(seen).filter(([, n]) => n > 1).map(([k, n]) => `${where(t)} "${k}" x${n}`);
+    });
+    return { unnamed, repeated };
+  });
+  check(!names.unnamed.length, 'every data table has a name (caption, aria-label or aria-labelledby)', names.unnamed.join('; '));
+  check(!names.repeated.length, 'row keys name their row: no two keys in one table share a name', names.repeated.join('; '));
 }
 
 // 12. Alerts: a 4px edge in the tone, a rendered glyph tile with readable inverse ink,

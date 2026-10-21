@@ -107,7 +107,8 @@ The first release of Cubicle.
   `dir="rtl"` demo), framework-neutral recipes for server updates (htmx attributes, an htmx page
   listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM helper, optional
   auto-hide), and a Recipes section (filter bar, inspector, sign-in with MFA, masked secret, tag
-  colour, wizard steps, tooltips, print).
+  colour, wizard steps, tooltips, print). Demo tables are named, row keys name their row, and scroll
+  boxes without controls take focus.
 - **Example.** `docs/example.html` is a complete VPN console screen: the shell with a folding
   sidebar and a directory tree, and a gateway panel with Overview (alert, gauges, property list),
   Peers (an inspector with row action menus, select-all, pagination, and a Refresh that shows a busy
@@ -117,9 +118,9 @@ The first release of Cubicle.
   - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs` (which also keeps system colours
     inside forced-colours blocks).
   - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state, behaviour,
-    forced-colours, right-to-left, print and target-size checks in Chromium, Firefox and WebKit,
-    with labelled engine limits; `scripts/verify-matrix.mjs` runs both pages in all three engines
-    side by side (`--min` adds the minified build); `scripts/contrast-pairs.mjs` holds the palette
-    pairs.
+    forced-colours, right-to-left, print and target-size checks, and names of tables, row keys
+    and scroll boxes, in Chromium, Firefox and WebKit, with labelled engine limits;
+    `scripts/verify-matrix.mjs` runs both pages in all three engines side by side (`--min` adds the
+    minified build); `scripts/contrast-pairs.mjs` holds the palette pairs.
   - `scripts/build-min.sh` builds the minified files (lightningcss, terser).
   - A Claude Code hook that blocks pushes, tags and releases.
