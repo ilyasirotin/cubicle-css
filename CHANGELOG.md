@@ -37,8 +37,8 @@ The first release of Cubicle.
 - **Tabs.** `.cb-tabs` folder tabs for links and for ARIA tabs, with counts, lamps, disabled tabs
   (native or `aria-disabled`), tabs in a panel head and vertical tabs.
 - **Data tables.** `.cb-table` styled by element, in a scrolling `.cb-table-wrap`. Zebra rows,
-  instant hover, row selection, sortable headers, a sticky header and first column, compact and
-  wrapping modes, totals, captions and an empty state.
+  instant hover, row selection, disabled rows, sortable headers, a sticky header and first
+  column, compact and wrapping modes, totals, captions and an empty state.
 - **Badges and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a busy
   badge, and frameless `.cb-led`.
 - **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a

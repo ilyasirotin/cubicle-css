@@ -643,7 +643,8 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
 
   // Contrast of every row paint, live: hover is forced by moving the pointer onto a row.
-  const paints = async () => page.$$eval('.docs-demo .cb-table :is(tbody, tfoot) tr', (rows) => {
+  // Disabled rows are exempt (WCAG 1.4.3) and checked on their own below.
+  const paints = async () => page.$$eval('.docs-demo .cb-table :is(tbody, tfoot) tr:not([aria-disabled="true"])', (rows) => {
     const cv = document.createElement('canvas'); cv.width = cv.height = 1;
     const g = cv.getContext('2d', { willReadFrequently: true });
     const rgb = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3); };
@@ -656,6 +657,20 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
   const byPaint = new Map();
   for (const c of cells) { const r = ratio(c.fg, c.bg); if (!byPaint.has(c.key) || r < byPaint.get(c.key)) byPaint.set(c.key, r); }
   for (const [paint, r] of byPaint) check(r >= 4.5, `table cell text on ${paint} >= 4.5`, r.toFixed(2));
+
+  // A disabled row takes the disabled ink and keeps its fill under the pointer.
+  const off = page.locator('.docs-demo .cb-table tbody tr[aria-disabled="true"]').first();
+  if (await off.count()) {
+    await off.scrollIntoViewIfNeeded(); await page.mouse.move(2, 2);
+    const look = () => off.evaluate((r) => {
+      const probe = document.body.appendChild(document.createElement('i'));
+      probe.style.color = 'var(--cb-text-disabled)'; const want = getComputedStyle(probe).color; probe.remove();
+      const cell = r.querySelector('td'); return { want, ink: getComputedStyle(cell).color, fill: getComputedStyle(cell).backgroundColor };
+    });
+    const rest = await look(); await off.hover(); const hovered = await look(); await page.mouse.move(2, 2);
+    check(rest.ink === rest.want && hovered.fill === rest.fill, 'a disabled table row takes the disabled ink and no hover fill',
+      `ink ${rest.ink} (want ${rest.want}), fill ${rest.fill} -> ${hovered.fill}`);
+  }
 
   const arrows = await page.$$eval('.docs-demo th[aria-sort] > .cb-table__sort', (bs) => bs.map((b) => {
     const a = getComputedStyle(b, '::after');

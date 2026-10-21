@@ -2579,7 +2579,9 @@
 
         <h3 class="docs-h3" id="tables-selected">Selected row</h3>
         <p class="docs-text"><code>aria-selected="true"</code> marks a row chosen elsewhere, for example the
-          record shown in a detail pane.</p>
+          record shown in a detail pane. <code>aria-disabled="true"</code> mutes a row that cannot be
+          opened or acted on, such as a revoked certificate kept for the record; give its check box
+          <code>disabled</code> too, so select-all passes it by.</p>
         <div class="docs-demo">
           <div class="cb-table-wrap">
             <table class="cb-table">
@@ -2609,6 +2611,12 @@
                   <td>Corp Issuing CA 1</td>
                   <td>2026-09-30</td>
                   <td><span class="cb-badge cb-badge--danger">Expired</span></td>
+                </tr>
+                <tr aria-disabled="true">
+                  <th scope="row">legacy.corp.example.net</th>
+                  <td>Corp Issuing CA 1</td>
+                  <td>2025-12-31</td>
+                  <td><span class="cb-badge cb-badge--off">Revoked</span></td>
                 </tr>
               </tbody>
             </table>
@@ -2642,6 +2650,12 @@
         &lt;td&gt;Corp Issuing CA 1&lt;/td&gt;
         &lt;td&gt;2026-09-30&lt;/td&gt;
         &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--danger&quot;&gt;Expired&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr aria-disabled=&quot;true&quot;&gt;
+        &lt;th scope=&quot;row&quot;&gt;legacy.corp.example.net&lt;/th&gt;
+        &lt;td&gt;Corp Issuing CA 1&lt;/td&gt;
+        &lt;td&gt;2025-12-31&lt;/td&gt;
+        &lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--off&quot;&gt;Revoked&lt;/span&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/tbody&gt;
   &lt;/table&gt;
@@ -2823,6 +2837,7 @@
               <tr><th scope="row"><code>.cb-table__sort</code> + <code>aria-sort</code></th><td><code>&lt;button&gt;</code> in <code>&lt;th&gt;</code></td><td>Sort key; arrow for <code>ascending</code>, <code>descending</code>, <code>none</code></td></tr>
               <tr><th scope="row"><code>.cb-table__empty</code></th><td><code>&lt;td colspan&gt;</code></td><td>Centred, muted “no data” row</td></tr>
               <tr><th scope="row"><code>aria-selected="true"</code></th><td><code>&lt;tr&gt;</code></td><td>Selected row</td></tr>
+              <tr><th scope="row"><code>aria-disabled="true"</code></th><td><code>&lt;tr&gt;</code></td><td>Muted text, no hover fill; give its check box <code>disabled</code></td></tr>
               <tr><th scope="row"><code>.cb-check:checked</code></th><td>Row checkbox</td><td>Selects its row</td></tr>
               <tr><th scope="row"><code>data-cb-select-all="id"</code></th><td>Header checkbox</td><td>Checks every row box of the table; indeterminate when mixed (script)</td></tr>
               <tr><th scope="row"><code>&lt;caption&gt;</code>, <code>&lt;tfoot&gt;</code></th><td>Table</td><td>Label above the frame; totals row</td></tr>

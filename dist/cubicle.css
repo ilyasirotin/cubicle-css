@@ -27,8 +27,9 @@
                                chevron, collapsible
       5.4 Secret & copy boxes  script-only actions, copied feedback, .cb-secret
       5.5 Badges & LEDs ...... .cb-badge tags, status, solid, count, busy; .cb-led
-      5.6 Data tables ........ .cb-table-wrap, .cb-table rows, selection, sorting,
-                               compact, wrap, sticky; select-all (cubicle.js)
+      5.6 Data tables ........ .cb-table-wrap, .cb-table rows, selection,
+                               disabled rows, sorting, compact, wrap, sticky;
+                               select-all (cubicle.js)
       5.7 Alerts ............. .cb-alert tones, glyph, title, actions, close
                                (cubicle.js), --sm, --banner
       5.8 Tabs ............... .cb-tabs link and ARIA tabs (cubicle.js), states,
@@ -1575,7 +1576,13 @@
       --_bg: var(--cb-bg-zebra);
     }
 
-    &:hover {
+    /* A disabled row (a revoked record kept for reference) mutes its text and
+       answers no pointer; disabled text is exempt from contrast (WCAG 1.4.3). */
+    &[aria-disabled="true"] {
+      color: var(--cb-text-disabled);
+    }
+
+    &:not([aria-disabled="true"]):hover {
       --_bg: var(--cb-bg-hover);
     }
 
