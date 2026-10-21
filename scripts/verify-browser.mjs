@@ -24,6 +24,7 @@
 //                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
 //                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png, log-<width>.png and
 //                 forced-<section>.png of sections in forced colours; print-example.pdf (Chromium).
+//                 The targets group measures WCAG 2.5.8 target size at default and comfortable density.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -53,7 +54,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'example'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'targets', 'example'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -2450,6 +2451,41 @@ if (want('print')) {
   check(!problems.length, 'print: the frame unrolls without the sidebar, actions are hidden, wrappers and logs print in full', problems.join('; ') || JSON.stringify(r));
   if (saving && engine === 'chromium' && r.frame) await pp.pdf({ path: resolve(shots, 'print-example.pdf'), printBackground: false });
   await pp.close();
+}
+
+// 36b. Target size (WCAG 2.5.8) at default and comfortable density, on a fresh page with every
+//     <details> open and every tab panel shown: a target is at least 24x24 CSS px, or a 24px
+//     circle on its centre meets no other target or another small target's circle. A control in
+//     its label is targeted through the label; links in running text are exempt. Compact density
+//     trades this for density on purpose, so compact subtrees are left out.
+if (want('targets')) {
+  const pt = await context.newPage(); await applyOverrides(pt); await pt.goto(pathToFileURL(page_path).href);
+  await pt.evaluate(() => {
+    document.querySelectorAll('details:not([open])').forEach((d) => { d.open = true; });
+    document.querySelectorAll('[role="tabpanel"][hidden]').forEach((t) => t.removeAttribute('hidden'));
+  });
+  for (const density of ['default', 'comfortable']) {
+    const small = await pt.evaluate((d) => {
+      if (d === 'default') document.documentElement.removeAttribute('data-cb-density'); else document.documentElement.dataset.cbDensity = d;
+      const SEL = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="tab"], [role="menuitem"], [role="treeitem"], [role="option"], [tabindex]:not([tabindex="-1"])';
+      const inText = (el) => el.localName === 'a' && [...el.parentElement.childNodes].some((n) => n !== el && n.nodeType === 3 && n.textContent.trim());
+      const targets = [...document.querySelectorAll(SEL)].filter((el) => {
+        if (el.closest('.docs-nav, pre, [inert], [hidden], [data-cb-density="compact"]') || inText(el)) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      }).map((el) => {
+        const host = el.matches('input') && el.closest('label') ? el.closest('label') : el;
+        const r = host.getBoundingClientRect();
+        return { el, r, small: r.width < 23.5 || r.height < 23.5, c: [r.left + r.width / 2, r.top + r.height / 2] };
+      });
+      const toRect = ([x, y], r) => Math.hypot(Math.max(r.left - x, 0, x - r.right), Math.max(r.top - y, 0, y - r.bottom));
+      return targets.filter((t) => t.small && targets.some((o) => o !== t && o.r !== t.r && !o.el.contains(t.el) && !t.el.contains(o.el)
+        && (o.small ? Math.hypot(o.c[0] - t.c[0], o.c[1] - t.c[1]) < 24 : toRect(t.c, o.r) < 12)))
+        .map((t) => `#${t.el.parentElement.closest('[id]')?.id} ${t.el.localName}.${[...t.el.classList].join('.')} ${Math.round(t.r.width)}x${Math.round(t.r.height)} "${(t.el.textContent || t.el.getAttribute('aria-label') || '').trim().slice(0, 20)}"`);
+    }, density);
+    check(!small.length, `targets are 24px or spaced apart at ${density} density (WCAG 2.5.8)`, small.join('; '));
+  }
+  await pt.close();
 }
 
 // 37. The example console's refresh (host code standing in for the server): Enter on Refresh

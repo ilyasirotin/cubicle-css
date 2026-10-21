@@ -117,8 +117,9 @@ The first release of Cubicle.
   - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs` (which also keeps system colours
     inside forced-colours blocks).
   - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state, behaviour,
-    forced-colours, right-to-left and print checks in Chromium, Firefox and WebKit, with labelled
-    engine limits; `scripts/verify-matrix.mjs` runs both pages in all three engines side by side
-    (`--min` adds the minified build); `scripts/contrast-pairs.mjs` holds the palette pairs.
+    forced-colours, right-to-left, print and target-size checks in Chromium, Firefox and WebKit,
+    with labelled engine limits; `scripts/verify-matrix.mjs` runs both pages in all three engines
+    side by side (`--min` adds the minified build); `scripts/contrast-pairs.mjs` holds the palette
+    pairs.
   - `scripts/build-min.sh` builds the minified files (lightningcss, terser).
   - A Claude Code hook that blocks pushes, tags and releases.
