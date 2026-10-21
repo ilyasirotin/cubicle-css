@@ -49,6 +49,7 @@
         <li><a class="docs-nav__link" href="#tabs">Tabs</a></li>
         <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
         <li><a class="docs-nav__link" href="#props">Property lists</a></li>
+        <li><a class="docs-nav__link" href="#empty">Empty states</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
@@ -3144,6 +3145,91 @@ async function reloadRows(url) {
       </section>
 
       <!-- ================================================================ -->
+      <section class="docs-section" id="empty" aria-labelledby="empty-title">
+        <h2 class="docs-h2" id="empty-title">Empty states</h2>
+        <p class="docs-text">Says that a panel, a list or a tree has nothing to show, and what to do about it:
+          muted, centred text with an optional title and action keys, framed by its container. Tables keep
+          their own <a href="#tables-empty">empty row</a>, which looks the same.</p>
+
+        <h3 class="docs-h3" id="empty-panel">In a panel</h3>
+        <p class="docs-text">In a flush body it stands where the table would be, with its own padding.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="e-sessions-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="e-sessions-title">Sessions</h4>
+            </header>
+            <div class="cb-panel__body cb-panel__body--flush">
+              <div class="cb-empty">
+                <p class="cb-empty__title">No active sessions</p>
+                <p>Peers appear here once they complete a handshake with gw-eu-1.</p>
+                <button class="cb-btn" type="button">Add peer</button>
+              </div>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;e-sessions-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;e-sessions-title&quot;&gt;Sessions&lt;/h4&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+    &lt;div class=&quot;cb-empty&quot;&gt;
+      &lt;p class=&quot;cb-empty__title&quot;&gt;No active sessions&lt;/p&gt;
+      &lt;p&gt;Peers appear here once they complete a handshake with gw-eu-1.&lt;/p&gt;
+      &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Add peer&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="empty-tree">Instead of a tree</h3>
+        <p class="docs-text">When a filter matches nothing, or a directory has no objects, the empty state
+          replaces the whole tree. One that replaces results after the user acts takes
+          <code>role="status"</code>, so the change is announced. A branch that turns out to have no children
+          is sent as a leaf, without <code>aria-expanded</code>.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="e-dir-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="e-dir-title">Directory</h4>
+            </header>
+            <div class="cb-panel__body cb-stack">
+              <label class="cb-sr-only" for="e-filter">Filter the directory</label>
+              <input class="cb-input cb-input--sm" id="e-filter" type="search" value="contr">
+              <div class="cb-empty" role="status">
+                <p>No objects match “contr”.</p>
+                <button class="cb-btn cb-btn--sm" type="button">Clear filter</button>
+              </div>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;e-dir-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;e-dir-title&quot;&gt;Directory&lt;/h4&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+    &lt;label class=&quot;cb-sr-only&quot; for=&quot;e-filter&quot;&gt;Filter the directory&lt;/label&gt;
+    &lt;input class=&quot;cb-input cb-input--sm&quot; id=&quot;e-filter&quot; type=&quot;search&quot; value=&quot;contr&quot;&gt;
+    &lt;div class=&quot;cb-empty&quot; role=&quot;status&quot;&gt;
+      &lt;p&gt;No objects match “contr”.&lt;/p&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Clear filter&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-empty</code></th><td><code>&lt;div&gt;</code></td><td>Muted, centred block with 16px above and below; no frame of its own</td></tr>
+              <tr><th scope="row"><code>.cb-empty__title</code></th><td><code>&lt;p&gt;</code></td><td>First line in main ink, semibold</td></tr>
+              <tr><th scope="row">Keys</th><td>Children</td><td>Centred under the text; wrap several in a <code>.cb-cluster</code></td></tr>
+              <tr><th scope="row"><code>role="status"</code></th><td>Empty state</td><td>Announces it when it replaces results after a filter or search</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
       <section class="docs-section" id="badges" aria-labelledby="badges-title">
         <h2 class="docs-h2" id="badges-title">Status badges &amp; LEDs</h2>
         <p class="docs-text">Static chips and lamps that label an object or report its state at a glance;
@@ -3613,7 +3699,9 @@ async function reloadRows(url) {
           arrow keys, and a click, <kbd class="cb-kbd">Enter</kbd> or <kbd class="cb-kbd">Space</kbd> selects a row and opens or closes its
           branch. <code>--lines</code> draws the connectors. A branch whose children are still loading carries
           <code>aria-busy="true"</code>; opening a branch fires <code>cb-toggle</code>, so a server can load
-          it then (for HTMX: <code>hx-trigger="cb-toggle[detail.expanded] once"</code>).</p>
+          it then (for HTMX: <code>hx-trigger="cb-toggle[detail.expanded] once"</code>). A branch with no
+          children is sent as a leaf; a tree with nothing to show gives way to an
+          <a href="#empty-tree">empty state</a>.</p>
         <div class="docs-demo">
           <div class="cb-nav cb-nav--lines" data-cb-tree>
             <ul class="cb-nav__list" role="tree" aria-label="Directory corp.example.net">

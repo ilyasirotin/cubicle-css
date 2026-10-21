@@ -21,7 +21,7 @@
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
 //                 pagination-<width>.png and utilities-<width>.png, and
 //                 forms-matrix.png of the native form-control fixture, props-<width>.png and
-//                 busy-<n>-<width>.png of each busy container's demo.
+//                 busy-<n>-<width>.png of each busy container's demo, and empty-<width>.png.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -51,7 +51,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -1881,6 +1881,47 @@ if (want('busy') && await page.locator(BUSY).count()) {
         await demos.nth(i).scrollIntoViewIfNeeded();
         await snap(demos.nth(i), `busy-${i + 1}-${width}.png`);
       }
+    }
+    await page.setViewportSize({ width: 1360, height: 900 });
+  }
+}
+
+// 28. Empty states: .cb-empty and the table's empty row share one look (16px above and below,
+//     muted, centred); a .cb-empty centres its children with no margins, has no frame or fill of
+//     its own (its container frames it, a flush body too) and sets its title in main ink at 600.
+if (want('empty') && await page.locator('.cb-empty, .cb-table__empty').count()) {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const empties = await page.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const tok = (n) => { probe.style.color = `var(${n})`; return getComputedStyle(probe).color; };
+    const muted = tok('--cb-text-muted'); const main = tok('--cb-text-main'); probe.remove();
+    return [...document.querySelectorAll('.cb-empty, .cb-table__empty')].filter((e) => e.getClientRects().length).map((e) => {
+      const s = getComputedStyle(e); const problems = [];
+      if (s.paddingTop !== '16px' || s.paddingBottom !== '16px') problems.push(`padding ${s.paddingTop} ${s.paddingBottom}`);
+      if (s.color !== muted) problems.push(`ink ${s.color}`);
+      if (s.textAlign !== 'center') problems.push(`align ${s.textAlign}`);
+      if (e.matches('.cb-empty')) {
+        if (s.borderTopWidth !== '0px' || s.backgroundColor !== 'rgba(0, 0, 0, 0)' || s.backgroundImage !== 'none') problems.push(`frame ${s.borderTopWidth} ${s.backgroundColor}`);
+        const r = e.getBoundingClientRect(); const mid = r.left + parseFloat(s.paddingLeft) + (e.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight)) / 2;
+        for (const c of e.children) {
+          const cr = c.getBoundingClientRect(); const cs = getComputedStyle(c);
+          if (Math.abs(cr.left + cr.width / 2 - mid) > 1) problems.push(`${c.localName} off centre by ${(cr.left + cr.width / 2 - mid).toFixed(1)}px`);
+          if (cs.margin !== '0px') problems.push(`${c.localName} margin ${cs.margin}`);
+        }
+        const title = e.querySelector(':scope > .cb-empty__title');
+        if (title && (getComputedStyle(title).color !== main || getComputedStyle(title).fontWeight !== '600')) problems.push(`title ${getComputedStyle(title).color} ${getComputedStyle(title).fontWeight}`);
+      }
+      const where = e.parentElement.matches('.cb-panel__body--flush') ? ' in a flush body' : '';
+      return { name: `${e.matches('.cb-empty') ? '.cb-empty' : '.cb-table__empty'}${where}`, problems };
+    });
+  });
+  empties.forEach((e, i) => check(!e.problems.length, `empty state ${i + 1} (${e.name}): padded, muted, centred`, e.problems.join('; ')));
+  const section = page.locator('#empty');
+  if (saving && await section.count()) {
+    for (const width of [1360, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      await section.scrollIntoViewIfNeeded();
+      await snap(section, `empty-${width}.png`);
     }
     await page.setViewportSize({ width: 1360, height: 900 });
   }

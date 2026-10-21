@@ -46,6 +46,9 @@ The first release of Cubicle.
   panel body or a property list mutes its text over a still hatch fixed to the viewport and shows
   a progress cursor, with no layout shift and nothing blocked. Tables and lists inside a busy
   panel body are hatched too.
+- **Empty states.** `.cb-empty` for panels, lists and trees with nothing to show: muted, centred
+  text with an optional title and keys, framed by its container. It replaces a tree whose filter
+  matched nothing, and shares its look with the table's empty row.
 - **Badges and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a busy
   badge, and frameless `.cb-led`.
 - **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a

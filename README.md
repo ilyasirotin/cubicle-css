@@ -64,6 +64,7 @@ text, links, monospace elements and the focus ring.
 | Tabs | `.cb-tabs`, `__list`, `__tab`, `__panel`; link tabs with `aria-current`, ARIA tabs with `data-cb-tabs`; `disabled`, `aria-disabled` | [Tabs](docs/index.html#tabs) |
 | Data tables | `.cb-table-wrap`, `.cb-table`, `--compact`, `--wrap`, `--sticky`, `__num`, `__select`, `__actions`, `__sort`; `aria-selected`, `aria-disabled`, `aria-sort`, `aria-busy` (body or table), `data-cb-select-all` | [Data tables](docs/index.html#tables) |
 | Property lists | `.cb-props` on `<dl>`; `dt` / `dd` or a `<div>` per row; `aria-busy` | [Property lists](docs/index.html#props) |
+| Empty states | `.cb-empty`, `__title` | [Empty states](docs/index.html#empty) |
 | Badges and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-led` | [Status badges & LEDs](docs/index.html#badges) |
 | Alerts | `.cb-alert` (tones, `--sm`, `--banner`), `__title`, `__actions`, `__close`; `data-cb-dismiss` | [Alerts](docs/index.html#alerts) |
 | Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `aria-disabled`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |
@@ -142,7 +143,7 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 93 KB (22 KB gzip), minified 47 KB (8.9 KB gzip); `cubicle.js` 17 KB
+Sizes: `cubicle.css` 94 KB (23 KB gzip), minified 47 KB (9.0 KB gzip); `cubicle.js` 17 KB
 (5.3 KB gzip), minified 7.4 KB (2.8 KB gzip).
 
 ## Development

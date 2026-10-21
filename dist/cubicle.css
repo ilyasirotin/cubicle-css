@@ -52,6 +52,8 @@
                                stacks when narrow
       5.17 Busy containers ... aria-busy on table bodies, panel bodies and
                                property lists: muted, still hatch, progress
+      5.18 Empty states ...... .cb-empty block and title; shared with the
+                               table's empty row
    6. Utilities ....... text (.cb-mono, .cb-num, .cb-muted, tones, .cb-text-xs),
                         wrapping (.cb-truncate, .cb-nowrap, .cb-break),
                         accessibility (.cb-sr-only / [data-cb-sr], .cb-skip-link)
@@ -1632,10 +1634,8 @@
     white-space: nowrap;
   }
 
+  /* "No data" row: padding, ink and alignment are shared with .cb-empty (5.18). */
   .cb-table .cb-table__empty {
-    padding-block: var(--cb-space-4);
-    color: var(--cb-text-muted);
-    text-align: center;
     white-space: normal;
   }
 
@@ -2794,6 +2794,36 @@
   :is(.cb-panel__body[aria-busy="true"] .cb-table, .cb-table[aria-busy="true"]) > tbody > tr > :is(th, td),
   .cb-table > tbody[aria-busy="true"] > tr > :is(th, td) {
     background: repeating-linear-gradient(-45deg, var(--cb-bg-surface) 0 6px, var(--cb-bg-recessed) 6px 12px) fixed;
+  }
+
+  /* 5.18 Empty states ----------------------------------------------------- */
+
+  /* Nothing to show: a panel with no records yet, a directory or a filter
+     with no matches (it replaces the whole tree; a branch with no children is
+     sent as a leaf). Muted, centred text with an optional title and keys; the
+     container frames it, a flush panel body too. A table keeps its own empty
+     row (5.6), which shares this look. */
+  :is(.cb-empty, .cb-table .cb-table__empty) {
+    padding-block: var(--cb-space-4);
+    color: var(--cb-text-muted);
+    text-align: center;
+  }
+
+  .cb-empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--cb-space-2);
+    padding-inline: var(--cb-space-3);
+
+    & > * {
+      max-inline-size: 40rem;
+      margin: 0;
+    }
+  }
+
+  .cb-empty__title {
+    font-weight: 600;
+    color: var(--cb-text-main);
   }
 }
 
