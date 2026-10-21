@@ -1651,9 +1651,10 @@ async function reloadRows(url) {
 
         <h3 class="docs-h3" id="fields-group">Input group</h3>
         <p class="docs-text">Addons, controls and buttons attached on shared seams. An invalid control
-          also marks the addon, and a disabled one mutes it. While the server checks a value, the field
-          and its addon carry <code>aria-busy="true"</code>: the addon shows the stepped spinner and
-          its word, and announces the result when the server replaces it.</p>
+          also marks the addon, and a disabled one mutes it. While the server checks a value, or
+          reloads a select's options after another choice, the field and its addon carry
+          <code>aria-busy="true"</code>: the addon shows the stepped spinner and its word, and
+          announces the result when the server replaces it.</p>
         <div class="docs-demo">
           <div class="cb-grid cb-grid--3">
             <div class="cb-field">
@@ -1693,6 +1694,13 @@ async function reloadRows(url) {
               <div class="cb-input-group">
                 <input class="cb-input" id="f-basedn" type="text" value="ou=staff,dc=corp,dc=example" aria-busy="true" aria-describedby="f-basedn-state">
                 <span class="cb-input-group__addon" id="f-basedn-state" role="status" aria-busy="true">Checking</span>
+              </div>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-ou">Organisational unit</label>
+              <div class="cb-input-group">
+                <select class="cb-select" id="f-ou" aria-busy="true" aria-describedby="f-ou-state"><option>ou=staff</option></select>
+                <span class="cb-input-group__addon" id="f-ou-state" role="status" aria-busy="true">Loading</span>
               </div>
             </div>
           </div>
@@ -1735,6 +1743,13 @@ async function reloadRows(url) {
     &lt;div class=&quot;cb-input-group&quot;&gt;
       &lt;input class=&quot;cb-input&quot; id=&quot;f-basedn&quot; type=&quot;text&quot; value=&quot;ou=staff,dc=corp,dc=example&quot; aria-busy=&quot;true&quot; aria-describedby=&quot;f-basedn-state&quot;&gt;
       &lt;span class=&quot;cb-input-group__addon&quot; id=&quot;f-basedn-state&quot; role=&quot;status&quot; aria-busy=&quot;true&quot;&gt;Checking&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-ou&quot;&gt;Organisational unit&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;f-ou&quot; aria-busy=&quot;true&quot; aria-describedby=&quot;f-ou-state&quot;&gt;&lt;option&gt;ou=staff&lt;/option&gt;&lt;/select&gt;
+      &lt;span class=&quot;cb-input-group__addon&quot; id=&quot;f-ou-state&quot; role=&quot;status&quot; aria-busy=&quot;true&quot;&gt;Loading&lt;/span&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
@@ -1848,7 +1863,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>data-cb-output</code></th><td><code>&lt;output for="id"&gt;</code></td><td>Shows the current value of its control (script); without it, the value the page was served with</td></tr>
               <tr><th scope="row"><code>readonly</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed monospace; focusable and submitted. <code>&lt;select&gt;</code> has no read-only state: use <code>disabled</code> and send the value in a hidden input</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Any control</td><td>Flat and muted; skipped by Tab, not submitted</td></tr>
-              <tr><th scope="row"><code>aria-busy="true"</code></th><td><code>.cb-input</code>, <code>.cb-input-group__addon</code></td><td>Field: progress cursor. Addon: stepped spinner before its word (still under reduced motion)</td></tr>
+              <tr><th scope="row"><code>aria-busy="true"</code></th><td><code>.cb-input</code>, <code>.cb-select</code>, <code>.cb-input-group__addon</code></td><td>Field: progress cursor. Addon: stepped spinner before its word (still under reduced motion)</td></tr>
               <tr><th scope="row"><code>aria-disabled="true"</code> + <code>readonly</code></th><td><code>.cb-input</code></td><td>The disabled look, but focusable and submitted, so its hint can be read. Not on <code>&lt;select&gt;</code>: it stays editable, so use <code>disabled</code></td></tr>
               <tr><th scope="row"><code>required</code></th><td>Any control</td><td>Asterisk after the field label</td></tr>
               <tr><th scope="row"><code>aria-invalid="true"</code></th><td>Any control</td><td>Crimson border and tint; error shown (server validation)</td></tr>
