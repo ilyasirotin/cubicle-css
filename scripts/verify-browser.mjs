@@ -69,14 +69,16 @@ const TAB = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
 const SHIFT_TAB = engine === 'webkit' ? 'Alt+Shift+Tab' : 'Shift+Tab';
 // Reading the clipboard from automation is refused in WebKit; null means "could not read".
 const readClipboard = (pg) => pg.evaluate(() => navigator.clipboard.readText()).catch(() => null);
-// A control inside an idle ARIA tab panel or a closed <details> (as on the example screen) is
-// shown first: its tab is clicked and its details opened.
+// A control inside an idle ARIA tab panel, a closed <details> or a closed popover menu (as on the
+// example screen) is shown first: its tab is clicked, its details and its menu opened.
 const expose = (pg, selector) => pg.evaluate((sel) => {
   const el = document.querySelector(sel);
   for (let n = el; n; n = n.parentElement) {
     if (n.matches('[role="tabpanel"][hidden]')) document.querySelector(`[role="tab"][aria-controls="${n.id}"]`)?.click();
     if (n.matches('details:not([open])')) n.open = true;
   }
+  // A popover (a row's action menu) opens once its tab panel shows.
+  el.closest('[popover]:not(:popover-open)')?.showPopover();
 }, selector);
 
 // Date and time fields: Tab walks their segments, and WebKit never matches :focus-visible on them

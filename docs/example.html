@@ -141,85 +141,146 @@
           <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-peers" aria-labelledby="x-tab-peers" data-cb-density="compact" hidden>
             <h2 class="cb-tabs__heading">Peers</h2>
             <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key and cannot connect.</div>
-            <div class="cb-table-wrap">
-              <table class="cb-table cb-table--sticky" id="x-peer-table" aria-labelledby="x-tab-peers">
-                <thead>
-                  <tr>
-                    <th class="cb-table__select" scope="col"><input class="cb-check" type="checkbox" data-cb-select-all="x-peer-table" aria-label="Select all peers"></th>
-                    <th scope="col" aria-sort="ascending"><button class="cb-table__sort" type="button">Peer</button></th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Tunnel IP</th>
-                    <th scope="col">Endpoint</th>
-                    <th class="cb-table__num" scope="col" aria-sort="none"><button class="cb-table__sort" type="button">Received</button></th>
-                    <th class="cb-table__num" scope="col">Sent</th>
-                    <th scope="col">Last handshake</th>
-                    <th scope="col">Description</th>
-                    <th class="cb-table__actions" scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select laptop-an-1"></td>
-                    <th scope="row">laptop-an-1</th>
-                    <td><span class="cb-badge cb-badge--ok">Online</span></td>
-                    <td><span class="cb-mono">10.8.0.11</span></td>
-                    <td><span class="cb-mono">203.0.113.24:51820</span></td>
-                    <td class="cb-table__num">1.42 GB</td>
-                    <td class="cb-table__num">312.8 MB</td>
-                    <td>14 s ago</td>
-                    <td class="cb-truncate" title="Alice Ng, network operations laptop, hardware key enrolled">Alice Ng, network operations laptop, hardware key enrolled</td>
-                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm cb-btn--danger" type="button" data-cb-modal="x-revoke">Revoke</button></td>
-                  </tr>
-                  <tr>
-                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select phone-bk-2" checked></td>
-                    <th scope="row">phone-bk-2</th>
-                    <td><span class="cb-badge cb-badge--warn">Stale</span></td>
-                    <td><span class="cb-mono">10.8.0.12</span></td>
-                    <td><span class="cb-mono">198.51.100.7:51820</span></td>
-                    <td class="cb-table__num">86.0 MB</td>
-                    <td class="cb-table__num">9.4 MB</td>
-                    <td>6 min ago</td>
-                    <td class="cb-truncate" title="Bartek Kowalski, phone, on call this week">Bartek Kowalski, phone, on call this week</td>
-                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm cb-btn--danger" type="button" data-cb-modal="x-revoke">Revoke</button></td>
-                  </tr>
-                  <tr>
-                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select svc-backup"></td>
-                    <th scope="row">svc-backup</th>
-                    <td><span class="cb-badge cb-badge--info">Service</span></td>
-                    <td><span class="cb-mono">10.8.0.40</span></td>
-                    <td><span class="cb-mono">10.20.4.15:51820</span></td>
-                    <td class="cb-table__num">38.9 GB</td>
-                    <td class="cb-table__num">220.6 MB</td>
-                    <td>3 s ago</td>
-                    <td class="cb-truncate" title="Nightly configuration backup to the vault">Nightly configuration backup to the vault</td>
-                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm cb-btn--danger" type="button" data-cb-modal="x-revoke">Revoke</button></td>
-                  </tr>
-                  <tr aria-disabled="true">
-                    <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select laptop-es-1" disabled></td>
-                    <th scope="row">laptop-es-1</th>
-                    <td><span class="cb-badge cb-badge--danger">Revoked</span></td>
-                    <td><span class="cb-mono">10.8.0.51</span></td>
-                    <td><span class="cb-mono">198.51.100.62:51820</span></td>
-                    <td class="cb-table__num">0 B</td>
-                    <td class="cb-table__num">0 B</td>
-                    <td>never</td>
-                    <td class="cb-truncate" title="Eduardo Santos, key revoked after the device was reported lost">Eduardo Santos, key revoked after the device was reported lost</td>
-                    <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button" aria-disabled="true">Revoke</button></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <nav class="cb-pagination" aria-label="Peers pages">
-              <p class="cb-pagination__summary">1–4 of 412</p>
-              <div class="cb-pagination__pages">
-                <a class="cb-btn cb-btn--sm" rel="prev" aria-disabled="true" aria-label="Previous page">‹</a>
-                <a class="cb-btn cb-btn--sm" href="#x-peers" aria-current="page" aria-label="Page 1">1</a>
-                <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 2">2</a>
-                <span class="cb-pagination__gap" aria-hidden="true">…</span>
-                <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 103">103</a>
-                <a class="cb-btn cb-btn--sm" href="#x-peers" rel="next" aria-label="Next page">›</a>
+            <div class="cb-split">
+              <div class="cb-stack">
+                <div class="cb-table-wrap">
+                  <table class="cb-table cb-table--sticky" id="x-peer-table" aria-labelledby="x-tab-peers">
+                    <thead>
+                      <tr>
+                        <th class="cb-table__select" scope="col"><input class="cb-check" type="checkbox" data-cb-select-all="x-peer-table" aria-label="Select all peers"></th>
+                        <th scope="col" aria-sort="ascending"><button class="cb-table__sort" type="button">Peer</button></th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Tunnel IP</th>
+                        <th scope="col">Endpoint</th>
+                        <th class="cb-table__num" scope="col" aria-sort="none"><button class="cb-table__sort" type="button">Received</button></th>
+                        <th class="cb-table__num" scope="col">Sent</th>
+                        <th scope="col">Last handshake</th>
+                        <th scope="col">Description</th>
+                        <th class="cb-table__actions" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select laptop-an-1"></td>
+                        <th scope="row">laptop-an-1</th>
+                        <td><span class="cb-badge cb-badge--ok">Online</span></td>
+                        <td><span class="cb-mono">10.8.0.11</span></td>
+                        <td><span class="cb-mono">203.0.113.24:51820</span></td>
+                        <td class="cb-table__num">1.42 GB</td>
+                        <td class="cb-table__num">312.8 MB</td>
+                        <td>14 s ago</td>
+                        <td class="cb-truncate" title="Alice Ng, network operations laptop, hardware key enrolled">Alice Ng, network operations laptop, hardware key enrolled</td>
+                        <td class="cb-table__actions">
+                          <button class="cb-btn cb-btn--sm" type="button" popovertarget="x-m-1" aria-haspopup="menu">Actions</button>
+                          <div class="cb-menu" id="x-m-1" popover role="menu" aria-label="Actions for laptop-an-1" data-cb-menu>
+                            <a class="cb-menu__item" role="menuitem" href="#x-peers">Show details</a>
+                            <button class="cb-menu__item" type="button" role="menuitem">Rotate key</button>
+                            <button class="cb-menu__item" type="button" role="menuitem">Download config</button>
+                            <button class="cb-menu__item" type="button" role="menuitem">Disable</button>
+                            <hr>
+                            <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem" data-cb-modal="x-revoke">Revoke…</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select phone-bk-2" checked></td>
+                        <th scope="row">phone-bk-2</th>
+                        <td><span class="cb-badge cb-badge--warn">Stale</span></td>
+                        <td><span class="cb-mono">10.8.0.12</span></td>
+                        <td><span class="cb-mono">198.51.100.7:51820</span></td>
+                        <td class="cb-table__num">86.0 MB</td>
+                        <td class="cb-table__num">9.4 MB</td>
+                        <td>6 min ago</td>
+                        <td class="cb-truncate" title="Bartek Kowalski, phone, on call this week">Bartek Kowalski, phone, on call this week</td>
+                        <td class="cb-table__actions">
+                          <button class="cb-btn cb-btn--sm" type="button" popovertarget="x-m-2" aria-haspopup="menu">Actions</button>
+                          <div class="cb-menu" id="x-m-2" popover role="menu" aria-label="Actions for phone-bk-2" data-cb-menu>
+                            <a class="cb-menu__item" role="menuitem" href="#x-peers">Show details</a>
+                            <button class="cb-menu__item" type="button" role="menuitem">Rotate key</button>
+                            <button class="cb-menu__item" type="button" role="menuitem">Download config</button>
+                            <button class="cb-menu__item" type="button" role="menuitem">Disable</button>
+                            <hr>
+                            <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem" data-cb-modal="x-revoke">Revoke…</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select svc-backup"></td>
+                        <th scope="row">svc-backup</th>
+                        <td><span class="cb-badge cb-badge--info">Service</span></td>
+                        <td><span class="cb-mono">10.8.0.40</span></td>
+                        <td><span class="cb-mono">10.20.4.15:51820</span></td>
+                        <td class="cb-table__num">38.9 GB</td>
+                        <td class="cb-table__num">220.6 MB</td>
+                        <td>3 s ago</td>
+                        <td class="cb-truncate" title="Nightly configuration backup to the vault">Nightly configuration backup to the vault</td>
+                        <td class="cb-table__actions">
+                          <button class="cb-btn cb-btn--sm" type="button" popovertarget="x-m-3" aria-haspopup="menu">Actions</button>
+                          <div class="cb-menu" id="x-m-3" popover role="menu" aria-label="Actions for svc-backup" data-cb-menu>
+                            <a class="cb-menu__item" role="menuitem" href="#x-peers">Show details</a>
+                            <button class="cb-menu__item" type="button" role="menuitem">Rotate key</button>
+                            <button class="cb-menu__item" type="button" role="menuitem">Download config</button>
+                            <button class="cb-menu__item" type="button" role="menuitem">Disable</button>
+                            <hr>
+                            <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem" data-cb-modal="x-revoke">Revoke…</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr aria-disabled="true">
+                        <td class="cb-table__select"><input class="cb-check" type="checkbox" aria-label="Select laptop-es-1" disabled></td>
+                        <th scope="row">laptop-es-1</th>
+                        <td><span class="cb-badge cb-badge--danger">Revoked</span></td>
+                        <td><span class="cb-mono">10.8.0.51</span></td>
+                        <td><span class="cb-mono">198.51.100.62:51820</span></td>
+                        <td class="cb-table__num">0 B</td>
+                        <td class="cb-table__num">0 B</td>
+                        <td>never</td>
+                        <td class="cb-truncate" title="Eduardo Santos, key revoked after the device was reported lost">Eduardo Santos, key revoked after the device was reported lost</td>
+                        <td class="cb-table__actions"><button class="cb-btn cb-btn--sm" type="button" aria-haspopup="menu" aria-disabled="true">Actions</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <nav class="cb-pagination" aria-label="Peers pages">
+                  <p class="cb-pagination__summary">1–4 of 412</p>
+                  <div class="cb-pagination__pages">
+                    <a class="cb-btn cb-btn--sm" rel="prev" aria-disabled="true" aria-label="Previous page">‹</a>
+                    <a class="cb-btn cb-btn--sm" href="#x-peers" aria-current="page" aria-label="Page 1">1</a>
+                    <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 2">2</a>
+                    <span class="cb-pagination__gap" aria-hidden="true">…</span>
+                    <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 103">103</a>
+                    <a class="cb-btn cb-btn--sm" href="#x-peers" rel="next" aria-label="Next page">›</a>
+                  </div>
+                </nav>
               </div>
-            </nav>
+              <section class="cb-panel" aria-labelledby="x-peer-title">
+                <header class="cb-panel__head">
+                  <h3 class="cb-panel__title" id="x-peer-title">phone-bk-2</h3>
+                  <span class="cb-badge cb-badge--warn">Stale</span>
+                </header>
+                <div class="cb-panel__body cb-stack">
+                  <dl class="cb-props">
+                    <dt>Tunnel IP</dt>
+                    <dd class="cb-mono">10.8.0.12</dd>
+                    <dt>Endpoint</dt>
+                    <dd class="cb-mono">198.51.100.7:51820</dd>
+                    <dt>Last handshake</dt>
+                    <dd>6 min ago</dd>
+                    <dt>Received / sent</dt>
+                    <dd>86.0 MB / 9.4 MB</dd>
+                    <dt>Owner</dt>
+                    <dd>Bartek Kowalski, phone, on call this week</dd>
+                  </dl>
+                  <div class="cb-field">
+                    <label class="cb-field__label" for="x-peer-key">Public key</label>
+                    <div class="cb-input-group">
+                      <input class="cb-input" id="x-peer-key" type="text" readonly value="Ym9rLXBob25lLXBlZXIta2V5LWV4YW1wbGUtMDAx=">
+                      <button class="cb-btn" type="button" data-cb-copy="x-peer-key">Copy</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
           </div>
 
           <!-- Config ------------------------------------------------------- -->
