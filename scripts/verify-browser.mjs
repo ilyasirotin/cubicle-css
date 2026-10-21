@@ -144,6 +144,17 @@ if (want('layout')) {
     await page.setViewportSize({ width, height: 900 });
     const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     check(sw <= 0, `no horizontal overflow at ${width}px`, sw > 0 ? `${sw}px too wide` : '');
+    // A catalogue demo scrolls sideways when its content is too wide, which hides the fault from
+    // the page check above: a demo must wrap (.cb-break) or scroll in its own wrapper (.cb-table-wrap).
+    if (width === 360 && await page.locator('.docs-demo').count()) {
+      const wide = await page.$$eval('.docs-demo', (demos) => demos.flatMap((d) => {
+        const edge = d.getBoundingClientRect().right + 1;
+        const own = (el) => { for (let n = el.parentElement; n !== d; n = n.parentElement) if (/auto|scroll|hidden|clip/.test(getComputedStyle(n).overflowX)) return false; return true; };
+        return [...d.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > edge && el.parentElement.getBoundingClientRect().right <= edge && own(el))
+          .map((el) => `#${d.closest('[id]')?.id} ${el.localName}.${[...el.classList].join('.')} +${Math.round(el.getBoundingClientRect().right - edge)}px`);
+      }));
+      check(!wide.length, 'at 360px no demo content runs past its frame outside a scroll wrapper', wide.join('; '));
+    }
     // Firefox refuses screenshots taller than 32767px; the catalogue is longer, so it gets the viewport.
     await snap(page, `page-${width}.png`, { fullPage: true }).catch(() => snap(page, `page-${width}.png`));
   }

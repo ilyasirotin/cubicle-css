@@ -4425,15 +4425,17 @@ function hideLater(message, ms = 10000) {
             <details class="cb-details" open>
               <summary>Firewall rules <span class="cb-badge cb-badge--count">12</span></summary>
               <div class="cb-details__body">
-                <table class="cb-table cb-table--compact">
-                  <thead>
-                    <tr><th scope="col">Rule</th><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Port</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr><th scope="row">14</th><td><code>10.8.0.0/24</code></td><td><code>10.20.0.0/16</code></td><td>tcp/443</td></tr>
-                    <tr><th scope="row">15</th><td><code>10.8.0.0/24</code></td><td><code>10.20.4.15</code></td><td>tcp/22</td></tr>
-                  </tbody>
-                </table>
+                <div class="cb-table-wrap">
+                  <table class="cb-table cb-table--compact">
+                    <thead>
+                      <tr><th scope="col">Rule</th><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Port</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><th scope="row">14</th><td><code>10.8.0.0/24</code></td><td><code>10.20.0.0/16</code></td><td>tcp/443</td></tr>
+                      <tr><th scope="row">15</th><td><code>10.8.0.0/24</code></td><td><code>10.20.4.15</code></td><td>tcp/22</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </details>
             <details class="cb-details">
@@ -4449,15 +4451,17 @@ function hideLater(message, ms = 10000) {
   &lt;details class=&quot;cb-details&quot; open&gt;
     &lt;summary&gt;Firewall rules &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;12&lt;/span&gt;&lt;/summary&gt;
     &lt;div class=&quot;cb-details__body&quot;&gt;
-      &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
-        &lt;thead&gt;
-          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Source&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Destination&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Port&lt;/th&gt;&lt;/tr&gt;
-        &lt;/thead&gt;
-        &lt;tbody&gt;
-          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td&gt;&lt;code&gt;10.8.0.0/24&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.20.0.0/16&lt;/code&gt;&lt;/td&gt;&lt;td&gt;tcp/443&lt;/td&gt;&lt;/tr&gt;
-          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td&gt;&lt;code&gt;10.8.0.0/24&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.20.4.15&lt;/code&gt;&lt;/td&gt;&lt;td&gt;tcp/22&lt;/td&gt;&lt;/tr&gt;
-        &lt;/tbody&gt;
-      &lt;/table&gt;
+      &lt;div class=&quot;cb-table-wrap&quot;&gt;
+        &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+          &lt;thead&gt;
+            &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Source&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Destination&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Port&lt;/th&gt;&lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td&gt;&lt;code&gt;10.8.0.0/24&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.20.0.0/16&lt;/code&gt;&lt;/td&gt;&lt;td&gt;tcp/443&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td&gt;&lt;code&gt;10.8.0.0/24&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.20.4.15&lt;/code&gt;&lt;/td&gt;&lt;td&gt;tcp/22&lt;/td&gt;&lt;/tr&gt;
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
     &lt;/div&gt;
   &lt;/details&gt;
   &lt;details class=&quot;cb-details&quot;&gt;
@@ -5805,7 +5809,7 @@ function hideLater(message, ms = 10000) {
         <h3 class="docs-h3" id="utilities-text">Text and numbers</h3>
         <div class="docs-demo">
           <div class="cb-stack cb-stack--tight">
-            <div>Public key <span class="cb-mono">hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=</span></div>
+            <div>Public key <span class="cb-mono cb-break">hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=</span></div>
             <div>Peers <span class="cb-num">1 248</span>, handshakes today <span class="cb-num">38 410</span></div>
             <div class="cb-muted">Counters refresh every 30 seconds.</div>
             <div><span class="cb-text-ok">Online</span> · <span class="cb-text-warn">Degraded</span> · <span class="cb-text-danger">Revoked</span> · <span class="cb-text-info">Notice</span></div>
@@ -5813,7 +5817,7 @@ function hideLater(message, ms = 10000) {
           </div>
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
-  &lt;div&gt;Public key &lt;span class=&quot;cb-mono&quot;&gt;hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&lt;/span&gt;&lt;/div&gt;
+  &lt;div&gt;Public key &lt;span class=&quot;cb-mono cb-break&quot;&gt;hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&lt;/span&gt;&lt;/div&gt;
   &lt;div&gt;Peers &lt;span class=&quot;cb-num&quot;&gt;1 248&lt;/span&gt;, handshakes today &lt;span class=&quot;cb-num&quot;&gt;38 410&lt;/span&gt;&lt;/div&gt;
   &lt;div class=&quot;cb-muted&quot;&gt;Counters refresh every 30 seconds.&lt;/div&gt;
   &lt;div&gt;&lt;span class=&quot;cb-text-ok&quot;&gt;Online&lt;/span&gt; · &lt;span class=&quot;cb-text-warn&quot;&gt;Degraded&lt;/span&gt; · &lt;span class=&quot;cb-text-danger&quot;&gt;Revoked&lt;/span&gt; · &lt;span class=&quot;cb-text-info&quot;&gt;Notice&lt;/span&gt;&lt;/div&gt;
