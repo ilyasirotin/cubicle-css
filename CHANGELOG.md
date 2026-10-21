@@ -18,9 +18,11 @@ The first release of Cubicle.
   scroll containers and kept in view while focus scrolls. Light only.
 - **Layout.** The `.cb-app` shell (top bar, banner strip, sidebar, main, status bar) is a fixed
   frame that stacks below 800px; there the sidebar folds away behind a Menu key in the top bar
-  (`.cb-app__toggle`, script) and stays open without the script. `.cb-stack`, `.cb-cluster` and container-relative `.cb-grid` lay
-  pages out; `.cb-split` puts a list and its detail side by side and stacks them by its own width;
-  `.cb-center` puts one panel in the middle of the frame for sign-in, error and maintenance pages. Density modes `data-cb-density="compact"` and `"comfortable"` work on any subtree.
+  (`.cb-app__toggle`, script) and stays open without the script. `.cb-stack`, `.cb-cluster` and
+  container-relative `.cb-grid` lay pages out; `.cb-split` puts a list and its detail side by side
+  and stacks them by its own width; `.cb-center` puts one panel in the middle of the frame for
+  sign-in, error and maintenance pages. Density modes `data-cb-density="compact"` and
+  `"comfortable"` work on any subtree, panel heads included.
 - **Buttons.** `.cb-btn` raised keys with 1px press travel come in primary, tinted-danger and
   solid-danger variants, small and icon sizes, and attached groups. Toggle (`aria-pressed`), busy
   (stepped spinner) and disabled states.
@@ -28,8 +30,8 @@ The first release of Cubicle.
   (`aria-invalid`, `:user-invalid`), disabled, focusable disabled (`aria-disabled`) and busy states.
   Also check boxes and radios, horizontal and stacked `.cb-field` layouts with hints, errors and
   required marks, input groups, file and range inputs, and list boxes whose checked options take
-  the selected tint. Number and search fields drop the engines' spin and clear keys, and colour fields are a
-  swatch key two control heights wide.
+  the selected tint. Number and search fields drop the engines' spin and clear keys, and colour
+  fields are a swatch key two control heights wide.
 - **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
   click or Enter, with a "Copied" note in the header and a live-region message.
@@ -97,15 +99,24 @@ The first release of Cubicle.
   follows rows swapped in or disabled), dismiss, ARIA tabs, ARIA trees, meter marks, modal dialogs,
   output readouts and menus (placed at their key, arrow keys, Home, End and Tab; closed by an item
   click, a scroll that moves the key, or a resize). Script-only controls stay hidden without it.
-- **Catalogue and example.** `docs/index.html` shows every token and component in every state,
-  with a copy-paste snippet identical to the live markup and a reference table. It also has a
-  generated contrast table, a keyboard map and framework-neutral recipes for server updates (htmx
-  attributes, an htmx page listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM
-  helper, optional auto-hide), and a Recipes section (filter bar, inspector, sign-in with MFA, masked
-  secret, tag colour, wizard steps, tooltips, print). `docs/example.html` is a complete VPN console screen.
+- **Catalogue.** `docs/index.html` shows every token and component in every state, with a
+  copy-paste snippet identical to the live markup and a reference table. It also has a generated
+  contrast table, a keyboard map, notes on forced colours, autofill and right to left (with a
+  `dir="rtl"` demo), framework-neutral recipes for server updates (htmx attributes, an htmx page
+  listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM helper, optional
+  auto-hide), and a Recipes section (filter bar, inspector, sign-in with MFA, masked secret, tag
+  colour, wizard steps, tooltips, print).
+- **Example.** `docs/example.html` is a complete VPN console screen: the shell with a folding
+  sidebar and a directory tree, and a gateway panel with Overview (alert, gauges, property list),
+  Peers (an inspector with row action menus, select-all, pagination, and a Refresh that shows a busy
+  table and then a toast), Config (a horizontal form with secrets and advanced settings) and Log
+  tabs, plus revoke and delete confirmations.
 - **Development tools.**
-  - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs`.
-  - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state and behaviour
-    checks in Chromium, Firefox and WebKit, with labelled engine limits.
+  - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs` (which also keeps system colours
+    inside forced-colours blocks).
+  - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state, behaviour,
+    forced-colours, right-to-left and print checks in Chromium, Firefox and WebKit, with labelled
+    engine limits; `scripts/verify-matrix.mjs` runs both pages in all three engines side by side
+    (`--min` adds the minified build); `scripts/contrast-pairs.mjs` holds the palette pairs.
   - `scripts/build-min.sh` builds the minified files (lightningcss, terser).
   - A Claude Code hook that blocks pushes, tags and releases.

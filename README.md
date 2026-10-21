@@ -125,19 +125,33 @@ or form. Control heights, row heights and the small spacing steps change; type s
 `aria-pressed`, `aria-expanded`, `aria-invalid`, `aria-busy`, `disabled`, `open`), so HTMX swaps and
 framework renders need no class juggling.
 
+**Print.** Printing needs no extra markup: the application frame unrolls into one column without
+the sidebar, actions and toasts are left out, scrolling tables and logs print in full, and rows stay
+whole across pages. Page margins (`@page`) and printed headers are yours.
+
 Cubicle is light only; it declares `color-scheme: light`.
 
 ## Accessibility
 
 Text meets WCAG AA contrast (4.5:1) and boundaries, fills and the focus ring meet 3:1, as measured
 in the browser for every palette pair. Every control has a visible focus ring and a keyboard path,
-and the only animation stops under `prefers-reduced-motion`. See the
-[Accessibility section](docs/index.html#accessibility) for the contrast table and the keyboard map.
+and the only animation stops under `prefers-reduced-motion`.
+
+- **Forced colours** (Windows High Contrast): selected, pressed, current and checked items take the
+  user's `Highlight`, unavailable controls `GrayText`, and marks, lit lamps, sort arrows and the
+  spinner stay visible. System colour keywords appear only in `@media (forced-colors: active)`.
+- **Right to left:** set `dir="rtl"` on `<html>` or any subtree; layout is logical, and the select
+  chevron, accent bars, the vertical tab line, chevrons and meter marks mirror.
+- **Autofill** keeps the browser's own tint, so people see what the browser filled.
+
+See the [Accessibility section](docs/index.html#accessibility) for the contrast table, the keyboard
+map and these notes.
 
 ## Browser support
 
 Cubicle targets Baseline "widely available" features in evergreen browsers (cascade layers, native
-nesting, `color-mix()`, `:has()`, container queries). The whole verification suite passes in
+nesting, `color-mix()`, `:has()`, container queries, subgrid, `:dir()`); the Popover API (dialogs,
+menus) is newly available and listed in AGENTS.md. The whole verification suite passes in
 Chromium, Firefox and WebKit. Known engine differences:
 
 - Firefox draws no ruler strip under meters, so ticks and threshold marks are absent there.
@@ -147,9 +161,12 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Number and search fields have no engine keys. Escape clears a search field, except in Safari.
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
+- Safari leaves colour fields out of the Tab order, even with Option+Tab.
+- In forced colours, Firefox and Safari paint list-box selection themselves; Safari does not force
+  colours at all, so the forced-colours rules apply only where the platform asks for them.
 
-Sizes: `cubicle.css` 110 KB (26 KB gzip), minified 54 KB (10 KB gzip); `cubicle.js` 23 KB
-(7.0 KB gzip), minified 10 KB (3.5 KB gzip).
+Sizes: `cubicle.css` 110 KB (26 KB gzip), minified 54 KB (10 KB gzip); `cubicle.js` 24 KB
+(7.2 KB gzip), minified 10 KB (3.6 KB gzip).
 
 ## Development
 
