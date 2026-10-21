@@ -904,7 +904,8 @@
 
         <h3 class="docs-h3" id="fields-text">Text fields</h3>
         <p class="docs-text">Editable, required, read-only (recessed monospace, still focusable and
-          submitted), disabled, and invalid. The e-mail field uses native validation: type an invalid
+          submitted), disabled, locked but focusable (<code>aria-disabled</code> with
+          <code>readonly</code>, so its hint can be read), and invalid. The e-mail field uses native validation: type an invalid
           address and leave the field to see <code>:user-invalid</code> and its error.</p>
         <div class="docs-demo">
           <div class="cb-grid cb-grid--2">
@@ -925,6 +926,11 @@
               <label class="cb-field__label" for="f-tenant">Tenant</label>
               <input class="cb-input" id="f-tenant" type="text" disabled value="corp-prod" aria-describedby="f-tenant-hint">
               <p class="cb-field__hint" id="f-tenant-hint">Managed by directory sync.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-dirid">Directory ID</label>
+              <input class="cb-input" id="f-dirid" type="text" aria-disabled="true" readonly value="S-1-5-21-3623811015-1104" aria-describedby="f-dirid-hint">
+              <p class="cb-field__hint" id="f-dirid-hint">Assigned by Active Directory; change it there.</p>
             </div>
             <div class="cb-field">
               <label class="cb-field__label" for="f-src">Allowed source</label>
@@ -956,6 +962,11 @@
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-tenant&quot;&gt;Tenant&lt;/label&gt;
     &lt;input class=&quot;cb-input&quot; id=&quot;f-tenant&quot; type=&quot;text&quot; disabled value=&quot;corp-prod&quot; aria-describedby=&quot;f-tenant-hint&quot;&gt;
     &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-tenant-hint&quot;&gt;Managed by directory sync.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-dirid&quot;&gt;Directory ID&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-dirid&quot; type=&quot;text&quot; aria-disabled=&quot;true&quot; readonly value=&quot;S-1-5-21-3623811015-1104&quot; aria-describedby=&quot;f-dirid-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-dirid-hint&quot;&gt;Assigned by Active Directory; change it there.&lt;/p&gt;
   &lt;/div&gt;
   &lt;div class=&quot;cb-field&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-src&quot;&gt;Allowed source&lt;/label&gt;
@@ -1449,7 +1460,7 @@
 
         <h3 class="docs-h3" id="fields-group">Input group</h3>
         <p class="docs-text">Addons, controls and buttons attached on shared seams. An invalid control
-          also marks the addon.</p>
+          also marks the addon, and a disabled one mutes it.</p>
         <div class="docs-demo">
           <div class="cb-grid cb-grid--3">
             <div class="cb-field">
@@ -1475,6 +1486,14 @@
                 <button class="cb-btn" type="button">Test</button>
               </div>
               <p class="cb-field__error" id="f-ldap-error">Port 389 is plain LDAP; use 636.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-lease">Lease time</label>
+              <div class="cb-input-group">
+                <input class="cb-input" id="f-lease" type="number" disabled value="86400" aria-describedby="f-lease-hint">
+                <span class="cb-input-group__addon">s</span>
+              </div>
+              <p class="cb-field__hint" id="f-lease-hint">Set by the DHCP scope.</p>
             </div>
           </div>
         </div>
@@ -1502,6 +1521,14 @@
       &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Test&lt;/button&gt;
     &lt;/div&gt;
     &lt;p class=&quot;cb-field__error&quot; id=&quot;f-ldap-error&quot;&gt;Port 389 is plain LDAP; use 636.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-lease&quot;&gt;Lease time&lt;/label&gt;
+    &lt;div class=&quot;cb-input-group&quot;&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;f-lease&quot; type=&quot;number&quot; disabled value=&quot;86400&quot; aria-describedby=&quot;f-lease-hint&quot;&gt;
+      &lt;span class=&quot;cb-input-group__addon&quot;&gt;s&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-lease-hint&quot;&gt;Set by the DHCP scope.&lt;/p&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
@@ -1614,6 +1641,7 @@
               <tr><th scope="row"><code>data-cb-output</code></th><td><code>&lt;output for="id"&gt;</code></td><td>Shows the current value of its control (script); without it, the value the page was served with</td></tr>
               <tr><th scope="row"><code>readonly</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed monospace; focusable and submitted. <code>&lt;select&gt;</code> has no read-only state: use <code>disabled</code> and send the value in a hidden input</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Any control</td><td>Flat and muted; skipped by Tab, not submitted</td></tr>
+              <tr><th scope="row"><code>aria-disabled="true"</code> + <code>readonly</code></th><td><code>.cb-input</code></td><td>The disabled look, but focusable and submitted, so its hint can be read</td></tr>
               <tr><th scope="row"><code>required</code></th><td>Any control</td><td>Asterisk after the field label</td></tr>
               <tr><th scope="row"><code>aria-invalid="true"</code></th><td>Any control</td><td>Crimson border and tint; error shown (server validation)</td></tr>
               <tr><th scope="row"><code>:user-invalid</code></th><td>Any control</td><td>Same look after the user interacts (native constraints)</td></tr>

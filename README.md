@@ -58,7 +58,7 @@ text, links, monospace elements and the focus ring.
 | Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status` | [Layout](docs/index.html#layout) |
 | Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4` | [Layout](docs/index.html#layout) |
 | Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
-| Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid` | [Inputs & fields](docs/index.html#fields) |
+| Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid`, `aria-disabled` | [Inputs & fields](docs/index.html#fields) |
 | Secret boxes | `.cb-secret`; `data-cb-copy`, `data-cb-reveal`, `data-cb-download` | [Secret boxes](docs/index.html#secrets) |
 | Fieldsets and panels | `.cb-fieldset`, `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; `--inset`, status stripes, `<details>` panels | [Fieldsets & panels](docs/index.html#panels) |
 | Tabs | `.cb-tabs`, `__list`, `__tab`, `__panel`; link tabs with `aria-current`, ARIA tabs with `data-cb-tabs` | [Tabs](docs/index.html#tabs) |

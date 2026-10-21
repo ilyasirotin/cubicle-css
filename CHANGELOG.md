@@ -23,10 +23,10 @@ The first release of Cubicle.
   solid-danger variants, small and icon sizes, and attached groups. Toggle (`aria-pressed`), busy
   (stepped spinner) and disabled states.
 - **Fields.** Recessed `.cb-input` and `.cb-select` with tabular figures and readonly, invalid
-  (`aria-invalid`, `:user-invalid`) and disabled states. Also check boxes and radios, horizontal
-  and stacked `.cb-field` layouts with hints, errors and required marks, input groups, file and
-  range inputs, and list boxes whose checked options take the selected tint. Number and search
-  fields drop the engines' spin and clear keys.
+  (`aria-invalid`, `:user-invalid`), disabled and focusable disabled (`aria-disabled`) states.
+  Also check boxes and radios, horizontal and stacked `.cb-field` layouts with hints, errors and
+  required marks, input groups, file and range inputs, and list boxes whose checked options take
+  the selected tint. Number and search fields drop the engines' spin and clear keys.
 - **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
   click or Enter, with a "Copied" note in the header and a live-region message.

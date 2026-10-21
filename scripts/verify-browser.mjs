@@ -1482,7 +1482,9 @@ if (want('forms')) {
       + '[data-vb-size="sm"] > [data-vb-probe] { block-size: var(--cb-control-h-sm); }</style>'
       + ['compact', 'default', 'comfortable'].map(density).join('')
       + `<div data-vb-extras><select class="cb-select" readonly aria-label="select readonly"><option>Operator</option></select>`
-      + `<input class="cb-input" type="text" readonly value="3f9c2a71" aria-label="input readonly">${roles('')}${roles(' disabled')}</div>`;
+      + `<input class="cb-input" type="text" readonly value="3f9c2a71" aria-label="input readonly">${roles('')}${roles(' disabled')}`
+      + '<input class="cb-input" type="text" aria-disabled="true" readonly value="ou=staff" aria-label="input aria-disabled">'
+      + '<div class="cb-input-group"><input class="cb-input" type="number" disabled value="25" aria-label="group disabled"><span class="cb-input-group__addon">s</span></div></div>';
     document.body.append(box);
   }, TYPES);
   const matrix = await pf.$$eval('[data-vb-density]', (ds) => ds.map((d) => ({
@@ -1588,6 +1590,17 @@ if (want('forms')) {
   });
   check(readonly.select.bg === readonly.raised && !readonly.select.mono && readonly.input.bg === readonly.recessed && readonly.input.mono,
     'the readonly look stays off <select>, which ignores readonly', JSON.stringify({ select: readonly.select, input: readonly.input }));
+  // aria-disabled keeps a field focusable with the disabled look; a disabled field mutes its addon.
+  const locked = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const token = (t) => { probe.style.color = `var(--cb-${t})`; return getComputedStyle(probe).color; };
+    const want = { fill: token('bg-recessed'), ink: token('text-disabled') }; probe.remove();
+    const field = getComputedStyle(document.querySelector('[aria-label="input aria-disabled"]'));
+    const addon = getComputedStyle(document.querySelector('[aria-label="group disabled"] + .cb-input-group__addon'));
+    return { want, field: { fill: field.backgroundColor, ink: field.color }, addon: addon.color };
+  });
+  check(locked.field.fill === locked.want.fill && locked.field.ink === locked.want.ink && locked.addon === locked.want.ink,
+    'aria-disabled fields look disabled, and a disabled field mutes its addon', JSON.stringify(locked));
   const forms = pf.locator('[data-vb-forms]');
   await forms.scrollIntoViewIfNeeded();
   await snap(forms, `forms-matrix.png`);

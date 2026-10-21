@@ -659,7 +659,9 @@
       --_border-top: var(--cb-danger);
     }
 
-    &:disabled {
+    /* aria-disabled keeps a locked value in the tab order, so its hint can be
+       read; pair it with readonly, as aria-disabled alone does not stop typing. */
+    &:is(:disabled, [aria-disabled="true"]) {
       --_bg: var(--cb-bg-recessed);
       --_ink: var(--cb-text-disabled);
       --_border: var(--cb-border-main);
@@ -1012,6 +1014,10 @@
 
     &:has(:is([aria-invalid="true"], :user-invalid)) > .cb-input-group__addon {
       border-color: var(--cb-danger);
+    }
+
+    &:has(> :is(.cb-input, .cb-select):is(:disabled, [aria-disabled="true"])) > .cb-input-group__addon {
+      color: var(--cb-text-disabled);
     }
   }
 
