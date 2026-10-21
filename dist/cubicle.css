@@ -62,8 +62,8 @@
                                (cubicle.js)
       5.20 Logs .............. .cb-log numbered lines, time / level / message
                                columns, data-cb-level tones, :target, --nowrap
-      5.21 Forced colours .... system colours for states and unavailable
-                               controls when the user forces a palette
+      5.21 Forced colours .... system colours for states, unavailable controls,
+                               marks, lamps, arrows, spinner, select arrow, log
    6. Utilities ....... text (.cb-mono, .cb-num, .cb-muted, tones, .cb-text-xs),
                         wrapping (.cb-truncate, .cb-nowrap, .cb-break),
                         accessibility (.cb-sr-only / [data-cb-sr], .cb-skip-link)
@@ -3072,9 +3072,8 @@
      system colours (allowed only here, AGENTS.md section 6) restore it:
      selected, pressed, current and checked take Highlight; unavailable
      controls take GrayText. Words, borders and the focus ring carry the
-     rest. A Highlight element opts out of forcing: Chromium would draw a
-     Canvas backplate behind its HighlightText, and its badges and marks
-     keep their own contrast-checked colours. */
+     rest. A Highlight element opts out of forcing, or Chromium would draw a
+     Canvas backplate behind its HighlightText. */
   @media (forced-colors: active) {
     .cb-btn:is([aria-pressed="true"], [aria-expanded="true"], :has(> input:checked), [aria-current]:not([aria-current="false"])):not(:disabled, [aria-disabled="true"], :has(> input:disabled)),
     .cb-table tbody tr:is([aria-selected="true"], :has(> td > .cb-check:checked)) > :is(th, td),
@@ -3100,6 +3099,41 @@
     .cb-fieldset:disabled > legend,
     .cb-input-group:has(> :is(.cb-input, .cb-select):is(:disabled, [aria-disabled="true"])) > .cb-input-group__addon {
       color: GrayText;
+    }
+
+    /* Framed parts inside a highlight (a check box in a selected row, a
+       count in the current link) are forced again, like everywhere else. */
+    :is(.cb-check, .cb-badge, .cb-led, .cb-btn, .cb-kbd, .cb-code, .cb-nav__kind) {
+      forced-color-adjust: auto;
+    }
+
+    /* Marks, lamps that are on and sort arrows are painted fills. */
+    .cb-check::before,
+    :is(.cb-led:not(.cb-led--off), .cb-badge--ok, .cb-badge--warn, .cb-badge--danger, .cb-badge--info):not([aria-busy="true"])::before,
+    :is([aria-sort="ascending"], [aria-sort="descending"]) > .cb-table__sort::after {
+      background: CanvasText;
+    }
+
+    /* The spinner's quarter stands out from its ring. */
+    :is(.cb-btn, .cb-badge, .cb-input-group__addon)[aria-busy="true"]::before,
+    [aria-busy="true"] > .cb-nav__link::before {
+      border-color: GrayText;
+      border-block-start-color: CanvasText;
+    }
+
+    /* The chevron is a gradient, which forced colours drop: the engine draws
+       its own arrow. */
+    .cb-select:not([multiple], [size]) {
+      appearance: auto;
+    }
+
+    /* Transparent edges would turn into lines on every log line. */
+    .cb-log > li {
+      border-inline-start-color: Canvas;
+    }
+
+    .cb-log > :is([data-cb-level="warn"], [data-cb-level="error"]) {
+      border-inline-start-color: CanvasText;
     }
   }
 }

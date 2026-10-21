@@ -2269,7 +2269,47 @@ if (want('forced') && await page.locator('.docs-demo').count()) {
     const a = document.querySelector('.docs-demo .cb-table tbody tr[aria-selected="true"] > :is(th, td) a'); return a ? { ok: getComputedStyle(a).color === ink, color: getComputedStyle(a).color } : { ok: false, color: 'missing' };
   });
   check(link.ok, 'forced colours: a link in a selected row takes HighlightText', link.color);
-  for (const id of saving ? ['buttons', 'tables', 'nav', 'fields'] : []) {
+  const inner = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i')); probe.style.color = 'CanvasText'; const text = getComputedStyle(probe).color; probe.remove();
+    const box = document.querySelector('.docs-demo .cb-table tbody tr:has(> td > .cb-check:checked) .cb-check:checked');
+    return { adjust: getComputedStyle(box).forcedColorAdjust, mark: getComputedStyle(box, '::before').backgroundColor === text };
+  });
+  // WebKit has no forced-color-adjust (undefined), which is the same as auto there.
+  check((inner.adjust ?? 'auto') === 'auto' && inner.mark, 'forced colours: a check box in a highlighted row is forced again, with its mark', JSON.stringify(inner));
+  // Marks, lamps, arrows, the spinner, the select's arrow and log edges stay visible.
+  const marks = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const sys = (c) => { probe.style.color = c; return getComputedStyle(probe).color; };
+    const t = { text: sys('CanvasText'), canvas: sys('Canvas'), gray: sys('GrayText') }; probe.remove();
+    const q = (sel, pseudo) => { const e = document.querySelector(`.docs-demo ${sel}`); return e ? getComputedStyle(e, pseudo) : null; };
+    const problems = [];
+    for (const sel of ['.cb-check[type="checkbox"]:checked:not(:disabled)', '.cb-check[type="radio"]:checked:not(:disabled)', '.cb-led--ok', '.cb-badge--ok:not([aria-busy="true"])', '[aria-sort="ascending"] > .cb-table__sort']) {
+      const c = q(sel, sel.includes('cb-table__sort') ? '::after' : '::before'); if (!c) { problems.push(`${sel}: missing`); continue; }
+      if (c.backgroundColor !== t.text) problems.push(`${sel}: ${c.backgroundColor}`);
+    }
+    const off = q('.cb-led--off', '::before'); if (off && off.backgroundColor === t.text) problems.push('off lamp filled');
+    const spin = q('.cb-btn[aria-busy="true"]', '::before');
+    if (!spin || spin.borderTopColor !== t.text || spin.borderBottomColor !== t.gray) problems.push(`spinner ${spin?.borderTopColor} / ${spin?.borderBottomColor}`);
+    const sel = q('select.cb-select:not([multiple]):not([size])'); if (!sel || sel.appearance === 'none') problems.push(`select appearance ${sel?.appearance}`);
+    const lines = [...document.querySelectorAll('.docs-demo .cb-log > li')];
+    const info = lines.find((l) => l.dataset.cbLevel === 'info'); const err = lines.find((l) => l.dataset.cbLevel === 'error');
+    if (getComputedStyle(info).borderLeftColor !== t.canvas || getComputedStyle(err).borderLeftColor !== t.text) problems.push(`log edges ${getComputedStyle(info).borderLeftColor} / ${getComputedStyle(err).borderLeftColor}`);
+    return problems;
+  });
+  check(!marks.length, 'forced colours: marks, lamps, sort arrows, the spinner, the select arrow and log edges stay visible', marks.join('; '));
+  // Meter fills are engine pseudo-elements: compare pixels of the filled and the empty part.
+  const meter = pf.locator('.docs-demo meter.cb-meter').first(); await meter.scrollIntoViewIfNeeded();
+  const fill = await pf.evaluate(async ([b64, frac]) => {
+    const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+    const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; const g = cv.getContext('2d'); g.drawImage(img, 0, 0);
+    const at = (fx) => [...g.getImageData(Math.floor(fx * img.width), Math.floor(img.height * 0.3), 1, 1).data].slice(0, 3);
+    return { filled: at(0.03), empty: at(Math.min(0.97, frac + 0.1)) };
+  }, [(await meter.screenshot()).toString('base64'), await meter.evaluate((m) => (m.value - m.min) / (m.max - m.min))]);
+  check(fill.filled.some((v, k) => Math.abs(v - fill.empty[k]) > 40), 'forced colours: a meter shows its fill against the empty track', JSON.stringify(fill));
+  for (const id of saving ? ['fields', 'badges', 'meters'] : []) {
+    const sec = pf.locator(`#${id}`); await sec.scrollIntoViewIfNeeded(); await snap(sec, `forced-${id}.png`);
+  }
+  for (const id of saving ? ['buttons', 'tables', 'nav'] : []) {
     const sec = pf.locator(`#${id}`); await sec.scrollIntoViewIfNeeded(); await snap(sec, `forced-${id}.png`);
   }
   await fc.close();
