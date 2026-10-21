@@ -120,6 +120,48 @@
           <li>States use standard attributes (<code>disabled</code>, <code>aria-invalid</code>,
             <code>aria-selected</code>…), so server-driven swaps work without class toggling.</li>
         </ul>
+
+        <h3 class="docs-h3" id="integration-busy">Server updates</h3>
+        <p class="docs-text">Cubicle has no request code. The host marks the element the server is about to
+          replace with <code>aria-busy="true"</code> and removes it when the request ends: table bodies, panel
+          bodies and property lists take the busy look, and assistive technology waits for the update. Give the
+          key that started the request <code>aria-busy="true"</code> as well. Any framework can do this; three
+          recipes follow.</p>
+        <p class="docs-text">htmx, on the key that starts the request:</p>
+        <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="htmx attributes on a key"><code>&lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;
+        hx-get=&quot;/gateways/gw-eu-1/peers?page=2&quot; hx-target=&quot;#peer-rows&quot;
+        hx-on::before-request=&quot;this.ariaBusy = event.detail.target.ariaBusy = 'true'&quot;
+        hx-on::after-request=&quot;this.ariaBusy = event.detail.target.ariaBusy = null&quot;&gt;Refresh&lt;/button&gt;</code></pre>
+        <p class="docs-text">htmx, once for the whole page:</p>
+        <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="htmx listener for the page"><code>// Host code, not part of Cubicle: every htmx request marks its target busy.
+document.addEventListener('htmx:beforeRequest', (event) =&gt; {
+  event.detail.target.setAttribute('aria-busy', 'true');
+});
+document.addEventListener('htmx:afterRequest', (event) =&gt; {
+  event.detail.target.removeAttribute('aria-busy');
+});</code></pre>
+        <p class="docs-text">Plain <code>fetch</code>:</p>
+        <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="fetch recipe"><code>// Host code: replace the rows of #peer-rows with the server's HTML.
+async function reloadRows(url) {
+  const rows = document.getElementById('peer-rows');
+  rows.setAttribute('aria-busy', 'true');
+  try {
+    const response = await fetch(url, { headers: { Accept: 'text/html' } });
+    if (response.ok) rows.innerHTML = await response.text();
+  } finally {
+    rows.removeAttribute('aria-busy');
+  }
+}</code></pre>
+        <ul class="docs-list">
+          <li><code>htmx:afterRequest</code> fires when the request ends, also after a server or network error,
+            so the busy look never sticks.</li>
+          <li><code>hx-disabled-elt</code> gives the disabled look, not the busy one; add it to keys that must not
+            repeat.</li>
+          <li><code>aria-busy</code> only asks assistive technology to wait; announce the outcome in a
+            <code>role="status"</code> region.</li>
+          <li><code>cubicle.js</code> follows swapped markup by itself: select-all boxes resync, meter marks and
+            output readouts update.</li>
+        </ul>
       </section>
 
       <!-- ================================================================ -->
