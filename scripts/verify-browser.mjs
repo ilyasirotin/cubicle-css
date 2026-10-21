@@ -194,6 +194,8 @@ const readContrast = (el) => {
 const controls7 = await page.$$('.docs-demo :is(button, a[href], input, select, textarea, summary):not([disabled], [aria-disabled="true"], [aria-busy="true"])');
 const seenKeys = new Set();
 for (const el of controls7) {
+  // A control in a closed <details> or a hidden panel cannot be judged; a shown one of its look is.
+  if (!(await el.evaluate((n) => n.getClientRects().length > 0))) continue;
   // One capture per distinct look: tag, classes, input type and state attributes.
   const key = await el.evaluate((n) => n.tagName.toLowerCase()
     + [...n.classList].map((c) => `.${c}`).join('')

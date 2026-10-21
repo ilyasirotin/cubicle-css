@@ -1221,12 +1221,28 @@
             <div class="cb-grid cb-grid--2">
               <div class="cb-field">
                 <label class="cb-field__label" for="f-ips">Allowed IPs</label>
-                <textarea class="cb-input" id="f-ips" aria-describedby="f-ips-hint">10.8.0.0/24&#10;192.168.40.0/22</textarea>
+                <textarea class="cb-input cb-mono" id="f-ips" aria-describedby="f-ips-hint">10.8.0.0/24&#10;192.168.40.0/22</textarea>
                 <p class="cb-field__hint" id="f-ips-hint">One CIDR per line.</p>
               </div>
               <div class="cb-field">
                 <label class="cb-field__label" for="f-ca">CA certificate</label>
                 <textarea class="cb-input" id="f-ca" readonly>-----BEGIN CERTIFICATE-----&#10;MIIBszCCAVmgAwIBAgIUb3Jw0Kx9&#10;-----END CERTIFICATE-----</textarea>
+              </div>
+            </div>
+            <div class="cb-grid cb-grid--3">
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-policy">Access policy (JSON)</label>
+                <textarea class="cb-input cb-mono" id="f-policy" aria-invalid="true" aria-describedby="f-policy-error">{&#10;  "effect": "allow",&#10;  "actions": ["vpn:connect",]&#10;}</textarea>
+                <p class="cb-field__error" id="f-policy-error">Line 3: a trailing comma before ].</p>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-notes">Change notes</label>
+                <textarea class="cb-input" id="f-notes" placeholder="Why the policy changes, for the audit log"></textarea>
+              </div>
+              <div class="cb-field">
+                <label class="cb-field__label" for="f-review">Reviewer comment</label>
+                <textarea class="cb-input" id="f-review" disabled aria-describedby="f-review-hint">Approved after the October key audit.</textarea>
+                <p class="cb-field__hint" id="f-review-hint">Locked once the change is approved.</p>
               </div>
             </div>
           </div>
@@ -1286,12 +1302,28 @@
   &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
     &lt;div class=&quot;cb-field&quot;&gt;
       &lt;label class=&quot;cb-field__label&quot; for=&quot;f-ips&quot;&gt;Allowed IPs&lt;/label&gt;
-      &lt;textarea class=&quot;cb-input&quot; id=&quot;f-ips&quot; aria-describedby=&quot;f-ips-hint&quot;&gt;10.8.0.0/24&amp;#10;192.168.40.0/22&lt;/textarea&gt;
+      &lt;textarea class=&quot;cb-input cb-mono&quot; id=&quot;f-ips&quot; aria-describedby=&quot;f-ips-hint&quot;&gt;10.8.0.0/24&amp;#10;192.168.40.0/22&lt;/textarea&gt;
       &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-ips-hint&quot;&gt;One CIDR per line.&lt;/p&gt;
     &lt;/div&gt;
     &lt;div class=&quot;cb-field&quot;&gt;
       &lt;label class=&quot;cb-field__label&quot; for=&quot;f-ca&quot;&gt;CA certificate&lt;/label&gt;
       &lt;textarea class=&quot;cb-input&quot; id=&quot;f-ca&quot; readonly&gt;-----BEGIN CERTIFICATE-----&amp;#10;MIIBszCCAVmgAwIBAgIUb3Jw0Kx9&amp;#10;-----END CERTIFICATE-----&lt;/textarea&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-policy&quot;&gt;Access policy (JSON)&lt;/label&gt;
+      &lt;textarea class=&quot;cb-input cb-mono&quot; id=&quot;f-policy&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;f-policy-error&quot;&gt;{&amp;#10;  &quot;effect&quot;: &quot;allow&quot;,&amp;#10;  &quot;actions&quot;: [&quot;vpn:connect&quot;,]&amp;#10;}&lt;/textarea&gt;
+      &lt;p class=&quot;cb-field__error&quot; id=&quot;f-policy-error&quot;&gt;Line 3: a trailing comma before ].&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-notes&quot;&gt;Change notes&lt;/label&gt;
+      &lt;textarea class=&quot;cb-input&quot; id=&quot;f-notes&quot; placeholder=&quot;Why the policy changes, for the audit log&quot;&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;f-review&quot;&gt;Reviewer comment&lt;/label&gt;
+      &lt;textarea class=&quot;cb-input&quot; id=&quot;f-review&quot; disabled aria-describedby=&quot;f-review-hint&quot;&gt;Approved after the October key audit.&lt;/textarea&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-review-hint&quot;&gt;Locked once the change is approved.&lt;/p&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
@@ -1337,12 +1369,19 @@
 
         <h3 class="docs-h3" id="fields-horizontal">Horizontal layout</h3>
         <p class="docs-text">Label on the left for dense settings pages. Each field measures its own
-          width and stacks when it is narrower than 28rem, so it adapts inside narrow panels too.</p>
+          width and stacks when it is narrower than 28rem, so it adapts inside narrow panels too. Hints
+          and errors sit under the control, in the field column. A <code>type="reset"</code> key
+          restores the values the page was served with.</p>
         <div class="docs-demo">
-          <div class="cb-stack cb-stack--tight">
+          <form class="cb-stack cb-stack--tight" action="#fields-horizontal">
             <div class="cb-field cb-field--horizontal">
               <label class="cb-field__label" for="f-if">Interface</label>
               <input class="cb-input" id="f-if" type="text" readonly value="wg0">
+            </div>
+            <div class="cb-field cb-field--horizontal">
+              <label class="cb-field__label" for="f-endpoint">Endpoint</label>
+              <input class="cb-input" id="f-endpoint" type="text" value="https://vpn.corp.example.net" aria-invalid="true" aria-describedby="f-endpoint-error">
+              <p class="cb-field__error" id="f-endpoint-error">Enter a host name, not a URL.</p>
             </div>
             <div class="cb-field cb-field--horizontal">
               <label class="cb-field__label" for="f-port">Listen port</label>
@@ -1350,7 +1389,7 @@
             </div>
             <div class="cb-field cb-field--horizontal">
               <label class="cb-field__label" for="f-allowed">Allowed IPs</label>
-              <textarea class="cb-input" id="f-allowed" aria-describedby="f-allowed-hint">10.8.0.0/24&#10;10.20.0.0/16</textarea>
+              <textarea class="cb-input cb-mono" id="f-allowed" aria-describedby="f-allowed-hint">10.8.0.0/24&#10;10.20.0.0/16</textarea>
               <p class="cb-field__hint" id="f-allowed-hint">Routed through the tunnel; one CIDR per line.</p>
             </div>
             <div class="cb-field cb-field--horizontal">
@@ -1365,12 +1404,21 @@
               <span class="cb-field__label">Keepalive</span>
               <label class="cb-choice"><input class="cb-check" type="checkbox" checked>Send every 25 s</label>
             </div>
-          </div>
+            <div class="cb-cluster cb-cluster--end">
+              <button class="cb-btn" type="reset">Reset</button>
+              <button class="cb-btn cb-btn--primary" type="submit">Save</button>
+            </div>
+          </form>
         </div>
-        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
+        <pre class="docs-snippet"><code>&lt;form class=&quot;cb-stack cb-stack--tight&quot; action=&quot;#fields-horizontal&quot;&gt;
   &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-if&quot;&gt;Interface&lt;/label&gt;
     &lt;input class=&quot;cb-input&quot; id=&quot;f-if&quot; type=&quot;text&quot; readonly value=&quot;wg0&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-endpoint&quot;&gt;Endpoint&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-endpoint&quot; type=&quot;text&quot; value=&quot;https://vpn.corp.example.net&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;f-endpoint-error&quot;&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;f-endpoint-error&quot;&gt;Enter a host name, not a URL.&lt;/p&gt;
   &lt;/div&gt;
   &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-port&quot;&gt;Listen port&lt;/label&gt;
@@ -1378,7 +1426,7 @@
   &lt;/div&gt;
   &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-allowed&quot;&gt;Allowed IPs&lt;/label&gt;
-    &lt;textarea class=&quot;cb-input&quot; id=&quot;f-allowed&quot; aria-describedby=&quot;f-allowed-hint&quot;&gt;10.8.0.0/24&amp;#10;10.20.0.0/16&lt;/textarea&gt;
+    &lt;textarea class=&quot;cb-input cb-mono&quot; id=&quot;f-allowed&quot; aria-describedby=&quot;f-allowed-hint&quot;&gt;10.8.0.0/24&amp;#10;10.20.0.0/16&lt;/textarea&gt;
     &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-allowed-hint&quot;&gt;Routed through the tunnel; one CIDR per line.&lt;/p&gt;
   &lt;/div&gt;
   &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
@@ -1393,7 +1441,11 @@
     &lt;span class=&quot;cb-field__label&quot;&gt;Keepalive&lt;/span&gt;
     &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; checked&gt;Send every 25 s&lt;/label&gt;
   &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+  &lt;div class=&quot;cb-cluster cb-cluster--end&quot;&gt;
+    &lt;button class=&quot;cb-btn&quot; type=&quot;reset&quot;&gt;Reset&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;submit&quot;&gt;Save&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
 
         <h3 class="docs-h3" id="fields-group">Input group</h3>
         <p class="docs-text">Addons, controls and buttons attached on shared seams. An invalid control
@@ -1498,6 +1550,16 @@
               <label class="cb-field__label" for="f-idle">Idle lock (policy)</label>
               <input class="cb-range" id="f-idle" type="range" min="5" max="60" value="15" disabled>
             </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-wgconf">Import WireGuard config</label>
+              <input class="cb-input" id="f-wgconf" type="file" accept=".conf" aria-invalid="true" aria-describedby="f-wgconf-error">
+              <p class="cb-field__error" id="f-wgconf-error">wg0.txt is not a WireGuard config: it has no [Interface] section.</p>
+            </div>
+            <div class="cb-field">
+              <label class="cb-field__label" for="f-firmware">Firmware image</label>
+              <input class="cb-input" id="f-firmware" type="file" disabled aria-describedby="f-firmware-hint">
+              <p class="cb-field__hint" id="f-firmware-hint">Uploads pause during the maintenance window.</p>
+            </div>
           </div>
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
@@ -1514,6 +1576,16 @@
   &lt;div class=&quot;cb-field&quot;&gt;
     &lt;label class=&quot;cb-field__label&quot; for=&quot;f-idle&quot;&gt;Idle lock (policy)&lt;/label&gt;
     &lt;input class=&quot;cb-range&quot; id=&quot;f-idle&quot; type=&quot;range&quot; min=&quot;5&quot; max=&quot;60&quot; value=&quot;15&quot; disabled&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-wgconf&quot;&gt;Import WireGuard config&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-wgconf&quot; type=&quot;file&quot; accept=&quot;.conf&quot; aria-invalid=&quot;true&quot; aria-describedby=&quot;f-wgconf-error&quot;&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;f-wgconf-error&quot;&gt;wg0.txt is not a WireGuard config: it has no [Interface] section.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-field&quot;&gt;
+    &lt;label class=&quot;cb-field__label&quot; for=&quot;f-firmware&quot;&gt;Firmware image&lt;/label&gt;
+    &lt;input class=&quot;cb-input&quot; id=&quot;f-firmware&quot; type=&quot;file&quot; disabled aria-describedby=&quot;f-firmware-hint&quot;&gt;
+    &lt;p class=&quot;cb-field__hint&quot; id=&quot;f-firmware-hint&quot;&gt;Uploads pause during the maintenance window.&lt;/p&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
@@ -1538,6 +1610,7 @@
               <tr><th scope="row"><code>.cb-field__label</code> / <code>__hint</code> / <code>__error</code></th><td>Field parts</td><td>Error shows only while a control in the field is invalid</td></tr>
               <tr><th scope="row"><code>.cb-input-group</code> / <code>__addon</code></th><td>Wrapper / text</td><td>Attached addons, fields and buttons</td></tr>
               <tr><th scope="row"><code>.cb-range</code></th><td>Range <code>&lt;input&gt;</code></td><td>Recessed track, raised thumb</td></tr>
+              <tr><th scope="row"><code>type="reset"</code></th><td><code>.cb-btn</code> in a form</td><td>Restores the values the page was served with, readouts included</td></tr>
               <tr><th scope="row"><code>data-cb-output</code></th><td><code>&lt;output for="id"&gt;</code></td><td>Shows the current value of its control (script); without it, the value the page was served with</td></tr>
               <tr><th scope="row"><code>readonly</code></th><td><code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code></td><td>Recessed monospace; focusable and submitted. <code>&lt;select&gt;</code> has no read-only state: use <code>disabled</code> and send the value in a hidden input</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Any control</td><td>Flat and muted; skipped by Tab, not submitted</td></tr>
