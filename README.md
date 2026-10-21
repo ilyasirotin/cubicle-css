@@ -152,7 +152,8 @@ Using Cubicle needs no tools. Working on it uses a few Node scripts in `scripts/
 |---|---|
 | `node scripts/check-snippets.mjs` | Every catalogue demo matches its copy-paste snippet |
 | `node scripts/check-tokens.mjs` | Every token is documented with its value, and every `var(--cb-*)` is declared |
-| `node scripts/verify-browser.mjs [page] --browser chromium\|firefox\|webkit` | Contrast, focus, keyboard, layout and behaviour checks in a real browser |
+| `node scripts/verify-browser.mjs [page] --browser chromium\|firefox\|webkit` | Contrast, focus, keyboard, layout and behaviour checks in a real browser; `--only <groups>` for a quick partial run |
+| `node scripts/verify-matrix.mjs [--min]` | The same checks for both pages in all three engines, side by side, with one summary |
 | `bash scripts/build-min.sh` | Builds `dist/*.min.*` for release checks |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, rules and the definition of done, and

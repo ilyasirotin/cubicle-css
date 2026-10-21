@@ -15,20 +15,20 @@ List the components, tokens, scripts and pages it touches. Everything below is s
 
 ## 2. Run the checks
 
-Run each one and keep its summary line (counts and every `FAIL`) for the report. They share `tmp/shots/`, so run them one after another, not in parallel.
+Run each one and keep its summary line (counts and every `FAIL`) for the report.
 
 1. `node scripts/check-snippets.mjs`: every catalogue demo matches its `<pre><code>`.
 2. `node scripts/check-tokens.mjs`: tokens and the catalogue agree; every `var(--cb-*)` exists.
 3. `node .claude/skills/cubicle-review/scripts/scan-diff.mjs`: scans only the lines the change adds to `dist/cubicle.css` and `dist/cubicle.js` for raw colours, shadows, radii and durations outside `@layer tokens`, `!important`, ID selectors, vendor prefixes, `outline` outside focus rules, blur, nesting deeper than two levels, custom property naming, self-referencing variables, remote resources and class or style toggling in script. Its output is a list of leads: read each line and confirm it before reporting it.
-4. `node scripts/verify-browser.mjs` (about a minute) for the catalogue.
-5. `node scripts/verify-browser.mjs docs/example.html` when the change touches `dist/`, or `docs/example.html`, because the example is the integration test.
-6. Add `--browser firefox` and `--browser webkit` runs of step 4 when the change touches engine pseudo-elements (`::-webkit-*`, `::-moz-*`), `<meter>`, `<progress>`, range inputs, `dist/cubicle.js`, or a platform feature from AGENTS.md Section 10. Engine limits print as labelled skips; a skip is not a failure, but a new skip needs a reason.
+4. `node scripts/verify-matrix.mjs --browsers chromium` runs the browser checks on the catalogue and on `docs/example.html` (the integration test) side by side. Use `--pages index` when the change touches neither `dist/` nor `docs/example.html`.
+5. Use `--browsers chromium,firefox,webkit` instead when the change touches engine pseudo-elements (`::-webkit-*`, `::-moz-*`), form controls, `<meter>`, `<progress>`, range inputs, `dist/cubicle.js`, or a platform feature from AGENTS.md Section 10. Engine limits print as labelled skips; a skip is not a failure, but a new skip needs a reason.
+6. The matrix prints one line per run and every `FAIL`; the full report of a run is `tmp/verify/<page>-<engine>.txt`. Do not trust a partial run (`--only`) as the verdict.
 
 If a script cannot run (missing dependencies), say so and give the setup line from the top of `scripts/verify-browser.mjs`. Never skip silently, and never report a check as passed unless it ran in this session.
 
 ## 3. Look at the screenshots
 
-Open the shots of what changed, not all of them; `tmp/shots/` holds about two hundred. Names follow the catalogue sections: `badges-<width>.png`, `tables-<width>.png`, `tables-sticky-360.png`, `alerts-`, `tabs-`, `nav-`, `meters-`, `segmented-`, `details-`, `pagination-`, `utilities-<width>.png`, `dialog-<id>.png`, and `state-<element>-<rest|hover|focus|active>.png` for interactive controls. Look at least at 360 and 1360 for each touched section, and at the state shots of any control whose states changed. `ls tmp/shots | grep <section>` finds them.
+Open the shots of what changed, not all of them; each run's directory `tmp/shots/<page>-<engine>/` (for example `tmp/shots/index-chromium/`) holds about two hundred. Names follow the catalogue sections: `badges-<width>.png`, `tables-<width>.png`, `tables-sticky-360.png`, `alerts-`, `tabs-`, `nav-`, `meters-`, `segmented-`, `details-`, `pagination-`, `utilities-<width>.png`, `dialog-<id>.png`, and `state-<element>-<rest|hover|focus|active>.png` for interactive controls. Look at least at 360 and 1360 for each touched section, and at the state shots of any control whose states changed. `ls tmp/shots/index-chromium | grep <section>` finds them.
 
 Judge against the brief and name what you see, not an impression:
 

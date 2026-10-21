@@ -64,29 +64,30 @@ The catalogue is the test. For every component, `docs/index.html` has:
 
 ## Checking
 
+While working on one part, run only its checks; the groups are listed at the top of
+`scripts/verify-browser.mjs`, and `--shots none` skips the screenshots:
+
+```sh
+node scripts/verify-browser.mjs --only forms --shots none
+```
+
 Run these before every commit:
 
 ```sh
 node scripts/check-snippets.mjs
 node scripts/check-tokens.mjs
-node scripts/verify-browser.mjs --browser chromium
-node scripts/verify-browser.mjs docs/example.html --browser chromium
+node scripts/verify-matrix.mjs --browsers chromium
 ```
 
-Before a release, and after any change to rendering or `cubicle.js`, run the suite in all three
-engines, on the source and on the minified build:
+After a change to engine-specific CSS, form controls, platform features or `cubicle.js`, and before a
+release, run every engine, on the source and on the minified build:
 
 ```sh
-bash scripts/build-min.sh
-for page in docs/index.html docs/example.html; do
-  for engine in chromium firefox webkit; do
-    node scripts/verify-browser.mjs "$page" --browser "$engine"
-    node scripts/verify-browser.mjs "$page" --browser "$engine" --css dist/cubicle.min.css --js dist/cubicle.min.js
-  done
-done
+node scripts/verify-matrix.mjs --min
 ```
 
-`verify-browser` writes screenshots to `tmp/shots/`; look at them. A line marked `skip` is a known
+`verify-browser` writes screenshots to `tmp/shots/`, and the matrix to `tmp/shots/<page>-<engine>/`;
+look at them. A line marked `skip` is a known
 engine limit listed in the script's `ENGINE_LIMITS`, with its reason. It is never a silent pass, so
 add one only for a real engine difference.
 
