@@ -3223,7 +3223,9 @@
 
         <h3 class="docs-h3" id="nav-sidebar">Sidebar navigation</h3>
         <p class="docs-text">Links in nested lists; <code>aria-current="page"</code> marks the current page.
-          Branches are native <code>&lt;details&gt;</code>, so they open without script.</p>
+          Branches are native <code>&lt;details&gt;</code>, so they open without script. An unavailable
+          destination is an <code>&lt;a role="link" aria-disabled="true"&gt;</code> without
+          <code>href</code>: muted, announced as unavailable and out of the tab order.</p>
         <div class="docs-demo">
           <nav class="cb-nav" aria-label="Console">
             <p class="cb-nav__heading" id="n-dir">Directory</p>
@@ -3231,6 +3233,7 @@
               <li><a class="cb-nav__link" href="#nav-sidebar" aria-current="page">Users <span class="cb-badge cb-badge--count">1 248</span></a></li>
               <li><a class="cb-nav__link" href="#nav-sidebar">Groups <span class="cb-badge cb-badge--count">86</span></a></li>
               <li><a class="cb-nav__link" href="#nav-sidebar">Service accounts</a></li>
+              <li><a class="cb-nav__link" role="link" aria-disabled="true">Billing <span class="cb-badge">No licence</span></a></li>
               <li>
                 <details open>
                   <summary class="cb-nav__link">Policies</summary>
@@ -3264,6 +3267,7 @@
     &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot; aria-current=&quot;page&quot;&gt;Users &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;1 248&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Groups &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;86&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#nav-sidebar&quot;&gt;Service accounts&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; role=&quot;link&quot; aria-disabled=&quot;true&quot;&gt;Billing &lt;span class=&quot;cb-badge&quot;&gt;No licence&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
     &lt;li&gt;
       &lt;details open&gt;
         &lt;summary class=&quot;cb-nav__link&quot;&gt;Policies&lt;/summary&gt;
@@ -3428,6 +3432,7 @@
               <tr><th scope="row"><code>.cb-nav__heading</code></th><td><code>&lt;p&gt;</code></td><td>Group heading; label the list with <code>aria-labelledby</code></td></tr>
               <tr><th scope="row"><code>.cb-nav__list</code></th><td><code>&lt;ul&gt;</code></td><td>List; nested lists indent by 1rem</td></tr>
               <tr><th scope="row"><code>.cb-nav__link</code></th><td><code>&lt;a&gt;</code>, <code>&lt;summary&gt;</code>, <code>&lt;span&gt;</code></td><td>24px row with a chevron slot</td></tr>
+              <tr><th scope="row"><code>aria-disabled="true"</code></th><td><code>&lt;a role="link"&gt;</code> without <code>href</code></td><td>Muted, no hover fill, not-allowed pointer</td></tr>
               <tr><th scope="row"><code>aria-current="page"</code></th><td>Link</td><td>Current page: selected tint and accent bar</td></tr>
               <tr><th scope="row"><code>&lt;details&gt;</code> + <code>summary.cb-nav__link</code></th><td>In a list item</td><td>Branch without script; <code>open</code> turns the chevron down</td></tr>
               <tr><th scope="row"><code>data-cb-tree</code></th><td><code>.cb-nav</code></td><td>Hands its ARIA tree to the script</td></tr>

@@ -65,7 +65,7 @@ text, links, monospace elements and the focus ring.
 | Data tables | `.cb-table-wrap`, `.cb-table`, `--compact`, `--wrap`, `--sticky`, `__num`, `__select`, `__actions`, `__sort`; `aria-selected`, `aria-sort`, `data-cb-select-all` | [Data tables](docs/index.html#tables) |
 | Badges and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-led` | [Status badges & LEDs](docs/index.html#badges) |
 | Alerts | `.cb-alert` (tones, `--sm`, `--banner`), `__title`, `__actions`, `__close`; `data-cb-dismiss` | [Alerts](docs/index.html#alerts) |
-| Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |
+| Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `aria-disabled`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |
 | Meters and progress | `.cb-meter` on `<meter>` and `<progress>`, `--sm`, `--ticks`, `.cb-gauge`; `data-cb-marks` | [Meters & progress](docs/index.html#meters) |
 | Segmented controls | `.cb-btn-group.cb-segmented` with radios or checkboxes, `--fill` | [Segmented controls](docs/index.html#segmented) |
 | Details | `.cb-details`, `__body`, `--sm`, `--inline`; `<details name>` accordions | [Details & disclosure](docs/index.html#details) |

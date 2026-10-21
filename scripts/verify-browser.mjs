@@ -807,6 +807,22 @@ if (want('nav') && await page.locator('.docs-demo .cb-nav').count()) {
   }
 }
 
+// 14b. A disabled navigation link (aria-disabled, no href) takes the disabled ink and no hover fill.
+if (want('nav') && await page.locator('.docs-demo .cb-nav__link[aria-disabled="true"]').count()) {
+  const link = page.locator('.docs-demo .cb-nav__link[aria-disabled="true"]').first();
+  await link.scrollIntoViewIfNeeded();
+  const box = await link.boundingBox();
+  await page.mouse.move(box.x + 4, box.y + box.height / 2);
+  const look = await link.evaluate((l) => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-text-disabled)'; const want = getComputedStyle(probe).color; probe.remove();
+    const cs = getComputedStyle(l); return { want, ink: cs.color, hoverFill: cs.backgroundColor, cursor: cs.cursor };
+  });
+  await page.mouse.move(2, 2);
+  check(look.ink === look.want && look.hoverFill === 'rgba(0, 0, 0, 0)' && look.cursor === 'not-allowed',
+    'a disabled navigation link is muted, refuses the pointer and takes no hover fill', JSON.stringify(look));
+}
+
 // 15. Meters and progress. Engine pseudo-elements cannot be read through getComputedStyle,
 //     so the fill and the ruler are checked on pixels: the element is screenshotted and the
 //     PNG decoded in the page. The fill at 5% must be nearest to the tone the browser's own

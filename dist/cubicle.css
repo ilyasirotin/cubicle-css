@@ -33,7 +33,7 @@
                                (cubicle.js), --sm, --banner
       5.8 Tabs ............... .cb-tabs link and ARIA tabs (cubicle.js), states,
                                panel head, --vertical, no-JS fallback
-      5.9 Navigation & trees . .cb-nav links and <details> branches, ARIA tree
+      5.9 Navigation & trees . .cb-nav links (disabled) and <details> branches, ARIA tree
                                (cubicle.js), kinds, busy branch, --lines;
                                .cb-breadcrumb
       5.10 Meters & progress . .cb-meter on <meter> / <progress>, --sm, --ticks,
@@ -2038,6 +2038,17 @@
 
     &:hover {
       background: var(--cb-bg-hover);
+    }
+
+    /* Unavailable destination: <a role="link" aria-disabled="true"> without
+       href is announced as a disabled link and stays out of the tab order. */
+    &[aria-disabled="true"] {
+      color: var(--cb-text-disabled);
+      cursor: not-allowed;
+    }
+
+    &[aria-disabled="true"]:hover {
+      background: none;
     }
   }
 

@@ -43,8 +43,9 @@ The first release of Cubicle.
   badge, and frameless `.cb-led`.
 - **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a
   dismiss key, a compact size and page-wide banners.
-- **Navigation and trees.** `.cb-nav` link navigation with `<details>` branches. ARIA directory
-  trees with RDN kind chips, loading branches and connector lines. `.cb-breadcrumb`.
+- **Navigation and trees.** `.cb-nav` link navigation with `<details>` branches and disabled
+  links. ARIA directory trees with RDN kind chips, loading branches and connector lines.
+  `.cb-breadcrumb`.
 - **Meters and progress.** `.cb-meter` on `<meter>` and `<progress>` coloured by `low`, `high` and
   `optimum`, a still indeterminate state, ticks and threshold marks, a compact size, and
   `.cb-gauge`.
