@@ -1199,12 +1199,15 @@
     box-shadow: var(--cb-shadow-inset);
   }
 
+  /* At least a table row plus the small spacing step: 26 / 32 / 38px in the
+     compact, default and comfortable densities, room for a .cb-btn--sm or the
+     title with the padding and the bottom line. */
   .cb-panel__head {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--cb-space-2);
-    min-block-size: 2rem;
+    min-block-size: calc(var(--cb-row-h) + var(--cb-space-1));
     padding: var(--cb-space-1) var(--cb-space-3);
     background: var(--cb-grad-surface), var(--cb-bg-header);
     border-block-end: 1px solid var(--cb-border-main);

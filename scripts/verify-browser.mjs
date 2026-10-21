@@ -1337,23 +1337,24 @@ if (want('frame') && await page.locator('body > .cb-app').count()) {
 }
 
 // 24. Density: inside [data-cb-density] (and at the default) fields and keys take
-//     --cb-control-h, small keys --cb-control-h-sm, table rows --cb-row-h, and a small key
-//     fits its row: 22 / 18 / 24 compact, 26 / 20 / 28 default, 30 / 24 / 32 comfortable.
+//     --cb-control-h, small keys --cb-control-h-sm, table rows --cb-row-h, a small key fits
+//     its row, and panel heads take --cb-row-h plus --cb-space-1: 22 / 18 / 24 / 26 compact,
+//     26 / 20 / 28 / 32 default, 30 / 24 / 32 / 38 comfortable.
 if (want('density') && await page.locator('.docs-demo [data-cb-density]').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
-  const sizes = { compact: [22, 18, 24], default: [26, 20, 28], comfortable: [30, 24, 32] };
+  const sizes = { compact: [22, 18, 24, 26], default: [26, 20, 28, 32], comfortable: [30, 24, 32, 38] };
   const panels = await page.$$eval('.docs-demo .cb-grid:has([data-cb-density]) > .cb-panel', (ps) => ps.map((p) => {
     const h = (sel) => Math.round(p.querySelector(sel).getBoundingClientRect().height);
     const row = p.querySelector('tbody tr'); const key = row.querySelector('.cb-btn--sm');
-    return { mode: p.getAttribute('data-cb-density') ?? 'default', field: h('.cb-input'), segment: h('.cb-segmented > .cb-btn'),
+    return { mode: p.getAttribute('data-cb-density') ?? 'default', head: h(':scope > .cb-panel__head'), field: h('.cb-input'), segment: h('.cb-segmented > .cb-btn'),
       small: h('.cb-panel__head .cb-btn--sm'), row: Math.round(row.getBoundingClientRect().height),
       fits: key.getBoundingClientRect().bottom <= row.getBoundingClientRect().bottom && key.getBoundingClientRect().top >= row.getBoundingClientRect().top };
   }));
   for (const d of panels) {
-    const [control, small, row] = sizes[d.mode];
-    check(d.field === control && d.segment === control && d.small === small && d.row === row && d.fits,
-      `density ${d.mode}: controls ${control}px, small keys ${small}px, rows ${row}px with the key inside`,
-      `field ${d.field}, segment ${d.segment}, small ${d.small}, row ${d.row}, key fits ${d.fits}`);
+    const [control, small, row, head] = sizes[d.mode];
+    check(d.field === control && d.segment === control && d.small === small && d.row === row && d.fits && d.head === head,
+      `density ${d.mode}: controls ${control}px, small keys ${small}px, rows ${row}px with the key inside, panel head ${head}px`,
+      `field ${d.field}, segment ${d.segment}, small ${d.small}, row ${d.row}, key fits ${d.fits}, head ${d.head}`);
   }
 }
 
