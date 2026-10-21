@@ -3,11 +3,17 @@
 // Setup (once):   cd scripts && npm install && npx playwright install chromium firefox webkit
 // Run:            node scripts/verify-browser.mjs [docs/index.html] [--browser chromium|firefox|webkit]
 //                                                 [--css dist/cubicle.min.css] [--js dist/cubicle.min.js]
+//                                                 [--only forms,keyboard] [--shots tmp/shots/x]
 //                 --browser picks the engine (chromium by default).
+//                 --only runs the named groups of checks (GROUPS below) plus the console check,
+//                 for quick runs while working on one part; the full run is the verdict.
+//                 --shots writes the screenshots to another directory (tmp/shots by default),
+//                 so runs can go side by side (scripts/verify-matrix.mjs does that); --shots none
+//                 saves none, for quick runs.
 //                 --css / --js serve the given file in place of dist/cubicle.css / dist/cubicle.js
 //                 (to check the minified build).
 //                 Known engine limits (ENGINE_LIMITS below) are reported as "skip", with the reason.
-// Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored), including
+// Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored, or --shots), including
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
 //                 badges-<width>.png and tables-<width>.png of those sections, and
 //                 tables-sticky-360.png of the wide grid scrolled sideways, and
@@ -21,7 +27,7 @@
 import { chromium, firefox, webkit } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { measurePairs, ratio, label } from './contrast-pairs.mjs';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -34,9 +40,24 @@ const engineFlag = args.indexOf('--browser');
 const engine = engineFlag >= 0 ? args.splice(engineFlag, 2)[1] : 'chromium';
 const engines = { chromium, firefox, webkit };
 if (!engines[engine]) { console.error(`unknown --browser ${engine}; use chromium, firefox or webkit`); process.exit(2); }
+const shotsFlag = args.indexOf('--shots');
+const shotsArg = shotsFlag >= 0 ? args.splice(shotsFlag, 2)[1] ?? '' : 'tmp/shots';
+// --shots none saves no screenshot (pixel checks still take theirs in memory) and skips the
+// width changes made only for them, keeping the last width, which later checks start from.
+const saving = shotsArg !== 'none';
+const shots = saving ? resolve(root, shotsArg) : null;
+if (saving) mkdirSync(shots, { recursive: true });
+// caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
+const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
+const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms'];
+const onlyFlag = args.indexOf('--only');
+const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
+if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
+  console.error(`unknown --only group in "${only.join(',')}"; use ${GROUPS.join(', ')}`); process.exit(2);
+}
+const want = (group) => !only || only.includes(group);
 const page_path = resolve(root, args[0] ?? 'docs/index.html');
-const shots = resolve(root, 'tmp/shots');
-mkdirSync(shots, { recursive: true });
 
 // Differences that come from an engine or from automation, not from the stylesheet. A failing
 // check whose name matches one of these, in that engine, is reported as "skip" with the reason.
@@ -98,60 +119,64 @@ await page.goto(pathToFileURL(page_path).href);
 check(problems.length === 0, 'no console errors or warnings', problems.join(' | '));
 
 // 2. No horizontal overflow at three widths
-for (const width of [360, 800, 1360]) {
-  await page.setViewportSize({ width, height: 900 });
-  const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-  check(sw <= 0, `no horizontal overflow at ${width}px`, sw > 0 ? `${sw}px too wide` : '');
-  // Firefox refuses screenshots taller than 32767px; the catalogue is longer, so it gets the viewport.
-  await page.screenshot({ path: `${shots}/page-${width}.png`, fullPage: true }).catch(() => page.screenshot({ path: `${shots}/page-${width}.png` }));
+if (want('layout')) {
+  for (const width of [360, 800, 1360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    check(sw <= 0, `no horizontal overflow at ${width}px`, sw > 0 ? `${sw}px too wide` : '');
+    // Firefox refuses screenshots taller than 32767px; the catalogue is longer, so it gets the viewport.
+    await snap(page, `page-${width}.png`, { fullPage: true }).catch(() => snap(page, `page-${width}.png`));
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
 }
-await page.setViewportSize({ width: 1360, height: 900 });
 
 // 3. Visible focus ring on the first instance of each control type
-const controls = ['a[href]', 'button:not([disabled])', 'input:not([type=hidden])', 'select', 'textarea', 'summary'];
-for (const sel of controls) {
-  const el = page.locator(`${sel}:visible`).first();
-  if (await el.count() === 0) continue;
-  // Tab away and back with Shift+Tab: keyboard focus, and it stays inside the page even for
-  // the first control (Shift+Tab from it would leave for the browser UI).
-  await el.focus();
-  await page.keyboard.press(TAB);
-  await page.keyboard.press(SHIFT_TAB);
-  const r = await el.evaluate((n) => { const cs = getComputedStyle(n); return { fv: n.matches(':focus-visible'), w: parseFloat(cs.outlineWidth), s: cs.outlineStyle }; });
-  check(r.fv && r.w >= 2 && r.s !== 'none', `focus ring visible on ${sel}`, `${r.w}px ${r.s}`);
-}
+if (want('controls')) {
+  const controls = ['a[href]', 'button:not([disabled])', 'input:not([type=hidden])', 'select', 'textarea', 'summary'];
+  for (const sel of controls) {
+    const el = page.locator(`${sel}:visible`).first();
+    if (await el.count() === 0) continue;
+    // Tab away and back with Shift+Tab: keyboard focus, and it stays inside the page even for
+    // the first control (Shift+Tab from it would leave for the browser UI).
+    await el.focus();
+    await page.keyboard.press(TAB);
+    await page.keyboard.press(SHIFT_TAB);
+    const r = await el.evaluate((n) => { const cs = getComputedStyle(n); return { fv: n.matches(':focus-visible'), w: parseFloat(cs.outlineWidth), s: cs.outlineStyle }; });
+    check(r.fv && r.w >= 2 && r.s !== 'none', `focus ring visible on ${sel}`, `${r.w}px ${r.s}`);
+  }
 
-// 4. Key travel on press (first plain button key: a link key would navigate, a modal opener open)
-const btn = page.locator('button.cb-btn[type="button"]:not([disabled], [aria-disabled], [data-cb-modal], [data-cb-dismiss], [popovertarget]):visible').first();
-if (await btn.count()) {
-  await btn.scrollIntoViewIfNeeded();
-  const box = await btn.boundingBox();
-  const getPressState = () => btn.evaluate((n) => {
-    const cs = getComputedStyle(n);
-    return `${cs.translate}|${cs.boxShadow}`;
-  });
-  const before = await getPressState();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down(); await page.waitForTimeout(150);
-  const during = await getPressState();
-  await page.mouse.up(); await page.mouse.move(2, 2); await page.waitForTimeout(150);
-  const after = await getPressState();
-  check(during !== before && after === before, 'button travels down and inverts bevel on press, returns on release', `${before.split('|')[0]} -> ${during.split('|')[0]}`);
-}
+  // 4. Key travel on press (first plain button key: a link key would navigate, a modal opener open)
+  const btn = page.locator('button.cb-btn[type="button"]:not([disabled], [aria-disabled], [data-cb-modal], [data-cb-dismiss], [popovertarget]):visible').first();
+  if (await btn.count()) {
+    await btn.scrollIntoViewIfNeeded();
+    const box = await btn.boundingBox();
+    const getPressState = () => btn.evaluate((n) => {
+      const cs = getComputedStyle(n);
+      return `${cs.translate}|${cs.boxShadow}`;
+    });
+    const before = await getPressState();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down(); await page.waitForTimeout(150);
+    const during = await getPressState();
+    await page.mouse.up(); await page.mouse.move(2, 2); await page.waitForTimeout(150);
+    const after = await getPressState();
+    check(during !== before && after === before, 'button travels down and inverts bevel on press, returns on release', `${before.split('|')[0]} -> ${during.split('|')[0]}`);
+  }
 
-// 5. Popover dialogs open and close with Escape
-for (const id of await page.$$eval('[popovertarget]:not([popovertargetaction])', (n) => [...new Set(n.map((x) => x.getAttribute('popovertarget')))])) {
-  await page.click(`[popovertarget="${id}"]:not([popovertargetaction])`);
-  await page.waitForTimeout(250);
-  const opened = await page.evaluate((i) => document.getElementById(i).matches(':popover-open'), id);
-  await page.screenshot({ path: `${shots}/dialog-${id}.png` });
-  await page.keyboard.press('Escape'); await page.waitForTimeout(250);
-  const closed = await page.evaluate((i) => !document.getElementById(i).matches(':popover-open'), id);
-  check(opened && closed, `dialog #${id} opens and closes with Escape`);
+  // 5. Popover dialogs open and close with Escape
+  for (const id of await page.$$eval('[popovertarget]:not([popovertargetaction])', (n) => [...new Set(n.map((x) => x.getAttribute('popovertarget')))])) {
+    await page.click(`[popovertarget="${id}"]:not([popovertargetaction])`);
+    await page.waitForTimeout(250);
+    const opened = await page.evaluate((i) => document.getElementById(i).matches(':popover-open'), id);
+    await snap(page, `dialog-${id}.png`);
+    await page.keyboard.press('Escape'); await page.waitForTimeout(250);
+    const closed = await page.evaluate((i) => !document.getElementById(i).matches(':popover-open'), id);
+    check(opened && closed, `dialog #${id} opens and closes with Escape`);
+  }
 }
 
 // 6. Contrast of the palette pairs (scripts/contrast-pairs.mjs): text >= 4.5, non-text >= 3.
-const measured = await measurePairs(page);
+const measured = want('contrast') ? await measurePairs(page) : [];
 for (const m of measured) {
   if (m.ratio === null) { check(false, `contrast ${label(m.fg)} on ${label(m.bg)}`, 'colour missing'); continue; }
   check(m.ratio >= m.need, `contrast ${label(m.fg)} on ${label(m.bg)} >= ${m.need}`, m.ratio.toFixed(2));
@@ -191,75 +216,83 @@ const readContrast = (el) => {
   return { need: 4.5, pairs: [['text', rgb(cs.color), painted(el)]] };
 };
 
-const controls7 = await page.$$('.docs-demo :is(button, a[href], input, select, textarea, summary):not([disabled], [aria-disabled="true"], [aria-busy="true"])');
-const seenKeys = new Set();
-for (const el of controls7) {
-  // A control in a closed <details> or a hidden panel cannot be judged; a shown one of its look is.
-  if (!(await el.evaluate((n) => n.getClientRects().length > 0))) continue;
-  // One capture per distinct look: tag, classes, input type and state attributes.
-  const key = await el.evaluate((n) => n.tagName.toLowerCase()
-    + [...n.classList].map((c) => `.${c}`).join('')
-    + ['type', 'aria-pressed', 'aria-invalid', 'readonly']
-      .filter((a) => n.hasAttribute(a) && !(a === 'type' && n.tagName !== 'INPUT'))
-      .map((a) => `[${a}${n.getAttribute(a) ? `=${n.getAttribute(a)}` : ''}]`).join('')
-    + (n.closest('.cb-segmented') ? ' in .cb-segmented' : ''));
-  if (seenKeys.has(key)) continue;
-  seenKeys.add(key);
-  const slug = key.replace(/[^a-z0-9-]+/gi, '-').replace(/^-|-$/g, '');
+if (want('states')) {
+  const controls7 = await page.$$('.docs-demo :is(button, a[href], input, select, textarea, summary):not([disabled], [aria-disabled="true"], [aria-busy="true"])');
+  const seenKeys = new Set();
+  for (const el of controls7) {
+    // A control in a closed <details> or a hidden panel cannot be judged; a shown one of its look is.
+    if (!(await el.evaluate((n) => n.getClientRects().length > 0))) continue;
+    // One capture per distinct look: tag, classes, input type and state attributes.
+    const key = await el.evaluate((n) => n.tagName.toLowerCase()
+      + [...n.classList].map((c) => `.${c}`).join('')
+      + ['type', 'aria-pressed', 'aria-invalid', 'readonly']
+        .filter((a) => n.hasAttribute(a) && !(a === 'type' && n.tagName !== 'INPUT'))
+        .map((a) => `[${a}${n.getAttribute(a) ? `=${n.getAttribute(a)}` : ''}]`).join('')
+      + (n.closest('.cb-segmented') ? ' in .cb-segmented' : ''));
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    const slug = key.replace(/[^a-z0-9-]+/gi, '-').replace(/^-|-$/g, '');
 
-  await el.scrollIntoViewIfNeeded();
-  const shot = async (state) => {
-    await el.scrollIntoViewIfNeeded().catch(() => {});
-    const b = await el.boundingBox();
-    if (!b || b.y + b.height < 0 || b.x + b.width < 0) return; // e.g. a skip link at rest is off screen
-    await page.screenshot({ path: `${shots}/state-${slug}-${state}.png`, clip: { x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: b.height + 16 } });
-  };
-  const contrast = async () => {
-    const { need, pairs } = await el.evaluate(readContrast);
-    return pairs.map(([name, fg, bg]) => ({ name, need, r: ratio(fg, bg) }));
-  };
-  const box = await el.boundingBox();
-  const centre = [box.x + box.width / 2, box.y + box.height / 2];
-  const ratios = {};
+    await el.scrollIntoViewIfNeeded();
+    const shot = async (state) => {
+      await el.scrollIntoViewIfNeeded().catch(() => {});
+      const b = await el.boundingBox();
+      if (!b || b.y + b.height < 0 || b.x + b.width < 0) return; // e.g. a skip link at rest is off screen
+      await snap(page, `state-${slug}-${state}.png`, { clip: { x: Math.max(0, b.x - 8), y: Math.max(0, b.y - 8), width: b.width + 16, height: b.height + 16 } });
+    };
+    const contrast = async () => {
+      const { need, pairs } = await el.evaluate(readContrast);
+      return pairs.map(([name, fg, bg]) => ({ name, need, r: ratio(fg, bg) }));
+    };
+    const box = await el.boundingBox();
+    const centre = [box.x + box.width / 2, box.y + box.height / 2];
+    const ratios = {};
+    // A state is read once its transitions (--cb-duration) have run: a frame for the style to
+    // change, the running transitions' end, then a frame for the paint.
+    const settle = () => page.evaluate(() => new Promise((done) => requestAnimationFrame(() => Promise.all(document.getAnimations()
+      .filter((a) => a instanceof CSSTransition).map((a) => a.finished.catch(() => {}))).then(() => requestAnimationFrame(done)))));
 
-  await page.mouse.move(2, 2); await page.waitForTimeout(100);
-  ratios.rest = await contrast(); await shot('rest');
+    await page.mouse.move(2, 2); await settle();
+    ratios.rest = await contrast(); await shot('rest');
 
-  await page.mouse.move(...centre); await page.waitForTimeout(100);
-  ratios.hover = await contrast(); await shot('hover');
+    await page.mouse.move(...centre); await settle();
+    ratios.hover = await contrast(); await shot('hover');
 
-  await page.mouse.down(); await page.waitForTimeout(100);
-  ratios.active = await contrast(); await shot('active');
-  await el.evaluate((n) => n.addEventListener('click', (e) => e.preventDefault(), { once: true }));
-  await page.mouse.up(); await page.mouse.move(2, 2);
+    await page.mouse.down(); await settle();
+    ratios.active = await contrast(); await shot('active');
+    await el.evaluate((n) => n.addEventListener('click', (e) => e.preventDefault(), { once: true }));
+    await page.mouse.up(); await page.mouse.move(2, 2);
 
-  await el.focus(); await page.keyboard.press(SHIFT_TAB); await page.keyboard.press(TAB);
-  // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
-  const ring = await el.evaluate((n, segmented) => {
-    const f = n.type === 'radio' && document.activeElement?.name === n.name ? document.activeElement : n;
-    const cs = getComputedStyle(f); return (f.matches(':focus-visible') || (f.matches(segmented) && f.matches(':focus'))) && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
-  }, SEGMENTED);
-  await shot('focus');
-  await el.evaluate((n) => n.blur());
+    await el.focus(); await page.keyboard.press(SHIFT_TAB); await page.keyboard.press(TAB);
+    // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
+    const ring = await el.evaluate((n, segmented) => {
+      const f = n.type === 'radio' && document.activeElement?.name === n.name ? document.activeElement : n;
+      const cs = getComputedStyle(f); return (f.matches(':focus-visible') || (f.matches(segmented) && f.matches(':focus'))) && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
+    }, SEGMENTED);
+    await shot('focus');
+    await el.evaluate((n) => n.blur());
 
-  const all = Object.entries(ratios).flatMap(([state, list]) => list.map((m) => ({ state, ...m })));
-  const low = all.filter((m) => m.r < m.need);
-  check(!low.length && ring, `states of ${key}: contrast at rest/hover/active, focus ring visible`,
-    `${all.length ? all.map((m) => `${m.state} ${m.name} ${m.r.toFixed(2)}`).join(', ') : 'contrast n/a'}${ring ? '' : ', NO FOCUS RING'}`);
+    const all = Object.entries(ratios).flatMap(([state, list]) => list.map((m) => ({ state, ...m })));
+    const low = all.filter((m) => m.r < m.need);
+    check(!low.length && ring, `states of ${key}: contrast at rest/hover/active, focus ring visible`,
+      `${all.length ? all.map((m) => `${m.state} ${m.name} ${m.r.toFixed(2)}`).join(', ') : 'contrast n/a'}${ring ? '' : ', NO FOCUS RING'}`);
+  }
 }
 
 // 8. Every button and button-styled link has an accessible name (text or aria-label).
-const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
-  .filter((e) => !(e.getAttribute('aria-label') ?? '').trim() && !e.textContent.trim())
-  .map((e) => e.outerHTML.slice(0, 80)));
-check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
+if (want('controls')) {
+  const unnamed = await page.$$eval('button, a.cb-btn', (els) => els
+    .filter((e) => !(e.getAttribute('aria-label') ?? '').trim() && !e.textContent.trim())
+    .map((e) => e.outerHTML.slice(0, 80)));
+  check(unnamed.length === 0, 'every button has an accessible name', unnamed.join(' | '));
+}
 
 // 9. Behaviour of dist/cubicle.js on the catalogue: copy, reveal, auto re-mask, download,
 //    table select-all, alert dismiss, ARIA tabs and trees, meter marks, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
 const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal]';
-if (await page.locator(ACTIONS).count()) {
+if (want('script') && await page.locator(ACTIONS).count()) {
   const fresh = async (ctx = context, before) => {
     const p = await ctx.newPage();
     if (before) await before(p);
@@ -516,7 +549,7 @@ if (await page.locator(ACTIONS).count()) {
 //     the LED lamp rim >= 3 against it (WCAG 1.4.11), at most 20px high so badges fit
 //     .cb-btn--sm table rows, and busy badges spin except under reduced motion.
 const INDICATORS = '.docs-demo :is(.cb-badge, .cb-led)';
-if (await page.locator(INDICATORS).count()) {
+if (want('badges') && await page.locator(INDICATORS).count()) {
   const measured = await page.$$eval(INDICATORS, (els) => {
     const cv = document.createElement('canvas'); cv.width = cv.height = 1;
     const g = cv.getContext('2d', { willReadFrequently: true });
@@ -550,11 +583,11 @@ if (await page.locator(INDICATORS).count()) {
   check(still.length > 0 && still.every((a) => a === 'none'), 'busy badges stop spinning under reduced motion', still.join(', '));
   await calm.close();
 
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     const section = page.locator('.docs-section:has(.docs-demo .cb-badge)').first();
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/badges-${width}.png` });
+    await snap(section, `badges-${width}.png`);
   }
 }
 
@@ -562,7 +595,7 @@ if (await page.locator(INDICATORS).count()) {
 //     sticky first column(s) and header that stay put while their wrapper scrolls,
 //     text contrast in every row paint (zebra, hover, selected, totals), and a visible
 //     sort arrow for each aria-sort value.
-if (await page.locator('.docs-demo .cb-table').count()) {
+if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   // Tables inside closed dialogs are not rendered; they are measured by check 18 instead.
   const heights = await page.$$eval('.docs-demo .cb-table', (tables) => tables.filter((t) => t.getClientRects().length).map((t, i) => {
@@ -605,7 +638,7 @@ if (await page.locator('.docs-demo .cb-table').count()) {
   const wide = page.locator('.docs-demo .cb-table--sticky').first();
   await wide.scrollIntoViewIfNeeded();
   await wide.evaluate((t) => { t.closest('.cb-table-wrap').scrollLeft = 300; });
-  await wide.locator('xpath=..').screenshot({ path: `${shots}/tables-sticky-360.png` });
+  await snap(wide.locator('xpath=..'), `tables-sticky-360.png`);
   await wide.evaluate((t) => { t.closest('.cb-table-wrap').scrollLeft = 0; });
   await page.setViewportSize({ width: 1360, height: 900 });
 
@@ -634,17 +667,17 @@ if (await page.locator('.docs-demo .cb-table').count()) {
   }
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-table)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/tables-${width}.png` });
+    await snap(section, `tables-${width}.png`);
   }
 }
 
 // 12. Alerts: a 4px edge in the tone, a rendered glyph tile with readable inverse ink,
 //     readable title and body text, one-line compact alerts 28px high (27px as a banner,
 //     which has no top border), and square banners.
-if (await page.locator('.docs-demo .cb-alert').count()) {
+if (want('alerts') && await page.locator('.docs-demo .cb-alert').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const alerts = await page.$$eval('.docs-demo .cb-alert', (els) => {
     const cv = document.createElement('canvas'); cv.width = cv.height = 1;
@@ -671,17 +704,17 @@ if (await page.locator('.docs-demo .cb-alert').count()) {
       `edge ${a.edge}, glyph ${a.glyph.split(' /')[0]} ${glyphR.toFixed(2)}, text ${textR.toFixed(2)}${titleR ? `, title ${titleR.toFixed(2)}` : ''}${a.sm ? `, ${Math.round(a.height)}px` : ''}`);
   }
   const section = page.locator('.docs-section:has(.docs-demo .cb-alert)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/alerts-${width}.png` });
+    await snap(section, `alerts-${width}.png`);
   }
 }
 
 // 13. Tabs: the selected tab takes its panel's colour and hides the line under it (one
 //     sheet), long link lists scroll inside themselves at 360px, the tab chosen with End
 //     stays in view, and vertical lists turn horizontal below 30rem.
-if (await page.locator('.docs-demo .cb-tabs').count()) {
+if (want('tabs') && await page.locator('.docs-demo .cb-tabs').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const merged = await page.$$eval('.docs-demo .cb-tabs', (sets) => sets.map((set, i) => {
     const tab = set.querySelector('.cb-tabs__tab:is([aria-selected="true"], [aria-current="page"])');
@@ -715,10 +748,10 @@ if (await page.locator('.docs-demo .cb-tabs').count()) {
   check(wide === 'column' && narrow.verticalRow === 'row', 'vertical tabs stand at 1360px and lie flat at 360px', `${wide} / ${narrow.verticalRow}`);
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-tabs)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/tabs-${width}.png` });
+    await snap(section, `tabs-${width}.png`);
   }
 }
 
@@ -726,7 +759,7 @@ if (await page.locator('.docs-demo .cb-tabs').count()) {
 //     tint with a 2px accent bar, leaf and branch labels line up, --lines draws a 1px
 //     vertical per nested item (stopping at the row centre on the last one), a loading
 //     branch spins (and stops under reduced motion), and breadcrumb separators are silent.
-if (await page.locator('.docs-demo .cb-nav').count()) {
+if (want('nav') && await page.locator('.docs-demo .cb-nav').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const nav = await page.evaluate(() => {
     const rows = [...document.querySelectorAll('.docs-demo .cb-nav__link')].filter((r) => r.getClientRects().length);
@@ -767,10 +800,10 @@ if (await page.locator('.docs-demo .cb-nav').count()) {
   await calm.close();
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-nav--lines)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/nav-${width}.png` });
+    await snap(section, `nav-${width}.png`);
   }
 }
 
@@ -789,7 +822,7 @@ const pixelsOf = async (locator) => {
     return [...g.getImageData(Math.min(img.width - 1, Math.floor(x * img.width)), Math.min(img.height - 1, Math.floor(y * img.height)), 1, 1).data].slice(0, 3);
   }, [png, fx, fy]);
 };
-if (await page.locator('.docs-demo .cb-meter').count()) {
+if (want('meters') && await page.locator('.docs-demo .cb-meter').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const tones = await page.evaluate(() => {
     const out = {}; const probe = document.body.appendChild(document.createElement('i'));
@@ -861,10 +894,10 @@ if (await page.locator('.docs-demo .cb-meter').count()) {
   if (rows.length) check(rows.length === 1 && rows[0] === 28, 'table rows with compact meters stay 28px', `${rows.join(', ')}px`);
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-gauge)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/meters-${width}.png` });
+    await snap(section, `meters-${width}.png`);
   }
 }
 
@@ -872,7 +905,7 @@ if (await page.locator('.docs-demo .cb-meter').count()) {
 //     not, a click and the arrow keys move the choice, the input covers its key exactly (so
 //     the focus ring frames the key), disabled keys and disabled fieldsets refuse a choice,
 //     checkbox groups keep several keys on, and --fill keys share the row equally.
-if (await page.locator('.docs-demo .cb-segmented').count()) {
+if (want('segmented') && await page.locator('.docs-demo .cb-segmented').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const look = await page.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
@@ -920,10 +953,10 @@ if (await page.locator('.docs-demo .cb-segmented').count()) {
   }
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-segmented--fill)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/segmented-${width}.png` });
+    await snap(section, `segmented-${width}.png`);
   }
 }
 
@@ -932,7 +965,7 @@ if (await page.locator('.docs-demo .cb-segmented').count()) {
 //     28px (24px compact and inline), stacked blocks share a 1px seam, Enter and Space toggle,
 //     a named group keeps one block open, meta sits at the row end, and inline blocks have no
 //     frame and line their body up with the summary text.
-if (await page.locator('.docs-demo .cb-details').count()) {
+if (want('details') && await page.locator('.docs-demo .cb-details').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const chevrons = await page.evaluate(() => {
     const rows = [...document.querySelectorAll('.docs-demo :is(summary.cb-panel__head, summary.cb-nav__link, [aria-expanded]:not([aria-busy="true"]) > .cb-nav__link, .cb-details > summary)')]
@@ -987,10 +1020,10 @@ if (await page.locator('.docs-demo .cb-details').count()) {
   await first.click();
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-details--inline)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/details-${width}.png` });
+    await snap(section, `details-${width}.png`);
   }
 }
 
@@ -1000,7 +1033,7 @@ if (await page.locator('.docs-demo .cb-details').count()) {
 //     reports its value; a typed confirmation refuses a wrong name; widths follow --sm,
 //     default and --lg, --danger has a 3px stripe, a long dialog fits the viewport with a
 //     scrolling body, and below 40rem a dialog fills the screen.
-if (await page.locator('.docs-demo [data-cb-modal]').count()) {
+if (want('dialogs') && await page.locator('.docs-demo [data-cb-modal]').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const backdrop = await page.evaluate(() => { const i = document.body.appendChild(document.createElement('i')); i.style.color = 'var(--cb-bg-backdrop)'; const c = getComputedStyle(i).color; i.remove(); return c; });
   const ids = await page.$$eval('.docs-demo [data-cb-modal]', (bs) => bs.map((b) => b.getAttribute('data-cb-modal')));
@@ -1018,7 +1051,7 @@ if (await page.locator('.docs-demo [data-cb-modal]').count()) {
         width: Math.round(r.width), height: r.height, stripe: cs.borderTopWidth, scrolls: body.scrollHeight > body.clientHeight, footIn: foot.bottom <= innerHeight,
         sm: d.classList.contains('cb-dialog--sm'), lg: d.classList.contains('cb-dialog--lg'), danger: d.classList.contains('cb-dialog--danger') };
     }, [id, backdrop]);
-    await page.screenshot({ path: `${shots}/dialog-${id}.png` });
+    await snap(page, `dialog-${id}.png`);
     const want = open.sm ? 384 : open.lg ? 896 : 576;
     const sized = open.width === want && open.height <= 900 - 48 && open.footIn && (!open.danger || open.stripe === '3px');
     check(open.modal && open.focusInside && open.onAutofocus && open.backdrop && open.inert && sized,
@@ -1058,7 +1091,7 @@ if (await page.locator('.docs-demo [data-cb-modal]').count()) {
   await page.setViewportSize({ width: 360, height: 900 });
   await page.click(`[data-cb-modal="${ids[0]}"]`);
   const narrow = await page.$eval(`#${ids[0]}`, (d) => { const r = d.getBoundingClientRect(); return { w: r.width, h: r.height, radius: getComputedStyle(d).borderTopLeftRadius }; });
-  await page.screenshot({ path: `${shots}/dialog-${ids[0]}-360.png` });
+  await snap(page, `dialog-${ids[0]}-360.png`);
   await page.keyboard.press('Escape');
   check(narrow.w === 360 && narrow.h === 900 && narrow.radius === '0px', 'below 40rem a dialog fills the screen', JSON.stringify(narrow));
   await page.setViewportSize({ width: 1360, height: 900 });
@@ -1069,7 +1102,7 @@ if (await page.locator('.docs-demo [data-cb-modal]').count()) {
 //     disabled arrows have no href and leave the tab order, gap cells are silent and key-high,
 //     narrow navs keep only the arrows and the current page (at 360px the wide one too),
 //     and the jump field refuses a page above max.
-if (await page.locator('.docs-demo .cb-pagination').count()) {
+if (want('pagination') && await page.locator('.docs-demo .cb-pagination').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const look = await page.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
@@ -1107,10 +1140,10 @@ if (await page.locator('.docs-demo .cb-pagination').count()) {
   check(at360.wide === '‹ 7 ›' && !at360.overflow, 'at 360px the full pagination collapses with no page overflow', JSON.stringify(at360));
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-pagination)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/pagination-${width}.png` });
+    await snap(section, `pagination-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 }
@@ -1118,7 +1151,7 @@ if (await page.locator('.docs-demo .cb-pagination').count()) {
 // 20. Utilities: computed values match their tokens, a truncated table cell ellipsises inside
 //     its wrapper, long hashes wrap at 360px, hidden text stays in the accessibility tree,
 //     the skip link appears on the first Tab, and the code and key chips use their surfaces.
-if (await page.locator('.docs-demo .cb-mono').count()) {
+if (want('utilities') && await page.locator('.docs-demo .cb-mono').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const u = await page.evaluate(() => {
     const probe = document.body.appendChild(document.createElement('i'));
@@ -1170,10 +1203,10 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
   check(before < 0 && skip.cls === 'cb-skip-link' && skip.top >= 0 && skip.bottom <= 900, 'the skip link is off screen until the first Tab, then visible', `rest bottom ${before}, focused top ${skip.top}`);
 
   const section = page.locator('.docs-section:has(.docs-demo .cb-mono)').first();
-  for (const width of [1360, 360]) {
+  for (const width of saving ? [1360, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
     await section.scrollIntoViewIfNeeded();
-    await section.screenshot({ path: `${shots}/utilities-${width}.png` });
+    await snap(section, `utilities-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 }
@@ -1182,7 +1215,7 @@ if (await page.locator('.docs-demo .cb-mono').count()) {
 //     1360 the shell fills the viewport with the top and status bars in view and main as its own
 //     scroller; at 360 the sidebar stacks above main and the page scrolls; a sticky table keeps
 //     its first column while its wrapper scrolls sideways.
-if (await page.locator('body > .cb-app').count()) {
+if (want('frame') && await page.locator('body > .cb-app').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const wide = await page.evaluate(() => {
     const app = document.querySelector('body > .cb-app'); const r = (sel) => app.querySelector(sel).getBoundingClientRect();
@@ -1209,9 +1242,9 @@ if (await page.locator('body > .cb-app').count()) {
     });
     check(pinned.moved > 0 && Math.abs(pinned.before - pinned.after) < 1, 'application frame: the sticky table keeps its pinned column at 360px', JSON.stringify(pinned));
   }
-  for (const width of [1360, 800, 360]) {
+  for (const width of saving ? [1360, 800, 360] : [360]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.screenshot({ path: `${shots}/example-${width}.png` });
+    await snap(page, `example-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 }
@@ -1219,7 +1252,7 @@ if (await page.locator('body > .cb-app').count()) {
 // 24. Density: inside [data-cb-density] (and at the default) fields and keys take
 //     --cb-control-h, small keys --cb-control-h-sm, table rows --cb-row-h, and a small key
 //     fits its row: 22 / 18 / 24 compact, 26 / 20 / 28 default, 30 / 24 / 32 comfortable.
-if (await page.locator('.docs-demo [data-cb-density]').count()) {
+if (want('density') && await page.locator('.docs-demo [data-cb-density]').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const sizes = { compact: [22, 18, 24], default: [26, 20, 28], comfortable: [30, 24, 32] };
   const panels = await page.$$eval('.docs-demo .cb-grid:has([data-cb-density]) > .cb-panel', (ps) => ps.map((p) => {
@@ -1246,7 +1279,7 @@ if (await page.locator('.docs-demo [data-cb-density]').count()) {
 //     those stops are listed, not failed. A fully shown control with a cut ring fails.
 //     Date and time fields take several Tab presses (one per segment) while focus stays on the
 //     same element, so a repeat of such a field walks on instead of ending the audit.
-for (const width of [1360, 360]) {
+for (const width of want('keyboard') ? [1360, 360] : []) {
   const pa = await context.newPage(); await applyOverrides(pa);
   await pa.setViewportSize({ width, height: 900 }); await pa.goto(pathToFileURL(page_path).href);
   const seen = new Set(); const invisible = []; const clipped = []; const partly = []; let stops = 0; let trap = ''; let lastId = ''; let segments = 0;
@@ -1314,7 +1347,7 @@ for (const width of [1360, 360]) {
 
 // 22. The catalogue's contrast table (generated from scripts/contrast-pairs.mjs) matches the
 //     live ratios row for row, so a token change cannot leave it stale.
-const docRows = await page.$$eval('#a11y-contrast-table tbody tr', (rows) => rows.map((r) => [...r.children].map((c) => c.textContent.trim())));
+const docRows = !want('contrast') ? [] : await page.$$eval('#a11y-contrast-table tbody tr', (rows) => rows.map((r) => [...r.children].map((c) => c.textContent.trim())));
 if (docRows.length) {
   const stale = measured.flatMap((m, i) => {
     const row = docRows[i];
@@ -1328,7 +1361,7 @@ if (docRows.length) {
 
 // 24. Catalogue snippets: highlighted, numbered, white, collapsed by default, scrolling past 20 lines,
 //     and copied whole by click or key. A mouse selection is left to the browser's own Ctrl+C.
-const snippets = await page.locator('pre.docs-snippet').count();
+const snippets = want('snippets') ? await page.locator('pre.docs-snippet').count() : 0;
 if (snippets) {
   const ps = await context.newPage(); await applyOverrides(ps); await ps.goto(pathToFileURL(page_path).href);
   const frames = await ps.$$eval('details.docs-code', (els) => els.map((e) => e.open));
@@ -1380,13 +1413,13 @@ if (snippets) {
   check(geo.rows === lines, 'a snippet shows one line number per line', `${geo.rows} numbers, ${lines} lines`);
   const wide = await pre.evaluate((e) => { e.scrollLeft = 60; e.scrollTop = 100; const g = e.querySelector('.line-numbers-rows').getBoundingClientRect(); return [Math.abs(g.left - e.getBoundingClientRect().left) < 2 && e.scrollLeft > 0, e.scrollTop > 0]; });
   check(wide[0] && wide[1], 'the line-number gutter stays at the left edge while the code scrolls', `sideways ${wide[0]}, down ${wide[1]}`);
-  await frame.screenshot({ path: resolve(shots, 'snippet-long.png') });
+  await snap(frame, 'snippet-long.png');
   await pre.evaluate((e) => { e.scrollLeft = 0; e.scrollTop = 0; });
   const short = ps.locator('details.docs-code').nth(shortAt);
   await short.locator('summary').click();
   const flat = await short.locator('pre').evaluate((e) => e.scrollHeight <= e.clientHeight);
   check(flat, 'a short snippet is shown whole, without a scroll bar');
-  await short.screenshot({ path: resolve(shots, 'snippet-short.png') });
+  await snap(short, 'snippet-short.png');
 
   // Pointer: no highlight on hover.
   const look = (e) => { const c = getComputedStyle(e); return `${c.backgroundColor}|${c.borderColor}|${c.boxShadow}`; };
@@ -1417,7 +1450,7 @@ if (snippets) {
   await ps.keyboard.press('Enter');
   await ps.waitForTimeout(100);
   check(await readClipboard(ps) === text, 'Enter on a focused snippet reaches the clipboard whole');
-  await pre.screenshot({ path: resolve(shots, 'snippet-focus.png') });
+  await snap(pre, 'snippet-focus.png');
   await ps.setViewportSize({ width: 360, height: 800 });
   const over = await ps.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   check(over <= 0, 'snippets do not widen the page at 360px', `${over}px`);
@@ -1428,7 +1461,7 @@ if (snippets) {
 //     whatever the page documents: every single-line input type and the select, at both sizes
 //     and in every density, against probes sized by that density's own tokens; plus readonly
 //     fields and list boxes once.
-{
+if (want('forms')) {
   const TYPES = { text: 'gw-eu-1', password: 'secret', search: 'peer', email: 'soc@corp.example.net', url: 'https://idp.corp.example.net',
     tel: '+1 555 0100', number: '51820', date: '2026-11-01', time: '23:30', 'datetime-local': '2026-11-01T23:30', month: '2026-11', week: '2026-W44', file: '' };
   const pf = await context.newPage(); await applyOverrides(pf);
@@ -1557,7 +1590,7 @@ if (snippets) {
     'the readonly look stays off <select>, which ignores readonly', JSON.stringify({ select: readonly.select, input: readonly.input }));
   const forms = pf.locator('[data-vb-forms]');
   await forms.scrollIntoViewIfNeeded();
-  await forms.screenshot({ path: `${shots}/forms-matrix.png` });
+  await snap(forms, `forms-matrix.png`);
   await pf.close();
 }
 
@@ -1566,5 +1599,5 @@ await browser.close();
 const failed = results.filter((r) => !r.ok);
 for (const r of results) console.log(`${r.skip ? 'skip' : r.ok ? 'ok  ' : 'FAIL'}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}${r.skip ? `  [${engine}: ${r.skip}]` : ''}`);
 const skipped = results.filter((r) => r.skip).length;
-console.log(`\n${engine} ${engineVersion}: ${results.length - failed.length}/${results.length} checks passed${skipped ? ` (${skipped} skipped as engine limits)` : ''}. Screenshots: tmp/shots/`);
+console.log(`\n${engine} ${engineVersion}: ${results.length - failed.length}/${results.length} checks passed${skipped ? ` (${skipped} skipped as engine limits)` : ''}${only ? ` (only ${only.join(', ')})` : ''}. Screenshots: ${saving ? `${relative(root, shots)}/` : 'none'}`);
 process.exit(failed.length ? 1 : 0);
