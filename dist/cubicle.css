@@ -48,6 +48,8 @@
       5.14 Pagination ........ .cb-pagination summary, page and size strips, gap, jump
                                form, --spaced, collapse when narrow
       5.15 Inline code & keys  .cb-code, .cb-kbd
+      5.16 Property lists .... .cb-props on <dl>, <div> rows, extra values,
+                               stacks when narrow
    6. Utilities ....... text (.cb-mono, .cb-num, .cb-muted, tones, .cb-text-xs),
                         wrapping (.cb-truncate, .cb-nowrap, .cb-break),
                         accessibility (.cb-sr-only / [data-cb-sr], .cb-skip-link)
@@ -2691,6 +2693,82 @@
     border-block-end-color: var(--cb-border-strong);
     border-radius: var(--cb-radius-sm);
     box-shadow: var(--cb-shadow-outset);
+  }
+
+  /* 5.16 Property lists --------------------------------------------------- */
+
+  /* Key-value list for inspector views (certificate, session, hardware): a
+     <dl> framed like a table, keys in a column as wide as a horizontal field's
+     label. Rows are bare dt / dd pairs or a <div> per pair (one element per
+     row for swaps and hidden). Grid placement puts a term's extra dd under the
+     first one. Each value draws the column line, so it runs past an empty key
+     cell. */
+  .cb-props {
+    --_key: 11rem;
+    --_pad: calc((var(--cb-row-h) - var(--cb-control-h-sm) - 1px) / 2); /* a .cb-btn--sm always fits */
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: var(--_key) minmax(0, 1fr);
+    margin: 0;
+    line-height: var(--cb-line-tight);
+    font-variant-numeric: tabular-nums;
+    background: var(--cb-bg-surface);
+    border: 1px solid var(--cb-border-main);
+    border-radius: var(--cb-radius-sm);
+
+    & > div {
+      display: contents;
+    }
+  }
+
+  /* In a flush panel body the panel frames the list; the generic flush rule
+     (5.3) comes earlier with the same specificity, so it cannot. */
+  .cb-panel__body--flush > .cb-props {
+    border: 0;
+    border-radius: var(--cb-radius-none);
+  }
+
+  /* align-content centres one line in the row height, as a table cell does;
+     older engines put it at the top. */
+  :is(.cb-props, .cb-props > div) > :is(dt, dd) {
+    min-block-size: var(--cb-row-h);
+    margin: 0;
+    padding: var(--_pad) var(--cb-space-2);
+    align-content: center;
+    border-block-start: 1px solid var(--cb-border-subtle);
+  }
+
+  :is(.cb-props, .cb-props > div) > dt {
+    grid-column: 1;
+    color: var(--cb-text-muted);
+  }
+
+  :is(.cb-props, .cb-props > div) > dd {
+    grid-column: 2;
+    overflow-wrap: anywhere;
+    border-inline-start: 1px solid var(--cb-border-subtle);
+  }
+
+  :is(.cb-props, .cb-props > div:first-child) > :is(dt:first-child, dt:first-child + dd),
+  :is(.cb-props, .cb-props > div) > dd + dd {
+    border-block-start: 0;
+  }
+
+  /* Narrow list: each key above its value, the pair one row between lines. */
+  @container (width < 28rem) {
+    :is(.cb-props, .cb-props > div) > :is(dt, dd) {
+      grid-column: 1 / -1;
+      min-block-size: auto;
+    }
+
+    :is(.cb-props, .cb-props > div) > dt {
+      padding-block-end: 0;
+    }
+
+    :is(.cb-props, .cb-props > div) > dd {
+      padding-block-start: 0;
+      border: 0;
+    }
   }
 }
 

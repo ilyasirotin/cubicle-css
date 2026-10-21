@@ -20,7 +20,7 @@
 //                 alerts-<width>.png, tabs-<width>.png, nav-<width>.png, meters-<width>.png
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
 //                 pagination-<width>.png and utilities-<width>.png, and
-//                 forms-matrix.png of the native form-control fixture.
+//                 forms-matrix.png of the native form-control fixture, and props-<width>.png.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -50,7 +50,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -1671,6 +1671,90 @@ if (want('forms')) {
   await forms.scrollIntoViewIfNeeded();
   await snap(forms, `forms-matrix.png`);
   await pf.close();
+}
+
+// 26. Property lists, every rendered .cb-props on the page: no UA margins or indent, key and
+//     value side by side (stacked below 28rem of the list's width), one-line rows of
+//     --cb-row-h with or without a .cb-btn--sm, a line between rows but not above the first or
+//     between the values of one term, a line before each value, tabular figures, values that
+//     wrap inside their cell, and a frame unless a flush panel body frames the list. The first
+//     list also follows data-cb-density.
+if (want('props') && await page.locator('.cb-props').count()) {
+  const measure = () => page.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const tok = (name) => { probe.style.color = `var(${name})`; return getComputedStyle(probe).color; };
+    const subtle = tok('--cb-border-subtle'); const main = tok('--cb-border-main'); probe.remove();
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    return [...document.querySelectorAll('.cb-props')].filter((dl) => dl.getClientRects().length).map((dl, i) => {
+      const cs = getComputedStyle(dl); const px = (name) => parseFloat(cs.getPropertyValue(name)) * rem;
+      const row = Math.round(px('--cb-row-h')); const line = px('--cb-control-h-sm') + 0.5;
+      const wide = dl.clientWidth >= 28 * rem; const problems = [];
+      const oneLine = (el) => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().height <= line; };
+      const groups = [];
+      for (const c of dl.querySelectorAll(':scope > :is(dt, dd), :scope > div > :is(dt, dd)')) {
+        if (c.localName === 'dt') groups.push({ dt: c, dds: [] }); else groups.at(-1)?.dds.push(c);
+      }
+      if (cs.margin !== '0px') problems.push(`margin ${cs.margin}`);
+      const flush = dl.parentElement.matches('.cb-panel__body--flush');
+      const frame = `${cs.borderTopWidth} ${cs.borderTopColor}`;
+      if (frame !== (flush ? `0px ${cs.borderTopColor}` : `1px ${main}`)) problems.push(`frame ${frame}${flush ? ' (flush)' : ''}`);
+      groups.forEach(({ dt, dds }, g) => {
+        const name = dt.textContent.trim(); const k = dt.getBoundingClientRect(); const top = g ? `1px ${subtle}` : '0px';
+        const edge = (el) => { const e = getComputedStyle(el); return e.borderTopWidth === '0px' ? '0px' : `${e.borderTopWidth} ${e.borderTopColor}`; };
+        if (edge(dt) !== top) problems.push(`${name}: key line ${edge(dt)}`);
+        dds.forEach((dd, d) => {
+          const v = dd.getBoundingClientRect(); const s = getComputedStyle(dd);
+          if (!s.fontVariantNumeric.includes('tabular-nums')) problems.push(`${name}: figures ${s.fontVariantNumeric}`);
+          if (dd.scrollWidth > dd.clientWidth) problems.push(`${name}: value overflows by ${dd.scrollWidth - dd.clientWidth}px`);
+          if (d) {
+            const first = dds[0].getBoundingClientRect();
+            if (Math.abs(v.left - first.left) > 0.5 || v.top < first.bottom - 0.5 || s.borderTopWidth !== '0px') problems.push(`${name}: extra value at ${Math.round(v.left)},${Math.round(v.top)}, line ${s.borderTopWidth}`);
+            return;
+          }
+          if (wide) {
+            if (Math.abs(v.left - k.right) > 0.5 || Math.abs(v.top - k.top) > 0.5) problems.push(`${name}: value at ${Math.round(v.left)},${Math.round(v.top)}, key ends ${Math.round(k.right)},${Math.round(k.top)}`);
+            if (edge(dd) !== top) problems.push(`${name}: value line ${edge(dd)}`);
+            if (`${s.borderLeftWidth} ${s.borderLeftColor}` !== `1px ${subtle}`) problems.push(`${name}: start line ${s.borderLeftWidth}`);
+            const h = Math.round(Math.max(k.height, v.height));
+            if (oneLine(dt) && oneLine(dd) && h !== row) problems.push(`${name}: row ${h}px, want ${row}`);
+          } else {
+            if (Math.abs(v.left - k.left) > 0.5 || v.top < k.bottom - 0.5) problems.push(`${name}: not stacked (value ${Math.round(v.left)},${Math.round(v.top)}, key ${Math.round(k.left)},${Math.round(k.bottom)})`);
+            if (s.borderTopWidth !== '0px' || s.borderLeftWidth !== '0px') problems.push(`${name}: stacked value lines ${s.borderTopWidth} ${s.borderLeftWidth}`);
+          }
+        });
+      });
+      return { i, wide, rows: groups.length, problems };
+    });
+  });
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const l of await measure()) {
+      check(!l.problems.length && l.rows > 0, `property list ${l.i + 1} at ${width}px: ${l.wide ? 'key and value side by side' : 'key above value'}, rows, lines and frame`,
+        l.problems.length ? l.problems.join('; ') : `${l.rows} rows`);
+    }
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+  const density = await page.evaluate(() => {
+    const dl = [...document.querySelectorAll('.cb-props')].find((d) => d.getClientRects().length);
+    const row = dl.querySelector(':scope > dt, :scope > div > dt');
+    const got = {};
+    for (const d of ['compact', 'comfortable']) {
+      dl.setAttribute('data-cb-density', d);
+      got[d] = Math.round(row.getBoundingClientRect().height);
+    }
+    dl.removeAttribute('data-cb-density');
+    return got;
+  });
+  check(density.compact === 24 && density.comfortable === 32, 'property list rows follow data-cb-density (24px compact, 32px comfortable)', JSON.stringify(density));
+  const section = page.locator('#props');
+  if (saving && await section.count()) {
+    for (const width of [1360, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      await section.scrollIntoViewIfNeeded();
+      await snap(section, `props-${width}.png`);
+    }
+    await page.setViewportSize({ width: 1360, height: 900 });
+  }
 }
 
 await browser.close();

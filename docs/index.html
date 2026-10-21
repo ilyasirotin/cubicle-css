@@ -48,6 +48,7 @@
         <li><a class="docs-nav__link" href="#panels">Fieldsets &amp; panels</a></li>
         <li><a class="docs-nav__link" href="#tabs">Tabs</a></li>
         <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
+        <li><a class="docs-nav__link" href="#props">Property lists</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
@@ -2841,6 +2842,135 @@
               <tr><th scope="row"><code>.cb-check:checked</code></th><td>Row checkbox</td><td>Selects its row</td></tr>
               <tr><th scope="row"><code>data-cb-select-all="id"</code></th><td>Header checkbox</td><td>Checks every row box of the table; indeterminate when mixed (script)</td></tr>
               <tr><th scope="row"><code>&lt;caption&gt;</code>, <code>&lt;tfoot&gt;</code></th><td>Table</td><td>Label above the frame; totals row</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="props" aria-labelledby="props-title">
+        <h2 class="docs-h2" id="props-title">Property lists</h2>
+        <p class="docs-text">Key-value facts for inspector views (certificate metadata, sessions, hardware) on a
+          <code>&lt;dl&gt;</code>, framed like a table. Keys sit in an 11rem column; when the list itself is
+          narrower than 28rem, each key goes above its value.</p>
+
+        <h3 class="docs-h3" id="props-pairs">Term and value pairs</h3>
+        <p class="docs-text">Bare <code>dt</code> / <code>dd</code> pairs. A term with several values takes
+          several <code>dd</code>, one under another. Put <code>.cb-mono</code> on technical values; long ones
+          wrap anywhere. A one-line row is 28px with or without a <code>.cb-btn--sm</code>, and follows
+          <code>data-cb-density</code>.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="pr-cert-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="pr-cert-title">Certificate vpn.corp.example.net</h4>
+            </header>
+            <div class="cb-panel__body">
+              <dl class="cb-props">
+                <dt>Status</dt>
+                <dd><span class="cb-badge cb-badge--ok">Valid</span></dd>
+                <dt>Subject</dt>
+                <dd class="cb-mono">CN=vpn.corp.example.net, O=Example Corp, C=DE</dd>
+                <dt>Issuer</dt>
+                <dd class="cb-mono">CN=Example Issuing CA 2, O=Example Corp, C=DE</dd>
+                <dt>Serial</dt>
+                <dd><span class="cb-mono" id="pr-serial">04:A1:9C:3E:7B:22:D0:5F</span> <button class="cb-btn cb-btn--sm" type="button" data-cb-copy="pr-serial" aria-label="Copy serial">Copy</button></dd>
+                <dt>Not before</dt>
+                <dd><time datetime="2026-03-14T09:00:00Z">2026-03-14 09:00 UTC</time></dd>
+                <dt>Not after</dt>
+                <dd><time datetime="2027-03-14T09:00:00Z">2027-03-14 09:00 UTC</time></dd>
+                <dt>Alternative names</dt>
+                <dd class="cb-mono">vpn.corp.example.net</dd>
+                <dd class="cb-mono">vpn-eu.corp.example.net</dd>
+                <dt>Key</dt>
+                <dd>ECDSA P-256</dd>
+                <dt>SHA-256 fingerprint</dt>
+                <dd class="cb-mono">9F:2C:4B:E1:07:D3:58:AA:61:0E:9B:C4:72:F5:13:8D:2A:E6:B9:40:5C:17:F3:88:D2:6B:01:9E:A4:C7:35:5E</dd>
+              </dl>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;pr-cert-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;pr-cert-title&quot;&gt;Certificate vpn.corp.example.net&lt;/h4&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body&quot;&gt;
+    &lt;dl class=&quot;cb-props&quot;&gt;
+      &lt;dt&gt;Status&lt;/dt&gt;
+      &lt;dd&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Valid&lt;/span&gt;&lt;/dd&gt;
+      &lt;dt&gt;Subject&lt;/dt&gt;
+      &lt;dd class=&quot;cb-mono&quot;&gt;CN=vpn.corp.example.net, O=Example Corp, C=DE&lt;/dd&gt;
+      &lt;dt&gt;Issuer&lt;/dt&gt;
+      &lt;dd class=&quot;cb-mono&quot;&gt;CN=Example Issuing CA 2, O=Example Corp, C=DE&lt;/dd&gt;
+      &lt;dt&gt;Serial&lt;/dt&gt;
+      &lt;dd&gt;&lt;span class=&quot;cb-mono&quot; id=&quot;pr-serial&quot;&gt;04:A1:9C:3E:7B:22:D0:5F&lt;/span&gt; &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; data-cb-copy=&quot;pr-serial&quot; aria-label=&quot;Copy serial&quot;&gt;Copy&lt;/button&gt;&lt;/dd&gt;
+      &lt;dt&gt;Not before&lt;/dt&gt;
+      &lt;dd&gt;&lt;time datetime=&quot;2026-03-14T09:00:00Z&quot;&gt;2026-03-14 09:00 UTC&lt;/time&gt;&lt;/dd&gt;
+      &lt;dt&gt;Not after&lt;/dt&gt;
+      &lt;dd&gt;&lt;time datetime=&quot;2027-03-14T09:00:00Z&quot;&gt;2027-03-14 09:00 UTC&lt;/time&gt;&lt;/dd&gt;
+      &lt;dt&gt;Alternative names&lt;/dt&gt;
+      &lt;dd class=&quot;cb-mono&quot;&gt;vpn.corp.example.net&lt;/dd&gt;
+      &lt;dd class=&quot;cb-mono&quot;&gt;vpn-eu.corp.example.net&lt;/dd&gt;
+      &lt;dt&gt;Key&lt;/dt&gt;
+      &lt;dd&gt;ECDSA P-256&lt;/dd&gt;
+      &lt;dt&gt;SHA-256 fingerprint&lt;/dt&gt;
+      &lt;dd class=&quot;cb-mono&quot;&gt;9F:2C:4B:E1:07:D3:58:AA:61:0E:9B:C4:72:F5:13:8D:2A:E6:B9:40:5C:17:F3:88:D2:6B:01:9E:A4:C7:35:5E&lt;/dd&gt;
+    &lt;/dl&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="props-rows">In a panel, one element per row</h3>
+        <p class="docs-text">Inside <code>.cb-panel__body--flush</code> the panel frames the list. A
+          <code>&lt;div&gt;</code> around each pair gives one element per row, which the server can swap or
+          mark <code>hidden</code> on its own.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="pr-sess-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="pr-sess-title">Session 7f3a91c2</h4>
+              <button class="cb-btn cb-btn--sm cb-btn--danger" type="button">Terminate</button>
+            </header>
+            <div class="cb-panel__body cb-panel__body--flush">
+              <dl class="cb-props">
+                <div><dt>User</dt><dd>alice.ng</dd></div>
+                <div><dt>Source address</dt><dd class="cb-mono">203.0.113.24:51344</dd></div>
+                <div><dt>Gateway</dt><dd>gw-eu-1 (wg0)</dd></div>
+                <div><dt>Started</dt><dd><time datetime="2026-10-21T08:12:40Z">2026-10-21 08:12:40 UTC</time></dd></div>
+                <div><dt>Last handshake</dt><dd>14 s ago</dd></div>
+                <div><dt>Received / sent</dt><dd>1.42 GB / 86.0 MB</dd></div>
+                <div><dt>MFA</dt><dd><span class="cb-badge cb-badge--ok">TOTP verified</span></dd></div>
+              </dl>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;pr-sess-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;pr-sess-title&quot;&gt;Session 7f3a91c2&lt;/h4&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;button&quot;&gt;Terminate&lt;/button&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+    &lt;dl class=&quot;cb-props&quot;&gt;
+      &lt;div&gt;&lt;dt&gt;User&lt;/dt&gt;&lt;dd&gt;alice.ng&lt;/dd&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;dt&gt;Source address&lt;/dt&gt;&lt;dd class=&quot;cb-mono&quot;&gt;203.0.113.24:51344&lt;/dd&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;dt&gt;Gateway&lt;/dt&gt;&lt;dd&gt;gw-eu-1 (wg0)&lt;/dd&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;dt&gt;Started&lt;/dt&gt;&lt;dd&gt;&lt;time datetime=&quot;2026-10-21T08:12:40Z&quot;&gt;2026-10-21 08:12:40 UTC&lt;/time&gt;&lt;/dd&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;dt&gt;Last handshake&lt;/dt&gt;&lt;dd&gt;14 s ago&lt;/dd&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;dt&gt;Received / sent&lt;/dt&gt;&lt;dd&gt;1.42 GB / 86.0 MB&lt;/dd&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;dt&gt;MFA&lt;/dt&gt;&lt;dd&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;TOTP verified&lt;/span&gt;&lt;/dd&gt;&lt;/div&gt;
+    &lt;/dl&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-props</code></th><td><code>&lt;dl&gt;</code></td><td>Framed two-column list, 28px rows; stacks key over value below 28rem of its own width</td></tr>
+              <tr><th scope="row"><code>dt</code>, <code>dd</code></th><td>Children, or children of a <code>&lt;div&gt;</code> per row</td><td>Muted key on the left, value on the right; values wrap anywhere</td></tr>
+              <tr><th scope="row"><code>dd</code> + <code>dd</code></th><td>Extra values of a term</td><td>Under the first value, with no line between them</td></tr>
+              <tr><th scope="row"><code>.cb-mono</code></th><td><code>&lt;dd&gt;</code></td><td>Monospace for DNs, serials, addresses and hashes</td></tr>
+              <tr><th scope="row"><code>.cb-panel__body--flush</code></th><td>Parent</td><td>The panel frames the list edge to edge</td></tr>
+              <tr><th scope="row"><code>data-cb-density</code></th><td>Any ancestor</td><td>Row height follows the density (24px compact, 32px comfortable)</td></tr>
             </tbody>
           </table>
         </div>

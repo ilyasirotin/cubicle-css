@@ -39,6 +39,9 @@ The first release of Cubicle.
 - **Data tables.** `.cb-table` styled by element, in a scrolling `.cb-table-wrap`. Zebra rows,
   instant hover, row selection, disabled rows, sortable headers, a sticky header and first
   column, compact and wrapping modes, totals, captions and an empty state.
+- **Property lists.** `.cb-props` key-value lists on `<dl>` for inspector views, framed like a
+  table: bare `dt` / `dd` pairs or a `<div>` per row, extra values under the first, 28px rows that
+  follow the density, and key above value when the list is narrower than 28rem.
 - **Badges and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a busy
   badge, and frameless `.cb-led`.
 - **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a
