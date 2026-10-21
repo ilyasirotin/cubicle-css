@@ -1807,7 +1807,9 @@
         <h3 class="docs-h3" id="panels-fieldset">Fieldset</h3>
         <p class="docs-text">A classic group box: the legend sits on the border and the box keeps the
           surrounding surface. <code>&lt;fieldset disabled&gt;</code> disables every control inside it
-          natively.</p>
+          natively. When a group needs a choice, the server marks its check boxes or radios
+          <code>aria-invalid="true"</code> (a required radio also turns invalid natively): the frame and
+          legend turn crimson and the group's error shows.</p>
         <div class="docs-demo">
           <div class="cb-grid cb-grid--2">
             <fieldset class="cb-fieldset">
@@ -1835,6 +1837,12 @@
                 <span class="cb-field__label">Elevation</span>
                 <label class="cb-choice"><input class="cb-check" type="checkbox" checked>Allow self-service elevation</label>
               </div>
+            </fieldset>
+            <fieldset class="cb-fieldset" aria-describedby="p-roles-error">
+              <legend>Roles for contractors</legend>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" name="roles" value="viewer" aria-invalid="true">Viewer</label>
+              <label class="cb-choice"><input class="cb-check" type="checkbox" name="roles" value="auditor" aria-invalid="true">VPN auditor</label>
+              <p class="cb-field__error" id="p-roles-error">Choose at least one role.</p>
             </fieldset>
           </div>
         </div>
@@ -1864,6 +1872,12 @@
       &lt;span class=&quot;cb-field__label&quot;&gt;Elevation&lt;/span&gt;
       &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; checked&gt;Allow self-service elevation&lt;/label&gt;
     &lt;/div&gt;
+  &lt;/fieldset&gt;
+  &lt;fieldset class=&quot;cb-fieldset&quot; aria-describedby=&quot;p-roles-error&quot;&gt;
+    &lt;legend&gt;Roles for contractors&lt;/legend&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;roles&quot; value=&quot;viewer&quot; aria-invalid=&quot;true&quot;&gt;Viewer&lt;/label&gt;
+    &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;roles&quot; value=&quot;auditor&quot; aria-invalid=&quot;true&quot;&gt;VPN auditor&lt;/label&gt;
+    &lt;p class=&quot;cb-field__error&quot; id=&quot;p-roles-error&quot;&gt;Choose at least one role.&lt;/p&gt;
   &lt;/fieldset&gt;
 &lt;/div&gt;</code></pre>
 
@@ -2064,6 +2078,7 @@
             <tbody>
               <tr><th scope="row"><code>.cb-fieldset</code></th><td><code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code></td><td>Group box; children stacked with an 8px rhythm</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td><code>&lt;fieldset&gt;</code></td><td>Disables and mutes every control inside, and the legend</td></tr>
+              <tr><th scope="row"><code>aria-invalid="true"</code> on its choices</th><td>Check boxes or radios in a <code>&lt;fieldset&gt;</code></td><td>Crimson frame and legend; shows the group's <code>.cb-field__error</code> (point <code>aria-describedby</code> at it)</td></tr>
               <tr><th scope="row"><code>.cb-panel</code></th><td><code>&lt;section&gt;</code>, <code>&lt;div&gt;</code>, <code>&lt;details&gt;</code></td><td>Bordered surface</td></tr>
               <tr><th scope="row"><code>.cb-panel__head</code></th><td><code>&lt;header&gt;</code> or <code>&lt;summary&gt;</code></td><td>Header bar; actions after the title align to the end</td></tr>
               <tr><th scope="row"><code>.cb-panel__title</code></th><td><code>&lt;h2&gt;</code>–<code>&lt;h4&gt;</code></td><td>16px panel title</td></tr>

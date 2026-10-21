@@ -1484,7 +1484,10 @@ if (want('forms')) {
       + `<div data-vb-extras><select class="cb-select" readonly aria-label="select readonly"><option>Operator</option></select>`
       + `<input class="cb-input" type="text" readonly value="3f9c2a71" aria-label="input readonly">${roles('')}${roles(' disabled')}`
       + '<input class="cb-input" type="text" aria-disabled="true" readonly value="ou=staff" aria-label="input aria-disabled">'
-      + '<div class="cb-input-group"><input class="cb-input" type="number" disabled value="25" aria-label="group disabled"><span class="cb-input-group__addon">s</span></div></div>';
+      + '<div class="cb-input-group"><input class="cb-input" type="number" disabled value="25" aria-label="group disabled"><span class="cb-input-group__addon">s</span></div>'
+      + ['invalid', 'valid'].map((g) => `<fieldset class="cb-fieldset" data-vb-group="${g}"><legend>Roles</legend>`
+        + `<label class="cb-choice"><input class="cb-check" type="checkbox"${g === 'invalid' ? ' aria-invalid="true"' : ''}>Viewer</label>`
+        + '<p class="cb-field__error">Choose at least one role.</p></fieldset>').join('') + '</div>';
     document.body.append(box);
   }, TYPES);
   const matrix = await pf.$$eval('[data-vb-density]', (ds) => ds.map((d) => ({
@@ -1601,6 +1604,16 @@ if (want('forms')) {
   });
   check(locked.field.fill === locked.want.fill && locked.field.ink === locked.want.ink && locked.addon === locked.want.ink,
     'aria-disabled fields look disabled, and a disabled field mutes its addon', JSON.stringify(locked));
+  // A group whose choices are invalid frames itself and its legend in crimson and shows its error.
+  const groups = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.style.color = 'var(--cb-danger)'; const danger = getComputedStyle(probe).color; probe.remove();
+    const look = (g) => { const f = document.querySelector(`[data-vb-group="${g}"]`);
+      return { frame: getComputedStyle(f).borderTopColor, legend: getComputedStyle(f.querySelector('legend')).color, error: getComputedStyle(f.querySelector('.cb-field__error')).display }; };
+    return { danger, invalid: look('invalid'), valid: look('valid') };
+  });
+  check(groups.invalid.frame === groups.danger && groups.invalid.legend === groups.danger && groups.invalid.error !== 'none'
+    && groups.valid.frame !== groups.danger && groups.valid.error === 'none', 'a fieldset with invalid choices shows the group error', JSON.stringify(groups));
   const forms = pf.locator('[data-vb-forms]');
   await forms.scrollIntoViewIfNeeded();
   await snap(forms, `forms-matrix.png`);

@@ -31,8 +31,9 @@ The first release of Cubicle.
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
   click or Enter, with a "Copied" note in the header and a live-region message.
 - **Secret boxes.** `.cb-secret` wells and single-line secrets with copy, reveal and save actions.
-- **Fieldsets and panels.** `.cb-fieldset` group boxes. `.cb-panel` with head, title, body (also
-  flush) and foot, status stripes, recessed wells and collapsible `<details>` panels.
+- **Fieldsets and panels.** `.cb-fieldset` group boxes with a group error. `.cb-panel` with head,
+  title, body (also flush) and foot, status stripes, recessed wells and collapsible `<details>`
+  panels.
 - **Tabs.** `.cb-tabs` folder tabs for links and for ARIA tabs, with counts, lamps, disabled tabs,
   tabs in a panel head and vertical tabs.
 - **Data tables.** `.cb-table` styled by element, in a scrolling `.cb-table-wrap`. Zebra rows,

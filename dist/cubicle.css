@@ -22,7 +22,7 @@
       5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key,
                                hidden engine keys, .cb-check, .cb-choice,
                                .cb-field, .cb-input-group, .cb-range
-      5.3 Fieldsets & panels . .cb-fieldset; .cb-panel head / title / body / foot,
+      5.3 Fieldsets & panels . .cb-fieldset, group error; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, shared disclosure
                                chevron, collapsible
       5.4 Secret & copy boxes  script-only actions, copied feedback, .cb-secret
@@ -1130,6 +1130,22 @@
     &:disabled > legend {
       color: var(--cb-text-disabled);
     }
+  }
+
+  /* Group error ("choose at least one role"), as on a field: the server marks
+     the group's check boxes or radios aria-invalid (or a required radio turns
+     :user-invalid); the frame and legend turn crimson and the group's
+     .cb-field__error shows. Point the fieldset's aria-describedby at it. */
+  .cb-fieldset:has(.cb-choice > :is([aria-invalid="true"], :user-invalid)) {
+    border-color: var(--cb-danger);
+
+    & > legend {
+      color: var(--cb-danger);
+    }
+  }
+
+  .cb-fieldset:not(:has(.cb-choice > :is([aria-invalid="true"], :user-invalid))) > .cb-field__error {
+    display: none;
   }
 
   /* Panel: a bordered surface with an optional header bar and action footer.
