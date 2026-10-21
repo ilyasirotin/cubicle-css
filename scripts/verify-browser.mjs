@@ -130,6 +130,9 @@ if (want('layout')) {
     await snap(page, `page-${width}.png`, { fullPage: true }).catch(() => snap(page, `page-${width}.png`));
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+  // Ids are unique: a duplicate sends labels, dismiss keys and getElementById to the wrong element.
+  const dupes = await page.evaluate(() => { const n = {}; for (const e of document.querySelectorAll('[id]')) n[e.id] = (n[e.id] ?? 0) + 1; return Object.keys(n).filter((k) => n[k] > 1); });
+  check(!dupes.length, 'every id on the page is unique', dupes.join(', '));
   // A flush panel body frames its children: each one loses margin, border and radius, whatever
   // component it is (tables, wrappers, lists and wells come later in the stylesheet).
   const framed = await page.$$eval('.cb-panel__body--flush > *', (els) => els.filter((e) => e.getClientRects().length).map((e) => {
