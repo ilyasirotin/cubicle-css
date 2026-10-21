@@ -32,6 +32,10 @@
  *                                              closing stays native: method="dialog", Escape
  *   data-cb-output (no value, on <output for>) show the current value of the control
  *                                              named in for (a range, a number)
+ *   data-cb-menu (no value, on a .cb-menu      place the popover menu at its popovertarget
+ *     popover with role="menu")                key; focus its first item; arrow keys, Home
+ *                                              and End move, Tab closes; it closes on an
+ *                                              item click, a scroll or a resize
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -45,6 +49,7 @@
   const TAB = '[data-cb-tabs] [role="tab"]';
   const TREE_ITEM = '[data-cb-tree] [role="treeitem"]';
   const OUTPUTS = 'output[data-cb-output]';
+  const MENU = '.cb-menu[data-cb-menu]';
   const remaskTimers = new WeakMap();
   let liveRegion;
 
@@ -320,12 +325,116 @@
     if (next) focusItem(next);
   };
 
+  // Menus (role="menu" popovers): the browser opens and closes them
+  // (popovertarget, Escape, a click outside); this places a menu at its key,
+  // mirrors aria-expanded and moves focus through the items.
+  const keyOf = (menu) => document.querySelector(`[popovertarget="${CSS.escape(menu.id)}"]`);
+  const itemsOf = (menu) => [...menu.querySelectorAll('[role="menuitem"]')].filter((item) => !item.matches(':disabled, [aria-disabled="true"]'));
+  const menuReturn = new WeakSet(); // menus that held focus when they began to close
+
+  // A hidden popover has no size yet, so the side comes from the key alone:
+  // below it when there is 15rem of room below (or more than above), else
+  // above, scrolling within the free height; flush with the key's right edge
+  // when the key is in the right half of the viewport, else with its left
+  // edge, so the menu stays on screen.
+  const placeMenu = (menu, key) => {
+    const r = key.getBoundingClientRect();
+    const { clientWidth: vw, clientHeight: vh } = document.documentElement;
+    const down = vh - r.bottom >= Math.min(r.top, 15 * parseFloat(getComputedStyle(document.documentElement).fontSize));
+    const right = r.left + r.width / 2 > vw / 2;
+    const px = (n) => `${Math.round(n)}px`;
+    menu.style.setProperty('--_top', down ? px(r.bottom + 2) : 'auto');
+    menu.style.setProperty('--_bottom', down ? 'auto' : px(vh - r.top + 2));
+    menu.style.setProperty('--_right', right ? px(vw - r.right) : 'auto');
+    menu.style.setProperty('--_left', right ? 'auto' : px(r.left));
+    menu.style.setProperty('--_max', px((down ? vh - r.bottom : r.top) - 10));
+  };
+
+  // Toggle events do not bubble; capture listeners on the document still
+  // reach menus swapped in later.
+  document.addEventListener('beforetoggle', (event) => {
+    const menu = event.target;
+    if (!(menu instanceof Element) || !menu.matches(MENU)) return;
+    const key = keyOf(menu);
+    if (event.newState === 'open') {
+      if (key) placeMenu(menu, key);
+    } else if (menu.contains(document.activeElement)) {
+      menuReturn.add(menu);
+    }
+    key?.setAttribute('aria-expanded', String(event.newState === 'open'));
+  }, true);
+
+  document.addEventListener('toggle', (event) => {
+    const menu = event.target;
+    if (!(menu instanceof Element) || !menu.matches(MENU)) return;
+    // Opened by its key (a click, Enter or Space): start on the first item,
+    // unless the arrow keys have already placed focus.
+    if (event.newState === 'open') {
+      if (!menu.contains(document.activeElement)) itemsOf(menu)[0]?.focus();
+    } else if (menuReturn.has(menu)) {
+      // Focus left with the menu: give it back to the key, unless the user
+      // has already moved it somewhere else.
+      menuReturn.delete(menu);
+      const lost = document.activeElement === document.body || menu.contains(document.activeElement);
+      if (lost) keyOf(menu)?.focus();
+    }
+  }, true);
+
+  const closeMenu = (menu) => {
+    if (!menu.matches(':popover-open')) return;
+    keyOf(menu)?.focus();
+    menu.hidePopover();
+  };
+
+  const closeMenus = (except) => {
+    for (const menu of document.querySelectorAll(`${MENU}:popover-open`)) {
+      if (!(except instanceof Node && menu.contains(except))) menu.hidePopover();
+    }
+  };
+
+  // On the key, the arrows open the menu on its first or last item. In the
+  // menu they move and wrap, Home and End jump, and Tab closes it first so
+  // focus moves on from the key.
+  const menuKey = (event, menu) => {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    event.preventDefault();
+    if (!menu.matches(':popover-open')) menu.showPopover();
+    const items = itemsOf(menu);
+    (event.key === 'ArrowUp' ? items.at(-1) : items[0])?.focus();
+  };
+
+  const menuItemKey = (event, menu) => {
+    const items = itemsOf(menu);
+    const index = items.indexOf(document.activeElement);
+    let next;
+    switch (event.key) {
+      case 'ArrowDown': next = items[(index + 1) % items.length]; break;
+      case 'ArrowUp': next = items[(index - 1 + items.length) % items.length]; break;
+      case 'Home': next = items[0]; break;
+      case 'End': next = items.at(-1); break;
+      default: return;
+    }
+    event.preventDefault();
+    next?.focus();
+  };
+
+  document.addEventListener('scroll', (event) => closeMenus(event.target), true);
+  addEventListener('resize', () => closeMenus());
+
   document.addEventListener('keydown', (event) => {
+    // Tab with any modifier: Option+Tab is Safari's keyboard navigation.
+    const open = event.key === 'Tab' && event.target instanceof Element ? event.target.closest(`${MENU}:popover-open`) : null;
+    if (open) return closeMenu(open);
     if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
     if (!(event.target instanceof Element)) return;
     const tab = event.target.closest(TAB);
     if (tab) return tabKey(event, tab);
-    if (event.target.matches(TREE_ITEM)) treeKey(event, event.target);
+    if (event.target.matches(TREE_ITEM)) return treeKey(event, event.target);
+    const menu = event.target.closest(MENU);
+    if (menu) return menuItemKey(event, menu);
+    const target = event.target.getAttribute('popovertarget');
+    const owned = target ? document.getElementById(target) : null;
+    if (owned?.matches(MENU)) menuKey(event, owned);
   });
 
   // Readouts: the server renders the first value, and a form reset restores
@@ -341,6 +450,10 @@
   document.addEventListener('click', (event) => {
     // A click cancelled by the host (or a cancelled box toggle) means: do nothing.
     if (event.defaultPrevented) return;
+
+    // A chosen item closes its menu (its own action still runs below).
+    const choice = event.target instanceof Element ? event.target.closest(`${MENU} [role="menuitem"]`) : null;
+    if (choice) closeMenu(choice.closest(MENU));
 
     const tab = event.target instanceof Element ? event.target.closest(TAB) : null;
     if (tab) {

@@ -2863,8 +2863,8 @@
   /* Action menu: a key with popovertarget and aria-haspopup="menu" opens a
      <div class="cb-menu" popover role="menu" data-cb-menu> placed after it.
      The top layer keeps scrolling wrappers from clipping it; Escape and an
-     outside click close it natively. Without cubicle.js the UA popover style
-     centres it. */
+     outside click close it natively. cubicle.js places it and adds the arrow
+     keys; without the script the UA popover style centres it. */
   .cb-menu {
     min-inline-size: 10rem;
     max-inline-size: 20rem;
@@ -2881,6 +2881,14 @@
       border: 0;
       border-block-start: 1px solid var(--cb-border-subtle);
     }
+  }
+
+  /* Placed at its key by cubicle.js (data-cb-menu), which also caps the
+     height to the free space; the list scrolls within it. */
+  :root[data-cb-js] .cb-menu {
+    inset: var(--_top, auto) var(--_right, auto) var(--_bottom, auto) var(--_left, auto);
+    max-block-size: var(--_max, 50vh);
+    margin: 0;
   }
 
   .cb-menu__item {

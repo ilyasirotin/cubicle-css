@@ -2018,6 +2018,73 @@ if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
     await pn.keyboard.press('Escape');
   }
   await noJs.close();
+
+  // With cubicle.js: placed at its key (below, or above near the viewport bottom; flush with the
+  // key's right edge in the right half, its left edge otherwise), focus on the first item, arrow
+  // keys that skip disabled items and wrap, Home / End, Escape and Tab back to the key's place,
+  // aria-expanded on the key, and closing on an item click, an outside click and a scroll.
+  const pm = await context.newPage(); await applyOverrides(pm);
+  await pm.setViewportSize({ width: 1360, height: 900 }); await pm.goto(pathToFileURL(page_path).href);
+  const key = pm.locator(KEY); const menu = pm.locator('#m-peer-1');
+  const open = () => menu.evaluate((m) => m.matches(':popover-open'));
+  const focused = () => pm.evaluate(() => (document.activeElement.closest('.cb-menu') ? document.activeElement.textContent.trim() : document.activeElement.getAttribute('popovertarget') ?? document.activeElement.tagName));
+  const place = () => pm.evaluate(() => {
+    const k = document.querySelector('.docs-demo [popovertarget="m-peer-1"]').getBoundingClientRect(); const m = document.getElementById('m-peer-1').getBoundingClientRect();
+    return { below: m.top - k.bottom, above: k.top - m.bottom, right: m.right - k.right, inView: m.top >= 0 && m.bottom <= document.documentElement.clientHeight };
+  });
+  const expanded = () => key.getAttribute('aria-expanded');
+  const steps = {};
+  await key.evaluate((k) => k.scrollIntoView({ block: 'center' }));
+  // The key opens the menu natively; its toggle event (a task later) moves focus in.
+  const tick = () => pm.waitForTimeout(50);
+  await key.click(); await tick();
+  steps.click = { open: await open(), place: await place(), focus: await focused(), expanded: await expanded() };
+  const walk = [];
+  for (const k of ['ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'End', 'Home', 'ArrowUp']) { await pm.keyboard.press(k); walk.push(await focused()); }
+  steps.walk = walk;
+  await pm.keyboard.press('Escape');
+  steps.escape = { open: await open(), focus: await focused(), expanded: await expanded() };
+  await pm.keyboard.press('ArrowUp');
+  steps.up = { open: await open(), focus: await focused() };
+  await pm.keyboard.press('Escape'); await pm.keyboard.press('ArrowDown');
+  steps.down = await focused();
+  await pm.keyboard.press(TAB);
+  steps.tab = { open: await open(), focus: await focused() };
+  await key.click(); await tick(); await pm.locator('#m-peer-1 .cb-menu__item').nth(1).click();
+  steps.item = { open: await open(), focus: await focused() };
+  await key.click(); await tick(); await pm.mouse.click(5, 5);
+  steps.outside = await open();
+  await key.click(); await tick(); await pm.mouse.wheel(0, 60); await pm.waitForTimeout(150);
+  steps.scroll = await open();
+  // Near the bottom of the viewport the menu opens upwards.
+  await key.evaluate((k) => { const r = k.getBoundingClientRect(); scrollBy(0, r.bottom - document.documentElement.clientHeight + 40); });
+  await pm.waitForTimeout(100);
+  await key.click(); await tick();
+  steps.flip = await place();
+  await snap(pm, 'menu-up-1360.png');
+  await pm.keyboard.press('Escape');
+  // A key and menu swapped in at the left edge: placed flush with the key's left edge.
+  steps.left = await pm.evaluate(async () => {
+    const box = document.createElement('div');
+    box.innerHTML = '<button class="cb-btn cb-btn--sm" type="button" popovertarget="m-vb" aria-haspopup="menu">Act</button>'
+      + '<div class="cb-menu" id="m-vb" popover role="menu" aria-label="Probe" data-cb-menu><button class="cb-menu__item" type="button" role="menuitem">One</button></div>';
+    document.body.prepend(box); scrollTo(0, 0);
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50))); // let that scroll event pass
+    const k = box.querySelector('button'); k.click(); await new Promise((r) => setTimeout(r, 50));
+    const m = document.getElementById('m-vb'); const out = { open: m.matches(':popover-open'), left: m.getBoundingClientRect().left - k.getBoundingClientRect().left, focus: document.activeElement.textContent };
+    m.hidePopover(); box.remove(); return out;
+  });
+  await pm.close();
+  const ok = steps.click.open && steps.click.place.below >= 0 && steps.click.place.below <= 4 && Math.abs(steps.click.place.right) < 1 && steps.click.place.inView
+    && steps.click.focus === 'Show details' && steps.click.expanded === 'true'
+    && steps.walk.join('|') === 'Rotate key|Download config|Copy public key|Revoke…|Show details|Revoke…|Show details|Revoke…'
+    && !steps.escape.open && steps.escape.focus === 'm-peer-1' && steps.escape.expanded === 'false'
+    && steps.up.open && steps.up.focus === 'Revoke…' && steps.down === 'Show details'
+    && !steps.tab.open && steps.tab.focus === 'm-peer-2'
+    && !steps.item.open && steps.item.focus === 'm-peer-1' && !steps.outside && !steps.scroll
+    && steps.flip.above >= 0 && steps.flip.above <= 4 && steps.flip.inView
+    && steps.left.open && Math.abs(steps.left.left) < 1 && steps.left.focus === 'One';
+  check(ok, 'menu with cubicle.js: placed at its key, keys, Escape, Tab, closes on item, outside click and scroll, flips up', JSON.stringify(steps));
 }
 
 await browser.close();
