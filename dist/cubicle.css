@@ -1906,9 +1906,14 @@
     margin-block-start: var(--cb-space-2);
   }
 
-  /* Error summary: a list of links to the invalid fields. */
+  /* Error summary: a list of links to the invalid fields. The gap between
+     items keeps the links 24px apart (WCAG 2.5.8 target spacing). */
   .cb-alert :is(ul, ol) {
     padding-inline-start: 1.25em;
+
+    & > li + li {
+      margin-block-start: var(--cb-space-2);
+    }
   }
 
   /* Close key: a .cb-btn--sm.cb-btn--icon with data-cb-dismiss (cubicle.js).

@@ -65,10 +65,11 @@ The first release of Cubicle.
   messages and a `--nowrap` mode that scrolls sideways.
 - **Badges and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a busy
   badge, and frameless `.cb-led`.
-- **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a
-  dismiss key, a compact size and page-wide banners. A `.cb-toasts` stack in the bottom-end corner
-  holds compact alerts the server sends: a polite live region that reads each new message alone,
-  lets clicks pass around its messages and keeps them until they are closed or replaced.
+- **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries with
+  24px link spacing, a dismiss key, a compact size and page-wide banners. A `.cb-toasts` stack in
+  the bottom-end corner holds compact alerts the server sends: a polite live region that reads each
+  new message alone, lets clicks pass around its messages and keeps them until they are closed or
+  replaced.
 - **Navigation and trees.** `.cb-nav` link navigation with `<details>` branches and disabled
   links. ARIA directory trees with RDN kind chips, loading branches and connector lines.
   `.cb-breadcrumb`.
