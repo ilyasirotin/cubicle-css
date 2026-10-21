@@ -22,7 +22,8 @@
 //                 pagination-<width>.png and utilities-<width>.png, and
 //                 forms-matrix.png of the native form-control fixture, props-<width>.png and
 //                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
-//                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png and log-<width>.png.
+//                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png, log-<width>.png and
+//                 forced-<section>.png of sections in forced colours.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -52,7 +53,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -88,6 +89,8 @@ const ENGINE_LIMITS = [
   { engine: 'webkit', check: /^selected options in a multi-select/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
   { engine: 'webkit', check: /^Escape clears a search field/, reason: 'WebKit does not clear a search field on Escape' },
   { engine: 'firefox', check: /^states of input\.cb-input\[type=(date|time|datetime-local)\]\[readonly\]/, reason: 'Firefox does not let a readonly date or time field take focus' },
+  { engine: 'firefox', check: /^forced colours: selected list-box options/, reason: 'Firefox paints list-box selection itself in forced colours (a light grey), not option backgrounds' },
+  { engine: 'webkit', check: /^forced colours: selected list-box options/, reason: 'WebKit paints list-box selection natively and ignores option backgrounds' },
 ];
 
 const results = [];
@@ -2230,6 +2233,46 @@ if (want('split') && await page.locator('.docs-demo .cb-split').count()) {
     await snap(page.locator('.docs-demo:has(> .cb-split)'), `split-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 33. Forced colours (a forcedColors: 'active' context; Chromium and Firefox force the palette,
+//     WebKit only matches the media query, so there the rules are checked as written). State
+//     that a fill or a shadow carries maps to Highlight / HighlightText, and unavailable controls
+//     to GrayText; system colours are resolved through a probe in the same context.
+if (want('forced') && await page.locator('.docs-demo').count()) {
+  const fc = await browser.newContext({ ...contextOptions, forcedColors: 'active' });
+  const pf = await fc.newPage(); await applyOverrides(pf); await pf.goto(pathToFileURL(page_path).href);
+  const STATES = ['.cb-btn[aria-pressed="true"]:not(:disabled)', '.cb-segmented > .cb-btn:has(> input:checked:not(:disabled))', '.cb-pagination .cb-btn[aria-current="page"]',
+    '.cb-table tbody tr[aria-selected="true"]:not([aria-busy="true"] tr) > td', '.cb-table tbody tr:has(> td > .cb-check:checked):not([aria-busy="true"] tr) > td',
+    '.cb-nav__link[aria-current="page"]', '[role="treeitem"][aria-selected="true"] > .cb-nav__link', '.cb-tabs__tab[aria-selected="true"]'];
+  const DISABLED = ['.cb-btn:disabled', '.cb-btn[aria-disabled="true"]', '.cb-input:disabled', '.cb-input[aria-disabled="true"]', '.cb-select:disabled',
+    '.cb-nav__link[aria-disabled="true"]', '.cb-tabs__tab:disabled', '.cb-table tbody tr[aria-disabled="true"] > td', '.cb-menu__item:disabled', '.cb-choice:has(:disabled)', '.cb-fieldset:disabled > legend'];
+  const states = await pf.evaluate(([st, dis]) => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const sys = (c) => { probe.style.color = c; return getComputedStyle(probe).color; };
+    const t = { hl: sys('Highlight'), hlText: sys('HighlightText'), gray: sys('GrayText') }; probe.remove();
+    const first = (sel) => document.querySelector(`.docs-demo ${sel}`);
+    return {
+      states: st.map((sel) => { const e = first(sel); if (!e) return `${sel}: missing`; const c = getComputedStyle(e); return c.backgroundColor === t.hl && c.color === t.hlText ? null : `${sel}: ${c.backgroundColor} / ${c.color}`; }).filter(Boolean),
+      disabled: dis.map((sel) => { const e = first(sel); if (!e) return `${sel}: missing`; const c = getComputedStyle(e); return c.color === t.gray ? null : `${sel}: ${c.color}`; }).filter(Boolean),
+      t };
+  }, [STATES, DISABLED]);
+  check(!states.states.length, 'forced colours: selected, pressed, current and checked states take Highlight', states.states.join('; ') || `${STATES.length} states`);
+  check(!states.disabled.length, 'forced colours: unavailable controls take GrayText', states.disabled.join('; ') || `${DISABLED.length} kinds`);
+  const option = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i')); probe.style.color = 'Highlight'; const hl = getComputedStyle(probe).color; probe.remove();
+    const o = getComputedStyle(document.querySelector('.docs-demo .cb-select[multiple]:not(:disabled) option:checked')); return { ok: o.backgroundColor === hl, bg: o.backgroundColor };
+  });
+  check(option.ok, 'forced colours: selected list-box options take Highlight', option.bg);
+  const link = await pf.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i')); probe.style.color = 'HighlightText'; const ink = getComputedStyle(probe).color; probe.remove();
+    const a = document.querySelector('.docs-demo .cb-table tbody tr[aria-selected="true"] > :is(th, td) a'); return a ? { ok: getComputedStyle(a).color === ink, color: getComputedStyle(a).color } : { ok: false, color: 'missing' };
+  });
+  check(link.ok, 'forced colours: a link in a selected row takes HighlightText', link.color);
+  for (const id of saving ? ['buttons', 'tables', 'nav', 'fields'] : []) {
+    const sec = pf.locator(`#${id}`); await sec.scrollIntoViewIfNeeded(); await snap(sec, `forced-${id}.png`);
+  }
+  await fc.close();
 }
 
 await browser.close();
