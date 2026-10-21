@@ -19,7 +19,8 @@ The first release of Cubicle.
 - **Layout.** The `.cb-app` shell (top bar, banner strip, sidebar, main, status bar) is a fixed
   frame that stacks below 800px; there the sidebar folds away behind a Menu key in the top bar
   (`.cb-app__toggle`, script) and stays open without the script. `.cb-stack`, `.cb-cluster` and container-relative `.cb-grid` lay
-  pages out; `.cb-split` puts a list and its detail side by side and stacks them by its own width. Density modes `data-cb-density="compact"` and `"comfortable"` work on any subtree.
+  pages out; `.cb-split` puts a list and its detail side by side and stacks them by its own width;
+  `.cb-center` puts one panel in the middle of the frame for sign-in, error and maintenance pages. Density modes `data-cb-density="compact"` and `"comfortable"` work on any subtree.
 - **Buttons.** `.cb-btn` raised keys with 1px press travel come in primary, tinted-danger and
   solid-danger variants, small and icon sizes, and attached groups. Toggle (`aria-pressed`), busy
   (stepped spinner) and disabled states.

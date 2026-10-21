@@ -19,6 +19,7 @@
       4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
       4.5 Grid ............... .cb-grid container-relative columns
       4.6 Split .............. .cb-split master-detail, stacks by its own width
+      4.7 Centre ............. .cb-center one child in the middle (sign-in, errors)
    5. Components
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
       5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key,
@@ -456,6 +457,23 @@
   @container (width < 48rem) {
     .cb-split > * {
       grid-column: 1 / -1;
+    }
+  }
+
+  /* 4.7 Centre ------------------------------------------------------------ */
+
+  /* One child in the middle of the available space: sign-in, error and
+     maintenance pages. As tall as the frame (100cqb: the nearest size
+     container, else the small viewport height); the child is at most 24rem
+     wide and keeps a 16px margin on phones. */
+  .cb-center {
+    display: grid;
+    place-items: center;
+    min-block-size: 100cqb;
+    padding: var(--cb-space-4);
+
+    & > * {
+      inline-size: min(24rem, 100%);
     }
   }
 }

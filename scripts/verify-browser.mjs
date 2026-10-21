@@ -53,7 +53,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -2375,6 +2375,20 @@ if (want('rtl')) {
   }
   await pr.close();
   check(!over.length, 'right to left: the whole page has no horizontal overflow at 360, 800 and 1360px', over.join(', '));
+}
+
+// 35. Recipes and their primitives. .cb-center puts its child in the middle of the frame on
+//     both axes, at most 24rem wide (full width less 16px on each side when narrower).
+if (want('recipes') && await page.locator('.docs-demo .cb-center').count()) {
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const c = await page.$eval('.docs-demo .cb-center', (el) => {
+      const r = el.getBoundingClientRect(); const k = el.firstElementChild.getBoundingClientRect(); const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      return { dx: (k.left + k.width / 2) - (r.left + r.width / 2), dy: (k.top + k.height / 2) - (r.top + r.height / 2), w: k.width, want: Math.min(24 * rem, r.width - 32), h: r.height, frame: el.parentElement.clientHeight };
+    });
+    check(Math.abs(c.dx) < 1 && Math.abs(c.dy) < 1 && Math.abs(c.w - c.want) < 1 && Math.abs(c.h - c.frame) < 1, `centre at ${width}px: the child sits in the middle, ${Math.round(c.want)}px wide`, JSON.stringify(c));
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
 }
 
 await browser.close();

@@ -56,7 +56,7 @@ text, links, monospace elements and the focus ring.
 | Component | Main classes and attributes | Catalogue |
 |---|---|---|
 | Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status`; `__toggle` Menu key | [Layout](docs/index.html#layout) |
-| Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4`, `.cb-split` | [Layout](docs/index.html#layout) |
+| Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4`, `.cb-split`, `.cb-center` | [Layout](docs/index.html#layout) |
 | Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
 | Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
 | Secret boxes | `.cb-secret`; `data-cb-copy`, `data-cb-reveal`, `data-cb-download` | [Secret boxes](docs/index.html#secrets) |
