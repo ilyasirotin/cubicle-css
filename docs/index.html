@@ -39,6 +39,7 @@
         <li><a class="docs-nav__link" href="#layout-stack">Stack</a></li>
         <li><a class="docs-nav__link" href="#layout-cluster">Cluster</a></li>
         <li><a class="docs-nav__link" href="#layout-grid">Grid</a></li>
+        <li><a class="docs-nav__link" href="#layout-split">Master-detail</a></li>
       </ul>
       <p class="docs-nav__label">Components</p>
       <ul class="docs-nav__list">
@@ -771,6 +772,97 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-grid--2</code></th><td>Up to 2</td><td>Paired settings, primary / standby</td></tr>
               <tr><th scope="row"><code>.cb-grid--3</code></th><td>Up to 3</td><td>Configuration groups</td></tr>
               <tr><th scope="row"><code>.cb-grid--4</code></th><td>Up to 4</td><td>Dashboard counters</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="docs-h3" id="layout-split">Master-detail</h3>
+        <p class="docs-text">A list and the selected record side by side, the list twice as wide and the detail
+          at least 18rem. The split measures its own width: below 48rem the detail goes under the list, so it
+          works in a narrow panel as well as on a phone.</p>
+        <div class="docs-demo">
+          <div class="cb-split">
+            <section class="cb-panel" aria-labelledby="sp-list-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="sp-list-title">Sessions</h4>
+              </header>
+              <div class="cb-panel__body cb-panel__body--flush">
+                <table class="cb-table" aria-labelledby="sp-list-title">
+                  <thead>
+                    <tr><th scope="col">User</th><th scope="col">Gateway</th><th class="cb-table__num" scope="col">Received</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">alice.ng</th><td>gw-eu-1</td><td class="cb-table__num">1.42 GB</td></tr>
+                    <tr aria-selected="true"><th scope="row">b.kowalski</th><td>gw-eu-1</td><td class="cb-table__num">86.0 MB</td></tr>
+                    <tr><th scope="row">c.okafor</th><td>gw-us-2</td><td class="cb-table__num">4.07 GB</td></tr>
+                    <tr><th scope="row">d.ivanova</th><td>gw-ap-1</td><td class="cb-table__num">512.3 MB</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section class="cb-panel" aria-labelledby="sp-detail-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="sp-detail-title">b.kowalski</h4>
+              </header>
+              <div class="cb-panel__body cb-panel__body--flush">
+                <dl class="cb-props">
+                  <dt>Source</dt>
+                  <dd class="cb-mono">198.51.100.7:51820</dd>
+                  <dt>Tunnel IP</dt>
+                  <dd class="cb-mono">10.8.0.12</dd>
+                  <dt>Started</dt>
+                  <dd><time datetime="2026-10-21T08:12:40Z">08:12:40 UTC</time></dd>
+                  <dt>MFA</dt>
+                  <dd><span class="cb-badge cb-badge--ok">TOTP</span></dd>
+                </dl>
+              </div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-split&quot;&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;sp-list-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;sp-list-title&quot;&gt;Sessions&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+      &lt;table class=&quot;cb-table&quot; aria-labelledby=&quot;sp-list-title&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;User&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;alice.ng&lt;/th&gt;&lt;td&gt;gw-eu-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr aria-selected=&quot;true&quot;&gt;&lt;th scope=&quot;row&quot;&gt;b.kowalski&lt;/th&gt;&lt;td&gt;gw-eu-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;c.okafor&lt;/th&gt;&lt;td&gt;gw-us-2&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;4.07 GB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;d.ivanova&lt;/th&gt;&lt;td&gt;gw-ap-1&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;512.3 MB&lt;/td&gt;&lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;sp-detail-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;sp-detail-title&quot;&gt;b.kowalski&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
+      &lt;dl class=&quot;cb-props&quot;&gt;
+        &lt;dt&gt;Source&lt;/dt&gt;
+        &lt;dd class=&quot;cb-mono&quot;&gt;198.51.100.7:51820&lt;/dd&gt;
+        &lt;dt&gt;Tunnel IP&lt;/dt&gt;
+        &lt;dd class=&quot;cb-mono&quot;&gt;10.8.0.12&lt;/dd&gt;
+        &lt;dt&gt;Started&lt;/dt&gt;
+        &lt;dd&gt;&lt;time datetime=&quot;2026-10-21T08:12:40Z&quot;&gt;08:12:40 UTC&lt;/time&gt;&lt;/dd&gt;
+        &lt;dt&gt;MFA&lt;/dt&gt;
+        &lt;dd&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;TOTP&lt;/span&gt;&lt;/dd&gt;
+      &lt;/dl&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-split</code></th><td>Wrapper of two children</td><td>Master <code>2fr</code>, detail <code>1fr</code> and at least 18rem, tops aligned; stacked below 48rem of its own width</td></tr>
             </tbody>
           </table>
         </div>

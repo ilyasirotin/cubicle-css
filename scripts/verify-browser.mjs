@@ -52,7 +52,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -1786,7 +1786,9 @@ if (want('props') && await page.locator('.cb-props').count()) {
   }
   await page.setViewportSize({ width: 1360, height: 900 });
   const density = await page.evaluate(() => {
-    const dl = [...document.querySelectorAll('.cb-props')].find((d) => d.getClientRects().length);
+    // The first list wide enough for key and value side by side (stacked rows have no fixed height).
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const dl = [...document.querySelectorAll('.cb-props')].find((d) => d.getClientRects().length && d.clientWidth >= 28 * rem);
     const row = dl.querySelector(':scope > dt, :scope > div > dt');
     const got = {};
     for (const d of ['compact', 'comfortable']) {
@@ -2167,6 +2169,23 @@ if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
     }
     await page.setViewportSize({ width: 1360, height: 900 });
   }
+}
+
+// 32. Master-detail: at 1360px the split's two children sit side by side, tops aligned, the
+//     master about twice the detail; at 360px the detail goes under the master at full width.
+if (want('split') && await page.locator('.docs-demo .cb-split').count()) {
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const sp = await page.$eval('.docs-demo .cb-split', (s) => {
+      const [m, d] = [...s.children].map((c) => c.getBoundingClientRect()); const w = s.clientWidth;
+      return { side: Math.abs(m.top - d.top) < 0.5 && d.left > m.right, ratio: m.width / d.width,
+        stacked: d.top >= m.bottom && Math.abs(m.width - w) < 0.5 && Math.abs(d.width - w) < 0.5, overflow: document.documentElement.scrollWidth > innerWidth };
+    });
+    const ok = !sp.overflow && (width === 1360 ? sp.side && sp.ratio > 1.8 && sp.ratio < 2.2 : sp.stacked);
+    check(ok, `master-detail at ${width}px: ${width === 1360 ? 'side by side, 2:1' : 'detail under the master'}`, JSON.stringify(sp));
+    await snap(page.locator('.docs-demo:has(> .cb-split)'), `split-${width}.png`);
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
 }
 
 await browser.close();

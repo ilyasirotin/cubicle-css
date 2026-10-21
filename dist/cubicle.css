@@ -17,6 +17,7 @@
       4.3 Stack .............. .cb-stack vertical rhythm
       4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
       4.5 Grid ............... .cb-grid container-relative columns
+      4.6 Split .............. .cb-split master-detail, stacks by its own width
    5. Components
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
       5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key,
@@ -427,6 +428,26 @@
   .cb-grid--2 { --_cols: 2; }
   .cb-grid--3 { --_cols: 3; }
   .cb-grid--4 { --_cols: 4; }
+
+  /* 4.6 Split ------------------------------------------------------------- */
+
+  /* Master-detail: a list and the selected record, the list twice as wide
+     and the detail at least 18rem, tops aligned. The split is its own
+     container (a container cannot query itself, so its children respond):
+     below 48rem the detail goes under the list. */
+  .cb-split {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+    align-items: start;
+    gap: var(--cb-space-3);
+  }
+
+  @container (width < 48rem) {
+    .cb-split > * {
+      grid-column: 1 / -1;
+    }
+  }
 }
 
 

@@ -18,7 +18,7 @@ The first release of Cubicle.
   scroll containers and kept in view while focus scrolls. Light only.
 - **Layout.** The `.cb-app` shell (top bar, banner strip, sidebar, main, status bar) is a fixed
   frame that stacks below 800px. `.cb-stack`, `.cb-cluster` and container-relative `.cb-grid` lay
-  pages out. Density modes `data-cb-density="compact"` and `"comfortable"` work on any subtree.
+  pages out; `.cb-split` puts a list and its detail side by side and stacks them by its own width. Density modes `data-cb-density="compact"` and `"comfortable"` work on any subtree.
 - **Buttons.** `.cb-btn` raised keys with 1px press travel come in primary, tinted-danger and
   solid-danger variants, small and icon sizes, and attached groups. Toggle (`aria-pressed`), busy
   (stepped spinner) and disabled states.

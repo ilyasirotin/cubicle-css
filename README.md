@@ -56,7 +56,7 @@ text, links, monospace elements and the focus ring.
 | Component | Main classes and attributes | Catalogue |
 |---|---|---|
 | Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status` | [Layout](docs/index.html#layout) |
-| Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4` | [Layout](docs/index.html#layout) |
+| Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4`, `.cb-split` | [Layout](docs/index.html#layout) |
 | Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
 | Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
 | Secret boxes | `.cb-secret`; `data-cb-copy`, `data-cb-reveal`, `data-cb-download` | [Secret boxes](docs/index.html#secrets) |
@@ -147,7 +147,7 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 101 KB (24 KB gzip), minified 50 KB (9.5 KB gzip); `cubicle.js` 22 KB
+Sizes: `cubicle.css` 102 KB (24 KB gzip), minified 51 KB (9.6 KB gzip); `cubicle.js` 22 KB
 (6.8 KB gzip), minified 9.8 KB (3.5 KB gzip).
 
 ## Development
