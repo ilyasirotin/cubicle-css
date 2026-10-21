@@ -28,7 +28,8 @@ The first release of Cubicle.
   (`aria-invalid`, `:user-invalid`), disabled, focusable disabled (`aria-disabled`) and busy states.
   Also check boxes and radios, horizontal and stacked `.cb-field` layouts with hints, errors and
   required marks, input groups, file and range inputs, and list boxes whose checked options take
-  the selected tint. Number and search fields drop the engines' spin and clear keys.
+  the selected tint. Number and search fields drop the engines' spin and clear keys, and colour fields are a
+  swatch key two control heights wide.
 - **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
   click or Enter, with a "Copied" note in the header and a live-region message.

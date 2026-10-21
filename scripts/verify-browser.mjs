@@ -1606,7 +1606,7 @@ if (snippets) {
 //     fields and list boxes once.
 if (want('forms')) {
   const TYPES = { text: 'gw-eu-1', password: 'secret', search: 'peer', email: 'soc@corp.example.net', url: 'https://idp.corp.example.net',
-    tel: '+1 555 0100', number: '51820', date: '2026-11-01', time: '23:30', 'datetime-local': '2026-11-01T23:30', month: '2026-11', week: '2026-W44', file: '' };
+    tel: '+1 555 0100', number: '51820', date: '2026-11-01', time: '23:30', 'datetime-local': '2026-11-01T23:30', month: '2026-11', week: '2026-W44', file: '', color: '#1e4b85' };
   const pf = await context.newPage(); await applyOverrides(pf);
   await pf.setViewportSize({ width: 1360, height: 900 });
   await pf.goto(pathToFileURL(page_path).href);
@@ -1655,6 +1655,12 @@ if (want('forms')) {
     check(off.length === 0, `native fields take the control height (${d.density})`,
       `${d.sizes.map((s) => `${s.size} ${s.probe}px`).join(', ')}${off.length ? `; off: ${off.join(', ')}` : ''}`);
   }
+  // A colour field is as wide as two control heights, at both sizes and in every density.
+  const colours = await pf.$$eval('[data-vb-density] input[type="color"]', (cs) => cs.map((c) => {
+    const r = c.getBoundingClientRect(); return { name: `${c.closest('[data-vb-density]').getAttribute('data-vb-density')} ${c.getAttribute('aria-label')}`, w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10 };
+  }));
+  const wrong = colours.filter((c) => Math.abs(c.w - 2 * c.h) >= 0.5);
+  check(colours.length > 0 && !wrong.length, 'colour fields are two control heights wide', wrong.map((c) => `${c.name} ${c.w}x${c.h}`).join(', ') || `${colours.length} fields`);
   // The file key is an engine pseudo-element; its computed box is readable in every engine.
   const keys = await pf.$$eval('[data-vb-density] input[type="file"]', (fs) => fs.map((f) => {
     const k = getComputedStyle(f, '::file-selector-button');

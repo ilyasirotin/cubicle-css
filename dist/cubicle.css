@@ -22,7 +22,7 @@
       4.7 Centre ............. .cb-center one child in the middle (sign-in, errors)
    5. Components
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
-      5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key,
+      5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key, colour,
                                hidden engine keys, .cb-check, .cb-choice,
                                .cb-field, .cb-input-group (busy addon), .cb-range
       5.3 Fieldsets & panels . .cb-fieldset, group error; .cb-panel head / title / body / foot,
@@ -742,6 +742,14 @@
      inputs carry engine inner boxes that would push a min-height past it. */
   input.cb-input {
     block-size: var(--_h);
+  }
+
+  /* Colour field: a swatch key two control heights wide in every engine
+     (they default to 44 to 64px), so --sm and densities follow. No padding:
+     the engines pad the swatch inside already. */
+  input.cb-input[type="color"] {
+    inline-size: calc(2 * var(--_h));
+    padding: 0;
   }
 
   textarea.cb-input {
