@@ -72,6 +72,8 @@ When designing or modifying components, adhere to these domain-specific UX patte
    * Essential for LDAP/Active Directory hierarchies, organizational units, and console navigation.
 6. **Modals, Confirmations & Alerts (`.cb-alert`, `<dialog>`):**
    * Unambiguous alert banners with thick left semantic accent borders (`4px solid`) and stark dialog boxes.
+7. **Key-Value Lists (`.cb-props`):**
+   * A `<dl>` for inspector facts (certificate metadata, sessions, hardware), framed like a table, with the key column on the left; it stacks key over value when its own width is narrow.
 
 ---
 
@@ -239,7 +241,7 @@ This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicl
 
 ### Documentation & Catalogue (`docs/`)
 `docs/index.html` is an interactive engineering reference catalogue (similar in utility to Bootstrap's docs, rendered entirely in Cubicle's own utilitarian aesthetic):
-- **Left Navigation:** Sticky anchor sidebar organized into: *Principles*, *Tokens* (colour, depth/shadow, radius, motion, spacing, typography), *Layout & Grids*, followed by one section per *Component* (buttons, inputs/fields, secret/copy boxes, fieldsets/panels, tabs, data tables, status badges/LEDs, alerts, tree views, meters, segmented controls, details, modals/dialogs, pagination), *Utilities*, and *Accessibility*.
+- **Left Navigation:** Sticky anchor sidebar organized into: *Principles*, *Tokens* (colour, depth/shadow, radius, motion, spacing, typography), *Layout & Grids*, followed by one section per *Component* (buttons, inputs/fields, secret/copy boxes, fieldsets/panels, tabs, data tables, property lists, status badges/LEDs, alerts, tree views, meters, segmented controls, details, modals/dialogs, pagination), *Utilities*, and *Accessibility*.
 - **Component Anatomy:** Each section contains:
   1. One concise sentence stating what the component is for.
   2. A live rendered example demonstrating **every supported state** (default, hover, focus, active/pressed, disabled, readonly, invalid, current/selected, busy).
@@ -263,6 +265,7 @@ Target **Baseline "Widely Available"** in modern evergreen browsers. Approved an
 - `:user-invalid` alongside `aria-invalid="true"`, so native constraint validation (`required`, `pattern`, `type="email"`) is shown only after the user has interacted with a field
 - `<details name>` for exclusive accordions, as progressive enhancement (Baseline newly available; older engines open the blocks independently)
 - Popover API (`popover`, `popovertarget`) for non-blocking dialogs, and `<dialog>` with `showModal()` (via `dist/cubicle.js`) for modal ones
+- `align-content` on block containers, to centre the content of rows that are not table cells (`.cb-props`). Newly available 2024-04-16, so widely available from 2026-10-16 by the 30-month rule; older engines top-align the content
 
 ---
 
