@@ -1967,6 +1967,13 @@ if (want('toasts') && await page.locator('.docs-stage .cb-toasts').count()) {
       return { problems, n: msgs.length };
     });
     check(!t.problems.length && t.n > 0, `toast stack at ${width}px: fixed in the corner, polite, clicks pass between messages`, t.problems.join('; ') || `${t.n} messages`);
+    // Laid out is not painted: the middle of the first message must show its tint, not the stage.
+    const stage = page.locator('.docs-stage:has(.cb-toasts)').first();
+    const at = await stage.evaluate((s) => { const r = s.getBoundingClientRect(); const m = s.querySelector('.cb-toasts > *').getBoundingClientRect();
+      return [(m.left + m.width / 2 - r.left) / r.width, (m.top + m.height / 2 - r.top) / r.height]; });
+    const px = await pixelsOf(stage);
+    const [msg, bare] = [await px(...at), await px(0.05, 0.1)];
+    check(msg.some((v, k) => Math.abs(v - bare[k]) > 6), `toast stack at ${width}px is painted, not only laid out`, `message ${msg} vs stage ${bare}`);
     await snap(page.locator('.docs-stage:has(.cb-toasts)').first(), `toasts-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
