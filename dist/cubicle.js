@@ -19,6 +19,9 @@
  *                                              and follows rows swapped in or disabled
  *   data-cb-dismiss="id"                       hide the target (an alert); focus
  *                                              moves to the next focusable element
+ *   data-cb-toggle="id"                        flip the key's aria-expanded (the shell's
+ *                                              Menu key folds the sidebar); closing with
+ *                                              focus inside the target returns it to the key
  *   data-cb-tabs (no value)                    container of ARIA tabs: click,
  *                                              arrow keys, Home and End select a
  *                                              role="tab"; state lives in the markup
@@ -43,7 +46,7 @@
   'use strict';
 
   const COPIED_MS = 1500;
-  const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal]';
+  const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle]';
   const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled, [type="hidden"]), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])';
   const SELECT_ALL = 'input[type="checkbox"][data-cb-select-all]';
   const TAB = '[data-cb-tabs] [role="tab"]';
@@ -218,6 +221,13 @@
   }).observe(document.documentElement, {
     childList: true, subtree: true, attributes: true, attributeFilter: ['low', 'high', 'min', 'max', 'data-cb-marks', 'disabled'],
   });
+
+  // Expand or collapse what the key controls; CSS decides what that shows.
+  const toggle = (key) => {
+    const open = key.getAttribute('aria-expanded') !== 'true';
+    key.setAttribute('aria-expanded', String(open));
+    if (!open && targetOf(key, 'data-cb-toggle')?.contains(document.activeElement)) key.focus();
+  };
 
   // Hiding the target would drop focus to <body>: move it to the next
   // focusable element outside the target, or the previous one at the end.
@@ -492,6 +502,8 @@
     } else if (button.hasAttribute('data-cb-dismiss')) {
       const target = targetOf(button, 'data-cb-dismiss');
       if (target) dismiss(target);
+    } else if (button.hasAttribute('data-cb-toggle')) {
+      toggle(button);
     } else {
       const target = targetOf(button, 'data-cb-modal');
       if (target instanceof HTMLDialogElement && !target.open) target.showModal();

@@ -17,7 +17,8 @@ The first release of Cubicle.
   text, links and monospace without ligatures, plus one `:focus-visible` ring that is drawn inside
   scroll containers and kept in view while focus scrolls. Light only.
 - **Layout.** The `.cb-app` shell (top bar, banner strip, sidebar, main, status bar) is a fixed
-  frame that stacks below 800px. `.cb-stack`, `.cb-cluster` and container-relative `.cb-grid` lay
+  frame that stacks below 800px; there the sidebar folds away behind a Menu key in the top bar
+  (`.cb-app__toggle`, script) and stays open without the script. `.cb-stack`, `.cb-cluster` and container-relative `.cb-grid` lay
   pages out; `.cb-split` puts a list and its detail side by side and stacks them by its own width. Density modes `data-cb-density="compact"` and `"comfortable"` work on any subtree.
 - **Buttons.** `.cb-btn` raised keys with 1px press travel come in primary, tinted-danger and
   solid-danger variants, small and icon sizes, and attached groups. Toggle (`aria-pressed`), busy
@@ -82,7 +83,7 @@ The first release of Cubicle.
   figures, muted and tone text, small text, truncation, no-wrap, breaking long tokens,
   visually hidden text and skip links. The `hidden` attribute always hides.
 - **`dist/cubicle.js`.** Optional progressive enhancement through `data-cb-*` attributes and
-  delegated listeners: copy (with a plain-HTTP fallback), reveal, download, select-all (which
+  delegated listeners: copy (with a plain-HTTP fallback), reveal, download, toggle, select-all (which
   follows rows swapped in or disabled), dismiss, ARIA tabs, ARIA trees, meter marks, modal dialogs,
   output readouts and menus (placed at their key, arrow keys, Home, End and Tab; closed by an item
   click, a scroll or a resize). Script-only controls stay hidden without it.

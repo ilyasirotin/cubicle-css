@@ -545,11 +545,13 @@ async function reloadRows(url) {
         <!-- Application shell -------------------------------------------- -->
         <h3 class="docs-h3" id="layout-shell">Application shell</h3>
         <p class="docs-text">The console frame: a top bar, a sidebar, the workspace and a status bar.
-          The bars stay put while the sidebar and the workspace scroll on their own.</p>
+          The bars stay put while the sidebar and the workspace scroll on their own. Below 50rem everything
+          stacks and the page scrolls; there the sidebar folds away behind the top bar's Menu key
+          (<code>data-cb-toggle</code>, script), and without the script it stays open.</p>
         <div class="docs-demo docs-frame">
           <div class="cb-app">
-            <header class="cb-app__top"><strong>IAM Console</strong><span>corp.example.net</span></header>
-            <nav class="cb-app__side cb-nav" aria-label="Directory">
+            <header class="cb-app__top"><button class="cb-btn cb-btn--sm cb-app__toggle" type="button" data-cb-toggle="ls-side" aria-controls="ls-side" aria-expanded="false">Menu</button><strong>IAM Console</strong><span>corp.example.net</span></header>
+            <nav class="cb-app__side cb-nav" id="ls-side" aria-label="Directory">
               <ul class="cb-nav__list">
                 <li><a class="cb-nav__link" href="#layout-shell" aria-current="page">Users</a></li>
                 <li><a class="cb-nav__link" href="#layout-shell">Groups</a></li>
@@ -575,8 +577,8 @@ async function reloadRows(url) {
           </div>
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-app&quot;&gt;
-  &lt;header class=&quot;cb-app__top&quot;&gt;&lt;strong&gt;IAM Console&lt;/strong&gt;&lt;span&gt;corp.example.net&lt;/span&gt;&lt;/header&gt;
-  &lt;nav class=&quot;cb-app__side cb-nav&quot; aria-label=&quot;Directory&quot;&gt;
+  &lt;header class=&quot;cb-app__top&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--sm cb-app__toggle&quot; type=&quot;button&quot; data-cb-toggle=&quot;ls-side&quot; aria-controls=&quot;ls-side&quot; aria-expanded=&quot;false&quot;&gt;Menu&lt;/button&gt;&lt;strong&gt;IAM Console&lt;/strong&gt;&lt;span&gt;corp.example.net&lt;/span&gt;&lt;/header&gt;
+  &lt;nav class=&quot;cb-app__side cb-nav&quot; id=&quot;ls-side&quot; aria-label=&quot;Directory&quot;&gt;
     &lt;ul class=&quot;cb-nav__list&quot;&gt;
       &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot; aria-current=&quot;page&quot;&gt;Users&lt;/a&gt;&lt;/li&gt;
       &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot;&gt;Groups&lt;/a&gt;&lt;/li&gt;
@@ -615,6 +617,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-app__top</code></th><td><code>header</code></td><td>Top bar: product name, scope, global actions</td></tr>
               <tr><th scope="row"><code>.cb-app__banner</code></th><td><code>div</code></td><td>Optional strip of <code>.cb-alert--banner</code> under the top bar; collapses when empty</td></tr>
               <tr><th scope="row"><code>.cb-app__side</code></th><td><code>nav</code> / <code>aside</code></td><td>Optional sidebar; scrolls independently; stacks below 800px</td></tr>
+              <tr><th scope="row"><code>.cb-app__toggle</code> + <code>data-cb-toggle="id"</code> + <code>aria-expanded="false"</code></th><td><code>.cb-btn--sm</code> in the top bar</td><td>Below 800px folds the sidebar away until pressed; hidden when wide and without the script</td></tr>
               <tr><th scope="row"><code>.cb-app__main</code></th><td><code>main</code></td><td>Workspace; scrolls independently</td></tr>
               <tr><th scope="row"><code>.cb-app__status</code></th><td><code>footer</code></td><td>Status bar: connection, counters, tabular figures</td></tr>
             </tbody>

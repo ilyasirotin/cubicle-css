@@ -12,7 +12,8 @@
    2. Tokens .......... colour, depth, geometry, spacing, type, motion
    3. Base ............ document typography, links, monospace (no ligatures), focus ring
    4. Layout
-      4.1 Application shell .. .cb-app top / banner / side / main / status regions
+      4.1 Application shell .. .cb-app top / banner / side / main / status regions;
+                               sidebar folding behind the Menu key when narrow
       4.2 Scroll model ....... fixed frame
       4.3 Stack .............. .cb-stack vertical rhythm
       4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
@@ -26,7 +27,8 @@
       5.3 Fieldsets & panels . .cb-fieldset, group error; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, shared disclosure
                                chevron, collapsible
-      5.4 Secret & copy boxes  script-only actions, copied feedback, .cb-secret
+      5.4 Secret & copy boxes  script-only actions (and the shell's Menu key),
+                               copied feedback, .cb-secret
       5.5 Badges & LEDs ...... .cb-badge tags, status, solid, count, busy; .cb-led
       5.6 Data tables ........ .cb-table-wrap, .cb-table rows, selection,
                                disabled rows, sorting, compact, wrap, sticky;
@@ -348,7 +350,9 @@
     border-block-start: 1px solid var(--cb-border-main);
   }
 
-  /* Narrow viewports: the sidebar stacks above main. */
+  /* Narrow viewports: the sidebar stacks above main. With cubicle.js it folds
+     away behind the top bar's Menu key (.cb-app__toggle with data-cb-toggle)
+     until the key is pressed; without the script it stays open. */
   @media (width < 50rem) {
     .cb-app {
       grid-template: "top" auto "banner" auto "side" auto "main" 1fr "status" auto / minmax(0, 1fr);
@@ -357,6 +361,10 @@
     .cb-app__side {
       border-inline-end: 0;
       border-block-end: 1px solid var(--cb-border-main);
+    }
+
+    :root[data-cb-js] .cb-app:has(> .cb-app__top [data-cb-toggle][aria-expanded="false"]) > .cb-app__side {
+      display: none;
     }
   }
 
@@ -1337,8 +1345,16 @@
   /* Script-only actions stay hidden until cubicle.js marks the root, so a page
      without the script shows the value (still selectable) and no dead buttons.
      Markup swapped in later is covered too; nothing needs re-initialising. */
-  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal]) {
+  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle]) {
     display: none;
+  }
+
+  /* The shell's Menu key (4.1) is needed only where the sidebar folds away.
+     It lives here, in the components layer, to win over .cb-btn's display. */
+  @media (width >= 50rem) {
+    .cb-app__toggle {
+      display: none;
+    }
   }
 
   /* Copy confirmation, set by cubicle.js for a moment. */

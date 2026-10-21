@@ -304,7 +304,7 @@ if (want('controls')) {
 //    table select-all, alert dismiss, ARIA tabs and trees, meter marks, the plain-HTTP copy fallback, and hiding of script-only controls
 //    without JavaScript.
 //    Every part starts from a fresh page so earlier clicks do not leak state.
-const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal]';
+const ACTIONS = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle]';
 if (want('script') && await page.locator(ACTIONS).count()) {
   const fresh = async (ctx = context, before) => {
     const p = await ctx.newPage();
@@ -418,6 +418,22 @@ if (want('script') && await page.locator(ACTIONS).count()) {
       await ps.close();
       check(swaps.all === 'on' && swaps.swapped === 'off' && swaps.mixed === 'mixed' && swaps.disabled === 'on' && swaps.inserted === 'on',
         `select-all #${swapId} follows rows swapped in or disabled and a table inserted with its master`, JSON.stringify(swaps));
+    }
+
+    // Toggle: a click flips aria-expanded; collapsing with focus inside the target returns focus
+    // to the key (the catalogue's shell demo, whose sidebar folds below 50rem).
+    for (const id of await ids(p, 'data-cb-toggle')) {
+      const pt = await fresh(); await pt.setViewportSize({ width: 360, height: 900 });
+      const flip = await pt.evaluate(async (i) => {
+        const key = document.querySelector(`[data-cb-toggle="${i}"]`); const tick = () => new Promise((r) => setTimeout(r, 0));
+        const before = key.getAttribute('aria-expanded'); key.click(); await tick(); const opened = key.getAttribute('aria-expanded');
+        const link = document.getElementById(i).querySelector('a[href]'); link.focus(); const inside = document.activeElement === link;
+        key.click(); await tick();
+        return { before, opened, after: key.getAttribute('aria-expanded'), inside, focus: document.activeElement === key, hidden: link.getClientRects().length === 0 };
+      }, id);
+      await pt.close();
+      check(flip.before === 'false' && flip.opened === 'true' && flip.after === 'false' && flip.inside && flip.focus,
+        `toggle #${id} flips aria-expanded and gives focus back to the key when it closes`, JSON.stringify(flip));
     }
 
     // Dismiss from the keyboard: the target is hidden and focus moves to a rendered control
@@ -563,7 +579,7 @@ if (want('script') && await page.locator(ACTIONS).count()) {
   const r = await pn.evaluate((sel) => {
     const buttons = [...document.querySelectorAll(sel)];
     // A dialog target is closed (display: none) by design; every other target must show.
-    const targets = buttons.filter((b) => !b.hasAttribute('data-cb-modal')).map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all') ?? b.getAttribute('data-cb-dismiss') ?? b.getAttribute('data-cb-modal')));
+    const targets = buttons.filter((b) => !b.hasAttribute('data-cb-modal')).map((b) => document.getElementById(b.getAttribute('data-cb-copy') ?? b.getAttribute('data-cb-reveal') ?? b.getAttribute('data-cb-download') ?? b.getAttribute('data-cb-select-all') ?? b.getAttribute('data-cb-dismiss') ?? b.getAttribute('data-cb-modal') ?? b.getAttribute('data-cb-toggle')));
     return { hidden: buttons.every((b) => getComputedStyle(b).display === 'none'), visible: targets.every((t) => t && getComputedStyle(t).display !== 'none') };
   }, ACTIONS);
   check(r.hidden && r.visible, 'without JavaScript, script-only actions are hidden and values stay visible', JSON.stringify(r));
@@ -1314,10 +1330,38 @@ if (want('frame') && await page.locator('body > .cb-app').count()) {
   await page.setViewportSize({ width: 360, height: 900 });
   const narrow = await page.evaluate(() => {
     const app = document.querySelector('body > .cb-app'); const r = (sel) => app.querySelector(sel).getBoundingClientRect();
-    return { stacked: r('.cb-app__side').bottom <= r('.cb-app__main').top + 1, page: document.documentElement.scrollHeight > innerHeight,
-      overflow: document.documentElement.scrollWidth > innerWidth };
+    return { page: document.documentElement.scrollHeight > innerHeight, overflow: document.documentElement.scrollWidth > innerWidth };
   });
-  check(narrow.stacked && narrow.page && !narrow.overflow, 'application frame at 360px: sidebar above main, page scrolls, no overflow', JSON.stringify(narrow));
+  check(narrow.page && !narrow.overflow, 'application frame at 360px: the page scrolls, no overflow', JSON.stringify(narrow));
+  // Below 50rem the sidebar folds away behind the top bar's Menu key; the key opens it between
+  // the top bar and main and closes it again. Wide, the key is hidden and the sidebar shows.
+  const toggle = page.locator('body > .cb-app > .cb-app__top [data-cb-toggle]');
+  if (await toggle.count()) {
+    const fold = () => page.evaluate(() => {
+      const app = document.querySelector('body > .cb-app'); const side = app.querySelector('.cb-app__side'); const key = app.querySelector('.cb-app__top [data-cb-toggle]');
+      return { side: side.getClientRects().length > 0, below: side.getBoundingClientRect().top >= app.querySelector('.cb-app__top').getBoundingClientRect().bottom - 0.5,
+        above: side.getBoundingClientRect().bottom <= app.querySelector('.cb-app__main').getBoundingClientRect().top + 0.5,
+        key: key.getClientRects().length > 0, expanded: key.getAttribute('aria-expanded'), sunk: getComputedStyle(key).boxShadow !== getComputedStyle(app.querySelector('.cb-app__top .cb-btn:not([data-cb-toggle])') ?? key).boxShadow };
+    });
+    // The key's look changes over --cb-duration (50ms); read it after that.
+    const settle = () => page.waitForTimeout(120);
+    const closed = await fold(); await toggle.click(); await settle(); const opened = await fold(); await toggle.click(); await settle(); const again = await fold();
+    check(!closed.side && closed.key && closed.expanded === 'false' && opened.side && opened.below && opened.above && opened.expanded === 'true' && opened.sunk && !again.side,
+      'application frame at 360px: the sidebar folds behind the Menu key, which opens it above main and closes it', JSON.stringify({ closed, opened, again }));
+    await page.setViewportSize({ width: 1360, height: 900 });
+    const wide = await fold();
+    check(wide.side && !wide.key, 'application frame at 1360px: the Menu key is hidden and the sidebar shows', JSON.stringify(wide));
+    // Without the script the key stays hidden and the sidebar stacks above main.
+    const noJs = await browser.newContext({ ...contextOptions, viewport: { width: 360, height: 900 }, javaScriptEnabled: false });
+    const pn = await noJs.newPage(); await applyOverrides(pn); await pn.goto(pathToFileURL(page_path).href);
+    const plain = await pn.evaluate(() => {
+      const app = document.querySelector('body > .cb-app'); const r = (sel) => app.querySelector(sel).getBoundingClientRect();
+      return { key: app.querySelector('.cb-app__top [data-cb-toggle]').getClientRects().length > 0, stacked: r('.cb-app__side').height > 0 && r('.cb-app__side').bottom <= r('.cb-app__main').top + 1 };
+    });
+    await noJs.close();
+    check(!plain.key && plain.stacked, 'application frame at 360px without the script: no Menu key, the sidebar stacked above main', JSON.stringify(plain));
+    await page.setViewportSize({ width: 360, height: 900 });
+  }
   const sticky = page.locator('body > .cb-app .cb-table--sticky').first();
   if (await sticky.count()) {
     await expose(page, 'body > .cb-app .cb-table--sticky');

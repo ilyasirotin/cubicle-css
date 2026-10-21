@@ -55,7 +55,7 @@ text, links, monospace elements and the focus ring.
 
 | Component | Main classes and attributes | Catalogue |
 |---|---|---|
-| Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status` | [Layout](docs/index.html#layout) |
+| Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status`; `__toggle` Menu key | [Layout](docs/index.html#layout) |
 | Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4`, `.cb-split` | [Layout](docs/index.html#layout) |
 | Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
 | Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
@@ -92,6 +92,7 @@ id of the target element.
 | `data-cb-download="id"` | button | Saves the target's text as a file named by `data-cb-filename` |
 | `data-cb-select-all="id"` | header checkbox | Checks every row box of the table; shows the mixed state and follows rows swapped in or disabled |
 | `data-cb-dismiss="id"` | button | Hides the target (an alert) and moves focus on |
+| `data-cb-toggle="id"` | button with `aria-expanded` | Flips `aria-expanded`; the shell's Menu key folds the sidebar below 800px; closing returns focus to the key |
 | `data-cb-tabs` | tab set | Click, arrow keys, Home and End switch ARIA tabs |
 | `data-cb-tree` | tree | Arrow keys, Home, End, Enter and Space walk, open and select tree items; fires `cb-toggle` |
 | `data-cb-marks` | `<meter>` | Marks `low` and `high` on the ruler |
@@ -147,8 +148,8 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 102 KB (24 KB gzip), minified 51 KB (9.6 KB gzip); `cubicle.js` 22 KB
-(6.8 KB gzip), minified 9.8 KB (3.5 KB gzip).
+Sizes: `cubicle.css` 102 KB (25 KB gzip), minified 51 KB (9.6 KB gzip); `cubicle.js` 23 KB
+(7.0 KB gzip), minified 10 KB (3.5 KB gzip).
 
 ## Development
 

@@ -12,6 +12,7 @@
 
   <div class="cb-app">
     <header class="cb-app__top">
+      <button class="cb-btn cb-btn--sm cb-app__toggle" type="button" data-cb-toggle="x-side" aria-controls="x-side" aria-expanded="false">Menu</button>
       <strong>Corp VPN Console</strong>
       <span class="cb-badge cb-badge--solid cb-badge--danger">prod</span>
       <span class="cb-muted">corp.example.net</span>
@@ -23,7 +24,7 @@
       <div class="cb-alert cb-alert--banner cb-alert--sm cb-alert--warn" id="x-licence">Licence expires on 2026-11-01: 13 days left. <a href="index.html#alerts">Renew licence</a><button class="cb-alert__close cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-dismiss="x-licence" aria-label="Dismiss licence notice">✕</button></div>
     </div>
 
-    <nav class="cb-app__side cb-nav" aria-label="Console">
+    <nav class="cb-app__side cb-nav" id="x-side" aria-label="Console">
       <p class="cb-nav__heading" id="x-dir">Directory</p>
       <ul class="cb-nav__list" aria-labelledby="x-dir">
         <li><a class="cb-nav__link" href="#main">Users <span class="cb-badge cb-badge--count">1 248</span></a></li>
