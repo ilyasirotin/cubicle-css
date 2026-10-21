@@ -84,6 +84,9 @@ The first release of Cubicle.
 - **Inline code, keys and utilities.** `.cb-code` and `.cb-kbd`. Utilities for monospace, tabular
   figures, muted and tone text, small text, truncation, no-wrap, breaking long tokens,
   visually hidden text and skip links. The `hidden` attribute always hides.
+- **Print.** The application frame unrolls into one column without the sidebar, actions, the
+  Menu key and toasts are hidden, scrolling wrappers and logs print in full, and rows and lines
+  stay whole across pages.
 - **Forced colours and right to left.** In forced palettes (Windows High Contrast) selected,
   pressed, current and checked items take `Highlight`, unavailable controls `GrayText`, and marks,
   lit lamps, sort arrows and the spinner stay visible; system colour keywords live only in

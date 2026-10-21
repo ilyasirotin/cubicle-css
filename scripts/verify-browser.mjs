@@ -23,7 +23,7 @@
 //                 forms-matrix.png of the native form-control fixture, props-<width>.png and
 //                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
 //                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png, log-<width>.png and
-//                 forced-<section>.png of sections in forced colours.
+//                 forced-<section>.png of sections in forced colours; print-example.pdf (Chromium).
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -2395,6 +2395,36 @@ if (want('recipes') && await page.locator('.docs-demo .cb-center').count()) {
     check(Math.abs(c.dx) < 1 && Math.abs(c.dy) < 1 && Math.abs(c.w - c.want) < 1 && Math.abs(c.h - c.frame) < 1, `centre at ${width}px: the child sits in the middle, ${Math.round(c.want)}px wide`, JSON.stringify(c));
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 36. Print (print media emulated on a fresh page). The application frame unrolls into one
+//     column without the sidebar, main stops scrolling, and script-only actions, the Menu key
+//     and toasts are hidden; scroll wrappers and logs print in full and a --nowrap log wraps.
+if (want('print')) {
+  const pp = await context.newPage(); await applyOverrides(pp); await pp.goto(pathToFileURL(page_path).href);
+  await pp.emulateMedia({ media: 'print' });
+  const r = await pp.evaluate(() => {
+    const out = {}; const cs = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e) : null; };
+    const app = document.querySelector('body > .cb-app');
+    if (app) {
+      out.frame = { main: cs('.cb-app__main').overflowY, side: cs('.cb-app__side').display, height: cs('body > .cb-app').blockSize, min: cs('body > .cb-app').minBlockSize };
+    }
+    const hidden = [...document.querySelectorAll('[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle], .cb-toasts')].filter((e) => getComputedStyle(e).display !== 'none');
+    out.shown = hidden.slice(0, 3).map((e) => e.outerHTML.slice(0, 60));
+    const wrap = cs('.cb-table-wrap--scroll'); if (wrap) out.wrap = `${wrap.maxBlockSize} ${wrap.overflowY}`;
+    const log = cs('.cb-log:not(.cb-log--nowrap)'); if (log) out.log = `${log.maxBlockSize} ${log.overflowY}`;
+    const msg = cs('.cb-log--nowrap .cb-log__msg'); if (msg) out.nowrap = msg.whiteSpace;
+    return out;
+  });
+  const problems = [];
+  if (r.frame && (r.frame.main !== 'visible' || r.frame.side !== 'none' || r.frame.min !== '0px')) problems.push(`frame ${JSON.stringify(r.frame)}`);
+  if (r.shown.length) problems.push(`still shown: ${r.shown.join(' | ')}`);
+  if (r.wrap && r.wrap !== 'none visible') problems.push(`table wrapper ${r.wrap}`);
+  if (r.log && r.log !== 'none visible') problems.push(`log ${r.log}`);
+  if (r.nowrap && r.nowrap !== 'pre-wrap') problems.push(`nowrap log ${r.nowrap}`);
+  check(!problems.length, 'print: the frame unrolls without the sidebar, actions are hidden, wrappers and logs print in full', problems.join('; ') || JSON.stringify(r));
+  if (saving && engine === 'chromium' && r.frame) await pp.pdf({ path: resolve(shots, 'print-example.pdf'), printBackground: false });
+  await pp.close();
 }
 
 await browser.close();

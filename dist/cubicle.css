@@ -14,7 +14,7 @@
    4. Layout
       4.1 Application shell .. .cb-app top / banner / side / main / status regions;
                                sidebar folding behind the Menu key when narrow
-      4.2 Scroll model ....... fixed frame
+      4.2 Scroll model ....... fixed frame; unrolled for print
       4.3 Stack .............. .cb-stack vertical rhythm
       4.4 Cluster ............ .cb-cluster wrapping inline groups, toolbars
       4.5 Grid ............... .cb-grid container-relative columns
@@ -65,6 +65,8 @@
                                columns, data-cb-level tones, :target, --nowrap
       5.21 Forced colours .... system colours for states, unavailable controls,
                                marks, lamps, arrows, spinner, select arrow, log
+      5.22 Print ............. no actions or toasts, wrappers and logs in full,
+                               whole rows across pages
    6. Utilities ....... text (.cb-mono, .cb-num, .cb-muted, tones, .cb-text-xs),
                         wrapping (.cb-truncate, .cb-nowrap, .cb-break),
                         accessibility (.cb-sr-only / [data-cb-sr], .cb-skip-link)
@@ -395,6 +397,24 @@
     }
 
     .cb-app__side,
+    .cb-app__main {
+      overflow: visible;
+    }
+  }
+
+  /* Print: the frame unrolls into one column without the sidebar, so all of
+     main prints, not only the slice that fits the screen. */
+  @media print {
+    .cb-app {
+      grid-template: "top" auto "banner" auto "main" auto "status" auto / minmax(0, 1fr);
+      block-size: auto;
+      min-block-size: 0;
+    }
+
+    .cb-app__side {
+      display: none;
+    }
+
     .cb-app__main {
       overflow: visible;
     }
@@ -3200,6 +3220,36 @@
 
     .cb-log > :is([data-cb-level="warn"], [data-cb-level="error"]) {
       border-inline-start-color: CanvasText;
+    }
+  }
+
+  /* 5.22 Print ------------------------------------------------------------ */
+
+  /* Paper has no pointer and no script: actions and toasts go, scrolling
+     wrappers and logs print in full, and rows and lines stay whole across
+     pages. Browsers drop backgrounds by default, so borders and words carry
+     the meaning; the frame unrolls in 4.2. */
+  @media print {
+    :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle]),
+    .cb-toasts {
+      display: none;
+    }
+
+    :is(.cb-table-wrap, .cb-log, .cb-secret__value) {
+      max-block-size: none;
+      overflow: visible;
+    }
+
+    .cb-log--nowrap {
+      grid-template-columns: [num] max-content [time] max-content [level] max-content [msg] minmax(0, 1fr);
+    }
+
+    .cb-log--nowrap .cb-log__msg {
+      white-space: pre-wrap;
+    }
+
+    :is(.cb-table tr, .cb-log > li, .cb-alert, .cb-props > dt, .cb-props > dd, .cb-props > div) {
+      break-inside: avoid;
     }
   }
 }
