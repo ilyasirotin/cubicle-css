@@ -123,6 +123,18 @@ page.on('pageerror', (e) => problems.push(e.message));
 await applyOverrides(page);
 await page.goto(pathToFileURL(page_path).href);
 
+// Screenshots of one catalogue section, found by its id (a :has() lookup takes the first section
+// whose demos contain a class, which later demos in other sections can steal).
+const sectionShots = async (id) => {
+  const section = page.locator(`#${id}`);
+  if (!await section.count()) { check(false, `section #${id} exists for its screenshots`); return; }
+  for (const width of saving ? [1360, 360] : [360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await section.scrollIntoViewIfNeeded();
+    await snap(section, `${id}-${width}.png`);
+  }
+};
+
 // 1. No console errors
 check(problems.length === 0, 'no console errors or warnings', problems.join(' | '));
 
@@ -643,12 +655,7 @@ if (want('badges') && await page.locator(INDICATORS).count()) {
   check(still.length > 0 && still.every((a) => a === 'none'), 'busy badges stop spinning under reduced motion', still.join(', '));
   await calm.close();
 
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    const section = page.locator('.docs-section:has(.docs-demo .cb-badge)').first();
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `badges-${width}.png`);
-  }
+  await sectionShots('badges');
 }
 
 // 11. Data tables: one row height (28px, compact 24px) with or without .cb-btn--sm,
@@ -742,12 +749,7 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
     check(a.w > 0 && a.h > 0 && a.clip, `sort arrow visible for aria-sort="${sort}"`, `${a.w}x${a.h}px`);
   }
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-table)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `tables-${width}.png`);
-  }
+  await sectionShots('tables');
 }
 
 // 12. Alerts: a 4px edge in the tone, a rendered glyph tile with readable inverse ink,
@@ -779,12 +781,7 @@ if (want('alerts') && await page.locator('.docs-demo .cb-alert').count()) {
     check(ok, `alert .${a.key.replace(/ /g, '.')}: edge, glyph, contrast${a.sm ? ', height' : ''}${a.banner ? ', square' : ''}`,
       `edge ${a.edge}, glyph ${a.glyph.split(' /')[0]} ${glyphR.toFixed(2)}, text ${textR.toFixed(2)}${titleR ? `, title ${titleR.toFixed(2)}` : ''}${a.sm ? `, ${Math.round(a.height)}px` : ''}`);
   }
-  const section = page.locator('.docs-section:has(.docs-demo .cb-alert)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `alerts-${width}.png`);
-  }
+  await sectionShots('alerts');
 }
 
 // 13. Tabs: the selected tab takes its panel's colour and hides the line under it (one
@@ -824,12 +821,7 @@ if (want('tabs') && await page.locator('.docs-demo .cb-tabs').count()) {
   const wide = await page.$eval('.docs-demo .cb-tabs--vertical > .cb-tabs__list', (l) => getComputedStyle(l).flexDirection).catch(() => 'none');
   check(wide === 'column' && narrow.verticalRow === 'row', 'vertical tabs stand at 1360px and lie flat at 360px', `${wide} / ${narrow.verticalRow}`);
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-tabs)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `tabs-${width}.png`);
-  }
+  await sectionShots('tabs');
 }
 
 // 13b. A native disabled tab (a <button role="tab" disabled>) looks like an aria-disabled one.
@@ -887,12 +879,7 @@ if (want('nav') && await page.locator('.docs-demo .cb-nav').count()) {
   check(still === 'none', 'loading branches stop spinning under reduced motion', still);
   await calm.close();
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-nav--lines)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `nav-${width}.png`);
-  }
+  await sectionShots('nav');
 }
 
 // 14b. A disabled navigation link (aria-disabled, no href) takes the disabled ink and no hover fill.
@@ -1006,12 +993,7 @@ if (want('meters') && await page.locator('.docs-demo .cb-meter').count()) {
   const rows = await page.$$eval('.docs-demo .cb-table:has(.cb-meter--sm) tbody tr', (rs) => [...new Set(rs.map((r) => Math.round(r.getBoundingClientRect().height)))]);
   if (rows.length) check(rows.length === 1 && rows[0] === 28, 'table rows with compact meters stay 28px', `${rows.join(', ')}px`);
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-gauge)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `meters-${width}.png`);
-  }
+  await sectionShots('meters');
 }
 
 // 16. Segmented controls: the checked key is sunk on the selected tint and the others are
@@ -1065,12 +1047,7 @@ if (want('segmented') && await page.locator('.docs-demo .cb-segmented').count())
     check(fill.spread <= 1 && fill.span <= 1 && !fill.overflow, `segmented --fill keys share the row equally at ${width}px`, JSON.stringify(fill));
   }
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-segmented--fill)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `segmented-${width}.png`);
-  }
+  await sectionShots('segmented');
 }
 
 // 17. Details and disclosure: one chevron rule reaches every summary (panels, nav, tree,
@@ -1132,12 +1109,7 @@ if (want('details') && await page.locator('.docs-demo .cb-details').count()) {
   check(afterEnter[1] && !afterEnter[0] && !afterSpace[1], 'Enter and Space toggle a summary; a named group keeps one block open', `Enter ${afterEnter}, Space ${afterSpace}`);
   await first.click();
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-details--inline)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `details-${width}.png`);
-  }
+  await sectionShots('details');
 }
 
 // 18. Modal dialogs: a data-cb-modal button opens its dialog as a modal with focus inside
@@ -1252,12 +1224,7 @@ if (want('pagination') && await page.locator('.docs-demo .cb-pagination').count(
   const at360 = await page.evaluate(() => ({ wide: [...document.querySelector('.docs-demo .cb-panel__foot .cb-pagination__pages').children].filter((c) => c.getClientRects().length).map((c) => c.textContent.trim()).join(' '), overflow: document.documentElement.scrollWidth > innerWidth }));
   check(at360.wide === '‹ 7 ›' && !at360.overflow, 'at 360px the full pagination collapses with no page overflow', JSON.stringify(at360));
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-pagination)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `pagination-${width}.png`);
-  }
+  await sectionShots('pagination');
   await page.setViewportSize({ width: 1360, height: 900 });
 }
 
@@ -1315,12 +1282,7 @@ if (want('utilities') && await page.locator('.docs-demo .cb-mono').count()) {
   await ps.close();
   check(before < 0 && skip.cls === 'cb-skip-link' && skip.top >= 0 && skip.bottom <= 900, 'the skip link is off screen until the first Tab, then visible', `rest bottom ${before}, focused top ${skip.top}`);
 
-  const section = page.locator('.docs-section:has(.docs-demo .cb-mono)').first();
-  for (const width of saving ? [1360, 360] : [360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await section.scrollIntoViewIfNeeded();
-    await snap(section, `utilities-${width}.png`);
-  }
+  await sectionShots('utilities');
   await page.setViewportSize({ width: 1360, height: 900 });
 }
 
