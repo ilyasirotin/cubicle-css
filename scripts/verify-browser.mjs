@@ -2102,6 +2102,10 @@ if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
   const tick = () => pm.waitForTimeout(50);
   await key.click(); await tick();
   steps.click = { open: await open(), place: await place(), focus: await focused(), expanded: await expanded() };
+  // A scroll event that does not move the key (a wrapper scrolled into view just before the
+  // click reports it a frame later) leaves the menu open.
+  await key.evaluate((k) => k.closest('.cb-table-wrap').dispatchEvent(new Event('scroll'))); await tick();
+  steps.still = await open();
   const walk = [];
   for (const k of ['ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'End', 'Home', 'ArrowUp']) { await pm.keyboard.press(k); walk.push(await focused()); }
   steps.walk = walk;
@@ -2139,7 +2143,7 @@ if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
   });
   await pm.close();
   const ok = steps.click.open && steps.click.place.below >= 0 && steps.click.place.below <= 4 && Math.abs(steps.click.place.right) < 1 && steps.click.place.inView
-    && steps.click.focus === 'Show details' && steps.click.expanded === 'true'
+    && steps.click.focus === 'Show details' && steps.click.expanded === 'true' && steps.still
     && steps.walk.join('|') === 'Rotate key|Download config|Copy public key|Revoke…|Show details|Revoke…|Show details|Revoke…'
     && !steps.escape.open && steps.escape.focus === 'm-peer-1' && steps.escape.expanded === 'false'
     && steps.up.open && steps.up.focus === 'Revoke…' && steps.down === 'Show details'

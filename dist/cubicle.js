@@ -38,7 +38,8 @@
  *   data-cb-menu (no value, on a .cb-menu      place the popover menu at its popovertarget
  *     popover with role="menu")                key; focus its first item; arrow keys, Home
  *                                              and End move, Tab closes; it closes on an
- *                                              item click, a scroll or a resize
+ *                                              item click, a scroll that moves its key, or
+ *                                              a resize
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -341,6 +342,7 @@
   const keyOf = (menu) => document.querySelector(`[popovertarget="${CSS.escape(menu.id)}"]`);
   const itemsOf = (menu) => [...menu.querySelectorAll('[role="menuitem"]')].filter((item) => !item.matches(':disabled, [aria-disabled="true"]'));
   const menuReturn = new WeakSet(); // menus that held focus when they began to close
+  const menuAt = new WeakMap(); // menu -> where its key was when it opened
 
   // A hidden popover has no size yet, so the side comes from the key alone:
   // below it when there is 15rem of room below (or more than above), else
@@ -349,6 +351,7 @@
   // edge, so the menu stays on screen.
   const placeMenu = (menu, key) => {
     const r = key.getBoundingClientRect();
+    menuAt.set(menu, `${Math.round(r.left)},${Math.round(r.top)}`);
     const { clientWidth: vw, clientHeight: vh } = document.documentElement;
     const down = vh - r.bottom >= Math.min(r.top, 15 * parseFloat(getComputedStyle(document.documentElement).fontSize));
     const right = r.left + r.width / 2 > vw / 2;
@@ -396,9 +399,17 @@
     menu.hidePopover();
   };
 
+  // A scroll closes a menu only when it moved its key; a scroll event can
+  // arrive a frame after the wrapper was scrolled to the key and the menu
+  // opened. A resize always closes it.
+  const keyMoved = (menu) => {
+    const r = keyOf(menu)?.getBoundingClientRect();
+    return !r || `${Math.round(r.left)},${Math.round(r.top)}` !== menuAt.get(menu);
+  };
+
   const closeMenus = (except) => {
     for (const menu of document.querySelectorAll(`${MENU}:popover-open`)) {
-      if (!(except instanceof Node && menu.contains(except))) menu.hidePopover();
+      if (except === undefined || (!(except instanceof Node && menu.contains(except)) && keyMoved(menu))) menu.hidePopover();
     }
   };
 

@@ -98,7 +98,7 @@ id of the target element.
 | `data-cb-marks` | `<meter>` | Marks `low` and `high` on the ruler |
 | `data-cb-modal="id"` | button | Opens the `<dialog>` as a modal |
 | `data-cb-output` | `<output for="id">` | Shows the current value of its control (a range, a number) |
-| `data-cb-menu` | `.cb-menu` popover | Places the menu at its key, focuses its first item; arrow keys, Home and End move, Tab closes; closes on an item click, a scroll or a resize |
+| `data-cb-menu` | `.cb-menu` popover | Places the menu at its key, focuses its first item; arrow keys, Home and End move, Tab closes; closes on an item click, a scroll that moves its key, or a resize |
 
 Without the script, buttons that only the script can serve are hidden, ARIA tab sets show every
 panel, and trees show every branch.
