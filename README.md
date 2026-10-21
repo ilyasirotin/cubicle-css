@@ -141,7 +141,7 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 86 KB (21 KB gzip), minified 45 KB (8.6 KB gzip); `cubicle.js` 16 KB
+Sizes: `cubicle.css` 89 KB (21 KB gzip), minified 45 KB (8.7 KB gzip); `cubicle.js` 16 KB
 (5.1 KB gzip), minified 7.1 KB (2.7 KB gzip).
 
 ## Development
