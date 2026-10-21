@@ -21,7 +21,7 @@
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
       5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key,
                                hidden engine keys, .cb-check, .cb-choice,
-                               .cb-field, .cb-input-group, .cb-range
+                               .cb-field, .cb-input-group (busy addon), .cb-range
       5.3 Fieldsets & panels . .cb-fieldset, group error; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, shared disclosure
                                chevron, collapsible
@@ -509,10 +509,10 @@
     }
   }
 
-  /* Busy spinner, shared by buttons, badges (5.5) and loading tree branches
-     (5.9): a ring with one solid quarter that turns in discrete steps. It
-     replaces a badge's LED lamp and a branch's chevron. */
-  :is(.cb-btn, .cb-badge)[aria-busy="true"]::before,
+  /* Busy spinner, shared by buttons, badges (5.5), field addons (5.2) and
+     loading tree branches (5.9): a ring with one solid quarter that turns in
+     discrete steps. It replaces a badge's LED lamp and a branch's chevron. */
+  :is(.cb-btn, .cb-badge, .cb-input-group__addon)[aria-busy="true"]::before,
   [aria-busy="true"] > .cb-nav__link::before {
     content: "";
     inline-size: 0.75em;
@@ -530,7 +530,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :is(.cb-btn, .cb-badge)[aria-busy="true"]::before,
+    :is(.cb-btn, .cb-badge, .cb-input-group__addon)[aria-busy="true"]::before,
     [aria-busy="true"] > .cb-nav__link::before {
       animation: none;
     }
@@ -661,6 +661,11 @@
 
     /* aria-disabled keeps a locked value in the tab order, so its hint can be
        read; pair it with readonly, as aria-disabled alone does not stop typing. */
+    /* A value the server is checking; the spinner sits in an addon (5.1). */
+    &[aria-busy="true"] {
+      cursor: progress;
+    }
+
     &:is(:disabled, [aria-disabled="true"]) {
       --_bg: var(--cb-bg-recessed);
       --_ink: var(--cb-text-disabled);
@@ -1021,16 +1026,20 @@
     }
   }
 
+  /* --_bg is the fill the busy spinner's ring mixes with (5.1). */
   .cb-input-group__addon {
+    --_bg: var(--cb-bg-recessed);
+
     display: inline-flex;
     align-items: center;
+    gap: var(--cb-space-1);
     padding: 0 var(--cb-space-2);
     font-family: var(--cb-font-mono);
     font-size: var(--cb-text-sm);
     font-variant-ligatures: none;
     white-space: nowrap;
     color: var(--cb-text-muted);
-    background: var(--cb-bg-recessed);
+    background: var(--_bg);
     border: 1px solid var(--cb-border-main);
   }
 

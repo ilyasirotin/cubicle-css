@@ -1487,7 +1487,9 @@ if (want('forms')) {
       + '<div class="cb-input-group"><input class="cb-input" type="number" disabled value="25" aria-label="group disabled"><span class="cb-input-group__addon">s</span></div>'
       + ['invalid', 'valid'].map((g) => `<fieldset class="cb-fieldset" data-vb-group="${g}"><legend>Roles</legend>`
         + `<label class="cb-choice"><input class="cb-check" type="checkbox"${g === 'invalid' ? ' aria-invalid="true"' : ''}>Viewer</label>`
-        + '<p class="cb-field__error">Choose at least one role.</p></fieldset>').join('') + '</div>';
+        + '<p class="cb-field__error">Choose at least one role.</p></fieldset>').join('')
+      + '<div class="cb-input-group"><input class="cb-input" type="text" aria-busy="true" value="ou=staff" aria-label="input busy">'
+      + '<span class="cb-input-group__addon" aria-busy="true">Checking</span></div></div>';
     document.body.append(box);
   }, TYPES);
   const matrix = await pf.$$eval('[data-vb-density]', (ds) => ds.map((d) => ({
@@ -1614,6 +1616,12 @@ if (want('forms')) {
   });
   check(groups.invalid.frame === groups.danger && groups.invalid.legend === groups.danger && groups.invalid.error !== 'none'
     && groups.valid.frame !== groups.danger && groups.valid.error === 'none', 'a fieldset with invalid choices shows the group error', JSON.stringify(groups));
+  // A field the server is checking: the field shows progress, its addon the stepped spinner.
+  const busy = await pf.evaluate(() => {
+    const field = document.querySelector('[aria-label="input busy"]'); const spin = getComputedStyle(field.nextElementSibling, '::before');
+    return { cursor: getComputedStyle(field).cursor, animation: spin.animationName, ring: `${spin.borderTopStyle} ${spin.borderTopWidth}`, size: spin.inlineSize };
+  });
+  check(busy.cursor === 'progress' && busy.animation === 'cb-spin' && busy.ring === 'solid 2px', 'a busy field shows progress and its addon the spinner', JSON.stringify(busy));
   const forms = pf.locator('[data-vb-forms]');
   await forms.scrollIntoViewIfNeeded();
   await snap(forms, `forms-matrix.png`);
