@@ -21,7 +21,8 @@
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
 //                 pagination-<width>.png and utilities-<width>.png, and
 //                 forms-matrix.png of the native form-control fixture, props-<width>.png and
-//                 busy-<n>-<width>.png of each busy container's demo, and empty-<width>.png.
+//                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png and
+//                 toasts-<width>.png.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -51,7 +52,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -1925,6 +1926,47 @@ if (want('empty') && await page.locator('.cb-empty, .cb-table__empty').count()) 
     }
     await page.setViewportSize({ width: 1360, height: 900 });
   }
+}
+
+// 29. Toast stack, in a catalogue stage that stands in for the viewport (layout containment):
+//     fixed 12px inside its bottom-end corner, 24rem or the stage less 24px wide, a polite live
+//     region that is not atomic, clicks through the gaps between messages, and each message a
+//     compact alert on the float shadow framed by its ring and the 4px tone edge.
+if (want('toasts') && await page.locator('.docs-stage .cb-toasts').count()) {
+  for (const width of [1360, 360]) {
+    await page.setViewportSize({ width, height: 900 });
+    const stack = page.locator('.docs-stage .cb-toasts').first();
+    await stack.evaluate((t) => t.closest('.docs-stage').scrollIntoView({ block: 'center' }));
+    const t = await stack.evaluate((st) => {
+      const stage = st.closest('.docs-stage'); const sr = stage.getBoundingClientRect(); const ss = getComputedStyle(stage);
+      const inner = { right: sr.right - parseFloat(ss.borderRightWidth), bottom: sr.bottom - parseFloat(ss.borderBottomWidth),
+        width: stage.clientWidth };
+      const r = st.getBoundingClientRect(); const cs = getComputedStyle(st);
+      const msgs = [...st.children]; const problems = [];
+      if (cs.position !== 'fixed') problems.push(`position ${cs.position}`);
+      if (Math.abs(inner.right - r.right - 12) > 0.5 || Math.abs(inner.bottom - r.bottom - 12) > 0.5) problems.push(`corner gap ${(inner.right - r.right).toFixed(1)} / ${(inner.bottom - r.bottom).toFixed(1)}`);
+      const want = Math.min(24 * 16, inner.width - 24);
+      if (Math.abs(r.width - want) > 0.5) problems.push(`width ${r.width} (want ${want})`);
+      if (st.getAttribute('aria-live') !== 'polite' || st.getAttribute('aria-atomic') === 'true' || st.getAttribute('role') === 'status') problems.push('live region is not polite and per message');
+      if (cs.pointerEvents !== 'none') problems.push(`stack pointer-events ${cs.pointerEvents}`);
+      for (const m of msgs) {
+        const ms = getComputedStyle(m);
+        if (!m.matches('.cb-alert.cb-alert--sm') || ms.pointerEvents !== 'auto') problems.push(`message ${m.className} pointer-events ${ms.pointerEvents}`);
+        if (!/0px 0px 0px 1px/.test(ms.boxShadow)) problems.push(`no float ring: ${ms.boxShadow.slice(0, 50)}`);
+        const clear = [ms.borderTopColor, ms.borderRightColor, ms.borderBottomColor].every((c) => c === 'rgba(0, 0, 0, 0)');
+        if (!clear || ms.borderLeftWidth !== '4px') problems.push(`edges ${ms.borderTopColor} ${ms.borderLeftWidth}`);
+      }
+      if (msgs.length > 1) {
+        const a = msgs[0].getBoundingClientRect(); const b = msgs[1].getBoundingClientRect();
+        const hit = document.elementFromPoint(a.left + a.width / 2, (a.bottom + b.top) / 2);
+        if (!hit || st.contains(hit)) problems.push(`the gap between messages catches the pointer (${hit?.className})`);
+      }
+      return { problems, n: msgs.length };
+    });
+    check(!t.problems.length && t.n > 0, `toast stack at ${width}px: fixed in the corner, polite, clicks pass between messages`, t.problems.join('; ') || `${t.n} messages`);
+    await snap(page.locator('.docs-stage:has(.cb-toasts)').first(), `toasts-${width}.png`);
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
 }
 
 await browser.close();

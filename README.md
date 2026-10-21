@@ -67,6 +67,7 @@ text, links, monospace elements and the focus ring.
 | Empty states | `.cb-empty`, `__title` | [Empty states](docs/index.html#empty) |
 | Badges and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-led` | [Status badges & LEDs](docs/index.html#badges) |
 | Alerts | `.cb-alert` (tones, `--sm`, `--banner`), `__title`, `__actions`, `__close`; `data-cb-dismiss` | [Alerts](docs/index.html#alerts) |
+| Toasts | `.cb-toasts` with `aria-live="polite"`, holding `.cb-alert--sm` messages | [Toasts](docs/index.html#toasts) |
 | Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `aria-disabled`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |
 | Meters and progress | `.cb-meter` on `<meter>` and `<progress>`, `--sm`, `--ticks`, `.cb-gauge`; `data-cb-marks` | [Meters & progress](docs/index.html#meters) |
 | Segmented controls | `.cb-btn-group.cb-segmented` with radios or checkboxes, `--fill` | [Segmented controls](docs/index.html#segmented) |
@@ -143,7 +144,7 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 94 KB (23 KB gzip), minified 47 KB (9.0 KB gzip); `cubicle.js` 17 KB
+Sizes: `cubicle.css` 95 KB (23 KB gzip), minified 48 KB (9.0 KB gzip); `cubicle.js` 17 KB
 (5.3 KB gzip), minified 7.4 KB (2.8 KB gzip).
 
 ## Development

@@ -31,7 +31,7 @@
                                disabled rows, sorting, compact, wrap, sticky;
                                select-all (cubicle.js)
       5.7 Alerts ............. .cb-alert tones, glyph, title, actions, close
-                               (cubicle.js), --sm, --banner
+                               (cubicle.js), --sm, --banner; .cb-toasts stack
       5.8 Tabs ............... .cb-tabs link and ARIA tabs (cubicle.js), states,
                                panel head, --vertical, no-JS fallback
       5.9 Navigation & trees . .cb-nav links (disabled) and <details> branches, ARIA tree
@@ -1823,6 +1823,34 @@
     border-block-start-width: 0;
     border-inline-end-width: 0;
     border-radius: var(--cb-radius-none);
+  }
+
+  /* Toast stack: messages the server sends after an action or a background
+     event, fixed in the bottom-end corner. Render it empty as the last child
+     of <body> with aria-live="polite" (not role="status", which would re-read
+     the whole stack), so each appended .cb-alert--sm is announced alone; an
+     urgent one takes role="alert". The newest is last, nearest the corner.
+     Messages stay until a close key (data-cb-dismiss) or the server removes
+     them: no timers. Clicks pass through the stack around its messages. It
+     stays under a modal dialog's backdrop. */
+  .cb-toasts {
+    position: fixed;
+    z-index: 10;
+    inset-block-end: var(--cb-space-3);
+    inset-inline-end: var(--cb-space-3);
+    display: grid;
+    gap: var(--cb-space-2);
+    inline-size: min(24rem, 100% - 2 * var(--cb-space-3));
+    pointer-events: none;
+  }
+
+  /* The float shadow's ring frames the message; its own edges give way to it,
+     except the tone edge. */
+  .cb-toasts > .cb-alert {
+    border-block-color: transparent;
+    border-inline-end-color: transparent;
+    box-shadow: var(--cb-shadow-float);
+    pointer-events: auto;
   }
 
   /* 5.8 Tabs -------------------------------------------------------------- */

@@ -52,6 +52,7 @@
         <li><a class="docs-nav__link" href="#empty">Empty states</a></li>
         <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
+        <li><a class="docs-nav__link" href="#toasts">Toasts</a></li>
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
         <li><a class="docs-nav__link" href="#meters">Meters &amp; progress</a></li>
         <li><a class="docs-nav__link" href="#segmented">Segmented controls</a></li>
@@ -3609,6 +3610,46 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-alert__close</code> + <code>data-cb-dismiss="id"</code></th><td><code>&lt;button&gt;</code></td><td>Close key at the end of the first line; hides the alert (script)</td></tr>
               <tr><th scope="row"><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code></th><td>In an alert</td><td>Indented list, for error summaries</td></tr>
               <tr><th scope="row"><code>.cb-app__banner</code></th><td><code>&lt;div&gt;</code> in <code>.cb-app</code></td><td>Banner strip under the top bar; collapses when empty</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="toasts" aria-labelledby="toasts-title">
+        <h2 class="docs-h2" id="toasts-title">Toasts</h2>
+        <p class="docs-text">Short feedback the server sends after an action or a background event, stacked in
+          the bottom-end corner over the page: compact alerts in a polite live region.</p>
+
+        <h3 class="docs-h3" id="toasts-stack">Stack</h3>
+        <p class="docs-text">Render the stack empty, as the last child of <code>&lt;body&gt;</code>, so it exists
+          before the first message and every insertion is announced; only the new message is read. The server
+          appends messages; the newest is last, nearest the corner. A message stays until its close key hides
+          it or the server replaces it: Cubicle sets no timers. Give an urgent failure
+          <code>role="alert"</code>. Clicks pass through the stack around its messages. While a modal dialog is
+          open the stack stays under the backdrop; a message about the dialog belongs in the dialog. Here the
+          frame stands in for the viewport.</p>
+        <div class="docs-demo docs-stage">
+          <div class="cb-toasts" id="toasts" aria-live="polite">
+            <div class="cb-alert cb-alert--sm cb-alert--ok" id="toast-41">Peer laptop-an-1 revoked.<button class="cb-alert__close cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-dismiss="toast-41" aria-label="Dismiss">✕</button></div>
+            <div class="cb-alert cb-alert--sm cb-alert--info" id="toast-42">LDAP sync finished: 12 users updated.<button class="cb-alert__close cb-btn cb-btn--sm cb-btn--icon" type="button" data-cb-dismiss="toast-42" aria-label="Dismiss">✕</button></div>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-toasts&quot; id=&quot;toasts&quot; aria-live=&quot;polite&quot;&gt;
+  &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--ok&quot; id=&quot;toast-41&quot;&gt;Peer laptop-an-1 revoked.&lt;button class=&quot;cb-alert__close cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-dismiss=&quot;toast-41&quot; aria-label=&quot;Dismiss&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;
+  &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--info&quot; id=&quot;toast-42&quot;&gt;LDAP sync finished: 12 users updated.&lt;button class=&quot;cb-alert__close cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; data-cb-dismiss=&quot;toast-42&quot; aria-label=&quot;Dismiss&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-toasts</code> + <code>aria-live="polite"</code></th><td><code>&lt;div&gt;</code>, last in <code>&lt;body&gt;</code></td><td>Fixed stack in the bottom-end corner, 24rem wide or the viewport less its gutters; announces new messages</td></tr>
+              <tr><th scope="row"><code>.cb-alert--sm</code> + tone</th><td>Messages</td><td>Compact alerts on the float shadow</td></tr>
+              <tr><th scope="row"><code>.cb-alert__close</code> + <code>data-cb-dismiss="id"</code></th><td><code>&lt;button&gt;</code></td><td>Hides its message; focus moves on (script)</td></tr>
+              <tr><th scope="row"><code>role="alert"</code></th><td>A message</td><td>Announced at once, for urgent failures</td></tr>
             </tbody>
           </table>
         </div>

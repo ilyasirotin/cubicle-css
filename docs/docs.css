@@ -279,6 +279,13 @@
     padding: 0;
   }
 
+  /* Stand-in viewport for fixed overlays (the toast stack): layout containment
+     makes the frame the containing block of fixed descendants. */
+  .docs-stage {
+    contain: layout;
+    block-size: 12rem;
+  }
+
   /* Neutral placeholder block for layout demos. */
   .docs-box {
     display: block;
