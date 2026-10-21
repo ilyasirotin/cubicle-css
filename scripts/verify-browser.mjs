@@ -1726,9 +1726,13 @@ if (want('props') && await page.locator('.cb-props').count()) {
       return { i, wide, rows: groups.length, problems };
     });
   });
+  // Earlier checks may have left the first list in an idle tab panel (as on the example screen).
+  await expose(page, '.cb-props');
   for (const width of [1360, 360]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const l of await measure()) {
+    const lists = await measure();
+    check(lists.length > 0, `property lists are rendered at ${width}px`, `${lists.length} measured`);
+    for (const l of lists) {
       check(!l.problems.length && l.rows > 0, `property list ${l.i + 1} at ${width}px: ${l.wide ? 'key and value side by side' : 'key above value'}, rows, lines and frame`,
         l.problems.length ? l.problems.join('; ') : `${l.rows} rows`);
     }
