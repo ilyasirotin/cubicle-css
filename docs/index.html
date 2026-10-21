@@ -357,6 +357,7 @@ async function reloadRows(url) {
                   <label class="cb-btn"><input type="radio" name="dn-compact-range" value="24h">24 h</label>
                 </div>
                 <table class="cb-table">
+                  <caption class="cb-sr-only">Peers</caption>
                   <thead>
                     <tr><th scope="col">Peer</th><th class="cb-table__actions" scope="col">Action</th></tr>
                   </thead>
@@ -382,6 +383,7 @@ async function reloadRows(url) {
                   <label class="cb-btn"><input type="radio" name="dn-default-range" value="24h">24 h</label>
                 </div>
                 <table class="cb-table">
+                  <caption class="cb-sr-only">Peers</caption>
                   <thead>
                     <tr><th scope="col">Peer</th><th class="cb-table__actions" scope="col">Action</th></tr>
                   </thead>
@@ -407,6 +409,7 @@ async function reloadRows(url) {
                   <label class="cb-btn"><input type="radio" name="dn-comfortable-range" value="24h">24 h</label>
                 </div>
                 <table class="cb-table">
+                  <caption class="cb-sr-only">Peers</caption>
                   <thead>
                     <tr><th scope="col">Peer</th><th class="cb-table__actions" scope="col">Action</th></tr>
                   </thead>
@@ -435,6 +438,7 @@ async function reloadRows(url) {
         &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-compact-range&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
       &lt;/div&gt;
       &lt;table class=&quot;cb-table&quot;&gt;
+        &lt;caption class=&quot;cb-sr-only&quot;&gt;Peers&lt;/caption&gt;
         &lt;thead&gt;
           &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Action&lt;/th&gt;&lt;/tr&gt;
         &lt;/thead&gt;
@@ -460,6 +464,7 @@ async function reloadRows(url) {
         &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-default-range&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
       &lt;/div&gt;
       &lt;table class=&quot;cb-table&quot;&gt;
+        &lt;caption class=&quot;cb-sr-only&quot;&gt;Peers&lt;/caption&gt;
         &lt;thead&gt;
           &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Action&lt;/th&gt;&lt;/tr&gt;
         &lt;/thead&gt;
@@ -485,6 +490,7 @@ async function reloadRows(url) {
         &lt;label class=&quot;cb-btn&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;dn-comfortable-range&quot; value=&quot;24h&quot;&gt;24 h&lt;/label&gt;
       &lt;/div&gt;
       &lt;table class=&quot;cb-table&quot;&gt;
+        &lt;caption class=&quot;cb-sr-only&quot;&gt;Peers&lt;/caption&gt;
         &lt;thead&gt;
           &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Action&lt;/th&gt;&lt;/tr&gt;
         &lt;/thead&gt;
@@ -2633,6 +2639,7 @@ async function reloadRows(url) {
         <div class="docs-demo">
           <div class="cb-table-wrap">
             <table class="cb-table cb-table--sticky" id="t-sessions">
+              <caption class="cb-sr-only">Active VPN sessions</caption>
               <thead>
                 <tr>
                   <th class="cb-table__select" scope="col"><input class="cb-check" type="checkbox" data-cb-select-all="t-sessions" aria-label="Select all sessions"></th>
@@ -2733,6 +2740,7 @@ async function reloadRows(url) {
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
   &lt;table class=&quot;cb-table cb-table--sticky&quot; id=&quot;t-sessions&quot;&gt;
+    &lt;caption class=&quot;cb-sr-only&quot;&gt;Active VPN sessions&lt;/caption&gt;
     &lt;thead&gt;
       &lt;tr&gt;
         &lt;th class=&quot;cb-table__select&quot; scope=&quot;col&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; data-cb-select-all=&quot;t-sessions&quot; aria-label=&quot;Select all sessions&quot;&gt;&lt;/th&gt;
@@ -2839,6 +2847,7 @@ async function reloadRows(url) {
         <div class="docs-demo">
           <div class="cb-table-wrap">
             <table class="cb-table">
+              <caption class="cb-sr-only">Server certificates</caption>
               <thead>
                 <tr>
                   <th scope="col">Common name</th>
@@ -2878,6 +2887,7 @@ async function reloadRows(url) {
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
   &lt;table class=&quot;cb-table&quot;&gt;
+    &lt;caption class=&quot;cb-sr-only&quot;&gt;Server certificates&lt;/caption&gt;
     &lt;thead&gt;
       &lt;tr&gt;
         &lt;th scope=&quot;col&quot;&gt;Common name&lt;/th&gt;
@@ -3039,6 +3049,7 @@ async function reloadRows(url) {
         <h3 class="docs-h3" id="tables-empty">Empty state</h3>
         <div class="docs-demo">
           <table class="cb-table">
+            <caption class="cb-sr-only">Users matching the filter</caption>
             <thead>
               <tr>
                 <th scope="col">User</th>
@@ -3052,6 +3063,7 @@ async function reloadRows(url) {
           </table>
         </div>
         <pre class="docs-snippet"><code>&lt;table class=&quot;cb-table&quot;&gt;
+  &lt;caption class=&quot;cb-sr-only&quot;&gt;Users matching the filter&lt;/caption&gt;
   &lt;thead&gt;
     &lt;tr&gt;
       &lt;th scope=&quot;col&quot;&gt;User&lt;/th&gt;
@@ -3115,8 +3127,9 @@ async function reloadRows(url) {
 
         <h3 class="docs-h3" id="tables-a11y">Accessibility</h3>
         <ul class="docs-list">
-          <li>Name every table: a <code>&lt;caption&gt;</code>, or <code>aria-labelledby</code> pointing at
-            the panel title.</li>
+          <li>Name every table: a <code>&lt;caption&gt;</code> (hidden with <code>.cb-sr-only</code> when the page
+            around it already shows what the table lists), or <code>aria-labelledby</code> pointing at the
+            panel title.</li>
           <li>Use <code>scope="col"</code> on column headers and a <code>&lt;th scope="row"&gt;</code> for the
             cell that names each row.</li>
           <li>Give every row checkbox an <code>aria-label</code> that names its row.</li>
@@ -3643,6 +3656,7 @@ async function reloadRows(url) {
             <div class="cb-alert cb-alert--sm cb-alert--warn" role="status">Unsaved changes in RBAC rules.</div>
             <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key. <a href="#tables-grid">Show peers</a></div>
             <table class="cb-table">
+              <caption class="cb-sr-only">Access rules</caption>
               <thead>
                 <tr><th scope="col">Rule</th><th scope="col">Subject</th><th scope="col">Permission</th></tr>
               </thead>
@@ -3657,6 +3671,7 @@ async function reloadRows(url) {
   &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--warn&quot; role=&quot;status&quot;&gt;Unsaved changes in RBAC rules.&lt;/div&gt;
   &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--danger&quot;&gt;2 peers use a revoked key. &lt;a href=&quot;#tables-grid&quot;&gt;Show peers&lt;/a&gt;&lt;/div&gt;
   &lt;table class=&quot;cb-table&quot;&gt;
+    &lt;caption class=&quot;cb-sr-only&quot;&gt;Access rules&lt;/caption&gt;
     &lt;thead&gt;
       &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Subject&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Permission&lt;/th&gt;&lt;/tr&gt;
     &lt;/thead&gt;
@@ -4187,6 +4202,7 @@ function hideLater(message, ms = 10000) {
         <div class="docs-demo">
           <div class="cb-table-wrap">
             <table class="cb-table">
+              <caption class="cb-sr-only">Gateway load</caption>
               <thead>
                 <tr><th scope="col">Gateway</th><th class="cb-table__num" scope="col">Peers</th><th class="cb-table__num" scope="col">Load</th></tr>
               </thead>
@@ -4201,6 +4217,7 @@ function hideLater(message, ms = 10000) {
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
   &lt;table class=&quot;cb-table&quot;&gt;
+    &lt;caption class=&quot;cb-sr-only&quot;&gt;Gateway load&lt;/caption&gt;
     &lt;thead&gt;
       &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Peers&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Load&lt;/th&gt;&lt;/tr&gt;
     &lt;/thead&gt;
@@ -4442,6 +4459,7 @@ function hideLater(message, ms = 10000) {
               <div class="cb-details__body">
                 <div class="cb-table-wrap">
                   <table class="cb-table cb-table--compact">
+                    <caption class="cb-sr-only">Firewall rules</caption>
                     <thead>
                       <tr><th scope="col">Rule</th><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Port</th></tr>
                     </thead>
@@ -4468,6 +4486,7 @@ function hideLater(message, ms = 10000) {
     &lt;div class=&quot;cb-details__body&quot;&gt;
       &lt;div class=&quot;cb-table-wrap&quot;&gt;
         &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+          &lt;caption class=&quot;cb-sr-only&quot;&gt;Firewall rules&lt;/caption&gt;
           &lt;thead&gt;
             &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Source&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Destination&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Port&lt;/th&gt;&lt;/tr&gt;
           &lt;/thead&gt;
@@ -5846,6 +5865,7 @@ function hideLater(message, ms = 10000) {
           <div class="cb-stack">
             <div class="cb-table-wrap">
               <table class="cb-table">
+                <caption class="cb-sr-only">Firewall rule hits</caption>
                 <thead>
                   <tr><th scope="col">Rule</th><th scope="col">Description</th><th scope="col">Hits</th></tr>
                 </thead>
@@ -5862,6 +5882,7 @@ function hideLater(message, ms = 10000) {
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
   &lt;div class=&quot;cb-table-wrap&quot;&gt;
     &lt;table class=&quot;cb-table&quot;&gt;
+      &lt;caption class=&quot;cb-sr-only&quot;&gt;Firewall rule hits&lt;/caption&gt;
       &lt;thead&gt;
         &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Description&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Hits&lt;/th&gt;&lt;/tr&gt;
       &lt;/thead&gt;
