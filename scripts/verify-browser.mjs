@@ -53,7 +53,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -789,7 +789,8 @@ if (want('alerts') && await page.locator('.docs-demo .cb-alert').count()) {
 //     stays in view, and vertical lists turn horizontal below 30rem.
 if (want('tabs') && await page.locator('.docs-demo .cb-tabs').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
-  const merged = await page.$$eval('.docs-demo .cb-tabs', (sets) => sets.map((set, i) => {
+  // Right-to-left demos are measured by check 34; the physical edges here assume left to right.
+  const merged = await page.$$eval('.docs-demo .cb-tabs:not([dir="rtl"] *)', (sets) => sets.map((set, i) => {
     const tab = set.querySelector('.cb-tabs__tab:is([aria-selected="true"], [aria-current="page"])');
     const panel = set.querySelector('.cb-tabs__panel:not([hidden])');
     const surface = (el) => { for (let n = el; n; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (c !== 'rgba(0, 0, 0, 0)') return c; } return ''; };
@@ -845,7 +846,8 @@ if (want('tabs') && await page.locator('.docs-demo .cb-tabs__tab:disabled').coun
 if (want('nav') && await page.locator('.docs-demo .cb-nav').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const nav = await page.evaluate(() => {
-    const rows = [...document.querySelectorAll('.docs-demo .cb-nav__link')].filter((r) => r.getClientRects().length);
+    // Left-to-right rows only: right-to-left offsets mirror (check 34).
+    const rows = [...document.querySelectorAll('.docs-demo .cb-nav__link:not([dir="rtl"] *)')].filter((r) => r.getClientRects().length);
     const heights = [...new Set(rows.map((r) => Math.round(r.getBoundingClientRect().height)))];
     const current = document.querySelector('.docs-demo .cb-nav__link[aria-current="page"], .docs-demo [aria-selected="true"] > .cb-nav__link');
     const probe = document.body.appendChild(document.createElement('i'));
@@ -1074,7 +1076,7 @@ if (want('segmented') && await page.locator('.docs-demo .cb-segmented').count())
 if (want('details') && await page.locator('.docs-demo .cb-details').count()) {
   await page.setViewportSize({ width: 1360, height: 900 });
   const chevrons = await page.evaluate(() => {
-    const rows = [...document.querySelectorAll('.docs-demo :is(summary.cb-panel__head, summary.cb-nav__link, [aria-expanded]:not([aria-busy="true"]) > .cb-nav__link, .cb-details > summary)')]
+    const rows = [...document.querySelectorAll('.docs-demo :is(summary.cb-panel__head, summary.cb-nav__link, [aria-expanded]:not([aria-busy="true"]) > .cb-nav__link, .cb-details > summary):not([dir="rtl"] *)')]
       .filter((r) => r.getClientRects().length);
     const bad = rows.filter((r) => {
       const b = getComputedStyle(r, '::before');
@@ -2313,6 +2315,64 @@ if (want('forced') && await page.locator('.docs-demo').count()) {
     const sec = pf.locator(`#${id}`); await sec.scrollIntoViewIfNeeded(); await snap(sec, `forced-${id}.png`);
   }
   await fc.close();
+}
+
+// 34. Right to left. On the catalogue's dir="rtl" demo: the select chevron sits at the left end,
+//     the current link's accent bar on its right edge, the vertical tab line on the list's left
+//     edge, a closed disclosure chevron points left and an open one down, and the meter's low
+//     mark sits 70% from the right, where the fill starts. Then both pages with dir="rtl" on
+//     <html> have no horizontal overflow at 360, 800 and 1360px.
+if (want('rtl')) {
+  const demo = page.locator('.docs-demo > [dir="rtl"]');
+  if (await demo.count()) {
+    await page.setViewportSize({ width: 1360, height: 900 });
+    await demo.scrollIntoViewIfNeeded();
+    const lum = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    const darkCols = async (loc, from, to) => {
+      const px = await pixelsOf(loc); let dark = 0;
+      for (let k = 0; k <= 20; k++) { const c = await px(from + (to - from) * k / 20, 0.5); if (lum(c) < 120) dark++; }
+      return dark;
+    };
+    const select = page.locator('#rtl-role');
+    const chevron = { left: await darkCols(select, 0.01, 0.06) };
+    const link = page.locator('.docs-demo > [dir="rtl"] .cb-nav__link[aria-current="page"]');
+    const lp = await pixelsOf(link); const bar = { right: lum(await lp(0.998, 0.5)), left: lum(await lp(0.002, 0.5)) };
+    // The chevron turns over --cb-duration: read it after that.
+    const geo = await page.evaluate(async () => {
+      const d = document.querySelector('.docs-demo > [dir="rtl"]'); const wait = () => new Promise((r) => setTimeout(r, 120));
+      const list = d.querySelector('.cb-tabs--vertical > .cb-tabs__list'); const sum = d.querySelector('details > summary');
+      const closed = getComputedStyle(sum, '::before').rotate; sum.parentElement.open = true; await wait();
+      const open = getComputedStyle(sum, '::before').rotate; sum.parentElement.open = false; await wait();
+      const tab = getComputedStyle(list.querySelector('[aria-current="page"]'));
+      return { line: getComputedStyle(list).backgroundPositionX, closed, open, sheet: tab.borderLeftColor === tab.backgroundColor };
+    });
+    // The low and high marks (main ink, darker than the ticks) in the ruler strip, as fractions
+    // from the left: low 70% and high 90% from the right are 0.3 and 0.1.
+    const meter = page.locator('#rtl-cpu'); const mp = await pixelsOf(meter);
+    const h = await meter.evaluate((m) => m.getBoundingClientRect().height);
+    const marks = [];
+    for (let k = 3; k <= 197; k++) { const c = await mp(k / 200, (h - 1) / h); if (lum(c) < 60 && !marks.some((m) => Math.abs(m - k / 200) < 0.02)) marks.push(k / 200); }
+    const engineStrip = await meter.evaluate((m) => parseFloat(getComputedStyle(m).paddingBottom) > 0);
+    const ok = chevron.left > 0 && bar.right < bar.left - 40 && /^0(%|px)$/.test(geo.line) && geo.closed === '45deg' && geo.open === '-45deg' && geo.sheet;
+    check(ok, 'right to left: select chevron at the left, accent bar on the right, tab line on the left and the selected tab joined to its panel, chevrons turned', JSON.stringify({ chevron, bar, geo }));
+    if (engineStrip) check(marks.length === 2 && Math.abs(marks[0] - 0.1) < 0.03 && Math.abs(marks[1] - 0.3) < 0.03,
+      'right to left: the meter marks count from the right, where the fill starts', `marks at ${marks.join(', ')}`);
+    for (const width of saving ? [1360, 360] : []) {
+      await page.setViewportSize({ width, height: 900 }); await demo.scrollIntoViewIfNeeded();
+      await snap(page.locator('.docs-demo:has(> [dir="rtl"])'), `rtl-${width}.png`);
+    }
+    await page.setViewportSize({ width: 1360, height: 900 });
+  }
+  const pr = await context.newPage(); await applyOverrides(pr); await pr.goto(pathToFileURL(page_path).href);
+  await pr.evaluate(() => { document.documentElement.dir = 'rtl'; });
+  const over = [];
+  for (const width of [360, 800, 1360]) {
+    await pr.setViewportSize({ width, height: 900 });
+    const w = await pr.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    if (w > 0) over.push(`${width}px: ${w}px`);
+  }
+  await pr.close();
+  check(!over.length, 'right to left: the whole page has no horizontal overflow at 360, 800 and 1360px', over.join(', '));
 }
 
 await browser.close();

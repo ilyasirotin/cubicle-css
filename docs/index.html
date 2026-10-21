@@ -5696,6 +5696,88 @@ function hideLater(message, ms = 10000) {
             <code>role="status"</code> for updates and <code>role="alert"</code> for errors after an action.</li>
           <li>Hide labels visually with <code>.cb-sr-only</code>, never with <code>display: none</code>.</li>
         </ul>
+        <h3 class="docs-h3" id="a11y-rtl">Right to left</h3>
+        <p class="docs-text">Set <code>dir="rtl"</code> on <code>&lt;html&gt;</code> or on any subtree. Layout uses
+          logical properties, so padding, edges and columns follow the reading direction; the select
+          chevron, the current link's accent bar, the vertical tab line, the closed disclosure chevron and
+          the meter marks mirror too.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2" dir="rtl">
+            <div class="cb-stack">
+              <div class="cb-field">
+                <label class="cb-field__label" for="rtl-role">Role</label>
+                <select class="cb-select" id="rtl-role"><option>Operator</option><option>Auditor</option></select>
+              </div>
+              <nav class="cb-nav" aria-label="Right-to-left navigation">
+                <ul class="cb-nav__list">
+                  <li><a class="cb-nav__link" href="#a11y-rtl" aria-current="page">Gateways</a></li>
+                  <li><a class="cb-nav__link" href="#a11y-rtl">Peers</a></li>
+                  <li>
+                    <details>
+                      <summary class="cb-nav__link">Routes</summary>
+                      <ul class="cb-nav__list">
+                        <li><a class="cb-nav__link" href="#a11y-rtl">Static</a></li>
+                      </ul>
+                    </details>
+                  </li>
+                </ul>
+              </nav>
+              <div class="cb-gauge">
+                <label class="cb-gauge__label" for="rtl-cpu">CPU</label>
+                <span class="cb-gauge__value">37%</span>
+                <meter class="cb-meter cb-meter--ticks" id="rtl-cpu" min="0" max="100" low="70" high="90" optimum="0" value="37" data-cb-marks>37%</meter>
+              </div>
+            </div>
+            <nav class="cb-tabs cb-tabs--vertical" aria-label="Right-to-left settings">
+              <div class="cb-tabs__list">
+                <a class="cb-tabs__tab" href="#a11y-rtl" aria-current="page">General</a>
+                <a class="cb-tabs__tab" href="#a11y-rtl">Network</a>
+                <a class="cb-tabs__tab" href="#a11y-rtl">Audit</a>
+              </div>
+              <div class="cb-tabs__panel">
+                <p>Tunnel range 10.8.0.0/24, DNS 10.8.0.53.</p>
+              </div>
+            </nav>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot; dir=&quot;rtl&quot;&gt;
+  &lt;div class=&quot;cb-stack&quot;&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;rtl-role&quot;&gt;Role&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;rtl-role&quot;&gt;&lt;option&gt;Operator&lt;/option&gt;&lt;option&gt;Auditor&lt;/option&gt;&lt;/select&gt;
+    &lt;/div&gt;
+    &lt;nav class=&quot;cb-nav&quot; aria-label=&quot;Right-to-left navigation&quot;&gt;
+      &lt;ul class=&quot;cb-nav__list&quot;&gt;
+        &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#a11y-rtl&quot; aria-current=&quot;page&quot;&gt;Gateways&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#a11y-rtl&quot;&gt;Peers&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;
+          &lt;details&gt;
+            &lt;summary class=&quot;cb-nav__link&quot;&gt;Routes&lt;/summary&gt;
+            &lt;ul class=&quot;cb-nav__list&quot;&gt;
+              &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#a11y-rtl&quot;&gt;Static&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/details&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;cb-gauge&quot;&gt;
+      &lt;label class=&quot;cb-gauge__label&quot; for=&quot;rtl-cpu&quot;&gt;CPU&lt;/label&gt;
+      &lt;span class=&quot;cb-gauge__value&quot;&gt;37%&lt;/span&gt;
+      &lt;meter class=&quot;cb-meter cb-meter--ticks&quot; id=&quot;rtl-cpu&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;37&quot; data-cb-marks&gt;37%&lt;/meter&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;nav class=&quot;cb-tabs cb-tabs--vertical&quot; aria-label=&quot;Right-to-left settings&quot;&gt;
+    &lt;div class=&quot;cb-tabs__list&quot;&gt;
+      &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#a11y-rtl&quot; aria-current=&quot;page&quot;&gt;General&lt;/a&gt;
+      &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#a11y-rtl&quot;&gt;Network&lt;/a&gt;
+      &lt;a class=&quot;cb-tabs__tab&quot; href=&quot;#a11y-rtl&quot;&gt;Audit&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-tabs__panel&quot;&gt;
+      &lt;p&gt;Tunnel range 10.8.0.0/24, DNS 10.8.0.53.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+
         <h3 class="docs-h3" id="a11y-engines">Engines</h3>
         <p class="docs-text">The whole suite passes in Chromium, Firefox and WebKit, on the source and on the
           minified build. Differences that come from an engine are reported as labelled skips, never as
