@@ -21,8 +21,8 @@
 //                 segmented-<width>.png, details-<width>.png, dialog-<id>.png and
 //                 pagination-<width>.png and utilities-<width>.png, and
 //                 forms-matrix.png of the native form-control fixture, props-<width>.png and
-//                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png and
-//                 toasts-<width>.png.
+//                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
+//                 toasts-<width>.png and menu-<down|up|nojs>-<width>.png.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -52,7 +52,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -175,8 +175,9 @@ if (want('controls')) {
     check(during !== before && after === before, 'button travels down and inverts bevel on press, returns on release', `${before.split('|')[0]} -> ${during.split('|')[0]}`);
   }
 
-  // 5. Popover dialogs open and close with Escape
-  for (const id of await page.$$eval('[popovertarget]:not([popovertargetaction])', (n) => [...new Set(n.map((x) => x.getAttribute('popovertarget')))])) {
+  // 5. Popover dialogs open and close with Escape (menus are check 30)
+  for (const id of await page.$$eval('[popovertarget]:not([popovertargetaction])', (n) => [...new Set(n.map((x) => x.getAttribute('popovertarget')))]
+    .filter((i) => document.getElementById(i)?.matches('.cb-dialog')))) {
     await page.click(`[popovertarget="${id}"]:not([popovertargetaction])`);
     await page.waitForTimeout(250);
     const opened = await page.evaluate((i) => document.getElementById(i).matches(':popover-open'), id);
@@ -1977,6 +1978,46 @@ if (want('toasts') && await page.locator('.docs-stage .cb-toasts').count()) {
     await snap(page.locator('.docs-stage:has(.cb-toasts)').first(), `toasts-${width}.png`);
   }
   await page.setViewportSize({ width: 1360, height: 900 });
+}
+
+// 30. Menus. Without the script (native popover and CSS only): the key opens its menu in the
+//     top layer, unclipped by the table wrapper and centred by the UA; a raised list on the
+//     float shadow with 24px items, danger and disabled ink, and the focus ring inside the list.
+if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
+  const KEY = '.docs-demo [popovertarget="m-peer-1"]';
+  const noJs = await browser.newContext({ ...contextOptions, javaScriptEnabled: false });
+  const pn = await noJs.newPage(); await applyOverrides(pn); await pn.goto(pathToFileURL(page_path).href);
+  for (const width of [1360, 360]) {
+    await pn.setViewportSize({ width, height: 900 });
+    await pn.locator(KEY).scrollIntoViewIfNeeded();
+    await pn.click(KEY);
+    const m = await pn.evaluate(() => {
+      const menu = document.getElementById('m-peer-1'); const r = menu.getBoundingClientRect(); const cs = getComputedStyle(menu);
+      const probe = document.body.appendChild(document.createElement('i'));
+      const tok = (n) => { probe.style.color = `var(${n})`; return getComputedStyle(probe).color; };
+      const t = { raised: tok('--cb-bg-raised'), strong: tok('--cb-border-strong'), danger: tok('--cb-danger'), disabled: tok('--cb-text-disabled') }; probe.remove();
+      const items = [...menu.querySelectorAll('.cb-menu__item')];
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return { open: menu.matches(':popover-open'), top: hit ? menu.contains(hit) : false, centre: [r.left + r.width / 2 - innerWidth / 2, r.top + r.height / 2 - innerHeight / 2],
+        look: cs.backgroundColor === t.raised && cs.borderTopColor === t.strong && cs.borderTopWidth === '1px' && /0px 0px 0px 1px/.test(cs.boxShadow),
+        heights: [...new Set(items.map((i) => Math.round(i.getBoundingClientRect().height)))],
+        full: items.every((i) => Math.abs(i.getBoundingClientRect().width - menu.clientWidth) < 1),
+        danger: getComputedStyle(menu.querySelector('.cb-menu__item--danger')).color === t.danger,
+        disabled: getComputedStyle(menu.querySelector('.cb-menu__item:disabled')).color === t.disabled };
+    });
+    const ok = m.open && m.top && Math.abs(m.centre[0]) < 2 && Math.abs(m.centre[1]) < 2 && m.look && m.heights.length === 1 && m.heights[0] === 24 && m.full && m.danger && m.disabled;
+    check(ok, `menu without the script at ${width}px: opens centred over the page, raised list, 24px items, danger and disabled ink`, JSON.stringify(m));
+    if (width === 1360) {
+      // From the key, Tab enters the open popover at its first item (Option+Tab in WebKit).
+      await pn.locator(KEY).focus(); await pn.keyboard.press(TAB);
+      const ring = await pn.evaluate(() => { const a = document.activeElement; const s = getComputedStyle(a);
+        return `${a.matches('#m-peer-1 .cb-menu__item') ? 'item' : a.tagName} ${s.outlineStyle} ${s.outlineWidth} ${s.outlineOffset}`; });
+      check(ring === 'item solid 2px -3px', 'a menu item reached by Tab draws the focus ring inside the list', ring);
+    }
+    await snap(pn, `menu-nojs-${width}.png`);
+    await pn.keyboard.press('Escape');
+  }
+  await noJs.close();
 }
 
 await browser.close();

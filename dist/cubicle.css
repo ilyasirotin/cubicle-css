@@ -54,6 +54,9 @@
                                property lists: muted, still hatch, progress
       5.18 Empty states ...... .cb-empty block and title; shared with the
                                table's empty row
+      5.19 Menus ............. .cb-menu popover list, items, --danger,
+                               separators, menu key chevron; placement and keys
+                               (cubicle.js)
    6. Utilities ....... text (.cb-mono, .cb-num, .cb-muted, tones, .cb-text-xs),
                         wrapping (.cb-truncate, .cb-nowrap, .cb-break),
                         accessibility (.cb-sr-only / [data-cb-sr], .cb-skip-link)
@@ -264,9 +267,10 @@
     scroll-margin: var(--cb-space-2);
   }
 
-  /* The same ring drawn inside scroll containers and the keys of a scrolling
-     tab list, where an outer ring would be clipped by the scroll edge. */
-  :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab):focus-visible {
+  /* The same ring drawn inside scroll containers, the keys of a scrolling tab
+     list and the items of a menu, where an outer ring would be clipped by the
+     scroll edge. */
+  :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab, .cb-menu > .cb-menu__item):focus-visible {
     outline-offset: calc(-2px - var(--cb-focus-offset));
   }
 }
@@ -465,10 +469,10 @@
     transition-property: background-color, box-shadow, translate;
     transition-duration: var(--cb-duration);
 
-    /* Toggle on, the checked key of a segmented control (5.11) or the current
-       page of a pagination (5.14): sunk lighting, no travel. Before :hover so
-       hover still tints it. */
-    &:is([aria-pressed="true"], :has(> input:checked), [aria-current]:not([aria-current="false"])) {
+    /* Toggle on, the key of an open menu (5.19), the checked key of a
+       segmented control (5.11) or the current page of a pagination (5.14):
+       sunk lighting, no travel. Before :hover so hover still tints it. */
+    &:is([aria-pressed="true"], [aria-expanded="true"], :has(> input:checked), [aria-current]:not([aria-current="false"])) {
       --_bg: var(--cb-bg-selected);
       --_bg-hover: color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised));
       --_ink: var(--cb-text-main);
@@ -2852,6 +2856,74 @@
   .cb-empty__title {
     font-weight: 600;
     color: var(--cb-text-main);
+  }
+
+  /* 5.19 Menus ------------------------------------------------------------ */
+
+  /* Action menu: a key with popovertarget and aria-haspopup="menu" opens a
+     <div class="cb-menu" popover role="menu" data-cb-menu> placed after it.
+     The top layer keeps scrolling wrappers from clipping it; Escape and an
+     outside click close it natively. Without cubicle.js the UA popover style
+     centres it. */
+  .cb-menu {
+    min-inline-size: 10rem;
+    max-inline-size: 20rem;
+    padding: var(--cb-space-1) 0;
+    overflow: auto;
+    color: var(--cb-text-main);
+    background: var(--cb-bg-raised);
+    border: 1px solid var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-float);
+
+    & > hr {
+      margin: var(--cb-space-1) 0;
+      border: 0;
+      border-block-start: 1px solid var(--cb-border-subtle);
+    }
+  }
+
+  .cb-menu__item {
+    display: flex;
+    align-items: center;
+    inline-size: 100%;
+    min-block-size: var(--cb-row-h-sm);
+    margin: 0;
+    padding: 0 var(--cb-space-3);
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    text-decoration: none;
+    white-space: nowrap;
+    background: none;
+    border: 0;
+    cursor: pointer;
+
+    &:is(:hover, :focus-visible) {
+      background: var(--cb-bg-hover);
+    }
+
+    &:is(:disabled, [aria-disabled="true"]) {
+      color: var(--cb-text-disabled);
+      background: none;
+      cursor: not-allowed;
+    }
+  }
+
+  .cb-menu__item--danger {
+    color: var(--cb-danger);
+  }
+
+  /* A text key says that it opens a list: a small down chevron after the
+     label (::before is the busy spinner's). */
+  .cb-btn[aria-haspopup="menu"]:not(.cb-btn--icon)::after {
+    content: "";
+    inline-size: 0.3rem;
+    block-size: 0.3rem;
+    margin-block-end: 0.15rem;
+    border-inline-end: 2px solid currentColor;
+    border-block-end: 2px solid currentColor;
+    rotate: 45deg;
   }
 }
 

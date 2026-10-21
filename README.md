@@ -74,6 +74,7 @@ text, links, monospace elements and the focus ring.
 | Details | `.cb-details`, `__body`, `--sm`, `--inline`; `<details name>` accordions | [Details & disclosure](docs/index.html#details) |
 | Dialogs | `.cb-dialog` (`--sm`, `--lg`, `--danger`) with the panel parts; `popover`, `data-cb-modal` | [Modals & dialogs](docs/index.html#dialogs) |
 | Pagination | `.cb-pagination`, `__summary`, `__pages`, `__sizes`, `__gap`, `__jump`, `--spaced` | [Pagination](docs/index.html#pagination) |
+| Menus | `.cb-menu` (`popover`, `role="menu"`, `data-cb-menu`), `__item`, `__item--danger`; key with `popovertarget` and `aria-haspopup="menu"` | [Menus](docs/index.html#menu) |
 | Inline code and keys | `.cb-code`, `.cb-kbd` | [Utilities](docs/index.html#utilities) |
 | Utilities | `.cb-mono`, `.cb-num`, `.cb-muted`, `.cb-text-*`, `.cb-truncate`, `.cb-nowrap`, `.cb-break`, `.cb-sr-only`, `.cb-skip-link` | [Utilities](docs/index.html#utilities) |
 
@@ -144,7 +145,7 @@ Chromium, Firefox and WebKit. Known engine differences:
 - Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
   date or time field.
 
-Sizes: `cubicle.css` 95 KB (23 KB gzip), minified 48 KB (9.0 KB gzip); `cubicle.js` 17 KB
+Sizes: `cubicle.css` 97 KB (23 KB gzip), minified 49 KB (9.2 KB gzip); `cubicle.js` 17 KB
 (5.3 KB gzip), minified 7.4 KB (2.8 KB gzip).
 
 ## Development

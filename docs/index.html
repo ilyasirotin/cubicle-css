@@ -59,6 +59,7 @@
         <li><a class="docs-nav__link" href="#details">Details &amp; disclosure</a></li>
         <li><a class="docs-nav__link" href="#dialogs">Modals &amp; dialogs</a></li>
         <li><a class="docs-nav__link" href="#pagination">Pagination</a></li>
+        <li><a class="docs-nav__link" href="#menu">Menus</a></li>
       </ul>
       <p class="docs-nav__label">Utilities</p>
       <ul class="docs-nav__list">
@@ -5021,6 +5022,202 @@ function hideLater(message, ms = 10000) {
               <tr><th scope="row"><code>aria-current</code></th><td>Key</td><td>Current page or size, sunk</td></tr>
               <tr><th scope="row"><code>aria-disabled="true"</code> without <code>href</code></th><td>Arrow</td><td>First or last page: flat and out of the tab order</td></tr>
               <tr><th scope="row"><code>rel="prev"</code>, <code>rel="next"</code></th><td>Arrow</td><td>Kept when the strip collapses</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <section class="docs-section" id="menu" aria-labelledby="menu-title">
+        <h2 class="docs-h2" id="menu-title">Menus</h2>
+        <p class="docs-text">A key that opens a short list of actions, for rows and panels with more actions
+          than fit beside them. The list is a popover, so no scrolling wrapper clips it; Escape and a click
+          outside close it, and only one menu is open at a time. <code>cubicle.js</code> places it at its key
+          and adds the arrow keys; without the script it still opens, in the middle of the screen.</p>
+
+        <h3 class="docs-h3" id="menu-rows">Row actions</h3>
+        <p class="docs-text">One key per row keeps the row 28px high and puts one stop per row in the tab order.
+          Items are buttons or links; a separator sets apart what cannot be undone.</p>
+        <div class="docs-demo">
+          <div class="cb-table-wrap">
+            <table class="cb-table" aria-label="Peers on gw-eu-1">
+              <thead>
+                <tr><th scope="col">Peer</th><th scope="col">Status</th><th scope="col">Tunnel IP</th><th class="cb-table__actions" scope="col">Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">laptop-an-1</th><td><span class="cb-badge cb-badge--ok">Online</span></td><td class="cb-mono">10.8.0.11</td>
+                  <td class="cb-table__actions">
+                    <button class="cb-btn cb-btn--sm" type="button" popovertarget="m-peer-1" aria-haspopup="menu">Actions</button>
+                    <div class="cb-menu" id="m-peer-1" popover role="menu" aria-label="Actions for laptop-an-1" data-cb-menu>
+                      <a class="cb-menu__item" role="menuitem" href="#menu-rows">Show details</a>
+                      <button class="cb-menu__item" type="button" role="menuitem">Rotate key</button>
+                      <button class="cb-menu__item" type="button" role="menuitem">Download config</button>
+                      <button class="cb-menu__item" type="button" role="menuitem">Copy public key</button>
+                      <hr>
+                      <button class="cb-menu__item" type="button" role="menuitem" disabled>Disable</button>
+                      <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem">Revoke…</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">phone-bk-2</th><td><span class="cb-badge cb-badge--warn">Stale</span></td><td class="cb-mono">10.8.0.12</td>
+                  <td class="cb-table__actions">
+                    <button class="cb-btn cb-btn--sm" type="button" popovertarget="m-peer-2" aria-haspopup="menu">Actions</button>
+                    <div class="cb-menu" id="m-peer-2" popover role="menu" aria-label="Actions for phone-bk-2" data-cb-menu>
+                      <a class="cb-menu__item" role="menuitem" href="#menu-rows">Show details</a>
+                      <button class="cb-menu__item" type="button" role="menuitem">Rotate key</button>
+                      <button class="cb-menu__item" type="button" role="menuitem">Download config</button>
+                      <button class="cb-menu__item" type="button" role="menuitem">Copy public key</button>
+                      <hr>
+                      <button class="cb-menu__item" type="button" role="menuitem" disabled>Disable</button>
+                      <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem">Revoke…</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">svc-backup</th><td><span class="cb-badge cb-badge--info">Service</span></td><td class="cb-mono">10.8.0.40</td>
+                  <td class="cb-table__actions">
+                    <button class="cb-btn cb-btn--sm" type="button" popovertarget="m-peer-3" aria-haspopup="menu">Actions</button>
+                    <div class="cb-menu" id="m-peer-3" popover role="menu" aria-label="Actions for svc-backup" data-cb-menu>
+                      <a class="cb-menu__item" role="menuitem" href="#menu-rows">Show details</a>
+                      <button class="cb-menu__item" type="button" role="menuitem">Rotate key</button>
+                      <button class="cb-menu__item" type="button" role="menuitem">Download config</button>
+                      <button class="cb-menu__item" type="button" role="menuitem">Copy public key</button>
+                      <hr>
+                      <button class="cb-menu__item" type="button" role="menuitem" disabled>Disable</button>
+                      <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem">Revoke…</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
+  &lt;table class=&quot;cb-table&quot; aria-label=&quot;Peers on gw-eu-1&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;&lt;th class=&quot;cb-table__actions&quot; scope=&quot;col&quot;&gt;Actions&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;row&quot;&gt;laptop-an-1&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.11&lt;/td&gt;
+        &lt;td class=&quot;cb-table__actions&quot;&gt;
+          &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; popovertarget=&quot;m-peer-1&quot; aria-haspopup=&quot;menu&quot;&gt;Actions&lt;/button&gt;
+          &lt;div class=&quot;cb-menu&quot; id=&quot;m-peer-1&quot; popover role=&quot;menu&quot; aria-label=&quot;Actions for laptop-an-1&quot; data-cb-menu&gt;
+            &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#menu-rows&quot;&gt;Show details&lt;/a&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Rotate key&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Download config&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Copy public key&lt;/button&gt;
+            &lt;hr&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot; disabled&gt;Disable&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item cb-menu__item--danger&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Revoke…&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;row&quot;&gt;phone-bk-2&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.12&lt;/td&gt;
+        &lt;td class=&quot;cb-table__actions&quot;&gt;
+          &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; popovertarget=&quot;m-peer-2&quot; aria-haspopup=&quot;menu&quot;&gt;Actions&lt;/button&gt;
+          &lt;div class=&quot;cb-menu&quot; id=&quot;m-peer-2&quot; popover role=&quot;menu&quot; aria-label=&quot;Actions for phone-bk-2&quot; data-cb-menu&gt;
+            &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#menu-rows&quot;&gt;Show details&lt;/a&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Rotate key&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Download config&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Copy public key&lt;/button&gt;
+            &lt;hr&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot; disabled&gt;Disable&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item cb-menu__item--danger&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Revoke…&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;row&quot;&gt;svc-backup&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--info&quot;&gt;Service&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.40&lt;/td&gt;
+        &lt;td class=&quot;cb-table__actions&quot;&gt;
+          &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; popovertarget=&quot;m-peer-3&quot; aria-haspopup=&quot;menu&quot;&gt;Actions&lt;/button&gt;
+          &lt;div class=&quot;cb-menu&quot; id=&quot;m-peer-3&quot; popover role=&quot;menu&quot; aria-label=&quot;Actions for svc-backup&quot; data-cb-menu&gt;
+            &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#menu-rows&quot;&gt;Show details&lt;/a&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Rotate key&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Download config&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Copy public key&lt;/button&gt;
+            &lt;hr&gt;
+            &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot; disabled&gt;Disable&lt;/button&gt;
+            &lt;button class=&quot;cb-menu__item cb-menu__item--danger&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Revoke…&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="menu-overflow">Overflow key</h3>
+        <p class="docs-text">An icon key holds the rarer actions of a panel. Name it with
+          <code>aria-label</code>.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="m-gw-title">
+            <header class="cb-panel__head">
+              <h4 class="cb-panel__title" id="m-gw-title">gw-eu-1</h4>
+              <button class="cb-btn cb-btn--sm" type="button">Restart</button>
+              <button class="cb-btn cb-btn--sm cb-btn--icon" type="button" popovertarget="m-gw" aria-haspopup="menu" aria-label="More actions for gw-eu-1">⋯</button>
+              <div class="cb-menu" id="m-gw" popover role="menu" aria-label="More actions for gw-eu-1" data-cb-menu>
+                <button class="cb-menu__item" type="button" role="menuitem">Drain peers</button>
+                <button class="cb-menu__item" type="button" role="menuitem">Export configuration</button>
+                <a class="cb-menu__item" role="menuitem" href="#menu-overflow">Open audit log</a>
+                <hr>
+                <button class="cb-menu__item cb-menu__item--danger" type="button" role="menuitem">Delete gateway…</button>
+              </div>
+            </header>
+            <div class="cb-panel__body">
+              <p>Endpoint vpn.corp.example.net:51820, 412 peers.</p>
+            </div>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;m-gw-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;
+    &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;m-gw-title&quot;&gt;gw-eu-1&lt;/h4&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Restart&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--icon&quot; type=&quot;button&quot; popovertarget=&quot;m-gw&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;More actions for gw-eu-1&quot;&gt;⋯&lt;/button&gt;
+    &lt;div class=&quot;cb-menu&quot; id=&quot;m-gw&quot; popover role=&quot;menu&quot; aria-label=&quot;More actions for gw-eu-1&quot; data-cb-menu&gt;
+      &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Drain peers&lt;/button&gt;
+      &lt;button class=&quot;cb-menu__item&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Export configuration&lt;/button&gt;
+      &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#menu-overflow&quot;&gt;Open audit log&lt;/a&gt;
+      &lt;hr&gt;
+      &lt;button class=&quot;cb-menu__item cb-menu__item--danger&quot; type=&quot;button&quot; role=&quot;menuitem&quot;&gt;Delete gateway…&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body&quot;&gt;
+    &lt;p&gt;Endpoint vpn.corp.example.net:51820, 412 peers.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="menu-keys">Keyboard</h3>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Key</th><th scope="col">On the menu key</th><th scope="col">In the menu</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><kbd class="cb-kbd">Enter</kbd>, <kbd class="cb-kbd">Space</kbd></th><td>Opens the menu (on its first item: script)</td><td>Runs the item and closes the menu</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">↓</kbd> / <kbd class="cb-kbd">↑</kbd></th><td>Opens the menu on its first / last item (script)</td><td>Next / previous item, wrapping; disabled items are skipped (script)</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Home</kbd> / <kbd class="cb-kbd">End</kbd></th><td>—</td><td>First / last item (script)</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Esc</kbd></th><td>—</td><td>Closes the menu; focus returns to the key</td></tr>
+              <tr><th scope="row"><kbd class="cb-kbd">Tab</kbd></th><td>Next control</td><td>Closes the menu and moves on from the key (script)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-menu</code> + <code>popover</code> + <code>role="menu"</code> + <code>data-cb-menu</code></th><td><code>&lt;div id&gt;</code> after its key</td><td>Raised list on the float shadow, 10–20rem wide; placed at its key and scrolled within the free height (script)</td></tr>
+              <tr><th scope="row"><code>popovertarget="id"</code> + <code>aria-haspopup="menu"</code></th><td><code>.cb-btn</code></td><td>Opens the menu; a text key shows a down chevron</td></tr>
+              <tr><th scope="row"><code>aria-expanded="true"</code></th><td>Menu key</td><td>Sunk while its menu is open (set by the script)</td></tr>
+              <tr><th scope="row"><code>.cb-menu__item</code> + <code>role="menuitem"</code></th><td><code>&lt;button&gt;</code>, <code>&lt;a&gt;</code></td><td>24px row, hover and focus tint, focus ring inside the list</td></tr>
+              <tr><th scope="row"><code>.cb-menu__item--danger</code></th><td>Item</td><td>Crimson text for destructive actions</td></tr>
+              <tr><th scope="row"><code>disabled</code>, <code>aria-disabled="true"</code></th><td>Item</td><td>Disabled text; skipped by the arrow keys</td></tr>
+              <tr><th scope="row"><code>&lt;hr&gt;</code></th><td>In the menu</td><td>Separator line</td></tr>
             </tbody>
           </table>
         </div>
