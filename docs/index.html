@@ -577,7 +577,7 @@ async function reloadRows(url) {
                 <li><a class="cb-nav__link" href="#layout-shell">Policies</a></li>
               </ul>
             </nav>
-            <div class="cb-app__main">
+            <div class="cb-app__main" tabindex="0" role="region" aria-label="Sessions">
               <div class="cb-stack cb-stack--tight">
                 <code>10.8.0.11 alice wg-edge-01</code>
                 <code>10.8.0.12 bob wg-edge-01</code>
@@ -604,7 +604,7 @@ async function reloadRows(url) {
       &lt;li&gt;&lt;a class=&quot;cb-nav__link&quot; href=&quot;#layout-shell&quot;&gt;Policies&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/nav&gt;
-  &lt;div class=&quot;cb-app__main&quot;&gt;
+  &lt;div class=&quot;cb-app__main&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Sessions&quot;&gt;
     &lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
       &lt;code&gt;10.8.0.11 alice wg-edge-01&lt;/code&gt;
       &lt;code&gt;10.8.0.12 bob wg-edge-01&lt;/code&gt;
@@ -636,7 +636,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-app__banner</code></th><td><code>div</code></td><td>Optional strip of <code>.cb-alert--banner</code> under the top bar; collapses when empty</td></tr>
               <tr><th scope="row"><code>.cb-app__side</code></th><td><code>nav</code> / <code>aside</code></td><td>Optional sidebar; scrolls independently; stacks below 800px</td></tr>
               <tr><th scope="row"><code>.cb-app__toggle</code> + <code>data-cb-toggle="id"</code> + <code>aria-expanded="false"</code></th><td><code>.cb-btn--sm</code> in the top bar</td><td>Below 800px folds the sidebar away until pressed; hidden when wide and without the script</td></tr>
-              <tr><th scope="row"><code>.cb-app__main</code></th><td><code>main</code></td><td>Workspace; scrolls independently</td></tr>
+              <tr><th scope="row"><code>.cb-app__main</code></th><td><code>main</code></td><td>Workspace; scrolls independently. Holds no controls? Give it <code>tabindex="0"</code>, <code>role="region"</code> and a name</td></tr>
               <tr><th scope="row"><code>.cb-app__status</code></th><td><code>footer</code></td><td>Status bar: connection, counters, tabular figures</td></tr>
             </tbody>
           </table>
@@ -2183,10 +2183,10 @@ async function reloadRows(url) {
                 <button class="cb-btn cb-btn--sm" type="button">Download</button>
               </header>
               <div class="cb-panel__body cb-panel__body--flush">
-                <pre class="cb-panel cb-panel--inset">2026-10-19T08:14:02Z  login   j.doe     10.8.0.11  ok&#10;2026-10-19T08:14:40Z  rotate  wg-edge   -          ok&#10;2026-10-19T08:15:07Z  login   m.ivanov  10.8.0.17  denied&#10;2026-10-19T08:16:31Z  revoke  j.doe     -          ok</pre>
+                <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-labelledby="p-log-title">2026-10-19T08:14:02Z  login   j.doe     10.8.0.11  ok&#10;2026-10-19T08:14:40Z  rotate  wg-edge   -          ok&#10;2026-10-19T08:15:07Z  login   m.ivanov  10.8.0.17  denied&#10;2026-10-19T08:16:31Z  revoke  j.doe     -          ok</pre>
               </div>
             </section>
-            <pre class="cb-panel cb-panel--inset">[Interface]&#10;Address = 10.8.0.1/24&#10;ListenPort = 51820&#10;PrivateKey = (hidden)&#10;&#10;[Peer]&#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&#10;AllowedIPs = 10.8.0.11/32</pre>
+            <pre class="cb-panel cb-panel--inset" tabindex="0" role="region" aria-label="WireGuard configuration">[Interface]&#10;Address = 10.8.0.1/24&#10;ListenPort = 51820&#10;PrivateKey = (hidden)&#10;&#10;[Peer]&#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&#10;AllowedIPs = 10.8.0.11/32</pre>
           </div>
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
@@ -2196,10 +2196,10 @@ async function reloadRows(url) {
       &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Download&lt;/button&gt;
     &lt;/header&gt;
     &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
-      &lt;pre class=&quot;cb-panel cb-panel--inset&quot;&gt;2026-10-19T08:14:02Z  login   j.doe     10.8.0.11  ok&amp;#10;2026-10-19T08:14:40Z  rotate  wg-edge   -          ok&amp;#10;2026-10-19T08:15:07Z  login   m.ivanov  10.8.0.17  denied&amp;#10;2026-10-19T08:16:31Z  revoke  j.doe     -          ok&lt;/pre&gt;
+      &lt;pre class=&quot;cb-panel cb-panel--inset&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-labelledby=&quot;p-log-title&quot;&gt;2026-10-19T08:14:02Z  login   j.doe     10.8.0.11  ok&amp;#10;2026-10-19T08:14:40Z  rotate  wg-edge   -          ok&amp;#10;2026-10-19T08:15:07Z  login   m.ivanov  10.8.0.17  denied&amp;#10;2026-10-19T08:16:31Z  revoke  j.doe     -          ok&lt;/pre&gt;
     &lt;/div&gt;
   &lt;/section&gt;
-  &lt;pre class=&quot;cb-panel cb-panel--inset&quot;&gt;[Interface]&amp;#10;Address = 10.8.0.1/24&amp;#10;ListenPort = 51820&amp;#10;PrivateKey = (hidden)&amp;#10;&amp;#10;[Peer]&amp;#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&amp;#10;AllowedIPs = 10.8.0.11/32&lt;/pre&gt;
+  &lt;pre class=&quot;cb-panel cb-panel--inset&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;WireGuard configuration&quot;&gt;[Interface]&amp;#10;Address = 10.8.0.1/24&amp;#10;ListenPort = 51820&amp;#10;PrivateKey = (hidden)&amp;#10;&amp;#10;[Peer]&amp;#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&amp;#10;AllowedIPs = 10.8.0.11/32&lt;/pre&gt;
 &lt;/div&gt;</code></pre>
 
         <h3 class="docs-h3" id="panels-status">Status stripe</h3>
@@ -2936,7 +2936,7 @@ async function reloadRows(url) {
               <button class="cb-btn cb-btn--sm" type="button">Export</button>
             </header>
             <div class="cb-panel__body cb-panel__body--flush">
-              <div class="cb-table-wrap cb-table-wrap--scroll">
+              <div class="cb-table-wrap cb-table-wrap--scroll" tabindex="0" role="region" aria-labelledby="t-audit-title">
                 <table class="cb-table cb-table--wrap cb-table--sticky" aria-labelledby="t-audit-title">
                   <thead>
                     <tr>
@@ -2972,7 +2972,7 @@ async function reloadRows(url) {
     &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot;&gt;Export&lt;/button&gt;
   &lt;/header&gt;
   &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
-    &lt;div class=&quot;cb-table-wrap cb-table-wrap--scroll&quot;&gt;
+    &lt;div class=&quot;cb-table-wrap cb-table-wrap--scroll&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-labelledby=&quot;t-audit-title&quot;&gt;
       &lt;table class=&quot;cb-table cb-table--wrap cb-table--sticky&quot; aria-labelledby=&quot;t-audit-title&quot;&gt;
         &lt;thead&gt;
           &lt;tr&gt;
@@ -3089,7 +3089,7 @@ async function reloadRows(url) {
               <button class="cb-btn cb-btn--sm" type="button" aria-busy="true" disabled>Refresh</button>
             </header>
             <div class="cb-panel__body cb-panel__body--flush">
-              <div class="cb-table-wrap">
+              <div class="cb-table-wrap" tabindex="0" role="region" aria-labelledby="t-busy-title">
                 <table class="cb-table cb-table--sticky" aria-labelledby="t-busy-title">
                   <thead>
                     <tr><th scope="col">Peer</th><th scope="col">Status</th><th scope="col">Tunnel IP</th><th scope="col">Endpoint</th><th class="cb-table__num" scope="col">Received</th><th scope="col">Last handshake</th></tr>
@@ -3110,7 +3110,7 @@ async function reloadRows(url) {
     &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; aria-busy=&quot;true&quot; disabled&gt;Refresh&lt;/button&gt;
   &lt;/header&gt;
   &lt;div class=&quot;cb-panel__body cb-panel__body--flush&quot;&gt;
-    &lt;div class=&quot;cb-table-wrap&quot;&gt;
+    &lt;div class=&quot;cb-table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-labelledby=&quot;t-busy-title&quot;&gt;
       &lt;table class=&quot;cb-table cb-table--sticky&quot; aria-labelledby=&quot;t-busy-title&quot;&gt;
         &lt;thead&gt;
           &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Endpoint&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Last handshake&lt;/th&gt;&lt;/tr&gt;
@@ -3141,8 +3141,8 @@ async function reloadRows(url) {
               <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
             </thead>
             <tbody>
-              <tr><th scope="row"><code>.cb-table-wrap</code></th><td><code>&lt;div&gt;</code></td><td>Frame and scroll container for a table wider than its column</td></tr>
-              <tr><th scope="row"><code>.cb-table-wrap--scroll</code></th><td>Wrapper</td><td>Limits the height to 20rem; the table scrolls inside</td></tr>
+              <tr><th scope="row"><code>.cb-table-wrap</code></th><td><code>&lt;div&gt;</code></td><td>Frame and scroll container for a table wider than its column. Holds no controls? Give it <code>tabindex="0"</code>, <code>role="region"</code> and a name, so the keyboard can scroll it</td></tr>
+              <tr><th scope="row"><code>.cb-table-wrap--scroll</code></th><td>Wrapper</td><td>Limits the height to 20rem; the table scrolls inside. Holds no controls? Give it <code>tabindex="0"</code>, <code>role="region"</code> and a name</td></tr>
               <tr><th scope="row"><code>.cb-table</code></th><td><code>&lt;table&gt;</code></td><td>Bordered grid; cells styled by element, one line each, 28px rows</td></tr>
               <tr><th scope="row"><code>.cb-table--compact</code></th><td>Table</td><td>24px rows</td></tr>
               <tr><th scope="row"><code>.cb-table--wrap</code></th><td>Table</td><td>Data cells wrap; headers stay on one line</td></tr>
@@ -4457,7 +4457,7 @@ function hideLater(message, ms = 10000) {
             <details class="cb-details" open>
               <summary>Firewall rules <span class="cb-badge cb-badge--count">12</span></summary>
               <div class="cb-details__body">
-                <div class="cb-table-wrap">
+                <div class="cb-table-wrap" tabindex="0" role="region" aria-label="Firewall rules">
                   <table class="cb-table cb-table--compact">
                     <caption class="cb-sr-only">Firewall rules</caption>
                     <thead>
@@ -4484,7 +4484,7 @@ function hideLater(message, ms = 10000) {
   &lt;details class=&quot;cb-details&quot; open&gt;
     &lt;summary&gt;Firewall rules &lt;span class=&quot;cb-badge cb-badge--count&quot;&gt;12&lt;/span&gt;&lt;/summary&gt;
     &lt;div class=&quot;cb-details__body&quot;&gt;
-      &lt;div class=&quot;cb-table-wrap&quot;&gt;
+      &lt;div class=&quot;cb-table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Firewall rules&quot;&gt;
         &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
           &lt;caption class=&quot;cb-sr-only&quot;&gt;Firewall rules&lt;/caption&gt;
           &lt;thead&gt;
@@ -5546,7 +5546,7 @@ function hideLater(message, ms = 10000) {
                 </div>
                 <button class="cb-btn cb-btn--sm" type="reset">Clear</button>
               </form>
-              <div class="cb-table-wrap">
+              <div class="cb-table-wrap" tabindex="0" role="region" aria-labelledby="rf-title">
                 <table class="cb-table" aria-labelledby="rf-title">
                   <thead>
                     <tr><th scope="col">Peer</th><th scope="col">Status</th><th scope="col">Tunnel IP</th><th class="cb-table__num" scope="col">Received</th></tr>
@@ -5579,7 +5579,7 @@ function hideLater(message, ms = 10000) {
       &lt;/div&gt;
       &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;reset&quot;&gt;Clear&lt;/button&gt;
     &lt;/form&gt;
-    &lt;div class=&quot;cb-table-wrap&quot;&gt;
+    &lt;div class=&quot;cb-table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-labelledby=&quot;rf-title&quot;&gt;
       &lt;table class=&quot;cb-table&quot; aria-labelledby=&quot;rf-title&quot;&gt;
         &lt;thead&gt;
           &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;&lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;&lt;/tr&gt;
