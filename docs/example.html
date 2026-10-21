@@ -84,6 +84,7 @@
               <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-overview" aria-controls="x-overview" aria-selected="true">Overview</button>
               <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-peers" aria-controls="x-peers" aria-selected="false" tabindex="-1">Peers <span class="cb-badge cb-badge--count">412</span></button>
               <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-config" aria-controls="x-config" aria-selected="false" tabindex="-1">Config</button>
+              <button class="cb-tabs__tab" type="button" role="tab" id="x-tab-log" aria-controls="x-log" aria-selected="false" tabindex="-1">Log</button>
             </div>
           </header>
 
@@ -345,6 +346,25 @@
                 <button class="cb-btn cb-btn--primary" type="submit">Save changes</button>
               </div>
             </form>
+          </div>
+
+          <!-- Log ---------------------------------------------------------- -->
+          <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-log" aria-labelledby="x-tab-log" hidden>
+            <h2 class="cb-tabs__heading">Log</h2>
+            <ol class="cb-log" start="9301" tabindex="0" aria-label="Log of gw-eu-1, from line 9301">
+              <li id="x-L9301" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:40:05Z">10:40:05</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">handshake ok, peer laptop-an-1 (10.8.0.11)</span></li>
+              <li id="x-L9302" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:40:18Z">10:40:18</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">handshake ok, peer svc-backup (10.8.0.40)</span></li>
+              <li id="x-L9303" data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:40:31Z">10:40:31</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">keepalive sent to 10.8.0.12</span></li>
+              <li id="x-L9304" data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:40:44Z">10:40:44</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">peer phone-bk-2: no handshake for 360 s</span></li>
+              <li id="x-L9305" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:40:57Z">10:40:57</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">LDAP sync started: ou=staff,dc=corp,dc=example</span></li>
+              <li id="x-L9306" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:41:10Z">10:41:10</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">LDAP sync finished: 12 users updated, 0 disabled</span></li>
+              <li id="x-L9307" data-cb-level="error"><time class="cb-log__time" datetime="2026-10-21T10:41:23Z">10:41:23</time><span class="cb-log__level">ERROR</span><span class="cb-log__msg">peer laptop-es-1 rejected: key revoked at 10:01</span></li>
+              <li id="x-L9308" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:41:36Z">10:41:36</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">rekey complete for 264 of 412 peers</span></li>
+              <li id="x-L9309" data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:41:49Z">10:41:49</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">route table refreshed: 10.20.0.0/16 via wg0</span></li>
+              <li id="x-L9310" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:02Z">10:42:02</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">config backup written: /var/lib/wg/backup-20261021.tar</span></li>
+              <li id="x-L9311" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:15Z">10:42:15</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">admin alice.ng opened the Peers view</span></li>
+              <li id="x-L9312" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:28Z">10:42:28</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">handshake ok, peer laptop-an-1 (10.8.0.11)</span></li>
+            </ol>
           </div>
         </section>
       </div>
