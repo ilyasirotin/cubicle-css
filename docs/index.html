@@ -5696,11 +5696,31 @@ function hideLater(message, ms = 10000) {
             <code>role="status"</code> for updates and <code>role="alert"</code> for errors after an action.</li>
           <li>Hide labels visually with <code>.cb-sr-only</code>, never with <code>display: none</code>.</li>
         </ul>
+        <h3 class="docs-h3" id="a11y-forced">Forced colours</h3>
+        <p class="docs-text">Windows High Contrast and other forced palettes replace fills, gradients and shadows
+          with the user's system colours. Cubicle maps what those carried:</p>
+        <ul class="docs-list">
+          <li>Selected, pressed, current and checked items (rows, keys, segments, pages, links, tree rows,
+            tabs, a linked log line) take <code>Highlight</code> and <code>HighlightText</code>.</li>
+          <li>Unavailable controls take <code>GrayText</code>.</li>
+          <li>Check marks, radio dots, lit lamps and sort arrows take <code>CanvasText</code>; the spinner keeps a
+            visible quarter; the select shows the engine's own arrow; meter fills stay.</li>
+          <li>Lost on purpose, with the meaning carried by words and borders: lamp and badge tones, meter ticks
+            and marks, the indeterminate and busy hatches.</li>
+          <li>System colour keywords appear only inside <code>@media (forced-colors: active)</code>; everywhere
+            else colours come from tokens.</li>
+        </ul>
+
+        <h3 class="docs-h3" id="a11y-autofill">Autofill</h3>
+        <p class="docs-text">When the browser fills a sign-in field it paints the field in its own tint. Cubicle
+          leaves that tint on purpose: it tells the user the browser filled the value. The recessed shadow and
+          frame stay, so the field still reads as a field.</p>
+
         <h3 class="docs-h3" id="a11y-rtl">Right to left</h3>
         <p class="docs-text">Set <code>dir="rtl"</code> on <code>&lt;html&gt;</code> or on any subtree. Layout uses
           logical properties, so padding, edges and columns follow the reading direction; the select
-          chevron, the current link's accent bar, the vertical tab line, the closed disclosure chevron and
-          the meter marks mirror too.</p>
+          chevron, the current link's accent bar, the vertical tab line, the disclosure and menu chevrons and
+          the meter marks mirror too. Arrows in text (‹ ›) mirror by themselves.</p>
         <div class="docs-demo">
           <div class="cb-grid cb-grid--2" dir="rtl">
             <div class="cb-stack">
@@ -5789,8 +5809,8 @@ function hideLater(message, ms = 10000) {
             </thead>
             <tbody>
               <tr><th scope="row">Chromium</th><td class="cb-table__num">156</td><td>None</td></tr>
-              <tr><th scope="row">Firefox</th><td class="cb-table__num">157</td><td>No ruler strip under meters: ticks and threshold marks are not drawn; month and week fields are plain text fields; a readonly date or time field cannot take focus</td></tr>
-              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds; Escape does not clear a search field; month and week fields are plain text fields; date and time fields never match <code>:focus-visible</code>, so the stylesheet draws their ring on <code>:focus</code></td></tr>
+              <tr><th scope="row">Firefox</th><td class="cb-table__num">157</td><td>No ruler strip under meters: ticks and threshold marks are not drawn; month and week fields are plain text fields; a readonly date or time field cannot take focus In forced colours it paints list-box selection itself, in a light grey.</td></tr>
+              <tr><th scope="row">WebKit</th><td class="cb-table__num">27.2</td><td>Tab reaches links and buttons only with Option+Tab, as in Safari; the verification cannot read the clipboard there, so copied text is checked in the other two engines; the file key sits close to the file name, because WebKit ignores the key's end margin; list boxes keep WebKit's own grey selection, because it ignores option backgrounds; Escape does not clear a search field; month and week fields are plain text fields; date and time fields never match <code>:focus-visible</code>, so the stylesheet draws their ring on <code>:focus</code> It does not force colours, so forced-colours rules are checked as written there; it paints list-box selection natively.</td></tr>
             </tbody>
           </table>
         </div>

@@ -82,6 +82,11 @@ The first release of Cubicle.
 - **Inline code, keys and utilities.** `.cb-code` and `.cb-kbd`. Utilities for monospace, tabular
   figures, muted and tone text, small text, truncation, no-wrap, breaking long tokens,
   visually hidden text and skip links. The `hidden` attribute always hides.
+- **Forced colours and right to left.** In forced palettes (Windows High Contrast) selected,
+  pressed, current and checked items take `Highlight`, unavailable controls `GrayText`, and marks,
+  lit lamps, sort arrows and the spinner stay visible; system colour keywords live only in
+  `@media (forced-colors: active)`. Under `dir="rtl"` the select chevron, accent bars, the vertical
+  tab line, disclosure and menu chevrons and meter marks mirror. Autofill keeps the engine's tint.
 - **`dist/cubicle.js`.** Optional progressive enhancement through `data-cb-*` attributes and
   delegated listeners: copy (with a plain-HTTP fallback), reveal, download, toggle, select-all (which
   follows rows swapped in or disabled), dismiss, ARIA tabs, ARIA trees, meter marks, modal dialogs,
