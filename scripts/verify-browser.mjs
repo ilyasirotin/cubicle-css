@@ -996,7 +996,9 @@ if (want('meters') && await page.locator('.docs-demo .cb-meter').count()) {
         ruler.push(`mark at ${(f * 100).toFixed(0)}% ${t}`);
       }
     }
-    if (ruler.length) check(rulerOk, `meter ruler: ${info.key.trim()}`, ruler.join(', '));
+    // Without a ruler strip (Firefox) there is nothing to probe: the pixels under the track
+    // could land on its border and pass by chance, so the check fails as an engine limit.
+    if (ruler.length) check(info.strip > 0 && rulerOk, `meter ruler: ${info.key.trim()}`, info.strip > 0 ? ruler.join(', ') : 'no ruler strip');
   }
   const rows = await page.$$eval('.docs-demo .cb-table:has(.cb-meter--sm) tbody tr', (rs) => [...new Set(rs.map((r) => Math.round(r.getBoundingClientRect().height)))]);
   if (rows.length) check(rows.length === 1 && rows[0] === 28, 'table rows with compact meters stay 28px', `${rows.join(', ')}px`);
