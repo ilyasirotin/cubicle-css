@@ -241,7 +241,7 @@ This outputs `dist/cubicle.min.css` (and `dist/cubicle.min.js` once `dist/cubicl
 
 ### Documentation & Catalogue (`docs/`)
 `docs/index.html` is an interactive engineering reference catalogue (similar in utility to Bootstrap's docs, rendered entirely in Cubicle's own utilitarian aesthetic):
-- **Left Navigation:** Sticky anchor sidebar organized into: *Principles*, *Tokens* (colour, depth/shadow, radius, motion, spacing, typography), *Layout & Grids*, followed by one section per *Component* (buttons, inputs/fields, secret/copy boxes, fieldsets/panels, tabs, data tables, property lists, empty states, status badges/LEDs, alerts, toasts, tree views, meters, segmented controls, details, modals/dialogs, pagination, menus), *Utilities*, and *Accessibility*.
+- **Left Navigation:** Sticky anchor sidebar organized into: *Principles*, *Tokens* (colour, depth/shadow, radius, motion, spacing, typography), *Layout & Grids*, followed by one section per *Component* (buttons, inputs/fields, secret/copy boxes, fieldsets/panels, tabs, data tables, property lists, empty states, status badges/LEDs, alerts, toasts, tree views, meters, segmented controls, details, modals/dialogs, pagination, menus, logs), *Utilities*, and *Accessibility*.
 - **Component Anatomy:** Each section contains:
   1. One concise sentence stating what the component is for.
   2. A live rendered example demonstrating **every supported state** (default, hover, focus, active/pressed, disabled, readonly, invalid, current/selected, busy).

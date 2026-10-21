@@ -53,6 +53,10 @@ The first release of Cubicle.
   clips, opened by a key with `popovertarget` and `aria-haspopup="menu"` (with a down chevron, sunk
   while open), 24px items with danger and disabled looks, separators, and the focus ring inside the
   list. Escape and an outside click close it natively.
+- **Logs.** `.cb-log` on `<ol>`: a recessed, scrolling monospace well with line numbers that honour
+  `start` and are left out of a copy, aligned time, level and message columns (subgrid),
+  `data-cb-level` tones with a 2px edge on warnings and errors, a highlighted `:target` line, wrapping
+  messages and a `--nowrap` mode that scrolls sideways.
 - **Badges and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a busy
   badge, and frameless `.cb-led`.
 - **Alerts.** `.cb-alert` with a 4px tone edge and glyph, titles, actions, error summaries, a

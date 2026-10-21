@@ -57,6 +57,8 @@
       5.19 Menus ............. .cb-menu popover list, items, --danger,
                                separators, menu key chevron; placement and keys
                                (cubicle.js)
+      5.20 Logs .............. .cb-log numbered lines, time / level / message
+                               columns, data-cb-level tones, :target, --nowrap
    6. Utilities ....... text (.cb-mono, .cb-num, .cb-muted, tones, .cb-text-xs),
                         wrapping (.cb-truncate, .cb-nowrap, .cb-break),
                         accessibility (.cb-sr-only / [data-cb-sr], .cb-skip-link)
@@ -270,7 +272,7 @@
   /* The same ring drawn inside scroll containers, the keys of a scrolling tab
      list and the items of a menu, where an outer ring would be clipped by the
      scroll edge. */
-  :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab, .cb-menu > .cb-menu__item):focus-visible {
+  :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-log, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab, .cb-menu > .cb-menu__item):focus-visible {
     outline-offset: calc(-2px - var(--cb-focus-offset));
   }
 }
@@ -2932,6 +2934,93 @@
     border-inline-end: 2px solid currentColor;
     border-block-end: 2px solid currentColor;
     rotate: 45deg;
+  }
+
+  /* 5.20 Logs ------------------------------------------------------------- */
+
+  /* Log viewer: an <ol class="cb-log"> of lines in a recessed monospace well
+     that scrolls past 20rem and takes focus, so the keys scroll it. Each <li>
+     spans the list's columns as a subgrid, so number, time, level and message
+     line up on every line. The number is the list-item counter, which honours
+     <ol start> (Chromium ignores <li value>) and is left out of a copy.
+     data-cb-level sets the line's tone; the level word stays in the text. */
+  .cb-log {
+    display: grid;
+    grid-template-columns: [num] max-content [time] max-content [level] max-content [msg] minmax(0, 1fr);
+    column-gap: var(--cb-space-2);
+    max-block-size: 20rem;
+    margin: 0;
+    padding: var(--cb-space-1) 0;
+    overflow: auto;
+    font: var(--cb-text-xs) / var(--cb-line-tight) var(--cb-font-mono);
+    font-variant-ligatures: none;
+    font-variant-numeric: tabular-nums;
+    list-style: none;
+    background: var(--cb-bg-recessed);
+    border: 1px solid var(--cb-border-main);
+    border-block-start-color: var(--cb-border-strong);
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-inset);
+  }
+
+  /* Every line keeps a 2px start edge, coloured for warnings and errors, so
+     nothing shifts. A grid line is not display: list-item, so it steps the
+     list-item counter itself. */
+  .cb-log > li {
+    --_tone: var(--cb-text-main);
+    display: grid;
+    counter-increment: list-item;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    padding-inline-end: var(--cb-space-2);
+    border-inline-start: 2px solid transparent;
+  }
+
+  .cb-log > li::before {
+    content: counter(list-item);
+    grid-column: num;
+    padding-inline-start: var(--cb-space-2);
+    color: var(--cb-text-muted);
+    text-align: end;
+  }
+
+  .cb-log > li:target {
+    background: var(--cb-bg-selected);
+  }
+
+  .cb-log > [data-cb-level="debug"] { --_tone: var(--cb-text-muted); }
+  .cb-log > [data-cb-level="info"] { --_tone: var(--cb-info); }
+  .cb-log > [data-cb-level="warn"] { --_tone: var(--cb-warn); }
+  .cb-log > [data-cb-level="error"] { --_tone: var(--cb-danger); }
+
+  .cb-log > :is([data-cb-level="warn"], [data-cb-level="error"]) {
+    border-inline-start-color: var(--_tone);
+  }
+
+  .cb-log__time {
+    grid-column: time;
+    color: var(--cb-text-muted);
+  }
+
+  .cb-log__level {
+    grid-column: level;
+    font-weight: 600;
+    color: var(--_tone);
+  }
+
+  .cb-log__msg {
+    grid-column: msg;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* One line per entry; the well scrolls sideways. */
+  .cb-log--nowrap {
+    grid-template-columns: [num] max-content [time] max-content [level] max-content [msg] max-content;
+  }
+
+  .cb-log--nowrap .cb-log__msg {
+    white-space: pre;
   }
 }
 

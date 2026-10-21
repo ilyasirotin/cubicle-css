@@ -22,7 +22,7 @@
 //                 pagination-<width>.png and utilities-<width>.png, and
 //                 forms-matrix.png of the native form-control fixture, props-<width>.png and
 //                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
-//                 toasts-<width>.png and menu-<down|up|nojs>-<width>.png.
+//                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png and log-<width>.png.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -52,7 +52,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -2085,6 +2085,87 @@ if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
     && steps.flip.above >= 0 && steps.flip.above <= 4 && steps.flip.inView
     && steps.left.open && Math.abs(steps.left.left) < 1 && steps.left.focus === 'One';
   check(ok, 'menu with cubicle.js: placed at its key, keys, Escape, Tab, closes on item, outside click and scroll, flips up', JSON.stringify(steps));
+}
+
+// 31. Logs: a recessed monospace well (12px, tabular, no ligatures) whose time, level and message
+//     columns line up on every line (subgrid), a number gutter as wide as its longest number
+//     (start), level words in their tones and a 2px tone edge on warn and error lines, the
+//     :target line selected, wrapping (or one line per entry with --nowrap), scrolling past
+//     20rem, and the focus ring drawn inside.
+if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
+  const looks = async (width) => {
+    await page.setViewportSize({ width, height: 900 });
+    return page.evaluate(() => {
+      const probe = document.body.appendChild(document.createElement('i'));
+      const tok = (n) => { probe.style.color = `var(${n})`; return getComputedStyle(probe).color; };
+      const t = { recessed: tok('--cb-bg-recessed'), main: tok('--cb-text-main'), debug: tok('--cb-text-muted'), info: tok('--cb-info'), warn: tok('--cb-warn'), error: tok('--cb-danger') };
+      probe.style.fontFamily = 'var(--cb-font-mono)'; const mono = getComputedStyle(probe).fontFamily; probe.remove();
+      return [...document.querySelectorAll('.docs-demo .cb-log')].map((log, i) => {
+        const cs = getComputedStyle(log); const problems = [];
+        if (cs.fontFamily !== mono || cs.fontSize !== '12px' || !cs.fontVariantNumeric.includes('tabular-nums') || cs.fontVariantLigatures !== 'none') problems.push(`type ${cs.fontSize} ${cs.fontVariantNumeric} ${cs.fontVariantLigatures}`);
+        if (cs.backgroundColor !== t.recessed || cs.boxShadow === 'none') problems.push(`well ${cs.backgroundColor}`);
+        const lines = [...log.children];
+        for (const part of ['.cb-log__time', '.cb-log__level', '.cb-log__msg']) {
+          const xs = new Set(lines.map((l) => Math.round(l.querySelector(part).getBoundingClientRect().left)));
+          if (xs.size !== 1) problems.push(`${part} starts at ${[...xs]}`);
+        }
+        const digits = String(log.start + lines.length - 1).length;
+        const gutter = parseFloat(getComputedStyle(lines[0], '::before').width) - parseFloat(getComputedStyle(lines[0], '::before').paddingLeft);
+        const ch = (() => { const m = document.createElement('span'); m.textContent = '0'.repeat(10); log.querySelector('.cb-log__msg').append(m); const w = m.getBoundingClientRect().width / 10; m.remove(); return w; })();
+        if (Math.abs(gutter - digits * ch) > 1) problems.push(`gutter ${gutter.toFixed(1)} for ${digits} digits of ${ch.toFixed(1)}`);
+        for (const l of lines) {
+          const lvl = l.dataset.cbLevel; const ls = getComputedStyle(l); const word = getComputedStyle(l.querySelector('.cb-log__level')).color;
+          if (word !== (t[lvl] ?? t.main)) problems.push(`${lvl} word ${word}`);
+          const edge = ['warn', 'error'].includes(lvl) ? `2px ${t[lvl]}` : '2px rgba(0, 0, 0, 0)';
+          if (`${ls.borderLeftWidth} ${ls.borderLeftColor}` !== edge) problems.push(`${lvl} edge ${ls.borderLeftWidth} ${ls.borderLeftColor}`);
+        }
+        const nowrap = log.matches('.cb-log--nowrap');
+        const lineH = parseFloat(cs.lineHeight);
+        const tall = lines.some((l) => l.querySelector('.cb-log__msg').getBoundingClientRect().height > lineH * 1.5);
+        const sideways = log.scrollWidth > log.clientWidth;
+        if (nowrap ? (tall || !sideways) : (!tall || sideways)) problems.push(`${nowrap ? 'nowrap' : 'wrap'}: tall ${tall}, sideways ${sideways}`);
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        if (!nowrap && (log.scrollHeight <= log.clientHeight || Math.round(log.getBoundingClientRect().height) > 20 * rem)) problems.push(`scroll ${log.scrollHeight} in ${log.clientHeight}`);
+        return { i, problems };
+      });
+    });
+  };
+  for (const width of [1360, 360]) {
+    for (const l of await looks(width)) check(!l.problems.length, `log ${l.i + 1} at ${width}px: monospace well, aligned columns, gutter, tones, edges, wrapping, scroll`, l.problems.join('; '));
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+  // Generated numbers cannot be read from script: the gutters of the first two lines are
+  // compared as pixels, and must differ (the counter counts lines, not a constant).
+  const log = page.locator('.docs-demo .cb-log').first();
+  await log.evaluate((l) => { l.scrollTop = 0; l.scrollIntoView({ block: 'center' }); });
+  const gutters = [];
+  for (const n of [0, 1]) {
+    const box = await log.evaluate((l, k) => { const li = l.children[k]; const r = li.getBoundingClientRect(); const w = parseFloat(getComputedStyle(li, '::before').width); return { x: r.left, y: r.top, width: w + 2, height: r.height }; }, n);
+    gutters.push((await page.screenshot({ clip: box })).toString('base64'));
+  }
+  check(gutters[0] !== gutters[1], 'log line numbers count up from start (the first two gutters differ)', gutters[0] === gutters[1] ? 'identical gutters' : '');
+  // The linked line takes the selected tint; Tab gives the log an inner ring.
+  const target = await page.evaluate(async () => {
+    const link = document.querySelector('a[href="#L4803"]'); link.click(); await new Promise((r) => setTimeout(r, 50));
+    const probe = document.body.appendChild(document.createElement('i')); probe.style.color = 'var(--cb-bg-selected)'; const sel = getComputedStyle(probe).color; probe.remove();
+    const out = { selected: getComputedStyle(document.getElementById('L4803')).backgroundColor === sel, other: getComputedStyle(document.getElementById('L4804')).backgroundColor !== sel };
+    history.replaceState(null, '', location.pathname); return out;
+  });
+  check(target.selected && target.other, 'a linked log line (:target) takes the selected tint', JSON.stringify(target));
+  const pk = await context.newPage(); await applyOverrides(pk); await pk.goto(pathToFileURL(page_path).href);
+  await pk.locator('a[href="#L4803"]').focus(); await pk.keyboard.press(TAB); await pk.keyboard.press(SHIFT_TAB); await pk.keyboard.press(TAB);
+  const ring = await pk.evaluate(() => { const a = document.activeElement; const s = getComputedStyle(a); return `${a.matches('.cb-log') ? 'log' : a.tagName} ${s.outlineStyle} ${s.outlineOffset}`; });
+  await pk.close();
+  check(ring === 'log solid -3px', 'a log reached by Tab draws the focus ring inside', ring);
+  const section = page.locator('#log');
+  if (saving) {
+    for (const width of [1360, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      await section.scrollIntoViewIfNeeded();
+      await snap(section, `log-${width}.png`);
+    }
+    await page.setViewportSize({ width: 1360, height: 900 });
+  }
 }
 
 await browser.close();

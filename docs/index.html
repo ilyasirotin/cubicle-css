@@ -60,6 +60,7 @@
         <li><a class="docs-nav__link" href="#dialogs">Modals &amp; dialogs</a></li>
         <li><a class="docs-nav__link" href="#pagination">Pagination</a></li>
         <li><a class="docs-nav__link" href="#menu">Menus</a></li>
+        <li><a class="docs-nav__link" href="#log">Logs</a></li>
       </ul>
       <p class="docs-nav__label">Utilities</p>
       <ul class="docs-nav__list">
@@ -5224,6 +5225,118 @@ function hideLater(message, ms = 10000) {
       </section>
 
       <!-- ================================================================ -->
+      <section class="docs-section" id="log" aria-labelledby="log-title">
+        <h2 class="docs-h2" id="log-title">Logs</h2>
+        <p class="docs-text">Gateway, audit and sync logs in a recessed, scrolling well: numbered lines with
+          aligned time, level and message columns, and a tone for each severity.</p>
+
+        <h3 class="docs-h3" id="log-lines">Gateway log</h3>
+        <p class="docs-text">An <code>&lt;ol&gt;</code>; <code>start</code> numbers a page or the tail of a long
+          log (the numbers are not copied with the text). The level word stays in the text; warnings and
+          errors also take a tone edge. Give lines an <code>id</code> to link to them: the target line is
+          highlighted, as <a href="#L4803">line 4803</a>. The well scrolls past 20rem, and takes focus so the
+          keys scroll it.</p>
+        <div class="docs-demo">
+          <ol class="cb-log" start="4801" tabindex="0" aria-label="Log of gw-eu-1, from line 4801">
+            <li id="L4801" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:02Z">10:42:02</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">gw-us-1 handshake ok, peer laptop-an-1</span></li>
+            <li id="L4802" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:09Z">10:42:09</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">gw-eu-1 handshake ok, peer phone-bk-2</span></li>
+            <li id="L4803" data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:42:16Z">10:42:16</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">gw-ap-2 no handshake from svc-backup for 240 s</span></li>
+            <li id="L4804" data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:42:23Z">10:42:23</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">rekey for peer 10.8.0.11 scheduled in 120 s</span></li>
+            <li id="L4805" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:30Z">10:42:30</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">LDAP sync started: ou=staff,dc=corp,dc=example</span></li>
+            <li id="L4806" data-cb-level="error"><time class="cb-log__time" datetime="2026-10-21T10:42:37Z">10:42:37</time><span class="cb-log__level">ERROR</span><span class="cb-log__msg">gw-eu-2 tunnel down: keepalive timeout after 3 retries (last packet from 198.51.100.7:51820 at 10:41:44, interface wg0, MTU 1420)</span></li>
+            <li id="L4807" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:44Z">10:42:44</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">LDAP sync finished: 12 users updated, 0 disabled</span></li>
+            <li id="L4808" data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:42:51Z">10:42:51</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">route table refreshed: 10.20.0.0/16 via wg0</span></li>
+            <li id="L4809" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:58Z">10:42:58</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">peer phone-bk-2 roamed to 203.0.113.24:51344</span></li>
+            <li id="L4810" data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:43:05Z">10:43:05</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">certificate vpn-eu.corp.example.net expires in 13 days</span></li>
+            <li id="L4811" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:43:12Z">10:43:12</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">admin alice.ng granted vpn-admin to b.kowalski (CR-4471)</span></li>
+            <li id="L4812" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:43:19Z">10:43:19</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">gw-eu-1 handshake ok, peer svc-backup</span></li>
+            <li id="L4813" data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:43:26Z">10:43:26</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">keepalive sent to 10.8.0.40</span></li>
+            <li id="L4814" data-cb-level="error"><time class="cb-log__time" datetime="2026-10-21T10:43:33Z">10:43:33</time><span class="cb-log__level">ERROR</span><span class="cb-log__msg">peer laptop-es-1 rejected: key revoked at 10:01</span></li>
+            <li id="L4815" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:43:40Z">10:43:40</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">gw-eu-2 tunnel up after 38 s</span></li>
+            <li id="L4816" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:43:47Z">10:43:47</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">config backup written: /var/lib/wg/backup-20261021.tar</span></li>
+            <li id="L4817" data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:43:54Z">10:43:54</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">gw-ap-1 handshake latency 312 ms (limit 250 ms)</span></li>
+            <li id="L4818" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:44:01Z">10:44:01</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">peer d.ivanova connected from 192.0.2.88:40112</span></li>
+            <li id="L4819" data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:44:08Z">10:44:08</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">metrics flushed: 412 peers, 3 gateways</span></li>
+            <li id="L4820" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:44:15Z">10:44:15</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">session 7f3a91c2 refreshed for alice.ng</span></li>
+            <li id="L4821" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:44:22Z">10:44:22</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">gw-us-1 handshake ok, peer c.okafor</span></li>
+            <li id="L4822" data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:44:29Z">10:44:29</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">LDAP bind slow: 1.8 s to dc1.corp.example.net</span></li>
+            <li id="L4823" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:44:36Z">10:44:36</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">firewall rule 14 applied on gw-eu-1</span></li>
+            <li id="L4824" data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:44:43Z">10:44:43</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">rekey complete for 264 of 412 peers</span></li>
+          </ol>
+        </div>
+        <pre class="docs-snippet"><code>&lt;ol class=&quot;cb-log&quot; start=&quot;4801&quot; tabindex=&quot;0&quot; aria-label=&quot;Log of gw-eu-1, from line 4801&quot;&gt;
+  &lt;li id=&quot;L4801&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:02Z&quot;&gt;10:42:02&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-us-1 handshake ok, peer laptop-an-1&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4802&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:09Z&quot;&gt;10:42:09&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-eu-1 handshake ok, peer phone-bk-2&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4803&quot; data-cb-level=&quot;warn&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:16Z&quot;&gt;10:42:16&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-ap-2 no handshake from svc-backup for 240 s&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4804&quot; data-cb-level=&quot;debug&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:23Z&quot;&gt;10:42:23&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;rekey for peer 10.8.0.11 scheduled in 120 s&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4805&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:30Z&quot;&gt;10:42:30&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;LDAP sync started: ou=staff,dc=corp,dc=example&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4806&quot; data-cb-level=&quot;error&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:37Z&quot;&gt;10:42:37&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;ERROR&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-eu-2 tunnel down: keepalive timeout after 3 retries (last packet from 198.51.100.7:51820 at 10:41:44, interface wg0, MTU 1420)&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4807&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:44Z&quot;&gt;10:42:44&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;LDAP sync finished: 12 users updated, 0 disabled&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4808&quot; data-cb-level=&quot;debug&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:51Z&quot;&gt;10:42:51&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;route table refreshed: 10.20.0.0/16 via wg0&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4809&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:58Z&quot;&gt;10:42:58&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;peer phone-bk-2 roamed to 203.0.113.24:51344&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4810&quot; data-cb-level=&quot;warn&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:05Z&quot;&gt;10:43:05&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;certificate vpn-eu.corp.example.net expires in 13 days&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4811&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:12Z&quot;&gt;10:43:12&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;admin alice.ng granted vpn-admin to b.kowalski (CR-4471)&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4812&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:19Z&quot;&gt;10:43:19&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-eu-1 handshake ok, peer svc-backup&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4813&quot; data-cb-level=&quot;debug&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:26Z&quot;&gt;10:43:26&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;keepalive sent to 10.8.0.40&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4814&quot; data-cb-level=&quot;error&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:33Z&quot;&gt;10:43:33&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;ERROR&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;peer laptop-es-1 rejected: key revoked at 10:01&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4815&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:40Z&quot;&gt;10:43:40&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-eu-2 tunnel up after 38 s&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4816&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:47Z&quot;&gt;10:43:47&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;config backup written: /var/lib/wg/backup-20261021.tar&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4817&quot; data-cb-level=&quot;warn&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:43:54Z&quot;&gt;10:43:54&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-ap-1 handshake latency 312 ms (limit 250 ms)&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4818&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:01Z&quot;&gt;10:44:01&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;peer d.ivanova connected from 192.0.2.88:40112&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4819&quot; data-cb-level=&quot;debug&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:08Z&quot;&gt;10:44:08&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;metrics flushed: 412 peers, 3 gateways&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4820&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:15Z&quot;&gt;10:44:15&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;session 7f3a91c2 refreshed for alice.ng&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4821&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:22Z&quot;&gt;10:44:22&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;gw-us-1 handshake ok, peer c.okafor&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4822&quot; data-cb-level=&quot;warn&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:29Z&quot;&gt;10:44:29&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;LDAP bind slow: 1.8 s to dc1.corp.example.net&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4823&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:36Z&quot;&gt;10:44:36&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;firewall rule 14 applied on gw-eu-1&lt;/span&gt;&lt;/li&gt;
+  &lt;li id=&quot;L4824&quot; data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:44:43Z&quot;&gt;10:44:43&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;rekey complete for 264 of 412 peers&lt;/span&gt;&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+
+        <h3 class="docs-h3" id="log-nowrap">Trace, one line per entry</h3>
+        <p class="docs-text">Messages wrap in their column by default; <code>--nowrap</code> keeps every entry on
+          one line and scrolls sideways.</p>
+        <div class="docs-demo">
+          <ol class="cb-log cb-log--nowrap" tabindex="0" aria-label="API trace">
+            <li data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:42:07.000Z">10:42:07.000</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">POST /api/v2/peers/laptop-an-1/rotate 200 41 ms request_id=9b1c2f4e-77d0-4b8e-a2c1-5f0e3d9a6b12 user=alice.ng ip=203.0.113.24 agent="cubicle-cli/4.2.1 (linux; amd64)"</span></li>
+            <li data-cb-level="debug"><time class="cb-log__time" datetime="2026-10-21T10:42:08.137Z">10:42:08.137</time><span class="cb-log__level">DEBUG</span><span class="cb-log__msg">SELECT id, public_key, allowed_ips, last_handshake FROM peers WHERE gateway_id = $1 AND revoked_at IS NULL ORDER BY name LIMIT 50 OFFSET 300 -- 3.2 ms</span></li>
+            <li data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:42:09.274Z">10:42:09.274</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">retrying LDAP search (attempt 2 of 3): ldaps://dc1.corp.example.net:636 base="ou=staff,dc=corp,dc=example" filter="(&amp;(objectClass=person)(memberOf=cn=vpn-users,ou=groups,dc=corp,dc=example))"</span></li>
+            <li data-cb-level="error"><time class="cb-log__time" datetime="2026-10-21T10:42:10.411Z">10:42:10.411</time><span class="cb-log__level">ERROR</span><span class="cb-log__msg">wg set wg0 peer hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE= endpoint 198.51.100.7:51820 allowed-ips 10.8.0.12/32: exit status 1 (Operation not permitted)</span></li>
+          </ol>
+        </div>
+        <pre class="docs-snippet"><code>&lt;ol class=&quot;cb-log cb-log--nowrap&quot; tabindex=&quot;0&quot; aria-label=&quot;API trace&quot;&gt;
+  &lt;li data-cb-level=&quot;debug&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:07.000Z&quot;&gt;10:42:07.000&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;POST /api/v2/peers/laptop-an-1/rotate 200 41 ms request_id=9b1c2f4e-77d0-4b8e-a2c1-5f0e3d9a6b12 user=alice.ng ip=203.0.113.24 agent=&quot;cubicle-cli/4.2.1 (linux; amd64)&quot;&lt;/span&gt;&lt;/li&gt;
+  &lt;li data-cb-level=&quot;debug&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:08.137Z&quot;&gt;10:42:08.137&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;SELECT id, public_key, allowed_ips, last_handshake FROM peers WHERE gateway_id = $1 AND revoked_at IS NULL ORDER BY name LIMIT 50 OFFSET 300 -- 3.2 ms&lt;/span&gt;&lt;/li&gt;
+  &lt;li data-cb-level=&quot;warn&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:09.274Z&quot;&gt;10:42:09.274&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;retrying LDAP search (attempt 2 of 3): ldaps://dc1.corp.example.net:636 base=&quot;ou=staff,dc=corp,dc=example&quot; filter=&quot;(&amp;amp;(objectClass=person)(memberOf=cn=vpn-users,ou=groups,dc=corp,dc=example))&quot;&lt;/span&gt;&lt;/li&gt;
+  &lt;li data-cb-level=&quot;error&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:10.411Z&quot;&gt;10:42:10.411&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;ERROR&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;wg set wg0 peer hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE= endpoint 198.51.100.7:51820 allowed-ips 10.8.0.12/32: exit status 1 (Operation not permitted)&lt;/span&gt;&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+
+        <ul class="docs-list">
+          <li>For a live tail add <code>aria-live="polite"</code> to the list; keeping it scrolled to the end is
+            host code.</li>
+          <li>A log with no lines gives way to an <a href="#empty">empty state</a>.</li>
+          <li>Number with <code>start</code> on the list; <code>value</code> on a line is ignored by Chromium.</li>
+        </ul>
+
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Class / attribute</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>.cb-log</code></th><td><code>&lt;ol tabindex="0" aria-label&gt;</code></td><td>Recessed monospace well, 12px, aligned columns, scrolls past 20rem; focus ring inside</td></tr>
+              <tr><th scope="row"><code>start</code></th><td><code>&lt;ol&gt;</code></td><td>Number of the first line</td></tr>
+              <tr><th scope="row"><code>data-cb-level</code></th><td><code>&lt;li&gt;</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code> or <code>error</code>: the level word's tone; <code>warn</code> and <code>error</code> add a 2px edge</td></tr>
+              <tr><th scope="row"><code>.cb-log__time</code></th><td><code>&lt;time datetime&gt;</code></td><td>Muted time column</td></tr>
+              <tr><th scope="row"><code>.cb-log__level</code></th><td><code>&lt;span&gt;</code></td><td>Level word in the line's tone</td></tr>
+              <tr><th scope="row"><code>.cb-log__msg</code></th><td><code>&lt;span&gt;</code></td><td>Message; wraps in its column, keeps spaces</td></tr>
+              <tr><th scope="row"><code>:target</code></th><td><code>&lt;li id&gt;</code></td><td>The linked line takes the selected tint</td></tr>
+              <tr><th scope="row"><code>.cb-log--nowrap</code></th><td>Log</td><td>One line per entry, sideways scroll</td></tr>
+              <tr><th scope="row"><code>aria-live="polite"</code></th><td>Log</td><td>Announces lines appended to a live tail</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
       <section class="docs-section" id="utilities" aria-labelledby="utilities-title">
         <h2 class="docs-h2" id="utilities-title">Utilities</h2>
         <p class="docs-text">Single-purpose helpers in the last cascade layer, so they win over component
@@ -5409,6 +5522,13 @@ function hideLater(message, ms = 10000) {
               <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">6.98</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
               <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">7.56</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
               <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">6.10</td><td class="cb-table__num">≥ 4.5</td><td>Text tones (.cb-text-*)</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">5.75</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-info</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">5.63</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">4.76</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-warn</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">4.66</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">6.32</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">6.19</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
+              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">5.63</td><td class="cb-table__num">≥ 4.5</td><td>Log numbers and times: linked line</td></tr>
               <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">3.49</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
               <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">3.78</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
               <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">3.05</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>

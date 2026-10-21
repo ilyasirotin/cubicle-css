@@ -35,6 +35,11 @@ export const PAIRS = [
   ...['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'].flatMap((c) => ['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas']
     .map((bg) => [c, bg, 4.5, 'Text tones (.cb-text-*)'])),
 
+  // Log levels on the recessed well and on a linked (:target) line
+  ...['--cb-info', '--cb-warn', '--cb-danger'].flatMap((c) => ['--cb-bg-recessed', '--cb-bg-selected']
+    .map((bg) => [c, bg, 4.5, 'Log levels'])),
+  ['--cb-text-muted', '--cb-bg-selected', 4.5, 'Log numbers and times: linked line'],
+
   // Non-text: boundaries, fills and the focus ring (>= 3)
   ...['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas'].map((bg) =>
     ['color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main))', bg, 3, 'Field and checkbox edges']),
