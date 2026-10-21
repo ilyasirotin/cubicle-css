@@ -1439,9 +1439,10 @@ for (const width of want('keyboard') ? [1360, 360] : []) {
       return { id: el.dataset.vbStop, name, visible, clip, partial, segmented: el.matches(segmented) };
     }, SEGMENTED);
     let stop = await measure();
-    // Under load an engine can scroll to the control later still (seen in WebKit with runs side by
-    // side): a stop the viewport cuts is measured again before it counts.
-    for (let tries = 0; stop?.clip.includes('viewport') && tries < 5; tries++) { await pa.waitForTimeout(50); stop = await measure(); }
+    // Under load an engine can scroll to the control later still (seen in WebKit with three runs
+    // side by side, up to a quarter of a second and more): a stop the viewport cuts is measured
+    // again, for up to a second, before it counts.
+    for (let tries = 0; stop?.clip.includes('viewport') && tries < 20; tries++) { await pa.waitForTimeout(50); stop = await measure(); }
     if (!stop) break;
     // The next segment of a date or time field (at most 8): keep walking.
     if (stop.id === lastId && stop.segmented && segments < 8) { segments++; continue; }
