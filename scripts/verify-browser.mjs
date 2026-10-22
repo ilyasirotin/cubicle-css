@@ -24,7 +24,8 @@
 //                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
 //                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png, log-<width>.png and
 //                 forced-<section>.png of sections in forced colours; print-example.pdf (Chromium).
-//                 The targets group measures WCAG 2.5.8 target size at default and comfortable density.
+//                 The targets group measures WCAG 2.5.8 target size at default and comfortable density
+//                 and checks the catalogue's target-size table at all three densities.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
 // Exit code:      0 when every check passes, 1 otherwise.
 
@@ -2495,7 +2496,41 @@ if (want('print')) {
 //     <details> open and every tab panel shown: a target is at least 24x24 CSS px, or a 24px
 //     circle on its centre meets no other target or another small target's circle. A control in
 //     its label is targeted through the label; links in running text are exempt. Compact density
-//     trades this for density on purpose, so compact subtrees are left out.
+//     trades this for density on purpose, so compact subtrees are left out. The catalogue's
+//     target-size table is measured at all three densities: per row the height of the first
+//     target, the distance to the next one when it is small, and whether any of them fails.
+const TARGET_ROWS = [
+  { name: 'Navigation and tree rows', sel: '#nav .cb-nav__link' },
+  { name: 'Stacked check boxes and radios', sel: '#fields .cb-stack--tight .cb-choice' },
+  { name: 'Attached page keys', sel: '#pagination .cb-btn' },
+  { name: 'Small keys in table rows', sel: '#tables .cb-table .cb-btn--sm' },
+  { name: 'Keys stacked in a column', sel: '#secrets .cb-secret__actions .cb-btn' },
+  { name: 'Keys in a row', sel: '#buttons .cb-btn:not(.cb-btn--sm)' },
+];
+const measureTargets = ([d, rows]) => {
+  if (d === 'default') document.documentElement.removeAttribute('data-cb-density'); else document.documentElement.dataset.cbDensity = d;
+  const SEL = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="tab"], [role="menuitem"], [role="treeitem"], [role="option"], [tabindex]:not([tabindex="-1"])';
+  const inText = (el) => el.localName === 'a' && [...el.parentElement.childNodes].some((n) => n !== el && n.nodeType === 3 && n.textContent.trim());
+  const shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'; };
+  const targets = [...document.querySelectorAll(SEL)].filter((el) => !el.closest('.docs-nav, pre, [inert], [hidden], [data-cb-density="compact"]:not(html)') && !inText(el) && shown(el)).map((el) => {
+    const host = el.matches('input') && el.closest('label') ? el.closest('label') : el;
+    const r = host.getBoundingClientRect();
+    return { el, host, r, small: r.width < 23.5 || r.height < 23.5, c: [r.left + r.width / 2, r.top + r.height / 2] };
+  });
+  const toRect = ([x, y], r) => Math.hypot(Math.max(r.left - x, 0, x - r.right), Math.max(r.top - y, 0, y - r.bottom));
+  const fails = targets.filter((t) => t.small && targets.some((o) => o !== t && o.r !== t.r && !o.el.contains(t.el) && !t.el.contains(o.el)
+    && (o.small ? Math.hypot(o.c[0] - t.c[0], o.c[1] - t.c[1]) < 24 : toRect(t.c, o.r) < 12)));
+  const cells = rows.map(({ sel }) => {
+    const els = [...document.querySelectorAll(sel)].filter((e) => !e.closest('[data-cb-density]:not(html)') && shown(e));
+    if (!els.length) return 'no target';
+    const [a, b] = els.map((e) => e.getBoundingClientRect());
+    const small = a.width < 23.5 || a.height < 23.5;
+    const gap = b ? Math.round(Math.hypot(b.left + b.width / 2 - a.left - a.width / 2, b.top + b.height / 2 - a.top - a.height / 2)) : Infinity;
+    const failing = fails.some((t) => els.includes(t.host) || els.includes(t.el));
+    return `${Math.round(a.height)}px${small ? (gap < 32 ? `, ${gap}px apart` : ', spaced') : ''}${failing ? ' · fails' : ''}`;
+  });
+  return { cells, fails: d === 'compact' ? [] : fails.map((t) => `#${t.el.parentElement.closest('[id]')?.id} ${t.el.localName}.${[...t.el.classList].join('.')} ${Math.round(t.r.width)}x${Math.round(t.r.height)} "${(t.el.textContent || t.el.getAttribute('aria-label') || '').trim().slice(0, 20)}"`) };
+};
 if (want('targets')) {
   const pt = await context.newPage(); await applyOverrides(pt); await pt.goto(pathToFileURL(page_path).href);
   await pt.evaluate(() => {
@@ -2503,25 +2538,19 @@ if (want('targets')) {
     document.querySelectorAll('[role="tabpanel"][hidden]').forEach((t) => t.removeAttribute('hidden'));
   });
   for (const density of ['default', 'comfortable']) {
-    const small = await pt.evaluate((d) => {
-      if (d === 'default') document.documentElement.removeAttribute('data-cb-density'); else document.documentElement.dataset.cbDensity = d;
-      const SEL = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="tab"], [role="menuitem"], [role="treeitem"], [role="option"], [tabindex]:not([tabindex="-1"])';
-      const inText = (el) => el.localName === 'a' && [...el.parentElement.childNodes].some((n) => n !== el && n.nodeType === 3 && n.textContent.trim());
-      const targets = [...document.querySelectorAll(SEL)].filter((el) => {
-        if (el.closest('.docs-nav, pre, [inert], [hidden], [data-cb-density="compact"]') || inText(el)) return false;
-        const r = el.getBoundingClientRect();
-        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
-      }).map((el) => {
-        const host = el.matches('input') && el.closest('label') ? el.closest('label') : el;
-        const r = host.getBoundingClientRect();
-        return { el, r, small: r.width < 23.5 || r.height < 23.5, c: [r.left + r.width / 2, r.top + r.height / 2] };
-      });
-      const toRect = ([x, y], r) => Math.hypot(Math.max(r.left - x, 0, x - r.right), Math.max(r.top - y, 0, y - r.bottom));
-      return targets.filter((t) => t.small && targets.some((o) => o !== t && o.r !== t.r && !o.el.contains(t.el) && !t.el.contains(o.el)
-        && (o.small ? Math.hypot(o.c[0] - t.c[0], o.c[1] - t.c[1]) < 24 : toRect(t.c, o.r) < 12)))
-        .map((t) => `#${t.el.parentElement.closest('[id]')?.id} ${t.el.localName}.${[...t.el.classList].join('.')} ${Math.round(t.r.width)}x${Math.round(t.r.height)} "${(t.el.textContent || t.el.getAttribute('aria-label') || '').trim().slice(0, 20)}"`);
-    }, density);
-    check(!small.length, `targets are 24px or spaced apart at ${density} density (WCAG 2.5.8)`, small.join('; '));
+    const { fails } = await pt.evaluate(measureTargets, [density, []]);
+    check(!fails.length, `targets are 24px or spaced apart at ${density} density (WCAG 2.5.8)`, fails.join('; '));
+  }
+  if (await pt.locator('#accessibility').count()) {
+    const doc = await pt.$$eval('#a11y-targets-table tbody tr', (rows) => rows.map((r) => [...r.children].map((c) => c.textContent.trim())));
+    const live = {};
+    for (const density of ['compact', 'default', 'comfortable']) live[density] = (await pt.evaluate(measureTargets, [density, TARGET_ROWS])).cells;
+    const stale = !doc.length ? ['table missing'] : TARGET_ROWS.flatMap(({ name }, i) => {
+      const row = [name, live.compact[i], live.default[i], live.comfortable[i]];
+      return doc[i]?.join(' | ') === row.join(' | ') ? [] : [`${doc[i]?.join(' | ') ?? 'missing row'} vs live ${row.join(' | ')}`];
+    });
+    if (doc.length && doc.length !== TARGET_ROWS.length) stale.push(`${doc.length} rows for ${TARGET_ROWS.length} patterns`);
+    check(!stale.length, 'the catalogue target-size table matches the measured sizes', stale.slice(0, 3).join(' || ') || `${doc.length} rows`);
   }
   await pt.close();
 }
