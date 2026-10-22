@@ -14,21 +14,37 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-need() {
-  if [ ! -x "scripts/node_modules/.bin/$1" ]; then
-    echo "build-min: $1 is missing. Run: cd scripts && npm install" >&2
+TOOLS_DIR="scripts/node_modules/.bin"
+CSS_SOURCE="dist/cubicle.css"
+CSS_OUTPUT="dist/cubicle.min.css"
+JS_SOURCE="dist/cubicle.js"
+JS_OUTPUT="dist/cubicle.min.js"
+
+# Stops the build when a pinned dev dependency is not installed.
+require_tool() {
+  local tool_name="$1"
+  if [ ! -x "$TOOLS_DIR/$tool_name" ]; then
+    echo "build-min: $tool_name is missing. Run: cd scripts && npm install" >&2
     exit 1
   fi
 }
 
-need lightningcss
-scripts/node_modules/.bin/lightningcss --minify dist/cubicle.css -o dist/cubicle.min.css
-printf 'dist/cubicle.min.css  %s -> %s bytes\n' "$(wc -c < dist/cubicle.css)" "$(wc -c < dist/cubicle.min.css)"
+byte_count() {
+  wc -c < "$1"
+}
 
-if [ -f dist/cubicle.js ]; then
-  need terser
+require_tool lightningcss
+"$TOOLS_DIR/lightningcss" --minify "$CSS_SOURCE" -o "$CSS_OUTPUT"
+css_source_bytes="$(byte_count "$CSS_SOURCE")"
+css_output_bytes="$(byte_count "$CSS_OUTPUT")"
+printf 'dist/cubicle.min.css  %s -> %s bytes\n' "$css_source_bytes" "$css_output_bytes"
+
+if [ -f "$JS_SOURCE" ]; then
+  require_tool terser
   # Keeps the /*! licence header; --ecma 2020 lets terser keep modern syntax as written.
-  scripts/node_modules/.bin/terser dist/cubicle.js --ecma 2020 --compress --mangle \
-    --comments '/^!/' --output dist/cubicle.min.js
-  printf 'dist/cubicle.min.js   %s -> %s bytes\n' "$(wc -c < dist/cubicle.js)" "$(wc -c < dist/cubicle.min.js)"
+  "$TOOLS_DIR/terser" "$JS_SOURCE" --ecma 2020 --compress --mangle \
+    --comments '/^!/' --output "$JS_OUTPUT"
+  js_source_bytes="$(byte_count "$JS_SOURCE")"
+  js_output_bytes="$(byte_count "$JS_OUTPUT")"
+  printf 'dist/cubicle.min.js   %s -> %s bytes\n' "$js_source_bytes" "$js_output_bytes"
 fi
