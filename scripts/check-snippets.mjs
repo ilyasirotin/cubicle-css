@@ -4,7 +4,9 @@
 // Run:            node scripts/check-snippets.mjs [docs/index.html]
 // Convention:     every <div class="docs-demo"> is followed directly by
 //                 <pre class="docs-snippet"><code>...</code></pre> holding the same markup, escaped.
-//                 Plain <pre><code> blocks without docs-snippet are free text and are not checked.
+//                 Plain <pre><code> blocks without docs-snippet are free text and are not checked,
+//                 and so is <pre class="docs-snippet docs-snippet--host">: host code (htmx, JavaScript)
+//                 that is highlighted like a snippet but copies no demo.
 // Comparison:     source text, not the DOM. Leading/trailing blank lines and common
 //                 indentation are removed from both sides; the rest must match byte for byte.
 // Exit code:      0 when every check passes, 1 otherwise.
@@ -21,6 +23,7 @@ const DEFAULT_CATALOGUE = 'docs/index.html';
 // Opening tag of a live demo, and the opening <pre class="docs-snippet"><code> of its snippet.
 const DEMO_OPEN_PATTERN = /<div\s[^>]*class="[^"]*\bdocs-demo\b[^"]*"[^>]*>/g;
 const SNIPPET_OPEN_PATTERN = /<pre\s[^>]*class="[^"]*\bdocs-snippet\b[^"]*"[^>]*>\s*<code[^>]*>/g;
+const HOST_SNIPPET_PATTERN = /\bdocs-snippet--host\b/;
 const DIV_TAG_PATTERN = /<div[\s>]|<\/div>/g;
 
 // The entities a snippet uses, in decoding order (&amp; last, so "&amp;lt;" stays "&lt;").
@@ -171,6 +174,9 @@ function runChecks() {
   }
 
   for (const snippetOpen of source.matchAll(SNIPPET_OPEN_PATTERN)) {
+    if (HOST_SNIPPET_PATTERN.test(snippetOpen[0])) {
+      continue;
+    }
     if (!pairedSnippetOffsets.has(snippetOpen.index)) {
       check(false, `snippet at line ${lineNumberAt(source, snippetOpen.index)} follows a docs-demo`);
     }

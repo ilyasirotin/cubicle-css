@@ -38,7 +38,9 @@ The first release of Cubicle.
   checked box, so without the script unticking a box drops the value.
 - **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
-  click or Enter, with a "Copied" note in the header and a live-region message.
+  click or Enter, with a "Copied" note in the header and a live-region message. The htmx and
+  JavaScript host-code examples get the same frame, labelled HTML or JavaScript, with JavaScript
+  highlighted also inside `hx-on` attributes.
 - **Secret boxes.** `.cb-secret` wells and single-line secrets with copy, reveal and save actions.
 - **Fieldsets and panels.** `.cb-fieldset` group boxes with a group error. `.cb-panel` with head,
   title, body (also flush) and foot, status stripes, recessed wells and collapsible `<details>`

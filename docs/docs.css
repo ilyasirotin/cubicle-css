@@ -151,6 +151,7 @@
 
   /* Copy-paste snippet: a white recessed well that scrolls past 20 lines. Without
      the script it is a plain block; the script wraps it in a collapsed .docs-code,
+     highlights it as HTML or as the language its <code> names (language-javascript),
      numbers its lines (Prism line-numbers) and sets data-docs-copy so a click
      copies it. The gutter is a sticky first grid column: it stays put while the
      code scrolls sideways and moves with it vertically. */
@@ -188,26 +189,27 @@
       outline-offset: calc(-2px - var(--cb-focus-offset));
     }
 
-    /* Prism token colours, markup grammar only: ink for text, navy tags,
-       ochre attribute names, green values, crimson entities, muted punctuation. */
+    /* Prism token colours, markup and javascript grammars: ink for text and names,
+       navy tags and keywords, ochre attribute and function names, green values and
+       strings, crimson entities and literals, muted punctuation and operators. */
     & .token {
-      &.tag {
+      &:is(.tag, .keyword) {
         color: var(--cb-accent);
       }
 
-      &.attr-name {
+      &:is(.attr-name, .function) {
         color: var(--cb-warn);
       }
 
-      &.attr-value {
+      &:is(.attr-value, .string) {
         color: var(--cb-ok);
       }
 
-      &.entity {
+      &:is(.entity, .number, .boolean, .regex) {
         color: var(--cb-danger);
       }
 
-      &.punctuation {
+      &:is(.punctuation, .operator) {
         color: var(--cb-text-muted);
       }
 

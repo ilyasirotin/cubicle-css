@@ -3066,7 +3066,8 @@ function parseRgb(colour) {
   return colour.match(/[\d.]+/g).slice(0, 3).map(Number);
 }
 
-// In-page: the colours of the first snippet: background, gutter and four token kinds.
+// In-page: the colours of the first snippet (background, gutter and four markup token kinds), six
+// token kinds from any JavaScript snippet, and the header label of each JavaScript snippet.
 function readSnippetPaint() {
   const pre = document.querySelector('pre.docs-snippet');
   const gutter = pre.querySelector('.line-numbers-rows');
@@ -3074,12 +3075,24 @@ function readSnippetPaint() {
     bg: getComputedStyle(pre).backgroundColor,
     gutter: [getComputedStyle(gutter).color, getComputedStyle(gutter).backgroundColor],
     kinds: {},
+    scriptKinds: {},
+    scriptLabels: [],
   };
   for (const kind of ['tag', 'attr-name', 'attr-value', 'punctuation']) {
     const token = pre.querySelector(`.token.${kind}`);
     if (token) {
       paint.kinds[kind] = getComputedStyle(token).color;
     }
+  }
+  for (const kind of ['keyword', 'function', 'string', 'number', 'operator', 'comment']) {
+    const token = document.querySelector(`pre.docs-snippet code.language-javascript .token.${kind}`);
+    if (token) {
+      paint.scriptKinds[kind] = getComputedStyle(token).color;
+    }
+  }
+  for (const code of document.querySelectorAll('pre.docs-snippet code.language-javascript')) {
+    const summary = code.closest('.docs-code').querySelector('summary');
+    paint.scriptLabels.push(summary.firstChild.textContent.trim());
   }
   return paint;
 }
@@ -3109,6 +3122,11 @@ async function checkSnippets(run) {
   const tokenKinds = Object.keys(paint.kinds);
   const weakKinds = Object.entries(paint.kinds).filter(([, colour]) => contrastRatio(parseRgb(colour), parseRgb(paint.bg)) < 4.5).map(([kind]) => kind);
   check(tokenKinds.length === 4 && weakKinds.length === 0, 'snippet token colours reach 4.5:1 on the snippet background', weakKinds.join(', ') || tokenKinds.join(', '));
+  const scriptKinds = Object.keys(paint.scriptKinds);
+  const weakScriptKinds = Object.entries(paint.scriptKinds).filter(([, colour]) => contrastRatio(parseRgb(colour), parseRgb(paint.bg)) < 4.5).map(([kind]) => kind);
+  check(scriptKinds.length === 6 && weakScriptKinds.length === 0, 'JavaScript snippet token colours reach 4.5:1 on the snippet background', weakScriptKinds.join(', ') || scriptKinds.join(', '));
+  const mislabelled = paint.scriptLabels.filter((label) => label !== 'JavaScript');
+  check(paint.scriptLabels.length > 0 && mislabelled.length === 0, 'JavaScript snippets are labelled JavaScript in their header', `${paint.scriptLabels.length} snippets, labels: ${[...new Set(paint.scriptLabels)].join(', ')}`);
   const gutterRatio = contrastRatio(parseRgb(paint.gutter[0]), parseRgb(paint.gutter[1]));
   check(gutterRatio >= 4.5, 'snippet line numbers reach 4.5:1 on the gutter', gutterRatio.toFixed(2));
   check(paint.bg === 'rgb(255, 255, 255)', 'snippet background is white', paint.bg);
