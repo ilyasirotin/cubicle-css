@@ -32,7 +32,7 @@
 
 import { chromium, firefox, webkit } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { measurePairs, ratio, label } from './contrast-pairs.mjs';
+import { measurePairs, contrastRatio, colourLabel } from './contrast-pairs.mjs';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -262,8 +262,8 @@ if (want('controls')) {
 // 6. Contrast of the palette pairs (scripts/contrast-pairs.mjs): text >= 4.5, non-text >= 3.
 const measured = want('contrast') ? await measurePairs(page) : [];
 for (const m of measured) {
-  if (m.ratio === null) { check(false, `contrast ${label(m.fg)} on ${label(m.bg)}`, 'colour missing'); continue; }
-  check(m.ratio >= m.need, `contrast ${label(m.fg)} on ${label(m.bg)} >= ${m.need}`, m.ratio.toFixed(2));
+  if (m.ratio === null) { check(false, `contrast ${colourLabel(m.fg)} on ${colourLabel(m.bg)}`, 'colour missing'); continue; }
+  check(m.ratio >= m.need, `contrast ${colourLabel(m.fg)} on ${colourLabel(m.bg)} >= ${m.need}`, m.ratio.toFixed(2));
 }
 
 // 7. Live states of every distinct interactive control in the catalogue demos:
@@ -326,7 +326,7 @@ if (want('states')) {
     };
     const contrast = async () => {
       const { need, pairs } = await el.evaluate(readContrast);
-      return pairs.map(([name, fg, bg]) => ({ name, need, r: ratio(fg, bg) }));
+      return pairs.map(([name, fg, bg]) => ({ name, need, r: contrastRatio(fg, bg) }));
     };
     const box = await el.boundingBox();
     const centre = [box.x + box.width / 2, box.y + box.height / 2];
@@ -697,7 +697,7 @@ if (want('badges') && await page.locator(INDICATORS).count()) {
     });
   });
   for (const m of measured) {
-    const text = ratio(...m.text); const rim = m.rim && ratio(...m.rim);
+    const text = contrastRatio(...m.text); const rim = m.rim && contrastRatio(...m.rim);
     const ok = text >= 4.5 && (!m.rim || rim >= 3) && m.height <= 20 && (!m.busy || m.spin === 'cb-spin');
     check(ok, `indicator .${m.key.replace(/ /g, '.')}: text, lamp and height`,
       `text ${text.toFixed(2)}${m.rim ? `, lamp ${rim.toFixed(2)}` : ''}, ${m.height}px${m.busy ? `, ${m.spin}` : ''}`);
@@ -833,7 +833,7 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
   await row.scrollIntoViewIfNeeded(); await row.hover();
   const cells = [...await paints(), ...(await (async () => { await page.mouse.move(2, 2); return paints(); })())];
   const byPaint = new Map();
-  for (const c of cells) { const r = ratio(c.fg, c.bg); if (!byPaint.has(c.key) || r < byPaint.get(c.key)) byPaint.set(c.key, r); }
+  for (const c of cells) { const r = contrastRatio(c.fg, c.bg); if (!byPaint.has(c.key) || r < byPaint.get(c.key)) byPaint.set(c.key, r); }
   for (const [paint, r] of byPaint) check(r >= 4.5, `table cell text on ${paint} >= 4.5`, r.toFixed(2));
 
   // A disabled row takes the disabled ink and keeps its fill under the pointer.
@@ -907,7 +907,7 @@ if (want('alerts') && await page.locator('.docs-demo .cb-alert').count()) {
     });
   });
   for (const a of alerts) {
-    const glyphR = ratio(a.glyphInk, a.tone); const textR = ratio(a.ink, a.bg); const titleR = a.titleInk ? ratio(a.titleInk, a.bg) : null;
+    const glyphR = contrastRatio(a.glyphInk, a.tone); const textR = contrastRatio(a.ink, a.bg); const titleR = a.titleInk ? contrastRatio(a.titleInk, a.bg) : null;
     const want = a.banner ? 27 : 28;
     const ok = a.edge === '4px' && a.edgeColour.join() === a.tone.join() && /"\S+"/.test(a.glyph) && glyphR >= 4.5 && textR >= 4.5
       && (titleR === null || titleR >= 4.5) && (!a.sm || a.lines > 1 || Math.round(a.height) === want) && (!a.banner || a.radius === '0px');
@@ -1087,7 +1087,7 @@ if (want('meters') && await page.locator('.docs-demo .cb-meter').count()) {
     results.push(`track ${info.track}px`);
     if (!info.indeterminate) {
       const fill = await px(0.05, midTrack); const empty = await px((Math.min(info.fraction, 0.96) + 1) / 2, midTrack);
-      const got = nearest(fill, ['ok', 'warn', 'danger', 'accent']); const r = ratio(fill, empty);
+      const got = nearest(fill, ['ok', 'warn', 'danger', 'accent']); const r = contrastRatio(fill, empty);
       ok &&= got === info.tone && (info.fraction > 0.97 || r >= 3);
       results.push(`fill ${got} (want ${info.tone}), vs track ${r.toFixed(2)}`);
     } else {
@@ -1097,8 +1097,8 @@ if (want('meters') && await page.locator('.docs-demo .cb-meter').count()) {
       // The hatch is drawn: about half of the track is the darker stripe (Firefox once drew a
       // repeating gradient with a color-mix() stop as hairlines on a flat track).
       const samples = []; for (let k = 0; k < 40; k++) samples.push(await px(0.05 + 0.9 * k / 39, midTrack));
-      const light = samples.reduce((x, y) => (ratio(y, [0, 0, 0]) > ratio(x, [0, 0, 0]) ? y : x));
-      const dark = samples.filter((c) => ratio(c, light) >= 1.4).length;
+      const light = samples.reduce((x, y) => (contrastRatio(y, [0, 0, 0]) > contrastRatio(x, [0, 0, 0]) ? y : x));
+      const dark = samples.filter((c) => contrastRatio(c, light) >= 1.4).length;
       ok &&= dark >= 10;
       results.push(`${dark}/40 samples on a stripe`);
     }
@@ -1593,9 +1593,9 @@ const docRows = !want('contrast') ? [] : await page.$$eval('#a11y-contrast-table
 if (docRows.length) {
   const stale = measured.flatMap((m, i) => {
     const row = docRows[i];
-    if (!row) return [`missing row for ${label(m.fg)} on ${label(m.bg)}`];
-    const same = row[0] === label(m.fg) && row[1] === label(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.01 && row[3] === `≥ ${m.need}`;
-    return same ? [] : [`${row.slice(0, 4).join(' ')} vs live ${label(m.fg)} ${label(m.bg)} ${m.ratio.toFixed(2)}`];
+    if (!row) return [`missing row for ${colourLabel(m.fg)} on ${colourLabel(m.bg)}`];
+    const same = row[0] === colourLabel(m.fg) && row[1] === colourLabel(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.01 && row[3] === `≥ ${m.need}`;
+    return same ? [] : [`${row.slice(0, 4).join(' ')} vs live ${colourLabel(m.fg)} ${colourLabel(m.bg)} ${m.ratio.toFixed(2)}`];
   });
   if (docRows.length !== measured.length) stale.push(`${docRows.length} rows for ${measured.length} pairs`);
   check(stale.length === 0, 'the catalogue contrast table matches the live ratios', stale.slice(0, 3).join(' | ') || `${docRows.length} rows`);
@@ -1622,9 +1622,9 @@ if (snippets) {
     }
     return out;
   });
-  const weak = Object.entries(painted.kinds).filter(([, c]) => ratio(rgb(c), rgb(painted.bg)) < 4.5).map(([k]) => k);
+  const weak = Object.entries(painted.kinds).filter(([, c]) => contrastRatio(rgb(c), rgb(painted.bg)) < 4.5).map(([k]) => k);
   check(Object.keys(painted.kinds).length === 4 && weak.length === 0, 'snippet token colours reach 4.5:1 on the snippet background', weak.join(', ') || Object.keys(painted.kinds).join(', '));
-  const gutter = ratio(rgb(painted.gutter[0]), rgb(painted.gutter[1]));
+  const gutter = contrastRatio(rgb(painted.gutter[0]), rgb(painted.gutter[1]));
   check(gutter >= 4.5, 'snippet line numbers reach 4.5:1 on the gutter', gutter.toFixed(2));
   check(painted.bg === 'rgb(255, 255, 255)', 'snippet background is white', painted.bg);
 
@@ -2008,7 +2008,7 @@ if (want('busy') && await page.locator(BUSY).count()) {
     if (b.ink !== b.muted) problems.push(`ink ${b.ink}`);
     if (!b.image.startsWith('repeating-linear-gradient') || b.attach !== 'fixed') problems.push(`paint ${b.image.slice(0, 40)} ${b.attach}`);
     if (b.head.includes('repeating')) problems.push('head hatched');
-    const low = b.stripes.map((c) => ratio(b.ink3, c)).filter((r) => r < 4.5);
+    const low = b.stripes.map((c) => contrastRatio(b.ink3, c)).filter((r) => r < 4.5);
     if (b.stripes.length < 2 || low.length) problems.push(`stripes ${b.stripes.length}, low ${low.map((r) => r.toFixed(2))}`);
     // Firefox draws a repeating gradient with a color() stop (any color-mix) almost flat.
     if (b.image.includes('color(')) problems.push('a stripe is a color() value');
