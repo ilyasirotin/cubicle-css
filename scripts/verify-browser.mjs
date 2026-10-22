@@ -2226,16 +2226,16 @@ if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
 
 // 31. Logs: a recessed monospace well (12px, tabular, no ligatures) whose time, level and message
 //     columns line up on every line (subgrid), a number gutter as wide as its longest number
-//     (start), level words in their tones and a 2px tone edge on warn and error lines, the
+//     (start), level words in their tones and a 2px tone edge on warn, error and diff lines, the
 //     :target line selected, wrapping (or one line per entry with --nowrap), scrolling past
-//     20rem, and the focus ring drawn inside.
+//     20rem when the lines do not fit, and the focus ring drawn inside. A diff has no time column.
 if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
   const looks = async (width) => {
     await page.setViewportSize({ width, height: 900 });
     return page.evaluate(() => {
       const probe = document.body.appendChild(document.createElement('i'));
       const tok = (n) => { probe.style.color = `var(${n})`; return getComputedStyle(probe).color; };
-      const t = { recessed: tok('--cb-bg-recessed'), main: tok('--cb-text-main'), debug: tok('--cb-text-muted'), info: tok('--cb-info'), warn: tok('--cb-warn'), error: tok('--cb-danger') };
+      const t = { recessed: tok('--cb-bg-recessed'), main: tok('--cb-text-main'), debug: tok('--cb-text-muted'), info: tok('--cb-info'), warn: tok('--cb-warn'), error: tok('--cb-danger'), add: tok('--cb-ok'), del: tok('--cb-danger') };
       probe.style.fontFamily = 'var(--cb-font-mono)'; const mono = getComputedStyle(probe).fontFamily; probe.remove();
       return [...document.querySelectorAll('.docs-demo .cb-log')].map((log, i) => {
         const cs = getComputedStyle(log); const problems = [];
@@ -2243,26 +2243,30 @@ if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
         if (cs.backgroundColor !== t.recessed || cs.boxShadow === 'none') problems.push(`well ${cs.backgroundColor}`);
         const lines = [...log.children];
         for (const part of ['.cb-log__time', '.cb-log__level', '.cb-log__msg']) {
+          if (!log.querySelector(part)) continue;
           const xs = new Set(lines.map((l) => Math.round(l.querySelector(part).getBoundingClientRect().left)));
           if (xs.size !== 1) problems.push(`${part} starts at ${[...xs]}`);
         }
-        const digits = String(log.start + lines.length - 1).length;
-        const gutter = parseFloat(getComputedStyle(lines[0], '::before').width) - parseFloat(getComputedStyle(lines[0], '::before').paddingLeft);
+        const counted = lines.filter((l) => l.dataset.cbDiff !== 'del');
+        const digits = String(log.start + counted.length - 1).length;
+        const gutter = parseFloat(getComputedStyle(counted[0], '::before').width) - parseFloat(getComputedStyle(counted[0], '::before').paddingLeft);
         const ch = (() => { const m = document.createElement('span'); m.textContent = '0'.repeat(10); log.querySelector('.cb-log__msg').append(m); const w = m.getBoundingClientRect().width / 10; m.remove(); return w; })();
         if (Math.abs(gutter - digits * ch) > 1) problems.push(`gutter ${gutter.toFixed(1)} for ${digits} digits of ${ch.toFixed(1)}`);
         for (const l of lines) {
-          const lvl = l.dataset.cbLevel; const ls = getComputedStyle(l); const word = getComputedStyle(l.querySelector('.cb-log__level')).color;
+          const lvl = l.dataset.cbDiff ?? l.dataset.cbLevel; const ls = getComputedStyle(l); const word = getComputedStyle(l.querySelector('.cb-log__level')).color;
           if (word !== (t[lvl] ?? t.main)) problems.push(`${lvl} word ${word}`);
-          const edge = ['warn', 'error'].includes(lvl) ? `2px ${t[lvl]}` : '2px rgba(0, 0, 0, 0)';
+          const edge = ['warn', 'error', 'add', 'del'].includes(lvl) ? `2px ${t[lvl]}` : '2px rgba(0, 0, 0, 0)';
           if (`${ls.borderLeftWidth} ${ls.borderLeftColor}` !== edge) problems.push(`${lvl} edge ${ls.borderLeftWidth} ${ls.borderLeftColor}`);
         }
         const nowrap = log.matches('.cb-log--nowrap');
         const lineH = parseFloat(cs.lineHeight);
         const tall = lines.some((l) => l.querySelector('.cb-log__msg').getBoundingClientRect().height > lineH * 1.5);
+        // A wrapping log wraps exactly the messages longer than their column.
+        const long = lines.some((l) => { const m = l.querySelector('.cb-log__msg'); return m.textContent.length * ch > m.getBoundingClientRect().width + 1; });
         const sideways = log.scrollWidth > log.clientWidth;
-        if (nowrap ? (tall || !sideways) : (!tall || sideways)) problems.push(`${nowrap ? 'nowrap' : 'wrap'}: tall ${tall}, sideways ${sideways}`);
+        if (nowrap ? (tall || !sideways) : (tall !== long || sideways)) problems.push(`${nowrap ? 'nowrap' : 'wrap'}: tall ${tall}, long ${long}, sideways ${sideways}`);
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-        if (!nowrap && (log.scrollHeight <= log.clientHeight || Math.round(log.getBoundingClientRect().height) > 20 * rem)) problems.push(`scroll ${log.scrollHeight} in ${log.clientHeight}`);
+        if (!nowrap && (Math.round(log.getBoundingClientRect().height) > 20 * rem || (log.scrollHeight > 20 * rem && log.scrollHeight <= log.clientHeight))) problems.push(`scroll ${log.scrollHeight} in ${log.clientHeight}`);
         return { i, problems };
       });
     });
