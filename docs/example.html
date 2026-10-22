@@ -139,15 +139,26 @@
           </div>
 
           <!-- Peers -------------------------------------------------------- -->
-          <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-peers" aria-labelledby="x-tab-peers" data-cb-density="compact" hidden>
+          <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-peers" aria-labelledby="x-tab-peers" hidden>
             <h2 class="cb-tabs__heading">Peers</h2>
             <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key and cannot connect.</div>
-            <div class="cb-cluster cb-cluster--end">
+            <form class="cb-cluster" id="x-filter" role="search" aria-label="Filter peers" method="get" action="#x-peers">
+              <input class="cb-input cb-input--sm" type="search" name="q" placeholder="Name or address" aria-label="Name or address">
+              <select class="cb-select cb-select--sm" name="age" aria-label="Key age">
+                <option value="">Any key age</option>
+                <option value="30">Key over 30 days</option>
+                <option value="90" selected>Key over 90 days</option>
+              </select>
+              <button class="cb-btn cb-btn--sm cb-btn--primary" type="submit">Filter</button>
+              <button class="cb-btn cb-btn--sm" type="submit" name="drop" value="all">Clear</button>
               <button class="cb-btn cb-btn--sm" type="button" id="x-refresh">Refresh</button>
-            </div>
+            </form>
+            <ul class="cb-chips" aria-label="Active filters">
+              <li class="cb-chip">Key age: over 90 days<button class="cb-chip__remove cb-btn cb-btn--icon" type="submit" form="x-filter" name="drop" value="age" aria-label="Remove filter Key age: over 90 days">✕</button></li>
+            </ul>
             <div class="cb-split">
               <div class="cb-stack">
-                <div class="cb-table-wrap">
+                <div class="cb-table-wrap" data-cb-density="compact">
                   <table class="cb-table cb-table--sticky" id="x-peer-table" aria-labelledby="x-tab-peers">
                     <thead>
                       <tr>
@@ -246,13 +257,13 @@
                   </table>
                 </div>
                 <nav class="cb-pagination" aria-label="Peers pages">
-                  <p class="cb-pagination__summary">1–4 of 412</p>
+                  <p class="cb-pagination__summary">1–4 of 148</p>
                   <div class="cb-pagination__pages">
                     <a class="cb-btn cb-btn--sm" rel="prev" aria-disabled="true" aria-label="Previous page">‹</a>
                     <a class="cb-btn cb-btn--sm" href="#x-peers" aria-current="page" aria-label="Page 1">1</a>
                     <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 2">2</a>
                     <span class="cb-pagination__gap" aria-hidden="true">…</span>
-                    <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 103">103</a>
+                    <a class="cb-btn cb-btn--sm" href="#x-peers" aria-label="Page 37">37</a>
                     <a class="cb-btn cb-btn--sm" href="#x-peers" rel="next" aria-label="Next page">›</a>
                   </div>
                 </nav>
