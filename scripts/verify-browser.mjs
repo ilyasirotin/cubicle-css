@@ -2620,12 +2620,13 @@ if (want('targets')) {
 //     host form. Without it: the keys are hidden, the boxes carry the values and unticking one
 //     drops it, and the field holds no submit button. The well is one --cb-row-h-sm row plus its
 //     padding at every density, its chips sit in the middle, and the ring is on the well while the
-//     entry has focus.
-if (want('tokens') && (await page.locator('#accessibility').count() || await page.locator('.cb-tokens').count())) {
+//     entry has focus. The behaviour checks drive the catalogue's fields (#tk-ips, #tk-scopes);
+//     any other page with a token field (the example) gets the check without the script.
+const isCatalogue = await page.locator('#accessibility').count();
+if (want('tokens') && (isCatalogue || await page.locator('.cb-tokens').count())) {
   const pk = await context.newPage(); await applyOverrides(pk); await pk.goto(pathToFileURL(page_path).href);
-  const fields = await pk.locator('[data-cb-tokens]').count();
-  check(fields > 0, 'token field: the page shows one', `${fields} fields`);
-  if (fields) {
+  if (isCatalogue) check(await pk.locator('#tk-ips').count() > 0, 'token field: the catalogue shows one', 'missing #tk-ips');
+  if (await pk.locator('#tk-ips').count()) {
     const ENTRY = '#tk-ips';
     const state = () => pk.evaluate((sel) => {
       const entry = document.querySelector(sel); const well = entry.closest('.cb-tokens');
@@ -2716,8 +2717,9 @@ if (want('tokens') && (await page.locator('#accessibility').count() || await pag
   const pn = await noJs.newPage(); await applyOverrides(pn); await pn.goto(pathToFileURL(page_path).href);
   const nj = await pn.evaluate(() => {
     const wells = [...document.querySelectorAll('[data-cb-tokens]')];
-    const entry = document.getElementById('tk-ips'); const box = entry?.closest('.cb-tokens').querySelector('.cb-chip > .cb-check');
-    const sent = () => entry ? new FormData(entry.form).getAll(entry.name) : [];
+    // The first field with a value that can be dropped: an enabled, checked box in a form.
+    const box = wells.flatMap((w) => [...w.querySelectorAll('.cb-chip > .cb-check:checked:enabled')]).find((b) => b.form);
+    const sent = () => box ? new FormData(box.form).getAll(box.name) : [];
     const before = sent(); if (box) box.checked = false; const after = sent();
     return {
       wells: wells.length,
