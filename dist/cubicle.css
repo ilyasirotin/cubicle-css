@@ -24,7 +24,8 @@
       5.1 Buttons ............ .cb-btn variants, sizes, states; .cb-btn-group
       5.2 Form controls ...... .cb-input, .cb-select, list boxes, file key, colour,
                                hidden engine keys, .cb-check, .cb-choice,
-                               .cb-field, .cb-input-group (busy addon), .cb-range
+                               .cb-field, .cb-input-group (busy addon), .cb-range,
+                               .cb-tokens token field
       5.3 Fieldsets & panels . .cb-fieldset, group error; .cb-panel head / title / body / foot,
                                flush body, well, status stripes, shared disclosure
                                chevron, collapsible
@@ -697,7 +698,7 @@
      selects share the paint; states only swap the private properties. The
      side and bottom edges mix in the strong border to reach 3:1 against
      canvas, surface and raised (WCAG 1.4.11). */
-  :is(.cb-input, .cb-select) {
+  :is(.cb-input, .cb-select, .cb-tokens) {
     --_h: var(--cb-control-h);
     --_bg: var(--cb-bg-raised);
     --_ink: var(--cb-text-main);
@@ -718,13 +719,17 @@
     box-shadow: var(--_shadow);
     transition: border-color var(--cb-duration);
 
+    &:hover {
+      --_border: var(--cb-border-strong);
+    }
+  }
+
+  /* States of the fields themselves; a token field's well takes them from its
+     contents (below). */
+  :is(.cb-input, .cb-select) {
     &::placeholder {
       color: var(--cb-text-muted);
       opacity: 1;
-    }
-
-    &:hover {
-      --_border: var(--cb-border-strong);
     }
 
     /* Read-only values are data to copy, not to edit: recessed and monospace.
@@ -1005,7 +1010,7 @@
     align-items: start;
     gap: var(--cb-space-1);
 
-    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret) {
+    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret, .cb-tokens) {
       align-self: stretch;
     }
 
@@ -1216,6 +1221,67 @@
     box-shadow: none;
   }
 
+  /* Token field: a multi-value field (address blocks, scopes, groups). The
+     well holds the chips (5.5) and an entry; it takes the field paint above
+     and shows the entry's states, since the entry has no frame of its own.
+     That is not a ghost input: the well is the visible, bordered field. One
+     row is a chip plus half a spacing step above and below. */
+  .cb-tokens {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--cb-space-1);
+    padding: calc(var(--cb-space-1) / 2);
+
+    & > .cb-chips {
+      max-inline-size: 100%;
+    }
+
+    /* The standard ring, drawn on the well while the entry has focus. */
+    &:has(> .cb-tokens__entry:focus-visible) {
+      outline: var(--cb-focus-ring);
+      outline-offset: var(--cb-focus-offset);
+    }
+
+    &:has(:is([aria-invalid="true"], :user-invalid)) {
+      --_bg: color-mix(in srgb, var(--cb-danger) 4%, var(--cb-bg-raised));
+      --_border: var(--cb-danger);
+      --_border-top: var(--cb-danger);
+    }
+
+    &:has(> .cb-tokens__entry[readonly]) {
+      --_bg: var(--cb-bg-recessed);
+    }
+
+    &:has(> .cb-tokens__entry:disabled) {
+      --_bg: var(--cb-bg-recessed);
+      --_ink: var(--cb-text-disabled);
+      --_border: var(--cb-border-main);
+      --_border-top: var(--cb-border-main);
+      --_shadow: none;
+    }
+  }
+
+  .cb-tokens__entry {
+    flex: 1 0 8rem;
+    min-inline-size: 0;
+    block-size: var(--cb-row-h-sm);
+    padding: 0 var(--cb-space-1);
+    font-size: var(--cb-text-md);
+    color: inherit;
+    background: none;
+    border: 0;
+
+    &:focus-visible {
+      outline: 0;
+    }
+
+    &::placeholder {
+      color: var(--cb-text-muted);
+      opacity: 1;
+    }
+  }
+
   /* 5.3 Fieldsets & panels ------------------------------------------------ */
 
   /* Group box: the legend sits on the border line and the box keeps the parent
@@ -1415,7 +1481,13 @@
   /* Script-only actions stay hidden until cubicle.js marks the root, so a page
      without the script shows the value (still selectable) and no dead buttons.
      Markup swapped in later is covered too; nothing needs re-initialising. */
-  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle]) {
+  :root:not([data-cb-js]) :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-select-all], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle], [data-cb-tokens] .cb-chip__remove) {
+    display: none;
+  }
+
+  /* With the script a token's key removes it, so its box hides; it stays
+     checked and is still sent. */
+  :root[data-cb-js] [data-cb-tokens] .cb-chip > .cb-check {
     display: none;
   }
 
@@ -1664,6 +1736,23 @@
     &[aria-busy="true"]::before {
       font-size: var(--cb-text-xs);
     }
+  }
+
+  /* In a token field (5.2) each chip carries its value in a checked box, so
+     the form sends the list as it stands. Without the script the box shows
+     and an unticked value is struck through: it goes when the form is sent. */
+  .cb-chip > .cb-check {
+    margin-inline-end: var(--cb-space-1);
+  }
+
+  .cb-chip:has(> .cb-check:not(:checked)) {
+    text-decoration-line: line-through;
+  }
+
+  /* A value the server rejected; the field's error names it. */
+  .cb-chip:has(> .cb-check[aria-invalid="true"]) {
+    background: color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-surface));
+    border-color: var(--cb-danger);
   }
 
   /* 5.6 Data tables ------------------------------------------------------- */

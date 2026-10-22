@@ -32,7 +32,9 @@ The first release of Cubicle.
   Also check boxes and radios on 24px rows, so stacked lists meet the WCAG 2.5.8 target size,
   horizontal and stacked `.cb-field` layouts with hints, errors and required marks, input groups,
   file and range inputs, and list boxes whose checked options take the selected tint. Number and search fields drop the engines' spin and clear keys, and colour
-  fields are a swatch key two control heights wide.
+  fields are a swatch key two control heights wide. A `.cb-tokens` token field holds several
+  values (address blocks, scopes, groups) as chips in one well; each chip sends its value through a
+  checked box, so without the script unticking a box drops the value.
 - **Catalogue snippets.** Syntax-highlighted with line numbers (Prism, inlined in `docs/index.html`,
   nothing shipped in `dist/`), collapsed by default, scrolling past 20 lines, and copied whole by a
   click or Enter, with a "Copied" note in the header and a live-region message.
@@ -101,8 +103,10 @@ The first release of Cubicle.
 - **`dist/cubicle.js`.** Optional progressive enhancement through `data-cb-*` attributes and
   delegated listeners: copy (with a plain-HTTP fallback), reveal, download, toggle, select-all (which
   follows rows swapped in or disabled), dismiss, ARIA tabs, ARIA trees, meter marks, modal dialogs,
-  output readouts and menus (placed at their key, arrow keys, Home, End and Tab; closed by an item
-  click, a scroll that moves the key, or a resize). Script-only controls stay hidden without it.
+  output readouts, menus (placed at their key, arrow keys, Home, End and Tab; closed by an item
+  click, a scroll that moves the key, or a resize) and token fields (Enter, separators and a pasted
+  list add values, checked against the entry's pattern and the list; keys, Delete and Backspace
+  remove them). Script-only controls stay hidden without it.
 - **Catalogue.** `docs/index.html` shows every token and component in every state, with a
   copy-paste snippet identical to the live markup and a reference table. It also has a generated
   contrast table, a measured target-size table (compact density trades 2.5.8 for density), a

@@ -5,8 +5,8 @@
 
 /*
  * Behaviour hooks are data-cb-* attributes on controls; each value is the id of
- * the target element. Delegated click, keydown and input listeners on the
- * document serve them, so markup inserted later (HTMX swaps, frameworks) works
+ * the target element. Delegated click, keydown, input and paste listeners on
+ * the document serve them, so markup inserted later (HTMX swaps, frameworks) works
  * without re-initialisation.
  *
  *   data-cb-copy="id"                          copy the target's text
@@ -40,6 +40,11 @@
  *                                              and End move, Tab closes; it closes on an
  *                                              item click, a scroll that moves its key, or
  *                                              a resize
+ *   data-cb-tokens="<separators>" (on a        token field: Enter, a separator character
+ *     .cb-tokens well)                         or a pasted list adds values as chips copied
+ *                                              from the field's <template>; a chip's key, or
+ *                                              Delete and Backspace on it, removes it;
+ *                                              Backspace in an empty entry reaches the last key
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -54,6 +59,9 @@
   const TREE_ITEM = '[data-cb-tree] [role="treeitem"]';
   const OUTPUTS = 'output[data-cb-output]';
   const MENU = '.cb-menu[data-cb-menu]';
+  const TOKENS = '[data-cb-tokens]';
+  const ENTRY = `${TOKENS} .cb-tokens__entry`;
+  const TOKEN_KEY = `${TOKENS} .cb-chip__remove`;
   const remaskTimers = new WeakMap();
   let liveRegion;
 
@@ -439,6 +447,103 @@
     next?.focus();
   };
 
+  // Token fields: each chip carries its value in a checked box, so the form
+  // sends the list as it stands, and the entry shares the boxes' name. Values
+  // are added from a copy of the field's <template>; the key of a chip removes
+  // it. The entry's own constraints (pattern, type) decide what is valid.
+  const entryOf = (field) => field.querySelector('.cb-tokens__entry');
+  const keysOf = (field) => [...field.querySelectorAll('.cb-chip__remove')].filter((key) => !key.disabled);
+
+  // Newlines always separate values; the attribute names more characters.
+  const splitTokens = (field, text) => {
+    const separators = field.getAttribute('data-cb-tokens') ?? '';
+    const parts = [''];
+    for (const ch of text) {
+      if (ch === '\n' || ch === '\r' || separators.includes(ch)) parts.push('');
+      else parts[parts.length - 1] += ch;
+    }
+    return parts;
+  };
+
+  // Add the parts as chips. A part that breaks the entry's constraints or is
+  // already listed stays in the entry, with the reason shown or announced.
+  const addTokens = (entry, parts) => {
+    const field = entry.closest(TOKENS);
+    const list = field.querySelector('.cb-chips');
+    const template = field.querySelector('template');
+    const added = []; const kept = []; let repeated = ''; let invalid = false;
+    for (const value of parts.map((part) => part.trim()).filter(Boolean)) {
+      entry.value = value;
+      const listed = [...list.querySelectorAll('.cb-chip > .cb-check')].some((box) => box.value === value);
+      if (listed || !entry.checkValidity()) {
+        if (listed) repeated ||= value; else invalid = true;
+        kept.push(value);
+        continue;
+      }
+      const chip = template.content.firstElementChild.cloneNode(true);
+      const box = chip.querySelector('.cb-check');
+      box.value = value;
+      box.checked = true;
+      box.after(value);
+      for (const el of chip.querySelectorAll('[aria-label]')) el.setAttribute('aria-label', `${el.getAttribute('aria-label')} ${value}`);
+      list.append(chip);
+      added.push(value);
+    }
+    entry.value = kept.join(' ');
+    const said = [added.length === 1 ? `Added ${added[0]}` : added.length ? `Added ${added.length} values` : '', repeated && `${repeated} is already in the list`];
+    if (said.some(Boolean)) announce(said.filter(Boolean).join('; '));
+    if (invalid) entry.reportValidity();
+    if (added.length) entry.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+
+  // Focus moves to the next key, or to the entry after the last one.
+  const removeToken = (chip) => {
+    const field = chip.closest(TOKENS);
+    const entry = entryOf(field);
+    const keys = keysOf(field);
+    const next = keys[keys.indexOf(chip.querySelector('.cb-chip__remove')) + 1] ?? entry;
+    const value = chip.querySelector('.cb-check')?.value ?? chip.textContent.trim();
+    next?.focus();
+    chip.remove();
+    announce(`Removed ${value}`);
+    entry?.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+
+  const tokenKey = (event, el) => {
+    if (el.matches(TOKEN_KEY)) {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        removeToken(el.closest('.cb-chip'));
+      }
+      return;
+    }
+    if (el.readOnly || el.disabled) return;
+    if (event.key === 'Enter' && el.value.trim()) {
+      event.preventDefault();
+      addTokens(el, [el.value]);
+    } else if (event.key === 'Backspace' && !el.value) {
+      const last = keysOf(el.closest(TOKENS)).at(-1);
+      if (last) {
+        event.preventDefault();
+        last.focus();
+      }
+    }
+  };
+
+  // A pasted list is split into values; a single value pastes as usual.
+  document.addEventListener('paste', (event) => {
+    const entry = event.target;
+    if (!(entry instanceof HTMLInputElement) || !entry.matches(ENTRY) || entry.readOnly || entry.disabled) return;
+    const text = event.clipboardData?.getData('text/plain') ?? '';
+    const parts = splitTokens(entry.closest(TOKENS), text);
+    if (parts.length < 2) return;
+    event.preventDefault();
+    const { value, selectionStart: start, selectionEnd: end } = entry;
+    parts[0] = value.slice(0, start ?? value.length) + parts[0];
+    parts[parts.length - 1] += value.slice(end ?? value.length);
+    addTokens(entry, parts);
+  });
+
   document.addEventListener('scroll', (event) => closeMenus(event.target), true);
   addEventListener('resize', () => closeMenus());
 
@@ -451,6 +556,7 @@
     const tab = event.target.closest(TAB);
     if (tab) return tabKey(event, tab);
     if (event.target.matches(TREE_ITEM)) return treeKey(event, event.target);
+    if (event.target.matches(`${ENTRY}, ${TOKEN_KEY}`)) return tokenKey(event, event.target);
     const menu = event.target.closest(MENU);
     if (menu) return menuItemKey(event, menu);
     const target = event.target.getAttribute('popovertarget');
@@ -462,7 +568,17 @@
   // the control and its output natively; this keeps them in step in between.
   document.addEventListener('input', (event) => {
     const control = event.target;
-    if (!(control instanceof HTMLInputElement) || !control.id) return;
+    if (!(control instanceof HTMLInputElement)) return;
+    // A typed separator adds the values before it; the rest stays.
+    if (control.matches(ENTRY)) {
+      const parts = splitTokens(control.closest(TOKENS), control.value);
+      if (parts.length > 1) {
+        const rest = parts.pop();
+        addTokens(control, parts);
+        control.value = [control.value, rest].filter(Boolean).join(' ');
+      }
+    }
+    if (!control.id) return;
     for (const output of document.querySelectorAll(OUTPUTS)) {
       if (output.htmlFor.contains(control.id)) output.value = control.value;
     }
@@ -475,6 +591,17 @@
     // A chosen item closes its menu (its own action still runs below).
     const choice = event.target instanceof Element ? event.target.closest(`${MENU} [role="menuitem"]`) : null;
     if (choice) closeMenu(choice.closest(MENU));
+
+    // A token's key removes it; a click on the well's free space goes to the entry.
+    const key = event.target instanceof Element ? event.target.closest(TOKEN_KEY) : null;
+    if (key) {
+      if (!key.matches(':disabled, [aria-disabled="true"]')) removeToken(key.closest('.cb-chip'));
+      return;
+    }
+    if (event.target instanceof Element && event.target.matches(`${TOKENS}, ${TOKENS} > .cb-chips`)) {
+      entryOf(event.target.closest(TOKENS))?.focus();
+      return;
+    }
 
     const tab = event.target instanceof Element ? event.target.closest(TAB) : null;
     if (tab) {

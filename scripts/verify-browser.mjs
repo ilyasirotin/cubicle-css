@@ -323,9 +323,10 @@ if (want('states')) {
 
     await el.focus(); await page.keyboard.press(SHIFT_TAB); await page.keyboard.press(TAB);
     // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
+    // A token field's entry shows its ring on the well.
     const ring = await el.evaluate((n, segmented) => {
       const f = n.type === 'radio' && document.activeElement?.name === n.name ? document.activeElement : n;
-      const cs = getComputedStyle(f); return (f.matches(':focus-visible') || (f.matches(segmented) && f.matches(':focus'))) && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
+      const cs = getComputedStyle(f.matches('.cb-tokens__entry') ? f.closest('.cb-tokens') : f); return (f.matches(':focus-visible') || (f.matches(segmented) && f.matches(':focus'))) && parseFloat(cs.outlineWidth) >= 2 && cs.outlineStyle !== 'none';
     }, SEGMENTED);
     await shot('focus');
     await el.evaluate((n) => n.blur());
@@ -1467,15 +1468,15 @@ if (want('density') && await page.locator('.docs-demo [data-cb-density]').count(
   }
 }
 
-// 21. Keyboard audit: Tab from the top of a fresh page through every stop until focus leaves
-//     the page. Each stop must show the indicator (on a tree item, on its row label), and the
-//     ring, grown by its width and offset, must lie inside the viewport and inside every
-//     clipping ancestor; a stop that repeats before the end is a trap. Browsers do not scroll a
-//     partly visible control further on Tab, so a control may stay partly scrolled out of a
-//     container or the viewport (allowed by WCAG 2.4.11 as long as it is not hidden entirely);
-//     those stops are listed, not failed. A fully shown control with a cut ring fails.
-//     Date and time fields take several Tab presses (one per segment) while focus stays on the
-//     same element, so a repeat of such a field walks on instead of ending the audit.
+// 21. Keyboard audit: Tab from the top of a fresh page through every stop until focus leaves the
+//     page. Each stop must show the indicator (on a tree item, on its row label; on a token field's
+//     entry, on its well), and the ring, grown by its width and offset, must lie inside the
+//     viewport and inside every clipping ancestor; a stop that repeats before the end is a trap.
+//     Browsers do not scroll a partly visible control further on Tab, so a control may stay partly
+//     scrolled out of a container or the viewport (allowed by WCAG 2.4.11 as long as it is not
+//     hidden entirely); those stops are listed, not failed. A fully shown control with a cut ring
+//     fails. Date and time fields take several Tab presses (one per segment) while focus stays on
+//     the same element, so a repeat of such a field walks on instead of ending the audit.
 for (const width of want('keyboard') ? [1360, 360] : []) {
   const pa = await context.newPage(); await applyOverrides(pa);
   await pa.setViewportSize({ width, height: 900 }); await pa.goto(pathToFileURL(page_path).href);
@@ -1488,7 +1489,7 @@ for (const width of want('keyboard') ? [1360, 360] : []) {
       const el = document.activeElement;
       if (!el || el === document.body || el === document.documentElement) return null;
       if (!el.dataset.vbStop) el.dataset.vbStop = String(document.querySelectorAll('[data-vb-stop]').length);
-      const target = el.matches('[data-cb-tree] [role="treeitem"]') ? el.querySelector(':scope > .cb-nav__link') : el;
+      const target = el.matches('[data-cb-tree] [role="treeitem"]') ? el.querySelector(':scope > .cb-nav__link') : el.matches('.cb-tokens__entry') ? el.closest('.cb-tokens') : el;
       const cs = getComputedStyle(target);
       const w = parseFloat(cs.outlineWidth); const grow = w + parseFloat(cs.outlineOffset);
       const r = target.getBoundingClientRect();

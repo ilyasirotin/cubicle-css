@@ -58,7 +58,7 @@ text, links, monospace elements and the focus ring.
 | Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status`; `__toggle` Menu key | [Layout](docs/index.html#layout) |
 | Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4`, `.cb-split`, `.cb-center` | [Layout](docs/index.html#layout) |
 | Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
-| Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
+| Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`, `.cb-tokens` with `__entry`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
 | Secret boxes | `.cb-secret`; `data-cb-copy`, `data-cb-reveal`, `data-cb-download` | [Secret boxes](docs/index.html#secrets) |
 | Fieldsets and panels | `.cb-fieldset`, `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; `--inset`, status stripes, `<details>` panels; group errors through `aria-invalid` choices; `aria-busy` on a body | [Fieldsets & panels](docs/index.html#panels) |
 | Tabs | `.cb-tabs`, `__list`, `__tab`, `__panel`; link tabs with `aria-current`, ARIA tabs with `data-cb-tabs`; `disabled`, `aria-disabled` | [Tabs](docs/index.html#tabs) |
@@ -99,9 +99,10 @@ id of the target element.
 | `data-cb-modal="id"` | button | Opens the `<dialog>` as a modal |
 | `data-cb-output` | `<output for="id">` | Shows the current value of its control (a range, a number) |
 | `data-cb-menu` | `.cb-menu` popover | Places the menu at its key, focuses its first item; arrow keys, Home and End move, Tab closes; closes on an item click, a scroll that moves its key, or a resize |
+| `data-cb-tokens="<separators>"` | `.cb-tokens` token field | Enter, the listed characters and a pasted list add values as chips from the field's `<template>`; a chip's key, Delete or Backspace removes it; checks the entry's `pattern` and repeats |
 
 Without the script, buttons that only the script can serve are hidden, ARIA tab sets show every
-panel, and trees show every branch.
+panel, trees show every branch, and token fields show a box on each chip: unticking one drops it.
 
 ## Customisation
 
