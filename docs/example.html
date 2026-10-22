@@ -46,7 +46,11 @@
         </li>
       </ul>
       <p class="cb-nav__heading" id="x-tree-label">Directory tree</p>
-      <div class="cb-nav cb-nav--lines" data-cb-tree>
+      <div class="cb-field">
+        <label class="cb-sr-only" for="x-tree-filter">Filter the directory tree</label>
+        <input class="cb-input" id="x-tree-filter" type="search" placeholder="Filter" autocomplete="off">
+      </div>
+      <div class="cb-nav cb-nav--lines" id="x-tree" data-cb-tree>
         <ul class="cb-nav__list" role="tree" aria-labelledby="x-tree-label">
           <li role="treeitem" aria-expanded="true" aria-selected="false" tabindex="0">
             <span class="cb-nav__link"><span class="cb-nav__kind">DC</span>corp.example.net</span>
@@ -63,6 +67,10 @@
             </ul>
           </li>
         </ul>
+      </div>
+      <div class="cb-empty" id="x-tree-empty" role="status" hidden>
+        <p>No objects match “<span id="x-tree-query"></span>”.</p>
+        <button class="cb-btn cb-btn--sm" type="button" id="x-tree-clear">Clear filter</button>
       </div>
     </nav>
 
@@ -457,7 +465,8 @@
   <div class="cb-toasts" id="x-toasts" aria-live="polite"></div>
 
   <!-- Host code for this example only, standing in for the server; not part of Cubicle. Refresh
-       marks the peer rows busy while they "reload", then confirms in the toast stack. -->
+       marks the peer rows busy while they "reload", then confirms in the toast stack; the
+       directory filter narrows the tree, or swaps it for an empty state. -->
   <script>
     (() => {
       let toastCount = 0;
@@ -486,6 +495,42 @@
         for (const el of [key, rows]) el.removeAttribute('aria-busy');
         key.removeAttribute('aria-disabled');
         toast(`Peer list refreshed at ${new Date().toLocaleTimeString('en-GB')}.`, 'ok');
+      });
+
+      // Matching items and their ancestors stay, the ancestors opened; the rest hide. The open
+      // state from before the first keystroke comes back when the query is cleared.
+      const filter = document.getElementById('x-tree-filter');
+      const tree = document.getElementById('x-tree');
+      const empty = document.getElementById('x-tree-empty');
+      const items = [...tree.querySelectorAll('[role="treeitem"]')];
+      const name = (item) => item.querySelector(':scope > .cb-nav__link').lastChild.textContent.toLowerCase();
+      let saved = null;
+      const narrow = () => {
+        const query = filter.value.trim().toLowerCase();
+        if (query && !saved) saved = new Map(items.map((item) => [item, item.getAttribute('aria-expanded')]));
+        const keep = new Set(); const parents = new Set();
+        for (const item of items.filter((i) => query && name(i).includes(query))) {
+          keep.add(item);
+          for (let up = item.parentElement.closest('[role="treeitem"]'); up; up = up.parentElement.closest('[role="treeitem"]')) { keep.add(up); parents.add(up); }
+        }
+        for (const item of items) {
+          item.hidden = Boolean(query) && !keep.has(item);
+          const open = parents.has(item) ? 'true' : saved?.get(item);
+          if (open) item.setAttribute('aria-expanded', open);
+        }
+        if (!query) saved = null;
+        // The tree keeps one Tab stop, on an item that shows.
+        const stop = items.find((i) => i.tabIndex === 0);
+        if (stop?.hidden) { stop.tabIndex = -1; (items.find((i) => !i.hidden) ?? stop).tabIndex = 0; }
+        tree.hidden = Boolean(query) && !keep.size;
+        empty.hidden = !tree.hidden;
+        document.getElementById('x-tree-query').textContent = filter.value.trim();
+      };
+      filter.addEventListener('input', narrow);
+      document.getElementById('x-tree-clear').addEventListener('click', () => {
+        filter.value = '';
+        narrow();
+        filter.focus();
       });
     })();
   </script>

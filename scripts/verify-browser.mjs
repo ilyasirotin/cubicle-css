@@ -2778,6 +2778,45 @@ if (want('example') && await page.locator('body > .cb-app [data-cb-tabs]').count
   await px.close();
 }
 
+// 38. The example's directory filter (host code): typing keeps the matching tree items and their
+//     ancestors, opened, and hides the rest, with the tree's one Tab stop on a shown item; a
+//     query that matches nothing gives way to an empty state (role="status") that names it, and
+//     its Clear filter key restores every item and its open state and returns focus to the field.
+if (want('example') && await page.locator('body > .cb-app [data-cb-tree]').count()) {
+  const pt = await context.newPage(); await applyOverrides(pt);
+  await pt.setViewportSize({ width: 1360, height: 900 }); await pt.goto(pathToFileURL(page_path).href);
+  if (!await pt.locator('#x-tree-filter').count()) check(false, 'example: the directory tree has a filter', 'missing #x-tree-filter');
+  else {
+    const state = () => pt.evaluate(() => {
+      const tree = document.querySelector('#x-side [role="tree"]'); const empty = document.getElementById('x-tree-empty');
+      const items = [...tree.querySelectorAll('[role="treeitem"]')];
+      const name = (i) => i.querySelector(':scope > .cb-nav__link').lastChild.textContent.trim();
+      const stop = items.filter((i) => i.tabIndex === 0);
+      return {
+        shown: items.filter((i) => i.getClientRects().length).map(name),
+        open: items.filter((i) => i.getAttribute('aria-expanded') === 'true').map(name),
+        stop: stop.length === 1 && stop[0].getClientRects().length > 0,
+        tree: tree.getClientRects().length > 0, empty: empty.getClientRects().length > 0 ? empty.textContent.replace(/\s+/g, ' ').trim() : '',
+        role: empty.getAttribute('role'), field: document.getElementById('x-tree-filter').value, focus: document.activeElement.id,
+      };
+    });
+    const start = await state();
+    await pt.focus('#x-tree-filter'); await pt.keyboard.type('alice');
+    const match = await state();
+    await pt.fill('#x-tree-filter', ''); await pt.keyboard.type('contr');
+    const none = await state();
+    await pt.click('#x-tree-empty button');
+    const cleared = await state();
+    check(match.shown.join() === 'corp.example.net,Staff,Alice Ng' && match.open.includes('Staff') && match.stop
+      && !none.tree && /No objects match “contr”/.test(none.empty) && none.role === 'status'
+      && cleared.tree && !cleared.empty && cleared.shown.join() === start.shown.join() && cleared.open.join() === start.open.join()
+      && cleared.field === '' && cleared.focus === 'x-tree-filter' && cleared.stop,
+      'example: the directory filter keeps matches and their ancestors, shows an empty state when nothing matches, and Clear filter restores the tree',
+      JSON.stringify({ start: start.shown, match, none, cleared }));
+  }
+  await pt.close();
+}
+
 await browser.close();
 
 const failed = results.filter((r) => !r.ok);
