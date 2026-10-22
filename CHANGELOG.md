@@ -126,7 +126,7 @@ The first release of Cubicle.
 - **Development tools.**
   - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs` (which also keeps system colours
     inside forced-colours blocks).
-  - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state, behaviour,
+  - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout (reflow at 320px), state, behaviour,
     forced-colours, right-to-left, print and target-size checks, names of tables, row keys
     and scroll boxes, and the example's host flows (Refresh, the directory filter), in Chromium,
     Firefox and WebKit, with labelled engine limits;

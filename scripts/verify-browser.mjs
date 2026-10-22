@@ -141,24 +141,13 @@ const sectionShots = async (id) => {
 // 1. No console errors
 check(problems.length === 0, 'no console errors or warnings', problems.join(' | '));
 
-// 2. No horizontal overflow at three widths
+// 2. No horizontal overflow at 360, 800 and 1360px, and none at 320px with every panel open
 if (want('layout')) {
   const unreachable = new Set();
   for (const width of [360, 800, 1360]) {
     await page.setViewportSize({ width, height: 900 });
     const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     check(sw <= 0, `no horizontal overflow at ${width}px`, sw > 0 ? `${sw}px too wide` : '');
-    // A catalogue demo scrolls sideways when its content is too wide, which hides the fault from
-    // the page check above: a demo must wrap (.cb-break) or scroll in its own wrapper (.cb-table-wrap).
-    if (width === 360 && await page.locator('.docs-demo').count()) {
-      const wide = await page.$$eval('.docs-demo', (demos) => demos.flatMap((d) => {
-        const edge = d.getBoundingClientRect().right + 1;
-        const own = (el) => { for (let n = el.parentElement; n !== d; n = n.parentElement) if (/auto|scroll|hidden|clip/.test(getComputedStyle(n).overflowX)) return false; return true; };
-        return [...d.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > edge && el.parentElement.getBoundingClientRect().right <= edge && own(el))
-          .map((el) => `#${d.closest('[id]')?.id} ${el.localName}.${[...el.classList].join('.')} +${Math.round(el.getBoundingClientRect().right - edge)}px`);
-      }));
-      check(!wide.length, 'at 360px no demo content runs past its frame outside a scroll wrapper', wide.join('; '));
-    }
     // A box that scrolls must be reachable from the keyboard, or WebKit (Safari, which never focuses
     // a scroll box itself) cannot scroll it: a native field, a box that holds a control, or a box
     // with tabindex plus a role and a name (catalogue, Accessibility > Focus).
@@ -175,6 +164,26 @@ if (want('layout')) {
     await snap(page, `page-${width}.png`, { fullPage: true }).catch(() => snap(page, `page-${width}.png`));
   }
   check(!unreachable.size, 'every scroll box can be reached with the keyboard (a control inside, or tabindex, role and name)', [...unreachable].join('; '));
+  // Reflow at 320px (WCAG 1.4.10), with every tab panel and details open on a fresh page, so
+  // content behind an idle tab counts. A catalogue demo scrolls sideways when its content is too
+  // wide, which hides the fault from the page check: a demo must wrap (.cb-break) or scroll in its
+  // own wrapper (.cb-table-wrap).
+  const pr = await context.newPage(); await applyOverrides(pr);
+  await pr.setViewportSize({ width: 320, height: 900 }); await pr.goto(pathToFileURL(page_path).href);
+  const reflow = await pr.evaluate(() => {
+    document.querySelectorAll('[role="tabpanel"][hidden]').forEach((t) => t.removeAttribute('hidden'));
+    document.querySelectorAll('details:not([open])').forEach((d) => { d.open = true; });
+    const wide = [...document.querySelectorAll('.docs-demo')].flatMap((d) => {
+      const edge = d.getBoundingClientRect().right + 1;
+      const own = (el) => { for (let n = el.parentElement; n !== d; n = n.parentElement) if (/auto|scroll|hidden|clip/.test(getComputedStyle(n).overflowX)) return false; return true; };
+      return [...d.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > edge && el.parentElement.getBoundingClientRect().right <= edge && own(el))
+        .map((el) => `#${d.closest('[id]')?.id} ${el.localName}.${[...el.classList].join('.')} +${Math.round(el.getBoundingClientRect().right - edge)}px`);
+    });
+    return { page: document.documentElement.scrollWidth - document.documentElement.clientWidth, wide };
+  });
+  await pr.close();
+  check(reflow.page <= 0, 'no horizontal overflow at 320px with every panel open (WCAG 1.4.10)', reflow.page > 0 ? `${reflow.page}px too wide` : '');
+  if (await page.locator('.docs-demo').count()) check(!reflow.wide.length, 'at 320px no demo content runs past its frame outside a scroll wrapper', reflow.wide.join('; '));
   await page.setViewportSize({ width: 1360, height: 900 });
   // Ids are unique: a duplicate sends labels, dismiss keys and getElementById to the wrong element.
   const dupes = await page.evaluate(() => { const n = {}; for (const e of document.querySelectorAll('[id]')) n[e.id] = (n[e.id] ?? 0) + 1; return Object.keys(n).filter((k) => n[k] > 1); });
