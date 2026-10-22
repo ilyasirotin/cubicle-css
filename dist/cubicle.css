@@ -30,7 +30,8 @@
                                chevron, collapsible
       5.4 Secret & copy boxes  script-only actions (and the shell's Menu key),
                                copied feedback, .cb-secret
-      5.5 Badges & LEDs ...... .cb-badge tags, status, solid, count, busy; .cb-led
+      5.5 Badges, chips & LEDs .cb-badge tags, status, solid, count, busy; .cb-chips
+                               list, .cb-chip, remove key; .cb-led
       5.6 Data tables ........ .cb-table-wrap, .cb-table rows, selection,
                                disabled rows, sorting, compact, wrap, sticky;
                                select-all (cubicle.js)
@@ -1529,7 +1530,7 @@
     }
   }
 
-  /* 5.5 Badges & LEDs ----------------------------------------------------- */
+  /* 5.5 Badges, chips & LEDs ---------------------------------------------- */
 
   /* Badge: a static bordered chip, never a control. Without a modifier it is a
      neutral tag (roles, protocols, directories). Modifiers set only --_tone;
@@ -1608,6 +1609,61 @@
   /* The fill or the number is the signal: solid and count badges have no lamp. */
   :is(.cb-badge--solid, .cb-badge--count):not([aria-busy="true"])::before {
     display: none;
+  }
+
+  /* Chips: values people can remove (active filters, scopes, groups), in a
+     list. A chip has the neutral tag paint; its remove key is a tactile
+     button attached to the end. Chip and key are --cb-row-h-sm tall, so the
+     key is a 24px target at default density (WCAG 2.5.8). A value that
+     cannot be removed has no key. */
+  .cb-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cb-space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cb-chip {
+    display: inline-flex;
+    align-items: center;
+    max-inline-size: 100%;
+    min-block-size: var(--cb-row-h-sm);
+    padding-inline: var(--cb-space-2);
+    font-size: var(--cb-text-xs);
+    font-weight: 600;
+    line-height: var(--cb-line-tight);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere; /* a long DN wraps instead of overflowing */
+    color: var(--cb-text-main);
+    background: color-mix(in srgb, var(--cb-text-main) 10%, var(--cb-bg-surface));
+    border: 1px solid color-mix(in srgb, var(--cb-text-main) 35%, var(--cb-border-main));
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-shadow-highlight);
+  }
+
+  /* The key overlaps the chip's frame on the top, bottom and end, so the
+     two read as one frame; it stays square at the top when the value wraps. */
+  .cb-chip__remove {
+    --_h: var(--cb-row-h-sm);
+    flex: none;
+    align-self: flex-start;
+    margin-block: -1px;
+    margin-inline: var(--cb-space-2) calc(-1px - var(--cb-space-2));
+    font-size: var(--cb-text-xs);
+    border-start-start-radius: var(--cb-radius-none);
+    border-end-start-radius: var(--cb-radius-none);
+
+    /* Busy: the spinner takes the place of the cross. */
+    &[aria-busy="true"] {
+      gap: 0;
+      font-size: 0;
+    }
+
+    &[aria-busy="true"]::before {
+      font-size: var(--cb-text-xs);
+    }
   }
 
   /* 5.6 Data tables ------------------------------------------------------- */
@@ -3201,7 +3257,7 @@
 
     /* Framed parts inside a highlight (a check box in a selected row, a
        count in the current link) are forced again, like everywhere else. */
-    :is(.cb-check, .cb-badge, .cb-led, .cb-btn, .cb-kbd, .cb-code, .cb-nav__kind) {
+    :is(.cb-check, .cb-badge, .cb-chip, .cb-led, .cb-btn, .cb-kbd, .cb-code, .cb-nav__kind) {
       forced-color-adjust: auto;
     }
 
@@ -3244,6 +3300,11 @@
   @media print {
     :is([data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle]),
     .cb-toasts {
+      display: none;
+    }
+
+    /* Without its key a chip is a plain tag: the end padding comes back. */
+    .cb-chip__remove {
       display: none;
     }
 

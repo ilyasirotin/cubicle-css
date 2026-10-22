@@ -52,7 +52,7 @@
         <li><a class="docs-nav__link" href="#tables">Data tables</a></li>
         <li><a class="docs-nav__link" href="#props">Property lists</a></li>
         <li><a class="docs-nav__link" href="#empty">Empty states</a></li>
-        <li><a class="docs-nav__link" href="#badges">Status badges &amp; LEDs</a></li>
+        <li><a class="docs-nav__link" href="#badges">Badges, chips &amp; LEDs</a></li>
         <li><a class="docs-nav__link" href="#alerts">Alerts</a></li>
         <li><a class="docs-nav__link" href="#toasts">Toasts</a></li>
         <li><a class="docs-nav__link" href="#nav">Tree views &amp; navigation</a></li>
@@ -3408,9 +3408,9 @@ async function reloadRows(url) {
 
       <!-- ================================================================ -->
       <section class="docs-section" id="badges" aria-labelledby="badges-title">
-        <h2 class="docs-h2" id="badges-title">Status badges &amp; LEDs</h2>
-        <p class="docs-text">Static chips and lamps that label an object or report its state at a glance;
-          they are never controls.</p>
+        <h2 class="docs-h2" id="badges-title">Badges, chips &amp; LEDs</h2>
+        <p class="docs-text">Badges and lamps label an object or report its state at a glance; they are
+          never controls. Removable chips are the one exception: values with a remove key.</p>
 
         <h3 class="docs-h3" id="badges-status">Tags and statuses</h3>
         <p class="docs-text">Without a modifier a badge is a neutral tag. Status modifiers tint it and add
@@ -3499,6 +3499,40 @@ async function reloadRows(url) {
   &lt;/section&gt;
 &lt;/div&gt;</code></pre>
 
+        <h3 class="docs-h3" id="badges-chips">Removable chips</h3>
+        <p class="docs-text">Values people can take away again: active filters, granted scopes, group
+          memberships. A list of chips, each with a remove key at its end. The key is a native button,
+          24px square at default density, and works without script: it submits a form or triggers the
+          host's request. A value that cannot be removed has no key; <code>disabled</code> locks one for
+          now, <code>aria-busy="true"</code> shows the spinner while the server removes it. A long value
+          wraps.</p>
+        <div class="docs-demo">
+          <div class="cb-stack">
+            <ul class="cb-chips" aria-label="Granted scopes">
+              <li class="cb-chip">peers:read<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove scope peers:read">✕</button></li>
+              <li class="cb-chip">peers:write<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove scope peers:write">✕</button></li>
+              <li class="cb-chip">gateways:read<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove scope gateways:read" disabled>✕</button></li>
+              <li class="cb-chip">audit:export<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove scope audit:export" aria-busy="true">✕</button></li>
+              <li class="cb-chip">openid</li>
+            </ul>
+            <ul class="cb-chips" aria-label="Member of">
+              <li class="cb-chip">CN=VPN Operators,OU=Groups,OU=Staff,DC=corp,DC=example,DC=net<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove group CN=VPN Operators,OU=Groups,OU=Staff,DC=corp,DC=example,DC=net">✕</button></li>
+            </ul>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack&quot;&gt;
+  &lt;ul class=&quot;cb-chips&quot; aria-label=&quot;Granted scopes&quot;&gt;
+    &lt;li class=&quot;cb-chip&quot;&gt;peers:read&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Remove scope peers:read&quot;&gt;✕&lt;/button&gt;&lt;/li&gt;
+    &lt;li class=&quot;cb-chip&quot;&gt;peers:write&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Remove scope peers:write&quot;&gt;✕&lt;/button&gt;&lt;/li&gt;
+    &lt;li class=&quot;cb-chip&quot;&gt;gateways:read&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Remove scope gateways:read&quot; disabled&gt;✕&lt;/button&gt;&lt;/li&gt;
+    &lt;li class=&quot;cb-chip&quot;&gt;audit:export&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Remove scope audit:export&quot; aria-busy=&quot;true&quot;&gt;✕&lt;/button&gt;&lt;/li&gt;
+    &lt;li class=&quot;cb-chip&quot;&gt;openid&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;ul class=&quot;cb-chips&quot; aria-label=&quot;Member of&quot;&gt;
+    &lt;li class=&quot;cb-chip&quot;&gt;CN=VPN Operators,OU=Groups,OU=Staff,DC=corp,DC=example,DC=net&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;button&quot; aria-label=&quot;Remove group CN=VPN Operators,OU=Groups,OU=Staff,DC=corp,DC=example,DC=net&quot;&gt;✕&lt;/button&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+
         <h3 class="docs-h3" id="badges-led">LEDs</h3>
         <p class="docs-text">A lamp beside plain text, without a frame, for status bars and dense lists.
           The text keeps the surrounding ink; without a modifier the lamp is grey.</p>
@@ -3572,6 +3606,10 @@ async function reloadRows(url) {
             <code>role="status"</code> region.</li>
           <li>A count is read with its button or heading, so write the label as a full phrase
             (“Pending requests 12”).</li>
+          <li>Name every chip list (<code>aria-label</code>), and name each remove key after its value
+            (“Remove scope peers:read”), so a screen reader says what goes.</li>
+          <li>After a removal, move focus to the next chip's key, or to the field that adds values when
+            the list is empty; Cubicle has no chip script, so the host does this.</li>
         </ul>
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap">
@@ -3586,6 +3624,10 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-badge--count</code></th><td>Badge</td><td>Compact centred number; no lamp. Combine with a tone or <code>--solid</code></td></tr>
               <tr><th scope="row"><code>aria-busy="true"</code></th><td>Badge</td><td>Stepped spinner in place of the lamp; stops turning under reduced motion</td></tr>
               <tr><th scope="row"><code>.cb-led</code></th><td><code>&lt;span&gt;</code></td><td>Lamp plus text, no frame; grey lamp without a modifier</td></tr>
+              <tr><th scope="row"><code>.cb-chips</code></th><td><code>&lt;ul&gt;</code> with a name</td><td>A wrapping list of chips, 4px apart</td></tr>
+              <tr><th scope="row"><code>.cb-chip</code></th><td><code>&lt;li&gt;</code></td><td>One value on the neutral tag paint, <code>--cb-row-h-sm</code> tall; a long value wraps</td></tr>
+              <tr><th scope="row"><code>.cb-chip__remove</code></th><td><code>&lt;button&gt;</code> with <code>.cb-btn .cb-btn--icon</code></td><td>Square remove key attached to the chip's end, 24px at default density; hidden in print</td></tr>
+              <tr><th scope="row"><code>disabled</code> / <code>aria-busy="true"</code></th><td>Remove key</td><td>Locked for now / spinner in place of the cross while the server removes the value</td></tr>
               <tr><th scope="row"><code>.cb-led--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code> / <code>--off</code></th><td>LED</td><td>Lamp tone; <code>--off</code> is hollow</td></tr>
             </tbody>
           </table>
@@ -6086,6 +6128,7 @@ function hideLater(message, ms = 10000) {
               <tr><th scope="row">Small keys in table rows</th><td>18px, spaced</td><td>20px, spaced</td><td>24px</td></tr>
               <tr><th scope="row">Keys stacked in a column</th><td>22px, 21px apart · fails</td><td>26px</td><td>30px</td></tr>
               <tr><th scope="row">Keys in a row</th><td>22px, spaced</td><td>26px</td><td>30px</td></tr>
+              <tr><th scope="row">Chip remove keys</th><td>20px, spaced</td><td>24px</td><td>28px</td></tr>
             </tbody>
           </table>
         </div>

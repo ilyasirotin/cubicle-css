@@ -65,7 +65,7 @@ text, links, monospace elements and the focus ring.
 | Data tables | `.cb-table-wrap`, `.cb-table`, `--compact`, `--wrap`, `--sticky`, `__num`, `__select`, `__actions`, `__sort`; `aria-selected`, `aria-disabled`, `aria-sort`, `aria-busy` (body or table), `data-cb-select-all` | [Data tables](docs/index.html#tables) |
 | Property lists | `.cb-props` on `<dl>`; `dt` / `dd` or a `<div>` per row; `aria-busy` | [Property lists](docs/index.html#props) |
 | Empty states | `.cb-empty`, `__title` | [Empty states](docs/index.html#empty) |
-| Badges and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-led` | [Status badges & LEDs](docs/index.html#badges) |
+| Badges, chips and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-chips` of `.cb-chip` with `__remove`, `.cb-led` | [Badges, chips & LEDs](docs/index.html#badges) |
 | Alerts | `.cb-alert` (tones, `--sm`, `--banner`), `__title`, `__actions`, `__close`; `data-cb-dismiss` | [Alerts](docs/index.html#alerts) |
 | Toasts | `.cb-toasts` with `aria-live="polite"`, holding `.cb-alert--sm` messages | [Toasts](docs/index.html#toasts) |
 | Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `aria-disabled`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |

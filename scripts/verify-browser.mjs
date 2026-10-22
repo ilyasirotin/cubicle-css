@@ -2506,6 +2506,7 @@ const TARGET_ROWS = [
   { name: 'Small keys in table rows', sel: '#tables .cb-table .cb-btn--sm' },
   { name: 'Keys stacked in a column', sel: '#secrets .cb-secret__actions .cb-btn' },
   { name: 'Keys in a row', sel: '#buttons .cb-btn:not(.cb-btn--sm)' },
+  { name: 'Chip remove keys', sel: '#badges .cb-chip__remove' },
 ];
 const measureTargets = ([d, rows]) => {
   if (d === 'default') document.documentElement.removeAttribute('data-cb-density'); else document.documentElement.dataset.cbDensity = d;
