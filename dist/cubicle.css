@@ -1071,7 +1071,7 @@
       min-block-size: var(--cb-control-h);
     }
 
-    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret) {
+    & > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret, .cb-tokens) {
       justify-self: stretch;
     }
 

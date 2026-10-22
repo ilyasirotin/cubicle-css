@@ -186,6 +186,22 @@ if (want('layout')) {
     return { el: `${e.localName}.${[...e.classList].join('.')}`, edge: [s.margin, s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth, s.borderTopLeftRadius] };
   }).filter((c) => c.edge.some((v) => v !== '0px')));
   check(!framed.length, 'children of a flush panel body have no margin, border or radius', framed.map((c) => `${c.el} ${c.edge.join(' ')}`).join('; '));
+  // A field's control fills its column to the field's end, stacked or horizontal, whatever kind it
+  // is; idle tab panels and closed details are opened on a fresh page so every field is measured.
+  const pf = await context.newPage(); await applyOverrides(pf);
+  await pf.setViewportSize({ width: 1360, height: 900 }); await pf.goto(pathToFileURL(page_path).href);
+  const short = await pf.evaluate(() => {
+    document.querySelectorAll('[role="tabpanel"][hidden]').forEach((t) => t.removeAttribute('hidden'));
+    document.querySelectorAll('details:not([open])').forEach((d) => { d.open = true; });
+    return [...document.querySelectorAll('.cb-field > :is(.cb-input, .cb-select, .cb-input-group, .cb-range, .cb-secret, .cb-tokens)')]
+      .filter((c) => c.getClientRects().length && !c.closest('[dir="rtl"]')).map((c) => {
+        const f = c.parentElement; const fs = getComputedStyle(f);
+        const end = f.getBoundingClientRect().right - parseFloat(fs.paddingRight) - parseFloat(fs.borderRightWidth);
+        return { el: `#${f.closest('[id]')?.id} ${c.localName}.${[...c.classList].join('.')}`, gap: Math.round(end - c.getBoundingClientRect().right) };
+      }).filter((c) => c.gap > 1).map((c) => `${c.el} ${c.gap}px short`);
+  });
+  await pf.close();
+  check(!short.length, 'a field control fills its column to the end of the field, stacked or horizontal', short.join('; '));
 }
 
 // 3. Visible focus ring on the first instance of each control type
