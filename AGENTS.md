@@ -75,6 +75,8 @@ When designing or modifying components, adhere to these domain-specific UX patte
 7. **Key-Value Lists (`.cb-props`):**
    * A `<dl>` for inspector facts (certificate metadata, sessions, hardware), framed like a table, with the key column on the left; it stacks key over value when its own width is narrow.
 
+**Out of scope, by decision:** diff views and code viewers (added / removed lines, syntax highlighting, editor behaviour). `.cb-log` and `.cb-code` show plain text; a host that needs a read-only code or diff view embeds a third-party editor.
+
 ---
 
 ## 5. UI/UX Anti-Patterns (Strictly Forbidden)

@@ -28,7 +28,7 @@ Add patterns you meet that are not here, and drop ones the maintainer has ruled 
 - Pagination with page size and jump
 - Key-value inspector (certificate, session, device), master-detail split
 - **Audit trail / activity timeline** (who did what, when)
-- **Diff view** for configuration or policy changes (added / removed lines)
+- Diff view for configuration or policy changes: out of scope (AGENTS.md Section 4); a host embeds a third-party editor, so never list it as a gap
 - Log viewer with levels, timestamps, line anchors
 - Code / JSON / YAML / PEM block, inline code and keys
 - Metrics: meters, quotas, gauges, progress of long jobs; node health grid of LEDs
