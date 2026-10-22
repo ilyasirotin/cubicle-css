@@ -1550,13 +1550,15 @@ for (const width of want('keyboard') ? [1360, 360] : []) {
 }
 
 // 22. The catalogue's contrast table (generated from scripts/contrast-pairs.mjs) matches the
-//     live ratios row for row, so a token change cannot leave it stale.
+//     live ratios row for row, so a token change cannot leave it stale. A mix that lands on a
+//     half step rounds differently by engine (25% --cb-ok on --cb-bg-recessed: red 170.5 is 170
+//     in Chromium and WebKit, 171 in Firefox), so a ratio may differ by 0.02.
 const docRows = !want('contrast') ? [] : await page.$$eval('#a11y-contrast-table tbody tr', (rows) => rows.map((r) => [...r.children].map((c) => c.textContent.trim())));
 if (docRows.length) {
   const stale = measured.flatMap((m, i) => {
     const row = docRows[i];
     if (!row) return [`missing row for ${label(m.fg)} on ${label(m.bg)}`];
-    const same = row[0] === label(m.fg) && row[1] === label(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.01 && row[3] === `≥ ${m.need}`;
+    const same = row[0] === label(m.fg) && row[1] === label(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.02 && row[3] === `≥ ${m.need}`;
     return same ? [] : [`${row.slice(0, 4).join(' ')} vs live ${label(m.fg)} ${label(m.bg)} ${m.ratio.toFixed(2)}`];
   });
   if (docRows.length !== measured.length) stale.push(`${docRows.length} rows for ${measured.length} pairs`);
