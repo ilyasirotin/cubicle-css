@@ -2482,6 +2482,15 @@ if (want('recipes') && await page.locator('#recipes').count()) {
   });
   check(bar.rows > 1 && bar.inside && !bar.overflow, 'recipe filter bar: wraps inside its panel at 360px', JSON.stringify(bar));
   await page.setViewportSize({ width: 1360, height: 900 });
+  // Enter in a field presses the form's first submit key: it must filter, not drop a filter.
+  await page.evaluate(() => {
+    const f = document.querySelector('#recipes-filter ~ .docs-demo form[role="search"]');
+    f.addEventListener('submit', (e) => { e.preventDefault(); f.dataset.submitter = e.submitter ? `${e.submitter.textContent.trim()} ${e.submitter.name}=${e.submitter.value}` : 'none'; }, { once: true });
+  });
+  await page.focus('#recipes-filter ~ .docs-demo form[role="search"] input[type="search"]');
+  await page.keyboard.press('Enter');
+  const submitter = await page.$eval('#recipes-filter ~ .docs-demo form[role="search"]', (f) => { const s = f.dataset.submitter ?? 'no submit'; delete f.dataset.submitter; return s; });
+  check(!/drop=/.test(submitter) && submitter !== 'no submit', 'recipe filter bar: Enter in the search field filters, without dropping a filter', submitter);
   const r = await page.evaluate(async () => {
     const code = document.getElementById('rs-code');
     const step = document.querySelector('#recipes-steps ~ .docs-demo [aria-current="step"]');
