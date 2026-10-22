@@ -327,7 +327,8 @@ async function reloadRows(url) {
         <p class="docs-text"><code>data-cb-density="compact"</code> or <code>"comfortable"</code> on
           <code>&lt;html&gt;</code> or on any panel, table or form redefines the size tokens and the small
           spacing steps for everything inside. Type sizes never change, a small key always fits a table
-          row, and panel heads follow: 26, 32 or 38px.</p>
+          row, and panel heads follow: 26, 32 or 38px. Compact gives up the 24px
+          <a href="#a11y-targets">target size</a>.</p>
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap">
             <thead>
@@ -6060,6 +6061,34 @@ function hideLater(message, ms = 10000) {
   &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot;&gt;Ring outside&lt;/button&gt;
   &lt;pre class=&quot;cb-panel cb-panel--inset&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Gateway log&quot;&gt;10:42:07 gw-eu-1 handshake ok&amp;#10;10:42:05 gw-eu-2 handshake ok&amp;#10;10:41:58 gw-ap-2 no handshake for 240 s&amp;#10;10:41:30 gw-us-1 handshake ok&lt;/pre&gt;
 &lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="a11y-targets">Target size</h3>
+        <p class="docs-text">At default and comfortable density every target is at least 24×24px or far enough
+          from its neighbours (WCAG 2.5.8). Compact density gives this up for density: its rows are 20px and
+          its small keys 18px. Use compact on data panels people read (tables, logs, property lists, their
+          pagers), not on navigation, forms or dialogs.</p>
+        <ul class="docs-list">
+          <li>A small key (20px) passes only through spacing. Keep small keys in a row or one per table row;
+            never stack them in a column.</li>
+          <li>A link inside running text is exempt.</li>
+          <li>The suite measures default and comfortable density and leaves compact subtrees out, so the
+            trade-off stays a choice.</li>
+        </ul>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap" id="a11y-targets-table" aria-labelledby="a11y-targets">
+            <thead>
+              <tr><th scope="col">Target</th><th scope="col">Compact</th><th scope="col">Default</th><th scope="col">Comfortable</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Navigation and tree rows</th><td>20px, 20px apart · fails</td><td>24px</td><td>28px</td></tr>
+              <tr><th scope="row">Stacked check boxes and radios</th><td>20px, 22px apart · fails</td><td>24px</td><td>28px</td></tr>
+              <tr><th scope="row">Attached page keys</th><td>18px, 23px apart · fails</td><td>20px, 27px apart</td><td>24px</td></tr>
+              <tr><th scope="row">Small keys in table rows</th><td>18px, spaced</td><td>20px, spaced</td><td>24px</td></tr>
+              <tr><th scope="row">Keys stacked in a column</th><td>22px, 21px apart · fails</td><td>26px</td><td>30px</td></tr>
+              <tr><th scope="row">Keys in a row</th><td>22px, spaced</td><td>26px</td><td>30px</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <h3 class="docs-h3" id="a11y-keys">Keyboard</h3>
         <div class="cb-table-wrap docs-ref">

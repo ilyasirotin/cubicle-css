@@ -103,7 +103,8 @@ The first release of Cubicle.
   click, a scroll that moves the key, or a resize). Script-only controls stay hidden without it.
 - **Catalogue.** `docs/index.html` shows every token and component in every state, with a
   copy-paste snippet identical to the live markup and a reference table. It also has a generated
-  contrast table, a keyboard map, notes on forced colours, autofill and right to left (with a
+  contrast table, a measured target-size table (compact density trades 2.5.8 for density), a
+  keyboard map, notes on forced colours, autofill and right to left (with a
   `dir="rtl"` demo), framework-neutral recipes for server updates (htmx attributes, an htmx page
   listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM helper, optional
   auto-hide), and a Recipes section (filter bar, inspector, sign-in with MFA, masked secret, tag

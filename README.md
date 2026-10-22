@@ -137,6 +137,8 @@ Text meets WCAG AA contrast (4.5:1) and boundaries, fills and the focus ring mee
 in the browser for every palette pair. Every control has a visible focus ring and a keyboard path,
 and the only animation stops under `prefers-reduced-motion`.
 
+- **Target size** (WCAG 2.5.8): every target is 24px or spaced apart at default and comfortable
+  density; compact trades this for density, so use it on data panels, not on navigation and forms.
 - **Forced colours** (Windows High Contrast): selected, pressed, current and checked items take the
   user's `Highlight`, unavailable controls `GrayText`, and marks, lit lamps, sort arrows and the
   spinner stay visible. System colour keywords appear only in `@media (forced-colors: active)`.
@@ -144,8 +146,8 @@ and the only animation stops under `prefers-reduced-motion`.
   chevron, accent bars, the vertical tab line, chevrons and meter marks mirror.
 - **Autofill** keeps the browser's own tint, so people see what the browser filled.
 
-See the [Accessibility section](docs/index.html#accessibility) for the contrast table, the keyboard
-map and these notes.
+See the [Accessibility section](docs/index.html#accessibility) for the contrast table, the measured
+target sizes, the keyboard map and these notes.
 
 ## Browser support
 
