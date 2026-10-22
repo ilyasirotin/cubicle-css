@@ -40,13 +40,6 @@ export const PAIRS = [
     .map((bg) => [c, bg, 4.5, 'Log levels'])),
   ['--cb-text-muted', '--cb-bg-selected', 4.5, 'Log numbers and times: linked line'],
 
-  // Diff lines: ink and signs on the 10% line tints, changed words on the 25% tints
-  ...tints(['--cb-ok', '--cb-danger'], '--cb-bg-recessed').map((bg) => ['--cb-text-main', bg, 4.5, 'Diff lines']),
-  ...['--cb-ok', '--cb-danger'].map((c) => [c, tints([c], '--cb-bg-recessed')[0], 4.5, 'Diff signs']),
-  ['--cb-text-muted', tints(['--cb-ok'], '--cb-bg-recessed')[0], 4.5, 'Log numbers: added line'],
-  ...['--cb-ok', '--cb-danger'].map((c) => ['--cb-text-main', `color-mix(in srgb, var(${c}) 25%, var(--cb-bg-recessed))`, 4.5, 'Changed words']),
-  ['--cb-ok', '--cb-bg-selected', 4.5, 'Diff signs: linked line'],
-
   // Non-text: boundaries, fills and the focus ring (>= 3)
   ...['--cb-bg-surface', '--cb-bg-raised', '--cb-bg-canvas'].map((bg) =>
     ['color-mix(in srgb, var(--cb-border-strong) 60%, var(--cb-border-main))', bg, 3, 'Field and checkbox edges']),

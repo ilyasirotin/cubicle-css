@@ -75,7 +75,7 @@ text, links, monospace elements and the focus ring.
 | Dialogs | `.cb-dialog` (`--sm`, `--lg`, `--danger`) with the panel parts; `popover`, `data-cb-modal` | [Modals & dialogs](docs/index.html#dialogs) |
 | Pagination | `.cb-pagination`, `__summary`, `__pages`, `__sizes`, `__gap`, `__jump`, `--spaced` | [Pagination](docs/index.html#pagination) |
 | Menus | `.cb-menu` (`popover`, `role="menu"`, `data-cb-menu`), `__item`, `__item--danger`; key with `popovertarget` and `aria-haspopup="menu"` | [Menus](docs/index.html#menu) |
-| Logs | `.cb-log` on `<ol>` (`start`), `__time`, `__level`, `__msg`, `--nowrap`; `data-cb-level`, `data-cb-diff`, `<ins>` / `<del>`, `:target` | [Logs](docs/index.html#log) |
+| Logs | `.cb-log` on `<ol>` (`start`), `__time`, `__level`, `__msg`, `--nowrap`; `data-cb-level`, `:target` | [Logs](docs/index.html#log) |
 | Inline code and keys | `.cb-code`, `.cb-kbd` | [Utilities](docs/index.html#utilities) |
 | Utilities | `.cb-mono`, `.cb-num`, `.cb-muted`, `.cb-text-*`, `.cb-truncate`, `.cb-nowrap`, `.cb-break`, `.cb-sr-only`, `.cb-skip-link` | [Utilities](docs/index.html#utilities) |
 

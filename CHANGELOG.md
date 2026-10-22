@@ -64,9 +64,7 @@ The first release of Cubicle.
 - **Logs.** `.cb-log` on `<ol>`: a recessed, scrolling monospace well with line numbers that honour
   `start` and are left out of a copy, aligned time, level and message columns (subgrid),
   `data-cb-level` tones with a 2px edge on warnings and errors, a highlighted `:target` line, wrapping
-  messages and a `--nowrap` mode that scrolls sideways. Diff lines for config and policy changes:
-  `data-cb-diff="add|del"` with text signs (`+`, `-`), numbering from the new file and changed
-  words in `<ins>` / `<del>`.
+  messages and a `--nowrap` mode that scrolls sideways.
 - **Badges, chips and LEDs.** `.cb-badge` tags, status badges with lamps, solid and count badges, a
   busy badge, and frameless `.cb-led`. Removable chips: `.cb-chips` lists of `.cb-chip` values with a
   24px remove key (`.cb-chip__remove`, a native button), for active filters and lists of values; no

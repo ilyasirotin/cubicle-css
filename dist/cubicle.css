@@ -64,8 +64,7 @@
                                separators, menu key chevron; placement and keys
                                (cubicle.js)
       5.20 Logs .............. .cb-log numbered lines, time / level / message
-                               columns, data-cb-level tones, data-cb-diff
-                               lines and changed words, :target, --nowrap
+                               columns, data-cb-level tones, :target, --nowrap
       5.21 Forced colours .... system colours for states, unavailable controls,
                                marks, lamps, arrows, spinner, select arrow, log
       5.22 Print ............. no actions or toasts, wrappers and logs in full,
@@ -3282,27 +3281,6 @@
     border-inline-start-color: var(--_tone);
   }
 
-  /* Diff lines (config and policy changes, one hunk per list): the sign is
-     text in the level column (+, - or a space), so it is copied and read
-     aloud, and the meaning never rests on colour. A removed line does not
-     count, so numbers follow the new file from <ol start>. */
-  .cb-log > [data-cb-diff="add"] { --_tone: var(--cb-ok); }
-  .cb-log > [data-cb-diff="del"] { --_tone: var(--cb-danger); counter-increment: none; }
-
-  .cb-log > [data-cb-diff] {
-    background: color-mix(in srgb, var(--_tone) 10%, var(--cb-bg-recessed));
-    border-inline-start-color: var(--_tone);
-  }
-
-  .cb-log > [data-cb-diff="del"]::before {
-    content: none;
-  }
-
-  /* Changed words: a denser tint; ins keeps its underline, del its
-     line-through. */
-  .cb-log__msg > ins { background: color-mix(in srgb, var(--cb-ok) 25%, var(--cb-bg-recessed)); }
-  .cb-log__msg > del { background: color-mix(in srgb, var(--cb-danger) 25%, var(--cb-bg-recessed)); }
-
   .cb-log__time {
     grid-column: time;
     color: var(--cb-text-muted);
@@ -3397,7 +3375,7 @@
       border-inline-start-color: Canvas;
     }
 
-    .cb-log > :is([data-cb-level="warn"], [data-cb-level="error"], [data-cb-diff]) {
+    .cb-log > :is([data-cb-level="warn"], [data-cb-level="error"]) {
       border-inline-start-color: CanvasText;
     }
   }

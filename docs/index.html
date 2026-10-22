@@ -5600,7 +5600,7 @@ function hideLater(message, ms = 10000) {
       <section class="docs-section" id="log" aria-labelledby="log-title">
         <h2 class="docs-h2" id="log-title">Logs</h2>
         <p class="docs-text">Gateway, audit and sync logs in a recessed, scrolling well: numbered lines with
-          aligned time, level and message columns, and a tone for each severity and for added or removed lines.</p>
+          aligned time, level and message columns, and a tone for each severity.</p>
 
         <h3 class="docs-h3" id="log-lines">Gateway log</h3>
         <p class="docs-text">An <code>&lt;ol&gt;</code>; <code>start</code> numbers a page or the tail of a long
@@ -5681,41 +5681,6 @@ function hideLater(message, ms = 10000) {
   &lt;li data-cb-level=&quot;error&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:10.411Z&quot;&gt;10:42:10.411&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;ERROR&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;wg set wg0 peer hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE= endpoint 198.51.100.7:51820 allowed-ips 10.8.0.12/32: exit status 1 (Operation not permitted)&lt;/span&gt;&lt;/li&gt;
 &lt;/ol&gt;</code></pre>
 
-        <h3 class="docs-h3" id="log-diff">Config diff</h3>
-        <p class="docs-text">A change to a config or a policy, shown before it is applied.
-          <code>data-cb-diff="add"</code> or <code>"del"</code> tints a line and gives it the tone edge. The sign
-          is text in the level column: <code>+</code>, <code>-</code>, or a space on a context line. It does not
-          rest on colour, it is read aloud, and a copy keeps it (but not the numbers). Numbers follow the new file: <code>start</code> is its first line, and a
-          removed line takes none. One hunk per list, named by its label. Inside a message,
-          <code>&lt;ins&gt;</code> and <code>&lt;del&gt;</code> mark the changed words with a denser tint and
-          keep their underline and line-through.</p>
-        <div class="docs-demo">
-          <ol class="cb-log" start="3" tabindex="0" aria-label="laptop-an-1.conf: changes from line 3">
-            <li><span class="cb-log__level"> </span><span class="cb-log__msg">Address = 10.8.0.11/32</span></li>
-            <li data-cb-diff="add"><span class="cb-log__level">+</span><span class="cb-log__msg">DNS = 10.8.0.1</span></li>
-            <li><span class="cb-log__level"> </span><span class="cb-log__msg"></span></li>
-            <li><span class="cb-log__level"> </span><span class="cb-log__msg">[Peer]</span></li>
-            <li><span class="cb-log__level"> </span><span class="cb-log__msg">PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=</span></li>
-            <li><span class="cb-log__level"> </span><span class="cb-log__msg">Endpoint = vpn-eu.corp.example.net:51820</span></li>
-            <li data-cb-diff="del"><span class="cb-log__level">-</span><span class="cb-log__msg">AllowedIPs = 10.8.0.0/24</span></li>
-            <li data-cb-diff="add"><span class="cb-log__level">+</span><span class="cb-log__msg">AllowedIPs = 10.8.0.0/24<ins>, 192.168.10.0/24</ins></span></li>
-            <li data-cb-diff="del"><span class="cb-log__level">-</span><span class="cb-log__msg">PersistentKeepalive = <del>25</del></span></li>
-            <li data-cb-diff="add"><span class="cb-log__level">+</span><span class="cb-log__msg">PersistentKeepalive = <ins>15</ins></span></li>
-          </ol>
-        </div>
-        <pre class="docs-snippet"><code>&lt;ol class=&quot;cb-log&quot; start=&quot;3&quot; tabindex=&quot;0&quot; aria-label=&quot;laptop-an-1.conf: changes from line 3&quot;&gt;
-  &lt;li&gt;&lt;span class=&quot;cb-log__level&quot;&gt; &lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;Address = 10.8.0.11/32&lt;/span&gt;&lt;/li&gt;
-  &lt;li data-cb-diff=&quot;add&quot;&gt;&lt;span class=&quot;cb-log__level&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;DNS = 10.8.0.1&lt;/span&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;span class=&quot;cb-log__level&quot;&gt; &lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;&lt;/span&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;span class=&quot;cb-log__level&quot;&gt; &lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;[Peer]&lt;/span&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;span class=&quot;cb-log__level&quot;&gt; &lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&lt;/span&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;span class=&quot;cb-log__level&quot;&gt; &lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;Endpoint = vpn-eu.corp.example.net:51820&lt;/span&gt;&lt;/li&gt;
-  &lt;li data-cb-diff=&quot;del&quot;&gt;&lt;span class=&quot;cb-log__level&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;AllowedIPs = 10.8.0.0/24&lt;/span&gt;&lt;/li&gt;
-  &lt;li data-cb-diff=&quot;add&quot;&gt;&lt;span class=&quot;cb-log__level&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;AllowedIPs = 10.8.0.0/24&lt;ins&gt;, 192.168.10.0/24&lt;/ins&gt;&lt;/span&gt;&lt;/li&gt;
-  &lt;li data-cb-diff=&quot;del&quot;&gt;&lt;span class=&quot;cb-log__level&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;PersistentKeepalive = &lt;del&gt;25&lt;/del&gt;&lt;/span&gt;&lt;/li&gt;
-  &lt;li data-cb-diff=&quot;add&quot;&gt;&lt;span class=&quot;cb-log__level&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;PersistentKeepalive = &lt;ins&gt;15&lt;/ins&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ol&gt;</code></pre>
-
         <ul class="docs-list">
           <li>For a live tail add <code>aria-live="polite"</code> to the list; keeping it scrolled to the end is
             host code.</li>
@@ -5732,11 +5697,9 @@ function hideLater(message, ms = 10000) {
               <tr><th scope="row"><code>.cb-log</code></th><td><code>&lt;ol tabindex="0" aria-label&gt;</code></td><td>Recessed monospace well, 12px, aligned columns, scrolls past 20rem; focus ring inside</td></tr>
               <tr><th scope="row"><code>start</code></th><td><code>&lt;ol&gt;</code></td><td>Number of the first line</td></tr>
               <tr><th scope="row"><code>data-cb-level</code></th><td><code>&lt;li&gt;</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code> or <code>error</code>: the level word's tone; <code>warn</code> and <code>error</code> add a 2px edge</td></tr>
-              <tr><th scope="row"><code>data-cb-diff</code></th><td><code>&lt;li&gt;</code></td><td><code>add</code> or <code>del</code>: a 10% tint and a 2px edge in the ok or danger tone; a <code>del</code> line takes no number</td></tr>
               <tr><th scope="row"><code>.cb-log__time</code></th><td><code>&lt;time datetime&gt;</code></td><td>Muted time column</td></tr>
-              <tr><th scope="row"><code>.cb-log__level</code></th><td><code>&lt;span&gt;</code></td><td>Level word in the line's tone; on a diff line the sign: <code>+</code>, <code>-</code> or a space, kept in a copy</td></tr>
+              <tr><th scope="row"><code>.cb-log__level</code></th><td><code>&lt;span&gt;</code></td><td>Level word in the line's tone</td></tr>
               <tr><th scope="row"><code>.cb-log__msg</code></th><td><code>&lt;span&gt;</code></td><td>Message; wraps in its column, keeps spaces</td></tr>
-              <tr><th scope="row"><code>&lt;ins&gt;</code>, <code>&lt;del&gt;</code></th><td>In <code>.cb-log__msg</code></td><td>Changed words: a 25% tint, underlined or struck through</td></tr>
               <tr><th scope="row"><code>:target</code></th><td><code>&lt;li id&gt;</code></td><td>The linked line takes the selected tint</td></tr>
               <tr><th scope="row"><code>.cb-log--nowrap</code></th><td>Log</td><td>One line per entry, sideways scroll</td></tr>
               <tr><th scope="row"><code>aria-live="polite"</code></th><td>Log</td><td>Announces lines appended to a live tail</td></tr>
@@ -6270,14 +6233,6 @@ function hideLater(message, ms = 10000) {
               <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-recessed</span></td><td class="cb-table__num">6.32</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
               <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">6.19</td><td class="cb-table__num">≥ 4.5</td><td>Log levels</td></tr>
               <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">5.63</td><td class="cb-table__num">≥ 4.5</td><td>Log numbers and times: linked line</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-ok 10%, --cb-bg-recessed)</span></td><td class="cb-table__num">12.06</td><td class="cb-table__num">≥ 4.5</td><td>Diff lines</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-danger 10%, --cb-bg-recessed)</span></td><td class="cb-table__num">11.69</td><td class="cb-table__num">≥ 4.5</td><td>Diff lines</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">mix(--cb-ok 10%, --cb-bg-recessed)</span></td><td class="cb-table__num">4.73</td><td class="cb-table__num">≥ 4.5</td><td>Diff signs</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-danger</span></th><td><span class="cb-mono">mix(--cb-danger 10%, --cb-bg-recessed)</span></td><td class="cb-table__num">5.35</td><td class="cb-table__num">≥ 4.5</td><td>Diff signs</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-text-muted</span></th><td><span class="cb-mono">mix(--cb-ok 10%, --cb-bg-recessed)</span></td><td class="cb-table__num">5.02</td><td class="cb-table__num">≥ 4.5</td><td>Log numbers: added line</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-ok 25%, --cb-bg-recessed)</span></td><td class="cb-table__num">9.64</td><td class="cb-table__num">≥ 4.5</td><td>Changed words</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-text-main</span></th><td><span class="cb-mono">mix(--cb-danger 25%, --cb-bg-recessed)</span></td><td class="cb-table__num">8.94</td><td class="cb-table__num">≥ 4.5</td><td>Changed words</td></tr>
-              <tr><th scope="row"><span class="cb-mono">--cb-ok</span></th><td><span class="cb-mono">--cb-bg-selected</span></td><td class="cb-table__num">5.31</td><td class="cb-table__num">≥ 4.5</td><td>Diff signs: linked line</td></tr>
               <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-surface</span></td><td class="cb-table__num">3.49</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
               <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-raised</span></td><td class="cb-table__num">3.78</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>
               <tr><th scope="row"><span class="cb-mono">mix(--cb-border-strong 60%, --cb-border-main)</span></th><td><span class="cb-mono">--cb-bg-canvas</span></td><td class="cb-table__num">3.05</td><td class="cb-table__num">≥ 3</td><td>Field and checkbox edges</td></tr>

@@ -1550,15 +1550,13 @@ for (const width of want('keyboard') ? [1360, 360] : []) {
 }
 
 // 22. The catalogue's contrast table (generated from scripts/contrast-pairs.mjs) matches the
-//     live ratios row for row, so a token change cannot leave it stale. A mix that lands on a
-//     half step rounds differently by engine (25% --cb-ok on --cb-bg-recessed: red 170.5 is 170
-//     in Chromium and WebKit, 171 in Firefox), so a ratio may differ by 0.02.
+//     live ratios row for row, so a token change cannot leave it stale.
 const docRows = !want('contrast') ? [] : await page.$$eval('#a11y-contrast-table tbody tr', (rows) => rows.map((r) => [...r.children].map((c) => c.textContent.trim())));
 if (docRows.length) {
   const stale = measured.flatMap((m, i) => {
     const row = docRows[i];
     if (!row) return [`missing row for ${label(m.fg)} on ${label(m.bg)}`];
-    const same = row[0] === label(m.fg) && row[1] === label(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.02 && row[3] === `≥ ${m.need}`;
+    const same = row[0] === label(m.fg) && row[1] === label(m.bg) && Math.abs(Number(row[2]) - m.ratio) <= 0.01 && row[3] === `≥ ${m.need}`;
     return same ? [] : [`${row.slice(0, 4).join(' ')} vs live ${label(m.fg)} ${label(m.bg)} ${m.ratio.toFixed(2)}`];
   });
   if (docRows.length !== measured.length) stale.push(`${docRows.length} rows for ${measured.length} pairs`);
@@ -2228,16 +2226,16 @@ if (want('menu') && await page.locator('.docs-demo [data-cb-menu]').count()) {
 
 // 31. Logs: a recessed monospace well (12px, tabular, no ligatures) whose time, level and message
 //     columns line up on every line (subgrid), a number gutter as wide as its longest number
-//     (start), level words in their tones and a 2px tone edge on warn, error and diff lines, the
+//     (start), level words in their tones and a 2px tone edge on warn and error lines, the
 //     :target line selected, wrapping (or one line per entry with --nowrap), scrolling past
-//     20rem when the lines do not fit, and the focus ring drawn inside. A diff has no time column.
+//     20rem, and the focus ring drawn inside.
 if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
   const looks = async (width) => {
     await page.setViewportSize({ width, height: 900 });
     return page.evaluate(() => {
       const probe = document.body.appendChild(document.createElement('i'));
       const tok = (n) => { probe.style.color = `var(${n})`; return getComputedStyle(probe).color; };
-      const t = { recessed: tok('--cb-bg-recessed'), main: tok('--cb-text-main'), debug: tok('--cb-text-muted'), info: tok('--cb-info'), warn: tok('--cb-warn'), error: tok('--cb-danger'), add: tok('--cb-ok'), del: tok('--cb-danger') };
+      const t = { recessed: tok('--cb-bg-recessed'), main: tok('--cb-text-main'), debug: tok('--cb-text-muted'), info: tok('--cb-info'), warn: tok('--cb-warn'), error: tok('--cb-danger') };
       probe.style.fontFamily = 'var(--cb-font-mono)'; const mono = getComputedStyle(probe).fontFamily; probe.remove();
       return [...document.querySelectorAll('.docs-demo .cb-log')].map((log, i) => {
         const cs = getComputedStyle(log); const problems = [];
@@ -2245,30 +2243,26 @@ if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
         if (cs.backgroundColor !== t.recessed || cs.boxShadow === 'none') problems.push(`well ${cs.backgroundColor}`);
         const lines = [...log.children];
         for (const part of ['.cb-log__time', '.cb-log__level', '.cb-log__msg']) {
-          if (!log.querySelector(part)) continue;
           const xs = new Set(lines.map((l) => Math.round(l.querySelector(part).getBoundingClientRect().left)));
           if (xs.size !== 1) problems.push(`${part} starts at ${[...xs]}`);
         }
-        const counted = lines.filter((l) => l.dataset.cbDiff !== 'del');
-        const digits = String(log.start + counted.length - 1).length;
-        const gutter = parseFloat(getComputedStyle(counted[0], '::before').width) - parseFloat(getComputedStyle(counted[0], '::before').paddingLeft);
+        const digits = String(log.start + lines.length - 1).length;
+        const gutter = parseFloat(getComputedStyle(lines[0], '::before').width) - parseFloat(getComputedStyle(lines[0], '::before').paddingLeft);
         const ch = (() => { const m = document.createElement('span'); m.textContent = '0'.repeat(10); log.querySelector('.cb-log__msg').append(m); const w = m.getBoundingClientRect().width / 10; m.remove(); return w; })();
         if (Math.abs(gutter - digits * ch) > 1) problems.push(`gutter ${gutter.toFixed(1)} for ${digits} digits of ${ch.toFixed(1)}`);
         for (const l of lines) {
-          const lvl = l.dataset.cbDiff ?? l.dataset.cbLevel; const ls = getComputedStyle(l); const word = getComputedStyle(l.querySelector('.cb-log__level')).color;
+          const lvl = l.dataset.cbLevel; const ls = getComputedStyle(l); const word = getComputedStyle(l.querySelector('.cb-log__level')).color;
           if (word !== (t[lvl] ?? t.main)) problems.push(`${lvl} word ${word}`);
-          const edge = ['warn', 'error', 'add', 'del'].includes(lvl) ? `2px ${t[lvl]}` : '2px rgba(0, 0, 0, 0)';
+          const edge = ['warn', 'error'].includes(lvl) ? `2px ${t[lvl]}` : '2px rgba(0, 0, 0, 0)';
           if (`${ls.borderLeftWidth} ${ls.borderLeftColor}` !== edge) problems.push(`${lvl} edge ${ls.borderLeftWidth} ${ls.borderLeftColor}`);
         }
         const nowrap = log.matches('.cb-log--nowrap');
         const lineH = parseFloat(cs.lineHeight);
         const tall = lines.some((l) => l.querySelector('.cb-log__msg').getBoundingClientRect().height > lineH * 1.5);
-        // A wrapping log wraps exactly the messages longer than their column.
-        const long = lines.some((l) => { const m = l.querySelector('.cb-log__msg'); return m.textContent.length * ch > m.getBoundingClientRect().width + 1; });
         const sideways = log.scrollWidth > log.clientWidth;
-        if (nowrap ? (tall || !sideways) : (tall !== long || sideways)) problems.push(`${nowrap ? 'nowrap' : 'wrap'}: tall ${tall}, long ${long}, sideways ${sideways}`);
+        if (nowrap ? (tall || !sideways) : (!tall || sideways)) problems.push(`${nowrap ? 'nowrap' : 'wrap'}: tall ${tall}, sideways ${sideways}`);
         const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-        if (!nowrap && (Math.round(log.getBoundingClientRect().height) > 20 * rem || (log.scrollHeight > 20 * rem && log.scrollHeight <= log.clientHeight))) problems.push(`scroll ${log.scrollHeight} in ${log.clientHeight}`);
+        if (!nowrap && (log.scrollHeight <= log.clientHeight || Math.round(log.getBoundingClientRect().height) > 20 * rem)) problems.push(`scroll ${log.scrollHeight} in ${log.clientHeight}`);
         return { i, problems };
       });
     });
@@ -2309,54 +2303,6 @@ if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
     }
     await page.setViewportSize({ width: 1360, height: 900 });
   }
-}
-
-// 31b. Diff lines: every [data-cb-diff] line has the 10% tint and the 2px edge of its tone and its
-//      sign in the tone; the sign is text (+, - or a space); a removed line does not step the
-//      counter and shows no number; changed words (ins / del) take the 25% tint and keep their
-//      decoration; and a copy keeps every sign and message in order, without numbers. Chromium and
-//      WebKit break the line between grid columns and Firefox does not, so whitespace is ignored.
-if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
-  const diffs = await page.evaluate(() => {
-    const probe = document.body.appendChild(document.createElement('i'));
-    const bg = (c) => { probe.style.backgroundColor = c; return getComputedStyle(probe).backgroundColor; };
-    const fg = (c) => { probe.style.color = c; return getComputedStyle(probe).color; };
-    const tone = { add: '--cb-ok', del: '--cb-danger' };
-    const t = Object.fromEntries(Object.entries(tone).map(([k, v]) => [k, {
-      ink: fg(`var(${v})`),
-      line: bg(`color-mix(in srgb, var(${v}) 10%, var(--cb-bg-recessed))`),
-      word: bg(`color-mix(in srgb, var(${v}) 25%, var(--cb-bg-recessed))`),
-    }]));
-    probe.remove();
-    return [...document.querySelectorAll('.docs-demo .cb-log:has(> [data-cb-diff])')].map((log) => {
-      const problems = []; const lines = [...log.children];
-      for (const [i, l] of lines.entries()) {
-        const kind = l.dataset.cbDiff; const ls = getComputedStyle(l); const sign = l.querySelector('.cb-log__level');
-        const want = { add: '+', del: '-' }[kind] ?? ' ';
-        if (sign.textContent !== want) problems.push(`line ${i + 1}: sign ${JSON.stringify(sign.textContent)}`);
-        const counted = kind !== 'del';
-        const number = getComputedStyle(l, '::before').content;
-        if (ls.counterIncrement.startsWith('list-item') !== counted || (number === 'none') === counted) problems.push(`line ${i + 1}: counter ${ls.counterIncrement}, number ${number}`);
-        if (!kind) continue;
-        if (ls.backgroundColor !== t[kind].line) problems.push(`line ${i + 1}: tint ${ls.backgroundColor}`);
-        if (`${ls.borderLeftWidth} ${ls.borderLeftColor}` !== `2px ${t[kind].ink}`) problems.push(`line ${i + 1}: edge ${ls.borderLeftWidth} ${ls.borderLeftColor}`);
-        if (getComputedStyle(sign).color !== t[kind].ink) problems.push(`line ${i + 1}: sign ink ${getComputedStyle(sign).color}`);
-      }
-      for (const w of log.querySelectorAll('.cb-log__msg > :is(ins, del)')) {
-        const ws = getComputedStyle(w); const kind = w.localName === 'ins' ? 'add' : 'del';
-        if (ws.backgroundColor !== t[kind].word || !ws.textDecorationLine.includes(kind === 'add' ? 'underline' : 'line-through')) problems.push(`${w.localName} "${w.textContent}": ${ws.backgroundColor} ${ws.textDecorationLine}`);
-      }
-      const range = document.createRange(); range.selectNodeContents(log);
-      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
-      const bare = (s) => s.replace(/\s+/g, '');
-      const copied = bare(sel.toString()); sel.removeAllRanges();
-      const body = bare(lines.map((l) => l.querySelector('.cb-log__level').textContent + l.querySelector('.cb-log__msg').textContent).join(''));
-      if (copied !== body) problems.push(`copy ${copied.slice(0, 40)}… for ${body.slice(0, 40)}…`);
-      return { name: log.getAttribute('aria-label'), problems };
-    });
-  });
-  check(diffs.length > 0, 'the catalogue shows a diff log', `${diffs.length} diff logs`);
-  for (const d of diffs) check(!d.problems.length, `diff "${d.name}": tones, text signs, numbers from the new file, changed words, signs kept in a copy`, d.problems.join('; '));
 }
 
 // 32. Master-detail: at 1360px the split's two children sit side by side, tops aligned, the
@@ -2435,10 +2381,6 @@ if (want('forced') && await page.locator('.docs-demo').count()) {
     const lines = [...document.querySelectorAll('.docs-demo .cb-log > li')];
     const info = lines.find((l) => l.dataset.cbLevel === 'info'); const err = lines.find((l) => l.dataset.cbLevel === 'error');
     if (getComputedStyle(info).borderLeftColor !== t.canvas || getComputedStyle(err).borderLeftColor !== t.text) problems.push(`log edges ${getComputedStyle(info).borderLeftColor} / ${getComputedStyle(err).borderLeftColor}`);
-    for (const kind of ['add', 'del']) {
-      const line = lines.find((l) => l.dataset.cbDiff === kind);
-      if (!line || getComputedStyle(line).borderLeftColor !== t.text) problems.push(`${kind} line edge ${line ? getComputedStyle(line).borderLeftColor : 'missing'}`);
-    }
     return problems;
   });
   check(!marks.length, 'forced colours: marks, lamps, sort arrows, the spinner, the select arrow and log edges stay visible', marks.join('; '));
