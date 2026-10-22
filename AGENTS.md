@@ -112,6 +112,12 @@ When designing or modifying components, adhere to these domain-specific UX patte
   This guarantees predictable specificity and allows host apps to override styles effortlessly without `!important`.
 - **CSS Nesting:** Native CSS nesting is allowed at most **two levels deep**, strictly for pseudo-states, attribute states, and direct children of a single component.
 - **Component-Private Custom Properties:** Internal component variables start with `--_` (e.g., `--_bg`, `--_ink`, `--_border-top`, `--_border-bot`) and are scoped to the component root (see `cb-btn`). Never reference a custom property from itself (avoid circular variable fallback bugs).
+- **Human-First Code (`dist/cubicle.js`, `scripts/`, `.claude/**/scripts/`, shell):** Code is written for the next human maintainer, not for brevity:
+  - **One statement per line.** No `a; b;` on one line, no chained assignments (`x = y = 1`), no single-line `if (...) return;` or `try { ... } catch { ... }`: every block gets braces and its own lines. Dense chains (`.flat().filter().map()`) become loops or named intermediate values.
+  - **Descriptive names.** No single-letter names except the loop index `i` (not `e`, `m`, `r`, `k`, `n`, `cv`, `g`, `sw`, `px`, `vw`); abbreviations only where universal (`id`, `url`, `rgb`). Callback parameters say what they hold (`(row) =>`, not `(r) =>`).
+  - **Top-to-bottom structure.** Imports; configuration and constants (option defaults, selectors, viewports, fixture data, regular expressions) at the top; helper functions; then the main block, a single `async function runChecks() { ... }` (or a name that says what it runs) called once at the bottom with `await runChecks();`. `dist/cubicle.js` keeps the same order inside its IIFE: constants, state, helpers per behaviour, named event handlers, then one wiring section that registers everything.
+  - **Named units.** Each check group, probe or behaviour is its own named function; code that runs inside a page (`page.evaluate`) is a named, self-contained function written to the same rules.
+  - **Behaviour first.** A readability change must not alter checks, report lines, artifacts or exit codes; prove it by comparing outputs before and after.
 
 ---
 
@@ -301,6 +307,7 @@ Communicate with the maintainer in chat using the maintainer's preferred languag
 - [ ] Keyboard navigation path checked, high-contrast focus ring visible, WCAG contrast verified.
 - [ ] `node scripts/verify-browser.mjs` passes with clean screenshots.
 - [ ] Naming adheres to Section 7 (`cb-` prefix, `--_` private vars, max 2-level nesting).
+- [ ] JavaScript and scripts follow Human-First Code (Section 7): one statement per line, no single-letter names but `i`, constants at the top, one entry point at the bottom.
 - [ ] `dist/cubicle.css` reads cleanly top-to-bottom as a single document; Table of Contents updated.
 - [ ] `CHANGELOG.md` updated under `[Unreleased]`.
 
