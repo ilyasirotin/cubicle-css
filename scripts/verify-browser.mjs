@@ -646,7 +646,7 @@ if (want('script') && await page.locator(ACTIONS).count()) {
 
 // 10. Badges and LEDs, once per distinct look: text >= 4.5 against the painted background,
 //     the LED lamp rim >= 3 against it (WCAG 1.4.11), at most 20px high so badges fit
-//     .cb-btn--sm table rows, and busy badges spin except under reduced motion.
+//     .cb-btn--sm table rows, and busy badges spin except under reduced motion. Then chips.
 const INDICATORS = '.docs-demo :is(.cb-badge, .cb-led)';
 if (want('badges') && await page.locator(INDICATORS).count()) {
   const measured = await page.$$eval(INDICATORS, (els) => {
@@ -681,6 +681,49 @@ if (want('badges') && await page.locator(INDICATORS).count()) {
   const still = await pr.$$eval('.docs-demo .cb-badge[aria-busy="true"]', (els) => els.map((e) => getComputedStyle(e, '::before').animationName));
   check(still.length > 0 && still.every((a) => a === 'none'), 'busy badges stop spinning under reduced motion', still.join(', '));
   await calm.close();
+
+  // Chips: the chip and its square remove key are --cb-row-h-sm tall at every density and share
+  // one frame (the key meets the chip's top, bottom and end edges); at 360px a long value wraps
+  // and keeps the key square at the top. Every key is a <button> named "Remove ..." with its chip's value,
+  // and every list has a name. The catalogue must show chips.
+  const catalogue = await page.locator('#accessibility').count();
+  if (catalogue || await page.locator('.cb-chip').count()) {
+    const frames = [];
+    for (const [density, width] of [['compact', 1360], ['default', 1360], ['comfortable', 1360], ['default', 360]]) {
+      await page.setViewportSize({ width, height: 900 });
+      const r = await page.evaluate((d) => {
+        if (d === 'default') document.documentElement.removeAttribute('data-cb-density'); else document.documentElement.dataset.cbDensity = d;
+        const chips = [...document.querySelectorAll('.cb-chip')].filter((c) => c.getClientRects().length);
+        const bad = chips.flatMap((c) => {
+          const h = parseFloat(getComputedStyle(c).getPropertyValue('--cb-row-h-sm')) * parseFloat(getComputedStyle(document.documentElement).fontSize);
+          const r = c.getBoundingClientRect(); const k = c.querySelector(':scope > .cb-chip__remove');
+          const label = `"${c.textContent.trim().slice(0, 24)}"`;
+          if (!k) return Math.abs(r.height - h) <= 0.5 ? [] : [`${label} ${r.height.toFixed(1)}px for ${h}`];
+          const q = k.getBoundingClientRect();
+          const end = getComputedStyle(c).direction === 'rtl' ? q.left - r.left : r.right - q.right;
+          const wrapped = r.height > h + 0.5;
+          const ok = Math.abs(q.height - h) <= 0.5 && Math.abs(q.width - h) <= 0.5 && Math.abs(q.top - r.top) <= 0.5
+            && Math.abs(end) <= 0.5 && (wrapped || Math.abs(r.bottom - q.bottom) <= 0.5);
+          return ok ? [] : [`${label} chip ${r.width.toFixed(1)}x${r.height.toFixed(1)}, key ${q.width.toFixed(1)}x${q.height.toFixed(1)} off top/bottom/end ${(q.top - r.top).toFixed(1)}/${(r.bottom - q.bottom).toFixed(1)}/${end.toFixed(1)} for ${h}`];
+        });
+        return { n: chips.length, wrapped: chips.some((c) => c.querySelector(':scope > .cb-chip__remove') && c.getBoundingClientRect().height > c.querySelector(':scope > .cb-chip__remove').getBoundingClientRect().height + 0.5), bad };
+      }, density);
+      frames.push(...r.bad.map((b) => `${density} ${width}px: ${b}`));
+      if (!r.n) frames.push(`${density} ${width}px: no chips`);
+      if (width === 360 && catalogue && !r.wrapped) frames.push('360px: no chip with a wrapped value');
+    }
+    await page.evaluate(() => document.documentElement.removeAttribute('data-cb-density'));
+    await page.setViewportSize({ width: 1360, height: 900 });
+    check(!frames.length, 'chips: chip and square remove key are --cb-row-h-sm tall in one frame at every density', frames.slice(0, 4).join(' | '));
+
+    const names = await page.$$eval('.cb-chips, .cb-chip__remove', (els) => els.flatMap((e) => {
+      if (e.matches('.cb-chips')) return e.getAttribute('aria-label') || e.getAttribute('aria-labelledby') ? [] : [`unnamed list "${e.textContent.trim().slice(0, 24)}"`];
+      const value = [...e.closest('.cb-chip').childNodes].filter((n) => n !== e).map((n) => n.textContent).join('').trim();
+      const name = e.getAttribute('aria-label') ?? '';
+      return e.localName === 'button' && name.startsWith('Remove') && name.includes(value) ? [] : [`${e.localName} "${name}" for "${value}"`];
+    }));
+    check(!names.length, 'chips: every list is named and every remove key is a button named "Remove ..." with its value', names.slice(0, 3).join(' | '));
+  }
 
   await sectionShots('badges');
 }
@@ -2463,8 +2506,9 @@ if (want('recipes') && await page.locator('#recipes').count()) {
 }
 
 // 36. Print (print media emulated on a fresh page). The application frame unrolls into one
-//     column without the sidebar, main stops scrolling, and script-only actions, the Menu key
-//     and toasts are hidden; scroll wrappers and logs print in full and a --nowrap log wraps.
+//     column without the sidebar, main stops scrolling, and script-only actions, the Menu key,
+//     chip remove keys and toasts are hidden; scroll wrappers and logs print in full and a
+//     --nowrap log wraps.
 if (want('print')) {
   const pp = await context.newPage(); await applyOverrides(pp); await pp.goto(pathToFileURL(page_path).href);
   await pp.emulateMedia({ media: 'print' });
@@ -2474,7 +2518,7 @@ if (want('print')) {
     if (app) {
       out.frame = { main: cs('.cb-app__main').overflowY, side: cs('.cb-app__side').display, height: cs('body > .cb-app').blockSize, min: cs('body > .cb-app').minBlockSize };
     }
-    const hidden = [...document.querySelectorAll('[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle], .cb-toasts')].filter((e) => getComputedStyle(e).display !== 'none');
+    const hidden = [...document.querySelectorAll('[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle], .cb-chip__remove, .cb-toasts')].filter((e) => getComputedStyle(e).display !== 'none');
     out.shown = hidden.slice(0, 3).map((e) => e.outerHTML.slice(0, 60));
     const wrap = cs('.cb-table-wrap--scroll'); if (wrap) out.wrap = `${wrap.maxBlockSize} ${wrap.overflowY}`;
     const log = cs('.cb-log:not(.cb-log--nowrap)'); if (log) out.log = `${log.maxBlockSize} ${log.overflowY}`;
