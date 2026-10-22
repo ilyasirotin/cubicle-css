@@ -3845,31 +3845,35 @@ async function reloadRows(url) {
           <div class="cb-stack cb-stack--tight">
             <div class="cb-alert cb-alert--sm cb-alert--warn" role="status">Unsaved changes in RBAC rules.</div>
             <div class="cb-alert cb-alert--sm cb-alert--danger">2 peers use a revoked key. <a href="#tables-grid">Show peers</a></div>
-            <table class="cb-table">
-              <caption class="cb-sr-only">Access rules</caption>
-              <thead>
-                <tr><th scope="col">Rule</th><th scope="col">Subject</th><th scope="col">Permission</th></tr>
-              </thead>
-              <tbody>
-                <tr><th scope="row">14</th><td>group:vpn-admins</td><td>gateways:write</td></tr>
-                <tr><th scope="row">15</th><td>group:helpdesk</td><td>sessions:disconnect</td></tr>
-              </tbody>
-            </table>
+            <div class="cb-table-wrap" tabindex="0" role="region" aria-label="Access rules">
+              <table class="cb-table">
+                <caption class="cb-sr-only">Access rules</caption>
+                <thead>
+                  <tr><th scope="col">Rule</th><th scope="col">Subject</th><th scope="col">Permission</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">14</th><td>group:vpn-admins</td><td>gateways:write</td></tr>
+                  <tr><th scope="row">15</th><td>group:helpdesk</td><td>sessions:disconnect</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
         <pre class="docs-snippet"><code>&lt;div class=&quot;cb-stack cb-stack--tight&quot;&gt;
   &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--warn&quot; role=&quot;status&quot;&gt;Unsaved changes in RBAC rules.&lt;/div&gt;
   &lt;div class=&quot;cb-alert cb-alert--sm cb-alert--danger&quot;&gt;2 peers use a revoked key. &lt;a href=&quot;#tables-grid&quot;&gt;Show peers&lt;/a&gt;&lt;/div&gt;
-  &lt;table class=&quot;cb-table&quot;&gt;
-    &lt;caption class=&quot;cb-sr-only&quot;&gt;Access rules&lt;/caption&gt;
-    &lt;thead&gt;
-      &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Subject&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Permission&lt;/th&gt;&lt;/tr&gt;
-    &lt;/thead&gt;
-    &lt;tbody&gt;
-      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td&gt;group:vpn-admins&lt;/td&gt;&lt;td&gt;gateways:write&lt;/td&gt;&lt;/tr&gt;
-      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td&gt;group:helpdesk&lt;/td&gt;&lt;td&gt;sessions:disconnect&lt;/td&gt;&lt;/tr&gt;
-    &lt;/tbody&gt;
-  &lt;/table&gt;
+  &lt;div class=&quot;cb-table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Access rules&quot;&gt;
+    &lt;table class=&quot;cb-table&quot;&gt;
+      &lt;caption class=&quot;cb-sr-only&quot;&gt;Access rules&lt;/caption&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Rule&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Subject&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Permission&lt;/th&gt;&lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;14&lt;/th&gt;&lt;td&gt;group:vpn-admins&lt;/td&gt;&lt;td&gt;gateways:write&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;15&lt;/th&gt;&lt;td&gt;group:helpdesk&lt;/td&gt;&lt;td&gt;sessions:disconnect&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
         <h3 class="docs-h3" id="alerts-summary">Error summary</h3>
