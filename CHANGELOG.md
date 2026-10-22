@@ -117,16 +117,19 @@ The first release of Cubicle.
   MFA, masked secret, tag colour, wizard steps, tooltips, print). Demo tables are named, row keys name their row, and scroll
   boxes without controls take focus.
 - **Example.** `docs/example.html` is a complete VPN console screen: the shell with a folding
-  sidebar and a directory tree, and a gateway panel with Overview (alert, gauges, property list),
-  Peers (an inspector with row action menus, select-all, pagination, and a Refresh that shows a busy
-  table and then a toast), Config (a horizontal form with secrets and advanced settings) and Log
-  tabs, plus revoke and delete confirmations.
+  sidebar and a directory tree whose filter gives way to an empty state when nothing matches, and a
+  gateway panel with Overview (alert, gauges, property list), Peers (a filter bar with an
+  active-filter chip, an inspector with row action menus, select-all, pagination, and a Refresh that
+  shows a busy table and then a toast), Config (a horizontal form with an authentication select,
+  Routing and Client policy fieldsets, Allowed IPs as a token field, secrets and advanced settings)
+  and Log tabs, plus revoke and delete confirmations.
 - **Development tools.**
   - `scripts/check-snippets.mjs` and `scripts/check-tokens.mjs` (which also keeps system colours
     inside forced-colours blocks).
   - `scripts/verify-browser.mjs`: contrast, focus, keyboard audit, layout, state, behaviour,
-    forced-colours, right-to-left, print and target-size checks, and names of tables, row keys
-    and scroll boxes, in Chromium, Firefox and WebKit, with labelled engine limits;
+    forced-colours, right-to-left, print and target-size checks, names of tables, row keys
+    and scroll boxes, and the example's host flows (Refresh, the directory filter), in Chromium,
+    Firefox and WebKit, with labelled engine limits;
     `scripts/verify-matrix.mjs` runs both pages in all three engines side by side (`--min` adds the
     minified build); `scripts/contrast-pairs.mjs` holds the palette pairs.
   - `scripts/build-min.sh` builds the minified files (lightningcss, terser).

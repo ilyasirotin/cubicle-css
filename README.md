@@ -3,7 +3,7 @@
 A dense, tactile, accessible CSS framework for critical enterprise tools: identity and access
 management portals, VPN admin panels, infrastructure consoles and back-office dashboards.
 
-![The example VPN console built with Cubicle: a sidebar with navigation and a directory tree, a gateway panel with tabs, and a peers table with selection, status badges and pagination.](docs/img/example-console.png)
+![The example VPN console built with Cubicle: a sidebar with navigation and a filterable directory tree, a gateway panel with tabs, a filter bar with an active-filter chip, a peers table with selection, status badges and pagination, and an inspector for the selected peer.](docs/img/example-console.png)
 
 - **Made for operators.** Twenty to thirty table rows on a 1080p screen, monospace for every IP, key
   and hash, and tabular figures that line up.
@@ -168,8 +168,8 @@ Chromium, Firefox and WebKit. Known engine differences:
 - In forced colours, Firefox and Safari paint list-box selection themselves; Safari does not force
   colours at all, so the forced-colours rules apply only where the platform asks for them.
 
-Sizes: `cubicle.css` 110 KB (26 KB gzip), minified 54 KB (10 KB gzip); `cubicle.js` 24 KB
-(7.2 KB gzip), minified 10 KB (3.6 KB gzip).
+Sizes: `cubicle.css` 115 KB (28 KB gzip), minified 57 KB (11 KB gzip); `cubicle.js` 30 KB
+(8.8 KB gzip), minified 13 KB (4.4 KB gzip).
 
 ## Development
 
