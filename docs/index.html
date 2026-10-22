@@ -5568,28 +5568,36 @@ function hideLater(message, ms = 10000) {
         <p class="docs-text">Whole tasks built only from the components above: no extra CSS, ready to copy.</p>
 
         <h3 class="docs-h3" id="recipes-filter">Filter bar</h3>
-        <p class="docs-text">Small fields, a segmented status and a reset key in a cluster over the table they
-          filter. The cluster wraps on narrow screens; give the form <code>role="search"</code> and a name.</p>
+        <p class="docs-text">Small fields, a segmented status and a clear key in a cluster over the table they
+          filter. The cluster wraps on narrow screens; give the form <code>role="search"</code> and a name.
+          Active filters repeat as <a href="#badges-chips">chips</a> under the bar. Each remove key submits
+          the form with <code>name="drop"</code> and the filter it names, so removal works without script and
+          the server serves the page without that filter; with htmx, <code>hx-get</code> on the form does the
+          same in place.</p>
         <div class="docs-demo">
           <section class="cb-panel" aria-labelledby="rf-title">
             <header class="cb-panel__head">
               <h4 class="cb-panel__title" id="rf-title">Peers</h4>
             </header>
             <div class="cb-panel__body cb-stack">
-              <form class="cb-cluster" role="search" aria-label="Filter peers" method="get" action="#recipes-filter">
+              <form class="cb-cluster" id="rf-form" role="search" aria-label="Filter peers" method="get" action="#recipes-filter">
                 <input class="cb-input cb-input--sm" type="search" name="q" placeholder="Name or address" aria-label="Name or address">
                 <select class="cb-select cb-select--sm" name="gateway" aria-label="Gateway">
                   <option>All gateways</option>
-                  <option>gw-eu-1</option>
+                  <option selected>gw-eu-1</option>
                   <option>gw-us-2</option>
                 </select>
                 <div class="cb-btn-group cb-segmented" role="radiogroup" aria-label="Status">
-                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="all" checked>All</label>
-                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="online">Online</label>
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="all">All</label>
+                  <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="online" checked>Online</label>
                   <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="stale">Stale</label>
                 </div>
-                <button class="cb-btn cb-btn--sm" type="reset">Clear</button>
+                <button class="cb-btn cb-btn--sm" type="submit" name="drop" value="all">Clear</button>
               </form>
+              <ul class="cb-chips" aria-label="Active filters">
+                <li class="cb-chip">Gateway: gw-eu-1<button class="cb-chip__remove cb-btn cb-btn--icon" type="submit" form="rf-form" name="drop" value="gateway" aria-label="Remove filter Gateway: gw-eu-1">✕</button></li>
+                <li class="cb-chip">Status: Online<button class="cb-chip__remove cb-btn cb-btn--icon" type="submit" form="rf-form" name="drop" value="status" aria-label="Remove filter Status: Online">✕</button></li>
+              </ul>
               <div class="cb-table-wrap" tabindex="0" role="region" aria-labelledby="rf-title">
                 <table class="cb-table" aria-labelledby="rf-title">
                   <thead>
@@ -5597,7 +5605,7 @@ function hideLater(message, ms = 10000) {
                   </thead>
                   <tbody>
                     <tr><th scope="row">laptop-an-1</th><td><span class="cb-badge cb-badge--ok">Online</span></td><td class="cb-mono">10.8.0.11</td><td class="cb-table__num">1.42 GB</td></tr>
-                    <tr><th scope="row">phone-bk-2</th><td><span class="cb-badge cb-badge--warn">Stale</span></td><td class="cb-mono">10.8.0.12</td><td class="cb-table__num">86.0 MB</td></tr>
+                    <tr><th scope="row">desk-cs-3</th><td><span class="cb-badge cb-badge--ok">Online</span></td><td class="cb-mono">10.8.0.14</td><td class="cb-table__num">412 MB</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -5609,20 +5617,24 @@ function hideLater(message, ms = 10000) {
     &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rf-title&quot;&gt;Peers&lt;/h4&gt;
   &lt;/header&gt;
   &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
-    &lt;form class=&quot;cb-cluster&quot; role=&quot;search&quot; aria-label=&quot;Filter peers&quot; method=&quot;get&quot; action=&quot;#recipes-filter&quot;&gt;
+    &lt;form class=&quot;cb-cluster&quot; id=&quot;rf-form&quot; role=&quot;search&quot; aria-label=&quot;Filter peers&quot; method=&quot;get&quot; action=&quot;#recipes-filter&quot;&gt;
       &lt;input class=&quot;cb-input cb-input--sm&quot; type=&quot;search&quot; name=&quot;q&quot; placeholder=&quot;Name or address&quot; aria-label=&quot;Name or address&quot;&gt;
       &lt;select class=&quot;cb-select cb-select--sm&quot; name=&quot;gateway&quot; aria-label=&quot;Gateway&quot;&gt;
         &lt;option&gt;All gateways&lt;/option&gt;
-        &lt;option&gt;gw-eu-1&lt;/option&gt;
+        &lt;option selected&gt;gw-eu-1&lt;/option&gt;
         &lt;option&gt;gw-us-2&lt;/option&gt;
       &lt;/select&gt;
       &lt;div class=&quot;cb-btn-group cb-segmented&quot; role=&quot;radiogroup&quot; aria-label=&quot;Status&quot;&gt;
-        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;all&quot; checked&gt;All&lt;/label&gt;
-        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;online&quot;&gt;Online&lt;/label&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;all&quot;&gt;All&lt;/label&gt;
+        &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;online&quot; checked&gt;Online&lt;/label&gt;
         &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;stale&quot;&gt;Stale&lt;/label&gt;
       &lt;/div&gt;
-      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;reset&quot;&gt;Clear&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;submit&quot; name=&quot;drop&quot; value=&quot;all&quot;&gt;Clear&lt;/button&gt;
     &lt;/form&gt;
+    &lt;ul class=&quot;cb-chips&quot; aria-label=&quot;Active filters&quot;&gt;
+      &lt;li class=&quot;cb-chip&quot;&gt;Gateway: gw-eu-1&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;submit&quot; form=&quot;rf-form&quot; name=&quot;drop&quot; value=&quot;gateway&quot; aria-label=&quot;Remove filter Gateway: gw-eu-1&quot;&gt;✕&lt;/button&gt;&lt;/li&gt;
+      &lt;li class=&quot;cb-chip&quot;&gt;Status: Online&lt;button class=&quot;cb-chip__remove cb-btn cb-btn--icon&quot; type=&quot;submit&quot; form=&quot;rf-form&quot; name=&quot;drop&quot; value=&quot;status&quot; aria-label=&quot;Remove filter Status: Online&quot;&gt;✕&lt;/button&gt;&lt;/li&gt;
+    &lt;/ul&gt;
     &lt;div class=&quot;cb-table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-labelledby=&quot;rf-title&quot;&gt;
       &lt;table class=&quot;cb-table&quot; aria-labelledby=&quot;rf-title&quot;&gt;
         &lt;thead&gt;
@@ -5630,7 +5642,7 @@ function hideLater(message, ms = 10000) {
         &lt;/thead&gt;
         &lt;tbody&gt;
           &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;laptop-an-1&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.11&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.42 GB&lt;/td&gt;&lt;/tr&gt;
-          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;phone-bk-2&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.12&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;86.0 MB&lt;/td&gt;&lt;/tr&gt;
+          &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;desk-cs-3&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;cb-mono&quot;&gt;10.8.0.14&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;412 MB&lt;/td&gt;&lt;/tr&gt;
         &lt;/tbody&gt;
       &lt;/table&gt;
     &lt;/div&gt;

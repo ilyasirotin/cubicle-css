@@ -109,8 +109,8 @@ The first release of Cubicle.
   keyboard map, notes on forced colours, autofill and right to left (with a
   `dir="rtl"` demo), framework-neutral recipes for server updates (htmx attributes, an htmx page
   listener, plain `fetch`) and server-pushed toasts (htmx out of band, a DOM helper, optional
-  auto-hide), and a Recipes section (filter bar, inspector, sign-in with MFA, masked secret, tag
-  colour, wizard steps, tooltips, print). Demo tables are named, row keys name their row, and scroll
+  auto-hide), and a Recipes section (filter bar with active-filter chips, inspector, sign-in with
+  MFA, masked secret, tag colour, wizard steps, tooltips, print). Demo tables are named, row keys name their row, and scroll
   boxes without controls take focus.
 - **Example.** `docs/example.html` is a complete VPN console screen: the shell with a folding
   sidebar and a directory tree, and a gateway panel with Overview (alert, gauges, property list),
