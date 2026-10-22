@@ -134,4 +134,7 @@ The first release of Cubicle.
     `scripts/verify-matrix.mjs` runs both pages in all three engines side by side (`--min` adds the
     minified build); `scripts/contrast-pairs.mjs` holds the palette pairs.
   - `scripts/build-min.sh` builds the minified files (lightningcss, terser).
+  - Every script, the Claude Code skills' scripts and `dist/cubicle.js` read top to bottom:
+    configuration first, then helpers, then one entry point, with one statement per line and
+    descriptive names.
   - A Claude Code hook that blocks pushes, tags and releases.
