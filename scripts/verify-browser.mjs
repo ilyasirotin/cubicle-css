@@ -2309,6 +2309,54 @@ if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
   }
 }
 
+// 31b. Diff lines: every [data-cb-diff] line has the 10% tint and the 2px edge of its tone and its
+//      sign in the tone; the sign is text (+, - or a space); a removed line does not step the
+//      counter and shows no number; changed words (ins / del) take the 25% tint and keep their
+//      decoration; and a copy keeps every sign and message in order, without numbers. Chromium and
+//      WebKit break the line between grid columns and Firefox does not, so whitespace is ignored.
+if (want('log') && await page.locator('.docs-demo .cb-log').count()) {
+  const diffs = await page.evaluate(() => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    const bg = (c) => { probe.style.backgroundColor = c; return getComputedStyle(probe).backgroundColor; };
+    const fg = (c) => { probe.style.color = c; return getComputedStyle(probe).color; };
+    const tone = { add: '--cb-ok', del: '--cb-danger' };
+    const t = Object.fromEntries(Object.entries(tone).map(([k, v]) => [k, {
+      ink: fg(`var(${v})`),
+      line: bg(`color-mix(in srgb, var(${v}) 10%, var(--cb-bg-recessed))`),
+      word: bg(`color-mix(in srgb, var(${v}) 25%, var(--cb-bg-recessed))`),
+    }]));
+    probe.remove();
+    return [...document.querySelectorAll('.docs-demo .cb-log:has(> [data-cb-diff])')].map((log) => {
+      const problems = []; const lines = [...log.children];
+      for (const [i, l] of lines.entries()) {
+        const kind = l.dataset.cbDiff; const ls = getComputedStyle(l); const sign = l.querySelector('.cb-log__level');
+        const want = { add: '+', del: '-' }[kind] ?? ' ';
+        if (sign.textContent !== want) problems.push(`line ${i + 1}: sign ${JSON.stringify(sign.textContent)}`);
+        const counted = kind !== 'del';
+        const number = getComputedStyle(l, '::before').content;
+        if (ls.counterIncrement.startsWith('list-item') !== counted || (number === 'none') === counted) problems.push(`line ${i + 1}: counter ${ls.counterIncrement}, number ${number}`);
+        if (!kind) continue;
+        if (ls.backgroundColor !== t[kind].line) problems.push(`line ${i + 1}: tint ${ls.backgroundColor}`);
+        if (`${ls.borderLeftWidth} ${ls.borderLeftColor}` !== `2px ${t[kind].ink}`) problems.push(`line ${i + 1}: edge ${ls.borderLeftWidth} ${ls.borderLeftColor}`);
+        if (getComputedStyle(sign).color !== t[kind].ink) problems.push(`line ${i + 1}: sign ink ${getComputedStyle(sign).color}`);
+      }
+      for (const w of log.querySelectorAll('.cb-log__msg > :is(ins, del)')) {
+        const ws = getComputedStyle(w); const kind = w.localName === 'ins' ? 'add' : 'del';
+        if (ws.backgroundColor !== t[kind].word || !ws.textDecorationLine.includes(kind === 'add' ? 'underline' : 'line-through')) problems.push(`${w.localName} "${w.textContent}": ${ws.backgroundColor} ${ws.textDecorationLine}`);
+      }
+      const range = document.createRange(); range.selectNodeContents(log);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      const bare = (s) => s.replace(/\s+/g, '');
+      const copied = bare(sel.toString()); sel.removeAllRanges();
+      const body = bare(lines.map((l) => l.querySelector('.cb-log__level').textContent + l.querySelector('.cb-log__msg').textContent).join(''));
+      if (copied !== body) problems.push(`copy ${copied.slice(0, 40)}… for ${body.slice(0, 40)}…`);
+      return { name: log.getAttribute('aria-label'), problems };
+    });
+  });
+  check(diffs.length > 0, 'the catalogue shows a diff log', `${diffs.length} diff logs`);
+  for (const d of diffs) check(!d.problems.length, `diff "${d.name}": tones, text signs, numbers from the new file, changed words, signs kept in a copy`, d.problems.join('; '));
+}
+
 // 32. Master-detail: at 1360px the split's two children sit side by side, tops aligned, the
 //     master about twice the detail; at 360px the detail goes under the master at full width.
 if (want('split') && await page.locator('.docs-demo .cb-split').count()) {
@@ -2385,6 +2433,10 @@ if (want('forced') && await page.locator('.docs-demo').count()) {
     const lines = [...document.querySelectorAll('.docs-demo .cb-log > li')];
     const info = lines.find((l) => l.dataset.cbLevel === 'info'); const err = lines.find((l) => l.dataset.cbLevel === 'error');
     if (getComputedStyle(info).borderLeftColor !== t.canvas || getComputedStyle(err).borderLeftColor !== t.text) problems.push(`log edges ${getComputedStyle(info).borderLeftColor} / ${getComputedStyle(err).borderLeftColor}`);
+    for (const kind of ['add', 'del']) {
+      const line = lines.find((l) => l.dataset.cbDiff === kind);
+      if (!line || getComputedStyle(line).borderLeftColor !== t.text) problems.push(`${kind} line edge ${line ? getComputedStyle(line).borderLeftColor : 'missing'}`);
+    }
     return problems;
   });
   check(!marks.length, 'forced colours: marks, lamps, sort arrows, the spinner, the select arrow and log edges stay visible', marks.join('; '));
