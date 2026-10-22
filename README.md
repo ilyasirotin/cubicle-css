@@ -168,8 +168,8 @@ Chromium, Firefox and WebKit. Known engine differences:
 - In forced colours, Firefox and Safari paint list-box selection themselves; Safari does not force
   colours at all, so the forced-colours rules apply only where the platform asks for them.
 
-Sizes: `cubicle.css` 115 KB (28 KB gzip), minified 57 KB (11 KB gzip); `cubicle.js` 30 KB
-(8.8 KB gzip), minified 13 KB (4.4 KB gzip).
+Sizes: `cubicle.css` 116 KB (28 KB gzip), minified 57 KB (11 KB gzip); `cubicle.js` 31 KB
+(9.1 KB gzip), minified 13 KB (4.5 KB gzip).
 
 ## Development
 
