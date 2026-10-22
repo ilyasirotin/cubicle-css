@@ -800,8 +800,8 @@ async function reloadRows(url) {
 
         <h3 class="docs-h3" id="layout-split">Master-detail</h3>
         <p class="docs-text">A list and the selected record side by side, the list twice as wide and the detail
-          at least 18rem. The split measures its own width: below 48rem the detail goes under the list, so it
-          works in a narrow panel as well as on a phone.</p>
+          at least 18rem, or the whole width of a narrower container. The split measures its own width: below
+          48rem the detail goes under the list, so it works in a narrow panel as well as on a phone.</p>
         <div class="docs-demo">
           <div class="cb-split">
             <section class="cb-panel" aria-labelledby="sp-list-title">
@@ -884,7 +884,7 @@ async function reloadRows(url) {
               <tr><th scope="col">Class</th><th scope="col">Element</th><th scope="col">Effect</th></tr>
             </thead>
             <tbody>
-              <tr><th scope="row"><code>.cb-split</code></th><td>Wrapper of two children</td><td>Master <code>2fr</code>, detail <code>1fr</code> and at least 18rem, tops aligned; stacked below 48rem of its own width</td></tr>
+              <tr><th scope="row"><code>.cb-split</code></th><td>Wrapper of two children</td><td>Master <code>2fr</code>, detail <code>1fr</code> and at least 18rem (or the container width), tops aligned; stacked below 48rem of its own width</td></tr>
             </tbody>
           </table>
         </div>

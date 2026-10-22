@@ -467,11 +467,13 @@
   /* Master-detail: a list and the selected record, the list twice as wide
      and the detail at least 18rem, tops aligned. The split is its own
      container (a container cannot query itself, so its children respond):
-     below 48rem the detail goes under the list. */
+     below 48rem the detail goes under the list. The tracks stay when the
+     children stack, so the detail's minimum gives way to the container,
+     less the gap, and a stacked split fits any width. */
   .cb-split {
     container-type: inline-size;
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+    grid-template-columns: minmax(0, 2fr) minmax(min(18rem, 100% - var(--cb-space-3)), 1fr);
     align-items: start;
     gap: var(--cb-space-3);
   }
