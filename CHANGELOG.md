@@ -106,7 +106,7 @@ The first release of Cubicle.
   output readouts, menus (placed at their key, arrow keys, Home, End and Tab; closed by an item
   click, a scroll that moves the key, or a resize) and token fields (Enter, separators and a pasted
   list add values, checked against the entry's pattern and the list; keys, Delete and Backspace
-  remove them). Script-only controls stay hidden without it.
+  remove them; a form reset restores the served chips). Script-only controls stay hidden without it.
 - **Catalogue.** `docs/index.html` shows every token and component in every state, with a
   copy-paste snippet identical to the live markup and a reference table. It also has a generated
   contrast table, a measured target-size table (compact density trades 2.5.8 for density), a

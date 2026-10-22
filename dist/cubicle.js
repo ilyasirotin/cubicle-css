@@ -5,8 +5,8 @@
 
 /*
  * Behaviour hooks are data-cb-* attributes on controls; each value is the id of
- * the target element. Delegated click, keydown, input and paste listeners on
- * the document serve them, so markup inserted later (HTMX swaps, frameworks) works
+ * the target element. Delegated click, keydown, input, paste and reset listeners
+ * on the document serve them, so markup inserted later (HTMX swaps, frameworks) works
  * without re-initialisation.
  *
  *   data-cb-copy="id"                          copy the target's text
@@ -44,7 +44,8 @@
  *     .cb-tokens well)                         or a pasted list adds values as chips copied
  *                                              from the field's <template>; a chip's key, or
  *                                              Delete and Backspace on it, removes it;
- *                                              Backspace in an empty entry reaches the last key
+ *                                              Backspace in an empty entry reaches the last key;
+ *                                              a form reset restores the served chips
  *
  * Until this script runs, the stylesheet hides those controls (html[data-cb-js]).
  */
@@ -454,6 +455,13 @@
   const entryOf = (field) => field.querySelector('.cb-tokens__entry');
   const keysOf = (field) => [...field.querySelectorAll('.cb-chip__remove')].filter((key) => !key.disabled);
 
+  // The chips a field was served with, kept at its first change so a form
+  // reset can put them back (a removed chip is only detached).
+  const served = new WeakMap();
+  const keepServed = (field) => {
+    if (!served.has(field)) served.set(field, [...field.querySelector('.cb-chips').children]);
+  };
+
   // Newlines always separate values; the attribute names more characters.
   const splitTokens = (field, text) => {
     const separators = field.getAttribute('data-cb-tokens') ?? '';
@@ -472,6 +480,7 @@
     const list = field.querySelector('.cb-chips');
     const template = field.querySelector('template');
     const added = []; const kept = []; let repeated = ''; let invalid = false;
+    keepServed(field);
     for (const value of parts.map((part) => part.trim()).filter(Boolean)) {
       entry.value = value;
       const listed = [...list.querySelectorAll('.cb-chip > .cb-check')].some((box) => box.value === value);
@@ -503,6 +512,7 @@
     const keys = keysOf(field);
     const next = keys[keys.indexOf(chip.querySelector('.cb-chip__remove')) + 1] ?? entry;
     const value = chip.querySelector('.cb-check')?.value ?? chip.textContent.trim();
+    keepServed(field);
     next?.focus();
     chip.remove();
     announce(`Removed ${value}`);
@@ -542,6 +552,19 @@
     parts[0] = value.slice(0, start ?? value.length) + parts[0];
     parts[parts.length - 1] += value.slice(end ?? value.length);
     addTokens(entry, parts);
+  });
+
+  // A form reset puts the served chips back before the form resets its
+  // controls, so their boxes return to their defaults with the rest; the
+  // entry empties natively. A field tied to the form by form="" counts too.
+  document.addEventListener('reset', (event) => {
+    if (event.defaultPrevented || !(event.target instanceof HTMLFormElement)) return;
+    for (const field of document.querySelectorAll(TOKENS)) {
+      const chips = served.get(field);
+      if (!chips || entryOf(field)?.form !== event.target) continue;
+      field.querySelector('.cb-chips').replaceChildren(...chips);
+      served.delete(field);
+    }
   });
 
   document.addEventListener('scroll', (event) => closeMenus(event.target), true);
