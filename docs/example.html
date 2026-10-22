@@ -290,7 +290,7 @@
           <!-- Config ------------------------------------------------------- -->
           <div class="cb-panel__body cb-tabs__panel cb-stack" role="tabpanel" id="x-config" aria-labelledby="x-tab-config" hidden>
             <h2 class="cb-tabs__heading">Config</h2>
-            <form class="cb-stack" method="post" action="#x-config">
+            <form class="cb-stack" id="x-config-form" method="post" action="#x-config">
               <div class="cb-field cb-field--horizontal">
                 <label class="cb-field__label" for="x-endpoint">Endpoint</label>
                 <input class="cb-input" id="x-endpoint" name="endpoint" type="text" value="vpn.corp.example.net" required>
@@ -300,13 +300,44 @@
                 <input class="cb-input" id="x-port" name="port" type="number" min="1" max="65535" value="51820">
               </div>
               <div class="cb-field cb-field--horizontal">
-                <span class="cb-field__label" id="x-mode-label">Tunnel mode</span>
-                <div class="cb-btn-group cb-segmented cb-segmented--fill" role="radiogroup" aria-labelledby="x-mode-label">
-                  <label class="cb-btn"><input type="radio" name="mode" value="full">Full</label>
-                  <label class="cb-btn"><input type="radio" name="mode" value="split" checked>Split</label>
-                  <label class="cb-btn"><input type="radio" name="mode" value="off">Off</label>
-                </div>
+                <label class="cb-field__label" for="x-auth">Authentication</label>
+                <select class="cb-select" id="x-auth" name="auth">
+                  <option value="ldap" selected>corp.example.net (LDAP)</option>
+                  <option value="saml">Okta (SAML)</option>
+                  <option value="cert">Certificates only</option>
+                </select>
               </div>
+              <fieldset class="cb-fieldset">
+                <legend>Routing</legend>
+                <div class="cb-field cb-field--horizontal">
+                  <span class="cb-field__label" id="x-mode-label">Tunnel mode</span>
+                  <div class="cb-btn-group cb-segmented cb-segmented--fill" role="radiogroup" aria-labelledby="x-mode-label">
+                    <label class="cb-btn"><input type="radio" name="mode" value="full">Full</label>
+                    <label class="cb-btn"><input type="radio" name="mode" value="split" checked>Split</label>
+                    <label class="cb-btn"><input type="radio" name="mode" value="off">Off</label>
+                  </div>
+                </div>
+                <div class="cb-field cb-field--horizontal">
+                  <label class="cb-field__label" for="x-allowed">Allowed IPs</label>
+                  <div class="cb-tokens" data-cb-tokens=", ">
+                    <ul class="cb-chips" aria-label="Allowed IPs">
+                      <li class="cb-chip"><input class="cb-check" type="checkbox" name="allowed_ips" value="10.8.0.0/24" checked aria-label="Keep 10.8.0.0/24">10.8.0.0/24<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove 10.8.0.0/24">✕</button></li>
+                      <li class="cb-chip"><input class="cb-check" type="checkbox" name="allowed_ips" value="10.20.0.0/16" checked aria-label="Keep 10.20.0.0/16">10.20.0.0/16<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove 10.20.0.0/16">✕</button></li>
+                      <li class="cb-chip"><input class="cb-check" type="checkbox" name="allowed_ips" value="192.168.10.0/24" checked aria-label="Keep 192.168.10.0/24">192.168.10.0/24<button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove 192.168.10.0/24">✕</button></li>
+                    </ul>
+                    <input class="cb-tokens__entry" id="x-allowed" name="allowed_ips" autocomplete="off" spellcheck="false" pattern="((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(3[0-2]|[12]?[0-9])" aria-describedby="x-allowed-hint">
+                    <template><li class="cb-chip"><input class="cb-check" type="checkbox" name="allowed_ips" checked aria-label="Keep"><button class="cb-chip__remove cb-btn cb-btn--icon" type="button" aria-label="Remove">✕</button></li></template>
+                  </div>
+                  <p class="cb-field__hint" id="x-allowed-hint">Routed through the tunnel in split mode. <kbd class="cb-kbd">Enter</kbd>, a comma or a space adds a block; paste a list.</p>
+                </div>
+              </fieldset>
+              <fieldset class="cb-fieldset">
+                <legend>Client policy</legend>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="policy" value="mfa" checked>Require MFA at connect</label>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="policy" value="killswitch" checked>Block traffic outside the tunnel</label>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="policy" value="lan">Allow access to the local network</label>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="policy" value="legacy" disabled>Allow legacy clients (turned off by policy)</label>
+              </fieldset>
               <div class="cb-field cb-field--horizontal">
                 <label class="cb-field__label" for="x-pubkey">Server public key</label>
                 <div class="cb-input-group">
@@ -317,7 +348,7 @@
               <div class="cb-field">
                 <span class="cb-field__label" id="x-client-label">Client configuration</span>
                 <div class="cb-secret">
-                  <pre class="cb-secret__value" id="x-client" aria-labelledby="x-client-label">[Interface]&#10;Address = 10.8.0.11/32&#10;DNS = 10.8.0.53&#10;&#10;[Peer]&#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&#10;Endpoint = vpn.corp.example.net:51820&#10;AllowedIPs = 10.8.0.0/24, 10.20.0.0/16</pre>
+                  <pre class="cb-secret__value" id="x-client" aria-labelledby="x-client-label">[Interface]&#10;Address = 10.8.0.11/32&#10;DNS = 10.8.0.53&#10;&#10;[Peer]&#10;PublicKey = hT3v2kq8Z0yXc1mWbN4pLr7sJd9uFqA6eGt5oViY0BE=&#10;Endpoint = vpn.corp.example.net:51820&#10;AllowedIPs = 10.8.0.0/24, 10.20.0.0/16, 192.168.10.0/24</pre>
                   <div class="cb-secret__actions">
                     <button class="cb-btn" type="button" data-cb-copy="x-client" aria-label="Copy client configuration">Copy</button>
                     <button class="cb-btn" type="button" data-cb-download="x-client" data-cb-filename="wg0.conf" aria-label="Save client configuration">Save</button>
