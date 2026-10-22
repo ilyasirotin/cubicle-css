@@ -13,74 +13,181 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const file = resolve(root, process.argv[2] ?? 'docs/index.html');
-const src = readFileSync(file, 'utf8');
+// --- Configuration -----------------------------------------------------------------
 
-const results = [];
-const check = (ok, name, detail = '') => results.push({ ok, name, detail });
-const lineAt = (i) => src.slice(0, i).split('\n').length;
+const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const DEFAULT_CATALOGUE = 'docs/index.html';
 
-const DEMO_OPEN = /<div\s[^>]*class="[^"]*\bdocs-demo\b[^"]*"[^>]*>/g;
-const SNIPPET_OPEN = /<pre\s[^>]*class="[^"]*\bdocs-snippet\b[^"]*"[^>]*>\s*<code[^>]*>/g;
+// Opening tag of a live demo, and the opening <pre class="docs-snippet"><code> of its snippet.
+const DEMO_OPEN_PATTERN = /<div\s[^>]*class="[^"]*\bdocs-demo\b[^"]*"[^>]*>/g;
+const SNIPPET_OPEN_PATTERN = /<pre\s[^>]*class="[^"]*\bdocs-snippet\b[^"]*"[^>]*>\s*<code[^>]*>/g;
+const DIV_TAG_PATTERN = /<div[\s>]|<\/div>/g;
 
-// Index just past the </div> that closes the <div> opened before `from`.
-function closingDiv(from) {
-  const tag = /<div[\s>]|<\/div>/g;
-  tag.lastIndex = from;
+// The entities a snippet uses, in decoding order (&amp; last, so "&amp;lt;" stays "&lt;").
+const HTML_ENTITIES = [
+  ['&lt;', '<'],
+  ['&gt;', '>'],
+  ['&quot;', '"'],
+  ['&#39;', "'"],
+  ['&amp;', '&'],
+];
+
+// --- Helpers -----------------------------------------------------------------------
+
+// 1-based line number of a character offset in the source.
+function lineNumberAt(source, offset) {
+  const textBefore = source.slice(0, offset);
+  return textBefore.split('\n').length;
+}
+
+// Finds the </div> that closes the <div> opened just before `from`.
+// Returns the offset where that </div> starts (the end of the inner markup) and the offset just
+// past it, or null when the source never closes the <div>.
+function findClosingDiv(source, from) {
+  const divTag = new RegExp(DIV_TAG_PATTERN.source, 'g');
+  divTag.lastIndex = from;
   let depth = 1;
-  for (let m; (m = tag.exec(src));) {
-    depth += m[0] === '</div>' ? -1 : 1;
-    if (depth === 0) return { inner: m.index, end: tag.lastIndex };
+  let match = divTag.exec(source);
+  while (match) {
+    if (match[0] === '</div>') {
+      depth -= 1;
+    } else {
+      depth += 1;
+    }
+    if (depth === 0) {
+      return { innerEnd: match.index, closeEnd: divTag.lastIndex };
+    }
+    match = divTag.exec(source);
   }
   return null;
 }
 
-const unescape = (s) => s
-  .replaceAll('&lt;', '<').replaceAll('&gt;', '>')
-  .replaceAll('&quot;', '"').replaceAll('&#39;', "'")
-  .replaceAll('&amp;', '&');
-
-function normalize(s) {
-  const lines = s.replace(/^\s*\n/, '').replace(/\n\s*$/, '').split('\n');
-  const indent = Math.min(...lines.filter((l) => l.trim()).map((l) => l.match(/^ */)[0].length));
-  return lines.map((l) => l.slice(indent).trimEnd()).join('\n');
+// The first snippet opening tag at or after `from`, or null.
+function findSnippetFrom(source, from) {
+  const snippetOpen = new RegExp(SNIPPET_OPEN_PATTERN.source, 'g');
+  snippetOpen.lastIndex = from;
+  return snippetOpen.exec(source);
 }
 
-const pairedSnippets = new Set();
-
-for (const m of src.matchAll(DEMO_OPEN)) {
-  const at = `line ${lineAt(m.index)}`;
-  const close = closingDiv(m.index + m[0].length);
-  if (!close) { check(false, `demo at ${at} is closed`, 'no matching </div>'); continue; }
-
-  const live = src.slice(m.index + m[0].length, close.inner);
-  check(!/\sstyle\s*=/.test(live), `demo at ${at} has no inline styles`);
-
-  SNIPPET_OPEN.lastIndex = close.end;
-  const s = SNIPPET_OPEN.exec(src);
-  if (!s || src.slice(close.end, s.index).trim() !== '') {
-    check(false, `demo at ${at} is followed by a docs-snippet`);
-    continue;
+function unescapeHtml(text) {
+  let decoded = text;
+  for (const [entity, character] of HTML_ENTITIES) {
+    decoded = decoded.replaceAll(entity, character);
   }
-  pairedSnippets.add(s.index);
-
-  const codeEnd = src.indexOf('</code>', s.index + s[0].length);
-  const a = normalize(live).split('\n');
-  const b = normalize(unescape(src.slice(s.index + s[0].length, codeEnd))).split('\n');
-  const diff = a.findIndex((line, i) => line !== b[i]);
-  const first = diff >= 0 ? diff : (a.length !== b.length ? Math.min(a.length, b.length) : -1);
-  check(first < 0, `demo at ${at} matches its snippet`,
-    first < 0 ? '' : `first difference at demo line ${first + 1}: ${JSON.stringify(a[first] ?? '')} vs ${JSON.stringify(b[first] ?? '')}`);
+  return decoded;
 }
 
-for (const s of src.matchAll(SNIPPET_OPEN)) {
-  if (!pairedSnippets.has(s.index)) check(false, `snippet at line ${lineAt(s.index)} follows a docs-demo`);
+// Drops the first and last blank lines and the indentation all non-blank lines share, and trims
+// the end of every line. Returns the lines.
+function normalizeLines(text) {
+  const withoutLeadingBlank = text.replace(/^\s*\n/, '');
+  const withoutTrailingBlank = withoutLeadingBlank.replace(/\n\s*$/, '');
+  const lines = withoutTrailingBlank.split('\n');
+
+  let commonIndent = Infinity;
+  for (const line of lines) {
+    if (!line.trim()) {
+      continue;
+    }
+    const leadingSpaces = line.match(/^ */)[0].length;
+    commonIndent = Math.min(commonIndent, leadingSpaces);
+  }
+
+  const normalized = [];
+  for (const line of lines) {
+    normalized.push(line.slice(commonIndent).trimEnd());
+  }
+  return normalized;
 }
 
-if (results.length === 0) check(false, 'at least one docs-demo found', relative(root, file));
+// Index of the first line that differs between two lists of lines, or -1 when they are equal.
+// When one list is a prefix of the other, the first line past the shorter one differs.
+function firstDifferentLine(demoLines, snippetLines) {
+  const mismatch = demoLines.findIndex((line, i) => line !== snippetLines[i]);
+  if (mismatch >= 0) {
+    return mismatch;
+  }
+  if (demoLines.length !== snippetLines.length) {
+    return Math.min(demoLines.length, snippetLines.length);
+  }
+  return -1;
+}
 
-const failed = results.filter((r) => !r.ok);
-for (const r of results) console.log(`${r.ok ? 'ok  ' : 'FAIL'}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}`);
-console.log(`\n${results.length - failed.length}/${results.length} checks passed. File: ${relative(root, file)}`);
-process.exit(failed.length ? 1 : 0);
+function formatResult(result) {
+  const status = result.ok ? 'ok  ' : 'FAIL';
+  const detail = result.detail ? '  (' + result.detail + ')' : '';
+  return `${status}  ${result.name}${detail}`;
+}
+
+// --- Main --------------------------------------------------------------------------
+
+function runChecks() {
+  const catalogueFile = resolve(REPOSITORY_ROOT, process.argv[2] ?? DEFAULT_CATALOGUE);
+  const source = readFileSync(catalogueFile, 'utf8');
+
+  const results = [];
+  const check = (ok, name, detail = '') => {
+    results.push({ ok, name, detail });
+  };
+
+  // Offsets of the snippets that follow a demo; any other snippet is an orphan.
+  const pairedSnippetOffsets = new Set();
+
+  for (const demoOpen of source.matchAll(DEMO_OPEN_PATTERN)) {
+    const location = `line ${lineNumberAt(source, demoOpen.index)}`;
+    const demoContentStart = demoOpen.index + demoOpen[0].length;
+    const closingDiv = findClosingDiv(source, demoContentStart);
+    if (!closingDiv) {
+      check(false, `demo at ${location} is closed`, 'no matching </div>');
+      continue;
+    }
+
+    const liveMarkup = source.slice(demoContentStart, closingDiv.innerEnd);
+    const hasInlineStyle = /\sstyle\s*=/.test(liveMarkup);
+    check(!hasInlineStyle, `demo at ${location} has no inline styles`);
+
+    const snippetOpen = findSnippetFrom(source, closingDiv.closeEnd);
+    const gapBeforeSnippet = snippetOpen ? source.slice(closingDiv.closeEnd, snippetOpen.index) : '';
+    if (!snippetOpen || gapBeforeSnippet.trim() !== '') {
+      check(false, `demo at ${location} is followed by a docs-snippet`);
+      continue;
+    }
+    pairedSnippetOffsets.add(snippetOpen.index);
+
+    const snippetContentStart = snippetOpen.index + snippetOpen[0].length;
+    const snippetContentEnd = source.indexOf('</code>', snippetContentStart);
+    const escapedSnippet = source.slice(snippetContentStart, snippetContentEnd);
+    const demoLines = normalizeLines(liveMarkup);
+    const snippetLines = normalizeLines(unescapeHtml(escapedSnippet));
+
+    const differentLine = firstDifferentLine(demoLines, snippetLines);
+    let detail = '';
+    if (differentLine >= 0) {
+      const demoLine = JSON.stringify(demoLines[differentLine] ?? '');
+      const snippetLine = JSON.stringify(snippetLines[differentLine] ?? '');
+      detail = `first difference at demo line ${differentLine + 1}: ${demoLine} vs ${snippetLine}`;
+    }
+    check(differentLine < 0, `demo at ${location} matches its snippet`, detail);
+  }
+
+  for (const snippetOpen of source.matchAll(SNIPPET_OPEN_PATTERN)) {
+    if (!pairedSnippetOffsets.has(snippetOpen.index)) {
+      check(false, `snippet at line ${lineNumberAt(source, snippetOpen.index)} follows a docs-demo`);
+    }
+  }
+
+  const shownFile = relative(REPOSITORY_ROOT, catalogueFile);
+  if (results.length === 0) {
+    check(false, 'at least one docs-demo found', shownFile);
+  }
+
+  for (const result of results) {
+    console.log(formatResult(result));
+  }
+  const failedCount = results.filter((result) => !result.ok).length;
+  const passedCount = results.length - failedCount;
+  console.log(`\n${passedCount}/${results.length} checks passed. File: ${shownFile}`);
+  process.exit(failedCount > 0 ? 1 : 0);
+}
+
+runChecks();
