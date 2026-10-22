@@ -24,6 +24,7 @@
 //                 busy-<n>-<width>.png of each busy container's demo, empty-<width>.png,
 //                 toasts-<width>.png, menu-<down|up|nojs>-<width>.png, log-<width>.png and
 //                 forced-<section>.png of sections in forced colours; print-example.pdf (Chromium).
+//                 The tokens group drives the token field with and without the script.
 //                 The targets group measures WCAG 2.5.8 target size at default and comfortable density
 //                 and checks the catalogue's target-size table at all three densities.
 //                 Contrast pairs live in scripts/contrast-pairs.mjs, shared with the catalogue table.
@@ -55,7 +56,7 @@ if (saving) mkdirSync(shots, { recursive: true });
 // caret: 'initial' skips the caret-hiding style Playwright injects, a full restyle of the page per shot.
 const snap = (target, name, options = {}) => (saving ? target.screenshot({ caret: 'initial', ...options, path: resolve(shots, name) }) : Promise.resolve());
 const GROUPS = ['layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
-  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'targets', 'example'];
+  'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms', 'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'targets', 'tokens', 'example'];
 const onlyFlag = args.indexOf('--only');
 const only = onlyFlag >= 0 ? (args.splice(onlyFlag, 2)[1] ?? '').split(',').filter(Boolean) : null;
 if (only && (!only.length || only.some((g) => !GROUPS.includes(g)))) {
@@ -2608,6 +2609,128 @@ if (want('targets')) {
     check(!stale.length, 'the catalogue target-size table matches the measured sizes', stale.slice(0, 3).join(' || ') || `${doc.length} rows`);
   }
   await pt.close();
+}
+
+// 36c. Token field (data-cb-tokens), on fresh pages. With the script: Enter adds a value as a chip
+//     (box value, key name, announcement, change event, focus kept, entry cleared); separators from
+//     the attribute and a pasted list (through the system clipboard) add several; a value that
+//     breaks the pattern or repeats one stays in the entry; Backspace on an empty entry reaches the
+//     last key, Delete or Backspace on a key removes its chip and focus moves on; a click on a key
+//     removes its chip and the form no longer sends the value; Enter on an empty entry submits the
+//     host form. Without it: the keys are hidden, the boxes carry the values and unticking one
+//     drops it, and the field holds no submit button. The well is one --cb-row-h-sm row plus its
+//     padding at every density, its chips sit in the middle, and the ring is on the well while the
+//     entry has focus.
+if (want('tokens') && (await page.locator('#accessibility').count() || await page.locator('.cb-tokens').count())) {
+  const pk = await context.newPage(); await applyOverrides(pk); await pk.goto(pathToFileURL(page_path).href);
+  const fields = await pk.locator('[data-cb-tokens]').count();
+  check(fields > 0, 'token field: the page shows one', `${fields} fields`);
+  if (fields) {
+    const ENTRY = '#tk-ips';
+    const state = () => pk.evaluate((sel) => {
+      const entry = document.querySelector(sel); const well = entry.closest('.cb-tokens');
+      const chips = [...well.querySelectorAll('.cb-chip')];
+      // A chip's value is its text without the key's cross.
+      const text = (c) => [...c.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
+      const chip = document.activeElement.closest('.cb-chip');
+      return {
+        entry: entry.value, focus: document.activeElement === entry ? 'entry' : chip ? text(chip) : document.activeElement.localName,
+        chips: chips.map(text),
+        last: (() => { const c = chips.at(-1); const box = c?.querySelector('.cb-check'); const key = c?.querySelector('.cb-chip__remove'); return c ? `${box?.value}|${box?.checked}|${box?.name}|${key?.getAttribute('aria-label')}` : ''; })(),
+        sent: new FormData(entry.form).getAll(entry.name).filter(Boolean),
+        live: document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '', changes: Number(entry.dataset.vbChanges ?? 0),
+      };
+    }, ENTRY);
+    const settle = () => pk.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    await pk.evaluate((sel) => { const e = document.querySelector(sel); e.addEventListener('change', () => { e.dataset.vbChanges = Number(e.dataset.vbChanges ?? 0) + 1; }); }, ENTRY);
+    const before = await state();
+    await pk.focus(ENTRY); await pk.keyboard.type('10.9.0.0/24'); await pk.keyboard.press('Enter'); await settle();
+    const added = await state();
+    check(added.chips.length === before.chips.length + 1 && added.last === '10.9.0.0/24|true|allowed_ips|Remove 10.9.0.0/24' && added.entry === '' && added.focus === 'entry'
+      && added.sent.includes('10.9.0.0/24') && /Added 10\.9\.0\.0\/24/.test(added.live) && added.changes === 1,
+      'token field: Enter adds the value as a chip with its box, its named key and an announcement', JSON.stringify({ before: before.chips.length, ...added }));
+
+    await pk.keyboard.type('10.10.0.0/16, 10.11.0.0/16 '); await settle();
+    // A real paste through the system clipboard: Firefox empties the data of a synthetic one.
+    await pk.evaluate(() => { const t = document.body.appendChild(document.createElement('textarea')); t.id = 'vb-clip'; t.value = '172.16.0.0/12\n192.168.0.0/16\nnot-a-block'; });
+    await pk.focus('#vb-clip'); await pk.keyboard.press('ControlOrMeta+A'); await pk.keyboard.press('ControlOrMeta+C');
+    await pk.evaluate(() => document.getElementById('vb-clip').remove());
+    await pk.focus(ENTRY); await pk.keyboard.press('ControlOrMeta+V'); await settle();
+    const many = await state();
+    const want = ['10.10.0.0/16', '10.11.0.0/16', '172.16.0.0/12', '192.168.0.0/16'];
+    check(want.every((v) => many.chips.includes(v)) && many.chips.length === added.chips.length + 4 && many.entry === 'not-a-block',
+      'token field: separators and a pasted list add each value; one that breaks the pattern stays in the entry', JSON.stringify(many));
+
+    await pk.fill(ENTRY, '10.8.0.0/24'); await pk.focus(ENTRY); await pk.keyboard.press('Enter'); await settle();
+    const twice = await state();
+    await pk.fill(ENTRY, '999.1/x'); await pk.keyboard.press('Enter'); await settle();
+    const bad = await state(); const invalid = await pk.$eval(ENTRY, (e) => !e.checkValidity());
+    check(twice.chips.length === many.chips.length && twice.entry === '10.8.0.0/24' && /already in the list/.test(twice.live)
+      && bad.chips.length === many.chips.length && bad.entry === '999.1/x' && invalid,
+      'token field: a repeated value or one that breaks the pattern is not added and stays in the entry', JSON.stringify({ twice: twice.live, bad: bad.entry, invalid }));
+
+    await pk.fill(ENTRY, ''); await pk.keyboard.press('Backspace'); await settle();
+    const onKey = await state();
+    await pk.keyboard.press('Delete'); await settle();
+    const gone = await state();
+    await pk.evaluate((sel) => document.querySelector(sel).closest('.cb-tokens').querySelector('.cb-chip__remove').focus(), ENTRY);
+    const first = (await state()).chips[0];
+    await pk.keyboard.press('Backspace'); await settle();
+    const next = await state();
+    check(onKey.focus === onKey.chips.at(-1) && gone.chips.length === onKey.chips.length - 1 && gone.focus === 'entry' && /Removed/.test(gone.live)
+      && next.chips[0] !== first && next.focus === next.chips[0],
+      'token field: Backspace on an empty entry reaches the last key; Delete or Backspace on a key removes its chip, focus moves on', JSON.stringify({ onKey: onKey.focus, gone: gone.focus, next: next.focus, first }));
+
+    const value = (await state()).chips[0];
+    await pk.locator(`${ENTRY}`).locator('xpath=..').locator('.cb-chip__remove').first().click(); await settle();
+    const clicked = await state();
+    check(!clicked.chips.includes(value) && !clicked.sent.includes(value) && clicked.changes >= 4,
+      'token field: a click on a key removes its chip, and the form no longer sends the value', JSON.stringify({ value, sent: clicked.sent, changes: clicked.changes }));
+
+    await pk.evaluate((sel) => { const f = document.querySelector(sel).form; f.addEventListener('submit', (e) => { e.preventDefault(); f.dataset.vbSubmitter = e.submitter?.textContent.trim() ?? 'none'; }, { once: true }); }, ENTRY);
+    await pk.fill(ENTRY, ''); await pk.focus(ENTRY); await pk.keyboard.press('Enter');
+    const submitter = await pk.$eval(ENTRY, (e) => e.form.dataset.vbSubmitter ?? 'no submit');
+    check(submitter === 'Save', 'token field: Enter on an empty entry submits the host form with its own key', submitter);
+
+    // Layout: one row high at each density, chips in the middle, the ring on the well.
+    const rows = [];
+    for (const density of ['compact', 'default', 'comfortable']) {
+      rows.push(await pk.evaluate((d) => {
+        if (d === 'default') document.documentElement.removeAttribute('data-cb-density'); else document.documentElement.dataset.cbDensity = d;
+        const well = document.querySelector('#tk-scopes').closest('.cb-tokens'); const cs = getComputedStyle(well);
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const want = parseFloat(cs.getPropertyValue('--cb-row-h-sm')) * rem + 2 * parseFloat(cs.paddingTop) + 2;
+        const r = well.getBoundingClientRect(); const c = well.querySelector('.cb-chip').getBoundingClientRect();
+        const ok = Math.abs(r.height - want) <= 0.5 && Math.abs((c.top - r.top) - (r.bottom - c.bottom)) <= 0.5 && parseFloat(cs.paddingTop) > 0;
+        return ok ? '' : `${d}: well ${r.height.toFixed(1)} for ${want.toFixed(1)}, chip off ${(c.top - r.top).toFixed(1)}/${(r.bottom - c.bottom).toFixed(1)}`;
+      }, density));
+    }
+    await pk.evaluate(() => document.documentElement.removeAttribute('data-cb-density'));
+    await pk.focus('#tk-scopes'); await pk.keyboard.press(SHIFT_TAB); await pk.keyboard.press(TAB);
+    const ring = await pk.$eval('#tk-scopes', (e) => { const w = getComputedStyle(e.closest('.cb-tokens')); return `${e.matches(':focus-visible')} well ${w.outlineStyle} ${w.outlineWidth}, entry ${getComputedStyle(e).outlineStyle}`; });
+    check(!rows.join('') && ring === 'true well solid 2px, entry none', 'token field: one row high at every density, chips centred, ring on the well', `${rows.filter(Boolean).join(' | ')} ${ring}`);
+  }
+  await pk.close();
+
+  const noJs = await browser.newContext({ ...contextOptions, javaScriptEnabled: false });
+  const pn = await noJs.newPage(); await applyOverrides(pn); await pn.goto(pathToFileURL(page_path).href);
+  const nj = await pn.evaluate(() => {
+    const wells = [...document.querySelectorAll('[data-cb-tokens]')];
+    const entry = document.getElementById('tk-ips'); const box = entry?.closest('.cb-tokens').querySelector('.cb-chip > .cb-check');
+    const sent = () => entry ? new FormData(entry.form).getAll(entry.name) : [];
+    const before = sent(); if (box) box.checked = false; const after = sent();
+    return {
+      wells: wells.length,
+      keys: wells.flatMap((w) => [...w.querySelectorAll('.cb-chip__remove')]).filter((k) => getComputedStyle(k).display !== 'none').length,
+      boxes: wells.flatMap((w) => [...w.querySelectorAll('.cb-chip > .cb-check')]).filter((b) => getComputedStyle(b).display === 'none').length,
+      submits: wells.flatMap((w) => [...w.querySelectorAll('button:not([type="button"]), input[type="submit"]')]).length,
+      dropped: box ? before.includes(box.value) && !after.includes(box.value) : false,
+      struck: box ? getComputedStyle(box.closest('.cb-chip')).textDecorationLine : '',
+    };
+  });
+  check(nj.wells > 0 && nj.keys === 0 && nj.boxes === 0 && nj.submits === 0 && nj.dropped && nj.struck === 'line-through',
+    'token field without JavaScript: keys hidden, boxes carry the values, unticking drops one, no submit keys', JSON.stringify(nj));
+  await noJs.close();
 }
 
 // 37. The example console's refresh (host code standing in for the server): Enter on Refresh
