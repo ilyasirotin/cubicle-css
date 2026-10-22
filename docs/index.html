@@ -3075,7 +3075,8 @@ async function reloadRows(url) {
         <h3 class="docs-h3" id="tables-panel">In a panel, wrapping, scrolling</h3>
         <p class="docs-text">In a flush panel body the panel frames the table. <code>--wrap</code> lets data
           cells wrap; <code>.cb-table-wrap--scroll</code> limits the height to 20rem, so the sticky header
-          stays in view.</p>
+          stays in view. A focused wrapper around a sticky table draws its ring outside, where the pinned
+          cells cannot cover it.</p>
         <div class="docs-demo">
           <section class="cb-panel" aria-labelledby="t-audit-title">
             <header class="cb-panel__head">
@@ -3294,7 +3295,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-table</code></th><td><code>&lt;table&gt;</code></td><td>Bordered grid; cells styled by element, one line each, 28px rows</td></tr>
               <tr><th scope="row"><code>.cb-table--compact</code></th><td>Table</td><td>24px rows</td></tr>
               <tr><th scope="row"><code>.cb-table--wrap</code></th><td>Table</td><td>Data cells wrap; headers stay on one line</td></tr>
-              <tr><th scope="row"><code>.cb-table--sticky</code></th><td>Table</td><td>Pins the header and the first column (and the one after a select column)</td></tr>
+              <tr><th scope="row"><code>.cb-table--sticky</code></th><td>Table</td><td>Pins the header and the first column (and the one after a select column); its focused wrapper draws the ring outside</td></tr>
               <tr><th scope="row"><code>.cb-table__num</code></th><td><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td>Right-aligned numbers</td></tr>
               <tr><th scope="row"><code>.cb-table__select</code></th><td><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td>Narrow centred column for a <code>.cb-check</code></td></tr>
               <tr><th scope="row"><code>.cb-table__actions</code></th><td><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td>Shrinks to its <code>.cb-btn--sm</code> keys, aligned to the end</td></tr>
@@ -6255,7 +6256,9 @@ function hideLater(message, ms = 10000) {
         <h3 class="docs-h3" id="a11y-focus">Focus</h3>
         <p class="docs-text">One indicator for every control: <code>2px solid var(--cb-accent)</code> with a 1px
           offset. It is drawn outside by default, inside scroll containers (where the scroll edge would clip it,
-          as on the log below), and on the row label of a tree item, so it never frames a whole branch. Give
+          as on the log below), and on the row label of a tree item, so it never frames a whole branch. The
+          wrapper of a sticky table is the exception among scroll containers: its pinned header and column
+          would cover an inner ring, so it takes the outer one. Give
           a scrollable region without controls <code>tabindex="0"</code>, a role and a label, so keyboard users
           can scroll it.</p>
         <div class="docs-demo">

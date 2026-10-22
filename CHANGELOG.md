@@ -15,7 +15,8 @@ The first release of Cubicle.
   components, utilities` and a minimal zero-specificity reset. The `--cb-*` design tokens cover
   colour, depth, radius, spacing, size, type, motion and focus. An opt-in base layer styles body
   text, links and monospace without ligatures, plus one `:focus-visible` ring that is drawn inside
-  scroll containers and kept in view while focus scrolls. Light only.
+  scroll containers (outside a sticky table's wrapper, whose pinned cells would cover it) and kept in
+  view while focus scrolls. Light only.
 - **Layout.** The `.cb-app` shell (top bar, banner strip, sidebar, main, status bar) is a fixed
   frame that stacks below 800px; there the sidebar folds away behind a Menu key in the top bar
   (`.cb-app__toggle`, script) and stays open without the script. `.cb-stack`, `.cb-cluster` and

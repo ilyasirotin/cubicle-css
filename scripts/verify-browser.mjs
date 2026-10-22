@@ -799,6 +799,19 @@ if (want('tables') && await page.locator('.docs-demo .cb-table').count()) {
     check(columnsHold && headHolds && (s.scrolledX || s.scrolledY), `sticky table ${s.i + 1}: pinned columns and header stay in place while scrolled`,
       `scrolled x ${s.scrolledX} y ${s.scrolledY}; first ${s.pinned} column(s) ${s.before.map(Math.round)} -> ${s.after.map(Math.round)}; header top ${Math.round(s.headTop)}`);
   }
+  // A sticky table's header and first column paint over a ring drawn inside its wrapper, so a
+  // focusable sticky wrapper takes the standard outer ring; any other wrapper keeps it inside.
+  const rings = [];
+  for (const [sel, want] of [['.docs-demo .cb-table-wrap[tabindex="0"]:has(> .cb-table--sticky)', '1px'], ['.docs-demo .cb-table-wrap[tabindex="0"]:not(:has(> .cb-table--sticky))', '-3px']]) {
+    for (const wrap of await page.locator(sel).all()) {
+      await wrap.focus(); await page.keyboard.press(SHIFT_TAB); await page.keyboard.press(TAB);
+      rings.push(await wrap.evaluate((w, want) => { const cs = getComputedStyle(w);
+        return { name: w.getAttribute('aria-label') ?? document.getElementById(w.getAttribute('aria-labelledby'))?.textContent.trim(), want, ring: `${w.matches(':focus-visible')} ${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineOffset}` }; }, want));
+    }
+  }
+  const misplaced = rings.filter((r) => r.ring !== `true solid 2px ${r.want}`);
+  check(rings.some((r) => r.want === '1px') && !misplaced.length, 'a focused sticky table wrapper draws the ring outside, other table wrappers inside',
+    misplaced.map((r) => `${r.name}: ${r.ring}, want offset ${r.want}`).join('; ') || `${rings.length} wrappers`);
   const wide = page.locator('.docs-demo .cb-table--sticky').first();
   await wide.scrollIntoViewIfNeeded();
   await wide.evaluate((t) => { t.closest('.cb-table-wrap').scrollLeft = 300; });

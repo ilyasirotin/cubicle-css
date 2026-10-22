@@ -285,6 +285,12 @@
   :is(.cb-app__main, .cb-app__side, .cb-table-wrap, .cb-secret__value, .cb-panel--inset, .cb-log, .cb-dialog .cb-panel__body, .cb-tabs__list > .cb-tabs__tab, .cb-menu > .cb-menu__item):focus-visible {
     outline-offset: calc(-2px - var(--cb-focus-offset));
   }
+
+  /* A sticky table's header and first column paint over a ring drawn inside
+     its wrapper, so that wrapper takes the standard outer ring. */
+  .cb-table-wrap:has(> .cb-table--sticky):focus-visible {
+    outline-offset: var(--cb-focus-offset);
+  }
 }
 
 

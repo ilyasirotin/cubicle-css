@@ -28,7 +28,7 @@ Modern flat design often blurs the line between static text and interactive cont
   * **Warning / Degraded (`--cb-warn`):** Industrial ochre/amber (`#9a4a06`).
   * **Danger / Revoked (`--cb-danger`):** Deep crimson (`#991b1b`). Inline destructive actions in dense tables use tinted steel (`.cb-btn--danger`), while critical modal confirmations use solid crimson fill (`.cb-btn--danger-solid`).
   * **Info / Neutral (`--cb-info`):** Technical slate-blue (`#075985`).
-* **Focus Indicators:** Keyboard navigation is paramount for sysadmins. Focus states must feature a high-contrast, unmistakable outline (`2px solid var(--cb-accent)` with `1px` offset); where an outer ring would be clipped (scroll containers) it is drawn inside instead.
+* **Focus Indicators:** Keyboard navigation is paramount for sysadmins. Focus states must feature a high-contrast, unmistakable outline (`2px solid var(--cb-accent)` with `1px` offset); where an outer ring would be clipped (scroll containers) it is drawn inside instead, except on a sticky table's wrapper, whose pinned cells would cover an inner ring.
 
 ### 2.3. Typography
 * **UI Text:** Clean, highly legible modern system sans-serif stack (`Inter`, `system-ui`, `-apple-system`, `Segoe UI`, `Roboto`, sans-serif).
@@ -294,7 +294,7 @@ Communicate with the maintainer in chat using the maintainer's preferred languag
 
 ## 13. Definition of Done (Checklist for Every Change)
 
-- [ ] All colours, radii, durations, bevels, and shadows reference `--cb-*` tokens; zero `!important`; zero `outline` rules outside the standard focus indicator (drawn outside by default, inside scroll containers and the keys of a scrolling tab list, on the row label of a tree item, and on the well of a token field while its entry has focus).
+- [ ] All colours, radii, durations, bevels, and shadows reference `--cb-*` tokens; zero `!important`; zero `outline` rules outside the standard focus indicator (drawn outside by default, inside scroll containers other than a sticky table's wrapper and the keys of a scrolling tab list, on the row label of a tree item, and on the well of a token field while its entry has focus).
 - [ ] Tactile physical model respected: interactive triggers use `--cb-bg-btn` with asymmetric bevel borders and physical press travel (`translate: 0 1px`), inputs/wells look recessed, tabular numbers align vertically.
 - [ ] Zero remote resources, runtime dependencies, or build requirements introduced; any optional JS in `dist/cubicle.js` is strictly progressive enhancement.
 - [ ] Component demonstrated in all states in `docs/index.html` with a matching `<pre><code>` snippet (`scripts/check-snippets.mjs` passes), verified at `360px`, `800px`, and `1360px`.
