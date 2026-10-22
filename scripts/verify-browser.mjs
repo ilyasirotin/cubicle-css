@@ -2735,6 +2735,25 @@ if (want('tokens') && (isCatalogue || await page.locator('.cb-tokens').count()))
     await pk.focus('#tk-scopes'); await pk.keyboard.press(SHIFT_TAB); await pk.keyboard.press(TAB);
     const ring = await pk.$eval('#tk-scopes', (e) => { const w = getComputedStyle(e.closest('.cb-tokens')); return `${e.matches(':focus-visible')} well ${w.outlineStyle} ${w.outlineWidth}, entry ${getComputedStyle(e).outlineStyle}`; });
     check(!rows.join('') && ring === 'true well solid 2px, entry none', 'token field: one row high at every density, chips centred, ring on the well', `${rows.filter(Boolean).join(' | ')} ${ring}`);
+
+    // A form reset puts back the chips the page was served with: an added one goes, a removed one
+    // returns, the entry empties, and the field keeps working afterwards.
+    await pk.reload();
+    const list = () => pk.$eval(ENTRY, (e) => ({
+      chips: [...e.closest('.cb-tokens').querySelectorAll('.cb-chip > .cb-check')].map((b) => b.value).join(', '),
+      sent: new FormData(e.form).getAll(e.name).filter(Boolean).join(', '), entry: e.value,
+    }));
+    const served = await list();
+    await pk.focus(ENTRY); await pk.keyboard.type('10.9.0.0/24'); await pk.keyboard.press('Enter');
+    await pk.$eval(ENTRY, (e) => e.closest('.cb-tokens').querySelector('.cb-chip__remove').click());
+    await pk.focus(ENTRY); await pk.keyboard.type('10.7'); await settle();
+    const edited = await list();
+    await pk.$eval(ENTRY, (e) => e.form.reset()); await settle();
+    const reset = await list();
+    await pk.focus(ENTRY); await pk.keyboard.type('10.6.0.0/24'); await pk.keyboard.press('Enter'); await settle();
+    const after = await list();
+    check(edited.sent !== served.sent && edited.entry === '10.7' && reset.chips === served.chips && reset.sent === served.sent && reset.entry === '' && after.chips === `${served.chips}, 10.6.0.0/24`,
+      'token field: a form reset restores the served chips and values, and the field still adds afterwards', JSON.stringify({ served, edited, reset, after }));
   }
   await pk.close();
 
