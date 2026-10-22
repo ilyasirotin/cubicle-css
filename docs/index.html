@@ -5568,8 +5568,9 @@ function hideLater(message, ms = 10000) {
         <p class="docs-text">Whole tasks built only from the components above: no extra CSS, ready to copy.</p>
 
         <h3 class="docs-h3" id="recipes-filter">Filter bar</h3>
-        <p class="docs-text">Small fields, a segmented status and a clear key in a cluster over the table they
-          filter. The cluster wraps on narrow screens; give the form <code>role="search"</code> and a name.
+        <p class="docs-text">Small fields, a segmented status, a filter key and a clear key in a cluster over the
+          table they filter. The cluster wraps on narrow screens; give the form <code>role="search"</code> and a
+          name. Enter in a field presses the form's first submit key, so the filter key comes first.
           Active filters repeat as <a href="#badges-chips">chips</a> under the bar. Each remove key submits
           the form with <code>name="drop"</code> and the filter it names, so removal works without script and
           the server serves the page without that filter; with htmx, <code>hx-get</code> on the form does the
@@ -5592,6 +5593,7 @@ function hideLater(message, ms = 10000) {
                   <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="online" checked>Online</label>
                   <label class="cb-btn cb-btn--sm"><input type="radio" name="status" value="stale">Stale</label>
                 </div>
+                <button class="cb-btn cb-btn--sm cb-btn--primary" type="submit">Filter</button>
                 <button class="cb-btn cb-btn--sm" type="submit" name="drop" value="all">Clear</button>
               </form>
               <ul class="cb-chips" aria-label="Active filters">
@@ -5629,6 +5631,7 @@ function hideLater(message, ms = 10000) {
         &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;online&quot; checked&gt;Online&lt;/label&gt;
         &lt;label class=&quot;cb-btn cb-btn--sm&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;status&quot; value=&quot;stale&quot;&gt;Stale&lt;/label&gt;
       &lt;/div&gt;
+      &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--primary&quot; type=&quot;submit&quot;&gt;Filter&lt;/button&gt;
       &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;submit&quot; name=&quot;drop&quot; value=&quot;all&quot;&gt;Clear&lt;/button&gt;
     &lt;/form&gt;
     &lt;ul class=&quot;cb-chips&quot; aria-label=&quot;Active filters&quot;&gt;
