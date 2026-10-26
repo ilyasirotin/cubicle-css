@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc.2] - 2026-10-26
+
+### Changed
+
+- The minified files `dist/cubicle.min.css` and `dist/cubicle.min.js` are committed, so a CDN serves
+  them as built. In rc.1 they were not in the repository, and jsDelivr generated its own: it
+  minified the script with a different tool and, unable to parse the stylesheet's nesting and
+  `@layer`, served the unminified source under the `.min.css` name. The release assets, the
+  documentation site and the CDN now carry the same bytes, and the SRI values in `checksums.txt`
+  match the CDN's files. CI fails when the committed files differ from a fresh `scripts/build-min.sh`.
+
 ## [1.0.0-rc.1] - 2026-10-26
 
 The first release candidate of Cubicle.
@@ -157,5 +168,6 @@ The first release candidate of Cubicle.
     descriptive names.
   - A Claude Code hook that blocks pushes, tags and releases.
 
-[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0-rc.2...HEAD
+[1.0.0-rc.2]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/ilyasirotin/cubicle-css/releases/tag/v1.0.0-rc.1
