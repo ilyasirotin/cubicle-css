@@ -804,12 +804,17 @@ async function checkControlStates(run) {
     await shoot('active');
     await control.evaluate((element) => element.addEventListener('click', (event) => event.preventDefault(), { once: true }));
     await page.mouse.up();
+    // A mouse press opens a select's native list on Linux; it stays open, and swallows the keys below,
+    // unless something closes it (a screenshot does, which is why --shots none once failed there).
+    await page.keyboard.press('Escape');
     await page.mouse.move(2, 2);
 
+    // Forward first, then back: after a mouse press WebKit on Linux does not move focus on the first
+    // Shift+Tab. Either order ends on the control by keyboard, so its :focus-visible ring is judged.
     await control.focus();
-    await page.keyboard.press(run.shiftTabKey);
     await page.keyboard.press(run.tabKey);
-    // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
+    await page.keyboard.press(run.shiftTabKey);
+    // Shift+Tab re-enters a radio group at its checked radio, so judge whichever radio of the group took focus.
     // A token field's entry shows its ring on the well.
     const hasRing = await control.evaluate((element, dateFields) => {
       const focused = document.activeElement;
