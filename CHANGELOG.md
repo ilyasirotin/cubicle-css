@@ -25,8 +25,9 @@ The first release of Cubicle.
   sign-in, error and maintenance pages. Density modes `data-cb-density="compact"` and
   `"comfortable"` work on any subtree, panel heads included.
 - **Buttons.** `.cb-btn` raised keys with 1px press travel come in primary, tinted-danger and
-  solid-danger variants, small and icon sizes, and attached groups. Toggle (`aria-pressed`), busy
-  (stepped spinner) and disabled states.
+  solid-danger variants, small and icon sizes, and attached groups, which wrap onto a second row
+  when the container is too narrow. Toggle (`aria-pressed`), busy (stepped spinner) and disabled
+  states.
 - **Fields.** Recessed `.cb-input` and `.cb-select` with tabular figures and readonly, invalid
   (`aria-invalid`, `:user-invalid`), disabled, focusable disabled inputs (`aria-disabled` with
   `readonly`) and busy states.

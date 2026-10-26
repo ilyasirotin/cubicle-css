@@ -671,9 +671,12 @@
     padding-inline: 0;
   }
 
-  /* Attached group: shared 1px seams, outer corners only. */
+  /* Attached group: shared 1px seams, outer corners only. Keys wrap onto a
+     second row when the container is narrower than the group (320px, or a wide
+     fallback font) instead of running past it. */
   .cb-btn-group {
     display: inline-flex;
+    flex-wrap: wrap;
 
     & > .cb-btn {
       border-radius: var(--cb-radius-none);

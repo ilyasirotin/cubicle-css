@@ -1084,7 +1084,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-btn--danger-solid</code></th><td>Solid crimson fill</td><td>Critical confirmation in a dialog</td></tr>
               <tr><th scope="row"><code>.cb-btn--sm</code></th><td>20px high, 12px text</td><td>Row actions in dense tables</td></tr>
               <tr><th scope="row"><code>.cb-btn--icon</code></th><td>Square, no inline padding</td><td>Glyph-only actions; requires <code>aria-label</code></td></tr>
-              <tr><th scope="row"><code>.cb-btn-group</code></th><td>Attached buttons, shared seams</td><td>Related actions or a toggle toolbar; add <code>role="group"</code> and a label</td></tr>
+              <tr><th scope="row"><code>.cb-btn-group</code></th><td>Attached buttons, shared seams</td><td>Related actions or a toggle toolbar; add <code>role="group"</code> and a label. Keys wrap onto a second row when the container is too narrow</td></tr>
               <tr><th scope="row"><code>disabled</code></th><td>Flat, muted, not focusable</td><td>Unavailable action on a <code>&lt;button&gt;</code></td></tr>
               <tr><th scope="row"><code>aria-disabled="true"</code></th><td>Flat, muted, stays focusable, ignores pointer</td><td>Links, or buttons that must stay in the tab order; the app must also ignore keyboard activation</td></tr>
               <tr><th scope="row"><code>aria-pressed="true"</code></th><td>Sunk on the selected tint, no travel</td><td>Toggle that is on; <code>"false"</code> when off</td></tr>
@@ -3152,47 +3152,51 @@ async function reloadRows(url) {
 
         <h3 class="docs-h3" id="tables-compact">Compact, caption and totals</h3>
         <div class="docs-demo">
-          <table class="cb-table cb-table--compact">
-            <caption>Bandwidth by gateway, last 24 hours</caption>
-            <thead>
-              <tr>
-                <th scope="col">Gateway</th>
-                <th class="cb-table__num" scope="col">Peers</th>
-                <th class="cb-table__num" scope="col">Received</th>
-                <th class="cb-table__num" scope="col">Sent</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row">gw-eu-1</th><td class="cb-table__num">412</td><td class="cb-table__num">1.21 TB</td><td class="cb-table__num">38.4 GB</td></tr>
-              <tr><th scope="row">gw-eu-2</th><td class="cb-table__num">96</td><td class="cb-table__num">402.7 GB</td><td class="cb-table__num">12.0 GB</td></tr>
-              <tr><th scope="row">gw-us-1</th><td class="cb-table__num">233</td><td class="cb-table__num">880.1 GB</td><td class="cb-table__num">21.9 GB</td></tr>
-              <tr><th scope="row">gw-ap-1</th><td class="cb-table__num">57</td><td class="cb-table__num">96.3 GB</td><td class="cb-table__num">4.2 GB</td></tr>
-            </tbody>
-            <tfoot>
-              <tr><th scope="row">Total</th><td class="cb-table__num">798</td><td class="cb-table__num">2.59 TB</td><td class="cb-table__num">76.5 GB</td></tr>
-            </tfoot>
-          </table>
+          <div class="cb-table-wrap">
+            <table class="cb-table cb-table--compact">
+              <caption>Bandwidth by gateway, last 24 hours</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Gateway</th>
+                  <th class="cb-table__num" scope="col">Peers</th>
+                  <th class="cb-table__num" scope="col">Received</th>
+                  <th class="cb-table__num" scope="col">Sent</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">gw-eu-1</th><td class="cb-table__num">412</td><td class="cb-table__num">1.21 TB</td><td class="cb-table__num">38.4 GB</td></tr>
+                <tr><th scope="row">gw-eu-2</th><td class="cb-table__num">96</td><td class="cb-table__num">402.7 GB</td><td class="cb-table__num">12.0 GB</td></tr>
+                <tr><th scope="row">gw-us-1</th><td class="cb-table__num">233</td><td class="cb-table__num">880.1 GB</td><td class="cb-table__num">21.9 GB</td></tr>
+                <tr><th scope="row">gw-ap-1</th><td class="cb-table__num">57</td><td class="cb-table__num">96.3 GB</td><td class="cb-table__num">4.2 GB</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><th scope="row">Total</th><td class="cb-table__num">798</td><td class="cb-table__num">2.59 TB</td><td class="cb-table__num">76.5 GB</td></tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
-        <pre class="docs-snippet"><code>&lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
-  &lt;caption&gt;Bandwidth by gateway, last 24 hours&lt;/caption&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;
-      &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Peers&lt;/th&gt;
-      &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;
-      &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Sent&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;412&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.21 TB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;38.4 GB&lt;/td&gt;&lt;/tr&gt;
-    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-2&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;402.7 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;12.0 GB&lt;/td&gt;&lt;/tr&gt;
-    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-us-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;233&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;880.1 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;21.9 GB&lt;/td&gt;&lt;/tr&gt;
-    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-ap-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;57&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96.3 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;4.2 GB&lt;/td&gt;&lt;/tr&gt;
-  &lt;/tbody&gt;
-  &lt;tfoot&gt;
-    &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Total&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;798&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;2.59 TB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;76.5 GB&lt;/td&gt;&lt;/tr&gt;
-  &lt;/tfoot&gt;
-&lt;/table&gt;</code></pre>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-table-wrap&quot;&gt;
+  &lt;table class=&quot;cb-table cb-table--compact&quot;&gt;
+    &lt;caption&gt;Bandwidth by gateway, last 24 hours&lt;/caption&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th scope=&quot;col&quot;&gt;Gateway&lt;/th&gt;
+        &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Peers&lt;/th&gt;
+        &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Received&lt;/th&gt;
+        &lt;th class=&quot;cb-table__num&quot; scope=&quot;col&quot;&gt;Sent&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;412&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;1.21 TB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;38.4 GB&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-eu-2&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;402.7 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;12.0 GB&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-us-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;233&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;880.1 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;21.9 GB&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;gw-ap-1&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;57&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;96.3 GB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;4.2 GB&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+    &lt;tfoot&gt;
+      &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Total&lt;/th&gt;&lt;td class=&quot;cb-table__num&quot;&gt;798&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;2.59 TB&lt;/td&gt;&lt;td class=&quot;cb-table__num&quot;&gt;76.5 GB&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tfoot&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
 
         <h3 class="docs-h3" id="tables-empty">Empty state</h3>
         <div class="docs-demo">

@@ -59,6 +59,12 @@ const GROUPS = [
 const DESKTOP_VIEWPORT = { width: 1360, height: 900 };
 const PHONE_WIDTH = 360;
 const SECTION_HEIGHT = 900;
+// How long a check waits for something the page does on its own (a live region filling on the next
+// frame, a transition ending) before it judges. Generous, because a loaded CI machine runs frames late.
+const ANNOUNCEMENT_WAIT_MS = 1000;
+const TRANSITION_WAIT_MS = 1000;
+// What the live region says after a successful copy ("Copied to clipboard").
+const COPIED_ANNOUNCEMENT = /copied/i;
 
 // Differences that come from an engine or from automation, not from the stylesheet. A failing
 // check whose name matches one of these, in that engine, is reported as "skip" with the reason.
@@ -798,12 +804,17 @@ async function checkControlStates(run) {
     await shoot('active');
     await control.evaluate((element) => element.addEventListener('click', (event) => event.preventDefault(), { once: true }));
     await page.mouse.up();
+    // A mouse press opens a select's native list on Linux; it stays open, and swallows the keys below,
+    // unless something closes it (a screenshot does, which is why --shots none once failed there).
+    await page.keyboard.press('Escape');
     await page.mouse.move(2, 2);
 
+    // Forward first, then back: after a mouse press WebKit on Linux does not move focus on the first
+    // Shift+Tab. Either order ends on the control by keyboard, so its :focus-visible ring is judged.
     await control.focus();
-    await page.keyboard.press(run.shiftTabKey);
     await page.keyboard.press(run.tabKey);
-    // Tab returns to the checked radio of a group, so judge whichever radio of the group took focus.
+    await page.keyboard.press(run.shiftTabKey);
+    // Shift+Tab re-enters a radio group at its checked radio, so judge whichever radio of the group took focus.
     // A token field's entry shows its ring on the well.
     const hasRing = await control.evaluate((element, dateFields) => {
       const focused = document.activeElement;
@@ -868,18 +879,50 @@ function readAttributeValues(page, attribute) {
   return page.$$eval(`[${attribute}]`, (elements, name) => elements.map((element) => element.getAttribute(name)), attribute);
 }
 
+// The text of the shared live region, empty until the script has announced something.
+function readAnnouncement(page) {
+  return page.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '');
+}
+
+// Empties the live region, so a wait after the next click sees only the new announcement and not the
+// previous one.
+function clearAnnouncement(page) {
+  return page.evaluate(() => {
+    const liveRegion = document.querySelector('[role="status"][data-cb-sr]');
+    if (liveRegion) {
+      liveRegion.textContent = '';
+    }
+  });
+}
+
+// The script clears the live region and fills it on the next animation frame, which a busy machine
+// delays. Waits up to ANNOUNCEMENT_WAIT_MS for text matching `pattern`; when none arrives the
+// caller's check reports what the region holds.
+async function waitForAnnouncement(page, pattern) {
+  try {
+    await page.waitForFunction(
+      ({ source, flags }) => new RegExp(source, flags).test(document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? ''),
+      { source: pattern.source, flags: pattern.flags },
+      { timeout: ANNOUNCEMENT_WAIT_MS },
+    );
+  } catch {
+    // The check that follows reports the live region as it is.
+  }
+}
+
 async function checkCopyButtons(run, scriptPage) {
   const { check } = run;
   for (const targetId of await readAttributeValues(scriptPage, 'data-cb-copy')) {
     await exposeControl(scriptPage, `[data-cb-copy="${targetId}"]`);
     const button = scriptPage.locator(`[data-cb-copy="${targetId}"]`);
     await button.scrollIntoViewIfNeeded();
+    await clearAnnouncement(scriptPage);
     await button.click();
-    await scriptPage.waitForTimeout(100);
+    await waitForAnnouncement(scriptPage, COPIED_ANNOUNCEMENT);
     const copied = await readClipboard(scriptPage);
     const flagged = await button.evaluate((element) => element.hasAttribute('data-cb-copied'));
-    const announced = await scriptPage.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '');
-    check(flagged && /copied/i.test(announced), `copy #${targetId}: button and live region confirm`, `data-cb-copied ${flagged}, live "${announced}"`);
+    const announced = await readAnnouncement(scriptPage);
+    check(flagged && COPIED_ANNOUNCEMENT.test(announced), `copy #${targetId}: button and live region confirm`, `data-cb-copied ${flagged}, live "${announced}"`);
     const expected = await readTargetValue(scriptPage, targetId);
     let detail = copied === expected ? '' : 'MISMATCH';
     if (copied === null) {
@@ -2767,7 +2810,7 @@ async function checkApplicationFrame(run) {
   const menuKey = page.locator('body > .cb-app > .cb-app__top [data-cb-toggle]');
   if (await menuKey.count()) {
     // The key's look changes over --cb-duration (50ms); read it after that.
-    const waitForKeyLook = () => page.waitForTimeout(120);
+    const waitForKeyLook = () => settleTransitions(page);
     const closed = await page.evaluate(readSidebarFold);
     await menuKey.click();
     await waitForKeyLook();
@@ -4616,18 +4659,23 @@ async function checkRightToLeft(run) {
     const currentLink = page.locator('.docs-demo > [dir="rtl"] .cb-nav__link[aria-current="page"]');
     const linkPixelAt = await readPixels(page, currentLink);
     const bar = { right: brightness(await linkPixelAt(0.998, 0.5)), left: brightness(await linkPixelAt(0.002, 0.5)) };
-    // The chevron turns over --cb-duration: read it after that.
-    const geometry = await page.evaluate(async () => {
+    // The chevron turns over --cb-duration: read it once it has arrived, however late the frames run.
+    const geometry = await page.evaluate(async (waitLimit) => {
       const rtlDemo = document.querySelector('.docs-demo > [dir="rtl"]');
-      const waitForTurn = () => new Promise((resolveWait) => setTimeout(resolveWait, 120));
+      const readRotation = (summary) => getComputedStyle(summary, '::before').rotate;
+      const waitForRotation = async (summary, expectedRotation) => {
+        for (let waited = 0; waited < waitLimit && readRotation(summary) !== expectedRotation; waited += 20) {
+          await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+        }
+      };
       const tabList = rtlDemo.querySelector('.cb-tabs--vertical > .cb-tabs__list');
       const summary = rtlDemo.querySelector('details > summary');
-      const closedRotation = getComputedStyle(summary, '::before').rotate;
+      const closedRotation = readRotation(summary);
       summary.parentElement.open = true;
-      await waitForTurn();
-      const openRotation = getComputedStyle(summary, '::before').rotate;
+      await waitForRotation(summary, '-45deg');
+      const openRotation = readRotation(summary);
       summary.parentElement.open = false;
-      await waitForTurn();
+      await waitForRotation(summary, closedRotation);
       const tabStyle = getComputedStyle(tabList.querySelector('[aria-current="page"]'));
       return {
         line: getComputedStyle(tabList).backgroundPositionX,
@@ -4635,7 +4683,7 @@ async function checkRightToLeft(run) {
         open: openRotation,
         sheet: tabStyle.borderLeftColor === tabStyle.backgroundColor,
       };
-    });
+    }, TRANSITION_WAIT_MS);
     // The low and high marks (main ink, darker than the ticks) in the ruler strip, as fractions
     // from the left: low 70% and high 90% from the right are 0.3 and 0.1.
     const meter = page.locator('#rtl-cpu');
@@ -5412,15 +5460,19 @@ async function runChecks() {
 
   const { results, engine } = run;
   const failedCount = results.filter((result) => !result.ok).length;
-  for (const result of results) {
-    console.log(formatResult(result, engine));
-  }
   const skippedCount = results.filter((result) => result.skip).length;
   const skippedNote = skippedCount ? ` (${skippedCount} skipped as engine limits)` : '';
   const onlyNote = run.only ? ` (only ${run.only.join(', ')})` : '';
   const shotsNote = run.saving ? `${relative(REPOSITORY_ROOT, run.shotsDirectory)}/` : 'none';
   const passedCount = results.length - failedCount;
-  console.log(`\n${engine} ${run.engineVersion}: ${passedCount}/${results.length} checks passed${skippedNote}${onlyNote}. Screenshots: ${shotsNote}`);
+  let report = '';
+  for (const result of results) {
+    report += `${formatResult(result, engine)}\n`;
+  }
+  report += `\n${engine} ${run.engineVersion}: ${passedCount}/${results.length} checks passed${skippedNote}${onlyNote}. Screenshots: ${shotsNote}\n`;
+  // The whole report is written here, in one burst. process.exit() would drop what a pipe (the
+  // matrix reads this through one) has not taken yet, so wait until the write has completed.
+  await new Promise((resolveWrite) => process.stdout.write(report, resolveWrite));
   process.exit(failedCount > 0 ? 1 : 0);
 }
 

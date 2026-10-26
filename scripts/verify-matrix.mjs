@@ -133,12 +133,21 @@ function executeRun(run, failures) {
       output += chunk;
     });
 
-    child.on('close', (exitCode) => {
+    child.on('close', (exitCode, exitSignal) => {
       writeFileSync(resolve(REPOSITORY_ROOT, `${REPORTS_DIRECTORY}/${run.name}.txt`), output);
       const outputLines = output.split('\n');
       const summary = output.trim().split('\n').at(-1) ?? '';
-      const counts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0] ?? 'crashed';
-      const passed = exitCode === 0;
+      // A run with no summary line threw, was killed from outside, or lost the end of its output;
+      // it never passes, whatever its exit code says.
+      let missingSummary = 'crashed';
+      if (exitSignal) {
+        missingSummary = `killed by ${exitSignal}`;
+      } else if (exitCode === 0) {
+        missingSummary = 'output cut off';
+      }
+      const summaryCounts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0];
+      const counts = summaryCounts ?? missingSummary;
+      const passed = exitCode === 0 && summaryCounts !== undefined;
       console.log(`${passed ? 'ok  ' : 'FAIL'}  ${run.name.padEnd(22)} ${counts}  ${secondsSince(startTime)}s`);
 
       if (!passed) {
@@ -149,7 +158,7 @@ function executeRun(run, failures) {
         }
         if (!output.includes('checks passed')) {
           const errorLine = outputLines.find((line) => ERROR_LINE_PATTERN.test(line));
-          failures.push(`${run.name}: ${errorLine?.trim() ?? summary}`);
+          failures.push(`${run.name}: ${errorLine?.trim() ?? `${missingSummary}; last output: ${summary}`}`);
         }
       }
       done(passed);
