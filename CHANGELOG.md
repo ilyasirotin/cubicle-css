@@ -7,20 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc.2] - 2026-10-26
+## [1.0.0] - 2026-10-27
 
-### Changed
-
-- The minified files `dist/cubicle.min.css` and `dist/cubicle.min.js` are committed, so a CDN serves
-  them as built. In rc.1 they were not in the repository, and jsDelivr generated its own: it
-  minified the script with a different tool and, unable to parse the stylesheet's nesting and
-  `@layer`, served the unminified source under the `.min.css` name. The release assets, the
-  documentation site and the CDN now carry the same bytes, and the SRI values in `checksums.txt`
-  match the CDN's files. CI fails when the committed files differ from a fresh `scripts/build-min.sh`.
-
-## [1.0.0-rc.1] - 2026-10-26
-
-The first release candidate of Cubicle.
+The first release of Cubicle.
 
 ### Added
 
@@ -149,17 +138,18 @@ The first release candidate of Cubicle.
     Firefox and WebKit, with labelled engine limits;
     `scripts/verify-matrix.mjs` runs both pages in all three engines side by side (`--min` adds the
     minified build); `scripts/contrast-pairs.mjs` holds the palette pairs.
-  - `scripts/build-min.sh` builds the minified files (lightningcss, terser).
+  - `scripts/build-min.sh` builds the minified files (lightningcss, terser). They are committed, so a
+    CDN serves them as built, and CI fails when they differ from a fresh build.
   - `scripts/lint.sh` runs stylelint on the stylesheet and ESLint on the script, with
     error-catching rules only (unknown names, invalid values, duplicate properties, `!important`,
     ID selectors, nesting depth, vendor prefixes, undefined variables).
   - `scripts/check-release.mjs`, `scripts/build-site.mjs` and `scripts/package-release.mjs` prepare a
     release locally: the first checks that a `vX.Y.Z` or `vX.Y.Z-rc.N` tag, the banners of the four
-    `dist/` files and a dated CHANGELOG section agree, and writes the release notes; the others
-    assemble the documentation site and the release assets with a zip and `checksums.txt`
-    (SHA-256 and SRI).
-  - GitHub Actions: `verify.yml` (lint, snippets, tokens and the browser matrix on the source and
-    the minified build), `ci.yml` (pushes and pull requests to `master`, with a packaging dry run)
+    `dist/` files, a dated CHANGELOG section and the catalogue header agree (for a stable tag also
+    the README's CDN pin and SRI hashes), and writes the release notes; the others assemble the
+    documentation site and the release assets with a zip and `checksums.txt` (SHA-256 and SRI).
+  - GitHub Actions: `verify.yml` (lint, snippets, tokens, the committed minified files against
+    a fresh build, and the browser matrix on the source and the minified build), `ci.yml` (pushes and pull requests to `master`, with a packaging dry run)
     and `release.yml` (a `v*` tag verifies, packages, deploys the documentation to GitHub Pages and
     drafts the GitHub Release). Actions are pinned by commit SHA; Dependabot keeps them and the dev
     tools current.
@@ -168,6 +158,5 @@ The first release candidate of Cubicle.
     descriptive names.
   - A Claude Code hook that blocks pushes, tags and releases.
 
-[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0-rc.2...HEAD
-[1.0.0-rc.2]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0-rc.1...v1.0.0-rc.2
-[1.0.0-rc.1]: https://github.com/ilyasirotin/cubicle-css/releases/tag/v1.0.0-rc.1
+[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/ilyasirotin/cubicle-css/releases/tag/v1.0.0
