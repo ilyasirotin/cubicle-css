@@ -63,6 +63,7 @@ const SECTION_HEIGHT = 900;
 // frame, a transition ending) before it judges. Generous, because a loaded CI machine runs frames late.
 const ANNOUNCEMENT_WAIT_MS = 1000;
 const TRANSITION_WAIT_MS = 1000;
+const SCROLL_WAIT_MS = 1000;
 // What the live region says after a successful copy ("Copied to clipboard").
 const COPIED_ANNOUNCEMENT = /copied/i;
 
@@ -632,11 +633,11 @@ async function checkControls(run) {
     const before = await readPressState();
     await page.mouse.move(...centreOf(box));
     await page.mouse.down();
-    await page.waitForTimeout(150);
+    await settleTransitions(page);
     const during = await readPressState();
     await page.mouse.up();
     await page.mouse.move(2, 2);
-    await page.waitForTimeout(150);
+    await settleTransitions(page);
     const after = await readPressState();
     const travel = `${before.split('|')[0]} -> ${during.split('|')[0]}`;
     check(during !== before && after === before, 'button travels down and inverts bevel on press, returns on release', travel);
@@ -4197,6 +4198,15 @@ async function checkMenus(run) {
   const readExpanded = () => key.getAttribute('aria-expanded');
   // The key opens the menu natively; its toggle event (a task later) moves focus in.
   const waitForToggle = () => menuPage.waitForTimeout(50);
+  // A wheel turn reaches the page as a scroll event some frames later, and the script closes the menu
+  // on it. Waits for that; a menu that stays open is reported by the check below.
+  const waitForMenuToClose = async () => {
+    try {
+      await menuPage.waitForFunction(() => !document.getElementById('m-peer-1').matches(':popover-open'), null, { timeout: SCROLL_WAIT_MS });
+    } catch {
+      // Still open: steps.scroll records it.
+    }
+  };
   const steps = {};
 
   await key.evaluate((element) => element.scrollIntoView({ block: 'center' }));
@@ -4234,7 +4244,7 @@ async function checkMenus(run) {
   await key.click();
   await waitForToggle();
   await menuPage.mouse.wheel(0, 60);
-  await menuPage.waitForTimeout(150);
+  await waitForMenuToClose();
   steps.scroll = await isOpen();
   // Near the bottom of the viewport the menu opens upwards.
   await key.evaluate((element) => {
