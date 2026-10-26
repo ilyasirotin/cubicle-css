@@ -107,11 +107,17 @@ function parseArguments(argv) {
 }
 
 // Runs inside the page. Pauses every animation at its start, so the busy spinner and the
-// progress hatch read the same in every capture.
+// progress hatch read the same in every capture. A transition is finished instead: the page
+// starts some (a checkbox ticked by the docs script) after load, so whether one is still
+// running when this runs depends on timing, and only its end state is the same every time.
 function stopAnimations() {
   for (const animation of document.getAnimations()) {
-    animation.pause();
-    animation.currentTime = 0;
+    if (animation instanceof CSSTransition) {
+      animation.finish();
+    } else {
+      animation.pause();
+      animation.currentTime = 0;
+    }
   }
 }
 

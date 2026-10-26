@@ -243,9 +243,9 @@
   }
 
   body {
-    background: var(--cb-bg-canvas);
-    color: var(--cb-text-main);
     font: var(--cb-text-sm) / var(--cb-line-base) var(--cb-font-sans);
+    color: var(--cb-text-main);
+    background: var(--cb-bg-canvas);
   }
 
   :where(a) {
@@ -1060,10 +1060,10 @@
   /* Horizontal field: label column on the left. The field is its own
      container, so it stacks inside any narrow panel, not only on phones. */
   .cb-field--horizontal {
-    --_label: 11rem;
+    --_key: 11rem;
     container-type: inline-size;
     display: grid;
-    grid-template-columns: var(--_label) minmax(0, 1fr);
+    grid-template-columns: var(--_key) minmax(0, 1fr);
     align-items: start;
     justify-items: start;
     gap: var(--cb-space-1) var(--cb-space-3);
@@ -1681,8 +1681,8 @@
 
   /* Count: a compact number for buttons, panel heads and navigation. */
   .cb-badge--count {
-    min-inline-size: 1.125rem;
     justify-content: center;
+    min-inline-size: 1.125rem;
     padding-inline: var(--cb-space-1);
   }
 
@@ -1793,10 +1793,10 @@
     inline-size: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    font-variant-numeric: tabular-nums;
     background: var(--cb-bg-surface);
     border: 1px solid var(--cb-border-main);
     border-radius: var(--cb-radius-sm);
-    font-variant-numeric: tabular-nums;
   }
 
   .cb-table-wrap > .cb-table {
@@ -2073,9 +2073,9 @@
      It is 2px taller than the 18px first line, so it starts 1px higher. */
   .cb-alert > .cb-alert__close {
     position: absolute;
-    margin: 0;
     inset-block-start: calc(var(--cb-space-2) - 1px);
     inset-inline-end: var(--cb-space-2);
+    margin: 0;
   }
 
   /* Compact: one line is 28px, the height of a table row. */
@@ -2517,6 +2517,10 @@
     --_mark: linear-gradient(var(--cb-text-main), var(--cb-text-main));
     --_ticks: none;
     --_marks: none;
+    /* The still hatch of an unknown amount, painted by the engine rules below. */
+    --_hatch: linear-gradient(-45deg,
+      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 25%, var(--cb-bg-recessed) 25% 50%,
+      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 50% 75%, var(--cb-bg-recessed) 75%) 0 0 / 17px 17px;
 
     appearance: none;
     display: block;
@@ -2561,9 +2565,7 @@
      with a color-mix() stop almost flat. The 17px square (12px times the
      square root of 2) holds one 6px stripe of each colour across the slant. */
   .cb-meter:indeterminate::-webkit-progress-bar {
-    background: linear-gradient(-45deg,
-      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 25%, var(--cb-bg-recessed) 25% 50%,
-      color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 50% 75%, var(--cb-bg-recessed) 75%) 0 0 / 17px 17px;
+    background: var(--_hatch);
   }
 
   /* Firefox draws the track on the element itself and offers only the value
@@ -2593,9 +2595,7 @@
     }
 
     .cb-meter:indeterminate {
-      background: linear-gradient(-45deg,
-        color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 25%, var(--cb-bg-recessed) 25% 50%,
-        color-mix(in srgb, var(--cb-accent) 35%, var(--cb-bg-recessed)) 50% 75%, var(--cb-bg-recessed) 75%) 0 0 / 17px 17px;
+      background: var(--_hatch);
     }
 
     .cb-meter:indeterminate::-moz-progress-bar {
@@ -2901,11 +2901,11 @@
      width and keeps only ‹ current › below 30rem. */
   .cb-pagination {
     container-type: inline-size;
-    inline-size: 100%;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--cb-space-2) var(--cb-space-3);
+    inline-size: 100%;
   }
 
   .cb-pagination__summary {
@@ -3052,10 +3052,10 @@
   /* align-content centres one line in the row height, as a table cell does;
      older engines put it at the top. */
   :is(.cb-props, .cb-props > div) > :is(dt, dd) {
+    align-content: center;
     min-block-size: var(--cb-row-h);
     margin: 0;
     padding: var(--_pad) var(--cb-space-2);
-    align-content: center;
     border-block-start: 1px solid var(--cb-border-subtle);
   }
 
@@ -3495,8 +3495,8 @@
     margin: -1px;
     padding: 0;
     overflow: hidden;
-    clip-path: inset(50%);
     white-space: nowrap;
+    clip-path: inset(50%);
     border: 0;
   }
 
