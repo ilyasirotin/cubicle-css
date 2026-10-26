@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-The first release of Cubicle.
+## [1.0.0-rc.1] - 2026-10-26
+
+The first release candidate of Cubicle.
 
 ### Added
 
@@ -154,3 +156,6 @@ The first release of Cubicle.
     configuration first, then helpers, then one entry point, with one statement per line and
     descriptive names.
   - A Claude Code hook that blocks pushes, tags and releases.
+
+[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/ilyasirotin/cubicle-css/releases/tag/v1.0.0-rc.1
