@@ -100,7 +100,7 @@ The compare prints, per condition, how many boxes each property changed and then
 ## 4. Housekeeping
 
 - If deduplication created or moved a shared rule, update the Table of Contents entry that names it.
-- If the rounded figures change, update the size line in `README.md` (`Sizes: cubicle.css … KB (… KB gzip), minified …`).
+- If the rounded figures change, update the size sentence in the README's Install section ("The minified files are … KB (… KB gzip) and …"). Rebuilding changes the minified files, so also rerun `bash scripts/build-min.sh` and commit them.
 - A change that renders nothing differently gets no `CHANGELOG.md` entry, because `[Unreleased]` reads as release notes. Say in the report that you skipped it, so the maintainer can overrule you.
 
 ## 5. Report

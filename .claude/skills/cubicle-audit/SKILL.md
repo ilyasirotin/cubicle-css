@@ -16,7 +16,7 @@ Two habits keep the audit honest:
 
 1. `ls .claude/plans/audit-*.md` and read the latest report: its score, verdict, open P0 / P1 / P2 lists. Read the status section of the roadmap that followed it (`roadmap-*.md`), including "Not done, by decision" — those items are out of scope unless the maintainer reopens them.
 2. `git log --oneline <start>..HEAD` for what changed since. `.claude/plans/` is git-ignored, so a report has no commit of its own: take `<start>` from the previous report's Scope line (it records the HEAD it audited), else from the roadmap's status section, else `git log --since=<report date>`. `git status --short`: if the tree is dirty, the audit covers the working tree; say so in the report.
-3. `node .claude/skills/cubicle-audit/scripts/inventory.mjs` lists, against the catalogue, example and README, every `cb-*` class, every state the stylesheet styles on a class, and every `data-cb-*` hook. `--full` prints every row, not only leads. Its leads feed steps 3 and 6; confirm each before reporting it (a state may be set on an ancestor, by script, or be unreachable by design).
+3. `node .claude/skills/cubicle-audit/scripts/inventory.mjs` lists, against the catalogue and the example, every `cb-*` class, every state the stylesheet styles on a class, and every `data-cb-*` hook. `--full` prints every row, not only leads. Its leads feed steps 3 and 6; confirm each before reporting it (a state may be set on an ancestor, by script, or be unreachable by design).
 
 ## 2. Run the full suite
 
@@ -37,7 +37,6 @@ Take the component list from the stylesheet's Table of Contents (§4 layout, §5
 - **States** demonstrated, from default, hover, focus, active, disabled, readonly, invalid, selected / current, busy, empty — only those that apply; write n/a for the rest. Inventory section 2 lists styled states no demo carries.
 - **Suite:** the `verify-browser.mjs` group that guards it (`GROUPS` near the top of the script). A shipped component with no group is a should-fix.
 - **Example:** used in `docs/example.html` where a real console would use it.
-- **README:** a row in the Components table; script behaviour in the `cubicle.js` table.
 - **Reach:** density tokens, forced colours, RTL, print, where the component is affected.
 
 Then look at the screenshots of the matrix run: `tmp/shots/index-<engine>/<section>-{360,1360}.png` (plus `state-*`, `dialog-*`, `forced-*`, `forms-matrix.png`) and `tmp/shots/example-<engine>/page-{360,800,1360}.png`; the header of `scripts/verify-browser.mjs` names them all. `tmp/shots/` also keeps directories from older work, so open only what this run wrote (`ls -lt tmp/shots | head`). Check that each shot shows the section it is named after (its heading is in the picture): a shot of the wrong section means the suite never looked at that section, which is a suite finding, and you take that section's shots yourself from the scratchpad. Judge the brief, not taste: steel palette with colour only for status and primary actions, raised keys with asymmetric bevel, recessed fields and wells, corners ≤ 3px, nothing taller than its control or row height, no clipping at 360px.
@@ -78,11 +77,11 @@ Score each dimension, then add them up. Show the deductions so the next audit ca
 | Dimension | Max | Full marks when |
 |---|---|---|
 | Suite health | 2 | Every run green, source and minified, three engines; skips all labelled; no coverage lost since the last audit |
-| Component completeness | 2 | Every component catalogued in every applicable state, with reference rows, suite coverage, README rows |
+| Component completeness | 2 | Every component catalogued in every applicable state, with reference rows and suite coverage |
 | Native forms | 1.5 | Every type in the matrix styled, documented, measured; quirks documented |
 | WCAG 2.2 AA | 2.5 | No kit Fail at default density; Host rows guided in the catalogue |
 | Console coverage | 1 | No Missing pattern the target consoles need often |
-| Release hygiene | 1 | CHANGELOG `[Unreleased]` reads as release notes for everything since the last release; README, ToC and catalogue agree; LICENSE present; nothing from AGENTS.md §14 implemented early (no `.github/workflows`, `CNAME`, or tags — list them with `git for-each-ref refs/tags`, since the guard hook blocks `git tag`) |
+| Release hygiene | 1 | CHANGELOG `[Unreleased]` reads as release notes for everything since the last release; the README's install snippet (pin and SRI), the ToC, the catalogue header and the banners agree with the latest tag (`node scripts/check-release.mjs <tag>`); LICENSE present; the pipeline matches AGENTS.md §14 |
 
 Verdict:
 

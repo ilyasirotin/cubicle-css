@@ -1,11 +1,10 @@
 // Inventory of what Cubicle ships against what it documents, for the whole-framework audit.
-// Reads dist/cubicle.css, dist/cubicle.js, docs/index.html, docs/example.html and README.md and
-// prints:
-//   1. every cb-* class the stylesheet defines, with its use in the catalogue's live markup,
-//      the example console and the README, and whether a component root is in the CSS ToC;
+// Reads dist/cubicle.css, dist/cubicle.js, docs/index.html and docs/example.html and prints:
+//   1. every cb-* class the stylesheet defines, with its use in the catalogue's live markup and
+//      the example console, and whether a component root is in the CSS ToC;
 //   2. every state the stylesheet styles on a cb-* class ([disabled], [aria-busy="true"],
 //      :checked, ...) and whether some catalogue demo carries that class with that state;
-//   3. every data-cb-* hook cubicle.js reads, with its use in the catalogue, example and README.
+//   3. every data-cb-* hook cubicle.js reads, with its use in the catalogue and the example.
 //
 // Run from the repository root:
 //   node .claude/skills/cubicle-audit/scripts/inventory.mjs           leads only
@@ -25,7 +24,6 @@ const STYLESHEET = 'dist/cubicle.css';
 const SCRIPT = 'dist/cubicle.js';
 const CATALOGUE = 'docs/index.html';
 const EXAMPLE = 'docs/example.html';
-const README = 'README.md';
 
 // Expanding nested :is() / :where() can multiply selectors; each selector stops at this many.
 const MAX_EXPANSIONS = 500;
@@ -347,7 +345,6 @@ function runInventory() {
   const showEveryRow = process.argv.includes('--full');
   const css = readFileSync(STYLESHEET, 'utf8');
   const js = readFileSync(SCRIPT, 'utf8');
-  const readme = readFileSync(README, 'utf8');
   const liveElements = {
     index: parseElements(readFileSync(CATALOGUE, 'utf8')),
     example: parseElements(readFileSync(EXAMPLE, 'utf8')),
@@ -369,7 +366,6 @@ function runInventory() {
       isRoot,
       index: countElementsWithClass(liveElements.index, className),
       example: countElementsWithClass(liveElements.example, className),
-      readme: isRoot ? namesRoot(readme, className) : mentions(readme, className),
       toc: isRoot ? namesRoot(tableOfContents, className) : mentions(tableOfContents, `.${className}`),
     };
   });
@@ -389,7 +385,7 @@ function runInventory() {
     }
   }
 
-  console.log('1. Classes (index / example = elements in live markup; readme, toc = mentioned)');
+  console.log('1. Classes (index / example = elements in live markup; toc = mentioned)');
   for (const row of classRows) {
     const notes = [];
     if (!row.index) {
@@ -398,16 +394,12 @@ function runInventory() {
     if (row.isRoot && !row.toc) {
       notes.push('root not in CSS ToC');
     }
-    if (row.isRoot && !row.readme) {
-      notes.push('root not in README');
-    }
     if (notes.length > 0) {
       leadCount += 1;
     }
     if (showEveryRow || notes.length > 0) {
-      const readmeColumn = row.readme ? 'readme' : '      ';
       const tocColumn = row.toc ? 'toc' : '   ';
-      console.log(`   ${pad(row.className, 30)} index ${pad(row.index, 4)} example ${pad(row.example, 4)} ${readmeColumn} ${tocColumn}  ${notes.join('; ')}`);
+      console.log(`   ${pad(row.className, 30)} index ${pad(row.index, 4)} example ${pad(row.example, 4)} ${tocColumn}  ${notes.join('; ')}`);
     }
   }
   for (const usage of undefinedUsed) {
@@ -452,20 +444,15 @@ function runInventory() {
   for (const hook of hooks) {
     const indexCount = liveElements.index.filter((element) => hook in element.attrs).length;
     const exampleCount = liveElements.example.filter((element) => hook in element.attrs).length;
-    const inReadme = mentions(readme, hook);
     const notes = [];
     if (!indexCount) {
       notes.push('not in catalogue markup');
-    }
-    if (!inReadme) {
-      notes.push('not in README');
     }
     if (notes.length > 0) {
       leadCount += 1;
     }
     if (showEveryRow || notes.length > 0) {
-      const readmeColumn = inReadme ? 'readme' : '      ';
-      console.log(`   ${pad(hook, 26)} index ${pad(indexCount, 4)} example ${pad(exampleCount, 4)} ${readmeColumn}  ${notes.join('; ')}`);
+      console.log(`   ${pad(hook, 26)} index ${pad(indexCount, 4)} example ${pad(exampleCount, 4)}  ${notes.join('; ')}`);
     }
   }
   console.log(`   ${hooks.length} hooks\n`);
