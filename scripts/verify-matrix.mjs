@@ -137,10 +137,17 @@ function executeRun(run, failures) {
       writeFileSync(resolve(REPOSITORY_ROOT, `${REPORTS_DIRECTORY}/${run.name}.txt`), output);
       const outputLines = output.split('\n');
       const summary = output.trim().split('\n').at(-1) ?? '';
-      // A run with no summary either threw or was killed from outside (SIGKILL is the out-of-memory killer).
-      const missingSummary = exitSignal ? `killed by ${exitSignal}` : 'crashed';
-      const counts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0] ?? missingSummary;
-      const passed = exitCode === 0;
+      // A run with no summary line threw, was killed from outside, or lost the end of its output;
+      // it never passes, whatever its exit code says.
+      let missingSummary = 'crashed';
+      if (exitSignal) {
+        missingSummary = `killed by ${exitSignal}`;
+      } else if (exitCode === 0) {
+        missingSummary = 'output cut off';
+      }
+      const summaryCounts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0];
+      const counts = summaryCounts ?? missingSummary;
+      const passed = exitCode === 0 && summaryCounts !== undefined;
       console.log(`${passed ? 'ok  ' : 'FAIL'}  ${run.name.padEnd(22)} ${counts}  ${secondsSince(startTime)}s`);
 
       if (!passed) {

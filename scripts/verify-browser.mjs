@@ -5460,15 +5460,19 @@ async function runChecks() {
 
   const { results, engine } = run;
   const failedCount = results.filter((result) => !result.ok).length;
-  for (const result of results) {
-    console.log(formatResult(result, engine));
-  }
   const skippedCount = results.filter((result) => result.skip).length;
   const skippedNote = skippedCount ? ` (${skippedCount} skipped as engine limits)` : '';
   const onlyNote = run.only ? ` (only ${run.only.join(', ')})` : '';
   const shotsNote = run.saving ? `${relative(REPOSITORY_ROOT, run.shotsDirectory)}/` : 'none';
   const passedCount = results.length - failedCount;
-  console.log(`\n${engine} ${run.engineVersion}: ${passedCount}/${results.length} checks passed${skippedNote}${onlyNote}. Screenshots: ${shotsNote}`);
+  let report = '';
+  for (const result of results) {
+    report += `${formatResult(result, engine)}\n`;
+  }
+  report += `\n${engine} ${run.engineVersion}: ${passedCount}/${results.length} checks passed${skippedNote}${onlyNote}. Screenshots: ${shotsNote}\n`;
+  // The whole report is written here, in one burst. process.exit() would drop what a pipe (the
+  // matrix reads this through one) has not taken yet, so wait until the write has completed.
+  await new Promise((resolveWrite) => process.stdout.write(report, resolveWrite));
   process.exit(failedCount > 0 ? 1 : 0);
 }
 
