@@ -1,0 +1,21 @@
+# Weekly update pull requests for the pinned GitHub Actions and the dev tools in scripts/.
+# Each ecosystem arrives as one grouped pull request. Actions stay pinned by commit SHA:
+# Dependabot rewrites the SHA and the version comment together.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']
+
+  - package-ecosystem: npm
+    directory: /scripts
+    schedule:
+      interval: weekly
+    groups:
+      dev-tools:
+        patterns: ['*']
