@@ -32,6 +32,17 @@ jobs:
         working-directory: scripts
         run: npm ci
 
+      # The minified files are committed, because jsDelivr serves the repository's files, so they
+      # must be what the build produces from the sources. Fails before the long matrix runs.
+      - name: Check that the committed minified files are current
+        run: |
+          bash scripts/build-min.sh
+          if [ -n "$(git status --porcelain -- dist)" ]; then
+            echo "dist/ differs from a fresh build. Run bash scripts/build-min.sh and commit the result:" >&2
+            git status --short -- dist >&2
+            exit 1
+          fi
+
       - name: Install the browsers
         working-directory: scripts
         run: npx playwright install --with-deps chromium firefox webkit
@@ -60,13 +71,4 @@ jobs:
           name: verify-reports
           path: tmp/verify/
           if-no-files-found: warn
-          retention-days: 14
-
-      # The release workflow packages exactly these files, so what was verified is what ships.
-      - name: Upload the minified build
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: minified-dist
-          path: dist/*.min.*
-          if-no-files-found: error
           retention-days: 14
