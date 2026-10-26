@@ -2810,7 +2810,7 @@ async function checkApplicationFrame(run) {
   const menuKey = page.locator('body > .cb-app > .cb-app__top [data-cb-toggle]');
   if (await menuKey.count()) {
     // The key's look changes over --cb-duration (50ms); read it after that.
-    const waitForKeyLook = () => page.waitForTimeout(120);
+    const waitForKeyLook = () => settleTransitions(page);
     const closed = await page.evaluate(readSidebarFold);
     await menuKey.click();
     await waitForKeyLook();
