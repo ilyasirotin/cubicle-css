@@ -10,6 +10,7 @@
       "Bash(node scripts/check-snippets.mjs *)",
       "Bash(node scripts/check-tokens.mjs *)",
       "Bash(bash scripts/build-min.sh *)",
+      "Bash(bash scripts/lint.sh *)",
       "WebFetch(domain:developer.mozilla.org)",
       "WebFetch(domain:caniuse.com)",
       "WebFetch(domain:web.dev)",
