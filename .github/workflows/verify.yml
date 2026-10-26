@@ -1,0 +1,71 @@
+# The checks every change and every release must pass. Reusable: ci.yml and release.yml call it.
+# It mirrors what a contributor runs locally (CONTRIBUTING.md "Checking"): lint, snippets, tokens,
+# then the browser matrix on the source and the minified build in all three engines.
+name: Verify
+
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  verify:
+    name: Lint and browser checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install the dev tools
+        working-directory: scripts
+        run: npm ci
+
+      - name: Install the browsers
+        working-directory: scripts
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Lint
+        run: bash scripts/lint.sh
+
+      - name: Check the catalogue snippets
+        run: node scripts/check-snippets.mjs
+
+      - name: Check the tokens
+        run: node scripts/check-tokens.mjs
+
+      # --min builds dist/*.min.* first (scripts/build-min.sh) and checks both builds.
+      - name: Run the browser matrix
+        run: node scripts/verify-matrix.mjs --min
+
+      # Reports and screenshots are kept even when the matrix fails: they are the evidence.
+      - name: Upload the reports and screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verify-reports
+          path: |
+            tmp/verify/
+            tmp/shots/
+          if-no-files-found: warn
+          retention-days: 14
+
+      # The release workflow packages exactly these files, so what was verified is what ships.
+      - name: Upload the minified build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: minified-dist
+          path: dist/*.min.*
+          if-no-files-found: error
+          retention-days: 14

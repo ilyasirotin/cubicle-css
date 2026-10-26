@@ -1,0 +1,140 @@
+# Release pipeline. It runs when the maintainer pushes a tag vX.Y.Z or vX.Y.Z-rc.N (tagging stays
+# manual, AGENTS.md Section 11). Jobs run in this order:
+#   verify -> package -> deploy-pages -> release
+# The release is a DRAFT; the maintainer reads it and publishes it by hand. Tags with a hyphen
+# (-rc.N) are marked as pre-releases. Every tag deploys the documentation site, rc included.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+# One release at a time, and never cancel one half way.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify
+    permissions:
+      contents: read
+    uses: ./.github/workflows/verify.yml
+
+  # Checks the tag against the banners and CHANGELOG, then builds everything that is published.
+  package:
+    name: Package
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the tagged commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - name: Download the verified minified build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: minified-dist
+          path: dist
+
+      # Fails unless the tag, the four banners and a dated CHANGELOG section agree. Writes the
+      # section as tmp/release-notes.md.
+      - name: Check the tag against the files
+        env:
+          TAG: ${{ github.ref_name }}
+        run: node scripts/check-release.mjs "$TAG"
+
+      - name: Assemble the documentation site
+        run: node scripts/build-site.mjs
+
+      - name: Upload the site for Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: tmp/site/
+
+      - name: Package the release assets
+        env:
+          TAG: ${{ github.ref_name }}
+        run: node scripts/package-release.mjs "${TAG#v}"
+
+      - name: Upload the release assets
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: tmp/release/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload the release notes
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-notes
+          path: tmp/release-notes.md
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy-pages:
+    name: Deploy the site
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  release:
+    name: Draft the GitHub Release
+    needs: [package, deploy-pages]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download the release assets
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: release-assets
+
+      - name: Download the release notes
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-notes
+          path: release-notes
+
+      # --verify-tag stops the release when the tag is not on the remote. There is no checkout
+      # here, so --repo names the repository. A hyphen in the tag marks a pre-release.
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          release_flags=(--draft --verify-tag)
+          if [[ "$TAG" == *-* ]]; then
+            release_flags+=(--prerelease)
+          fi
+          gh release create "$TAG" \
+            --repo "$REPOSITORY" \
+            --title "Cubicle $TAG" \
+            --notes-file release-notes/release-notes.md \
+            "${release_flags[@]}" \
+            release-assets/*

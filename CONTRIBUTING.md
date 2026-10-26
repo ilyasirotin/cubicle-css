@@ -80,6 +80,8 @@ node scripts/check-tokens.mjs
 node scripts/verify-matrix.mjs --browsers chromium
 ```
 
+CI runs all of these, with `verify-matrix --min` in place of the Chromium-only run, on Linux for every push and pull request to `master`.
+
 After a change to engine-specific CSS, form controls, platform features or `cubicle.js`, and before a
 release, run every engine, on the source and on the minified build:
 

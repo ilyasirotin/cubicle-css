@@ -144,6 +144,11 @@ The first release of Cubicle.
     `dist/` files and a dated CHANGELOG section agree, and writes the release notes; the others
     assemble the documentation site and the release assets with a zip and `checksums.txt`
     (SHA-256 and SRI).
+  - GitHub Actions: `verify.yml` (lint, snippets, tokens and the browser matrix on the source and
+    the minified build), `ci.yml` (pushes and pull requests to `master`, with a packaging dry run)
+    and `release.yml` (a `v*` tag verifies, packages, deploys the documentation to GitHub Pages and
+    drafts the GitHub Release). Actions are pinned by commit SHA; Dependabot keeps them and the dev
+    tools current.
   - Every script, the Claude Code skills' scripts and `dist/cubicle.js` read top to bottom:
     configuration first, then helpers, then one entry point, with one statement per line and
     descriptive names.

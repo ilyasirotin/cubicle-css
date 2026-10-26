@@ -115,6 +115,7 @@ A new token goes into `@layer tokens`, this list and the catalogue's token table
 - `dist/*.min.*` — local build output, git-ignored, never edited by hand.
 - `docs/index.html` — the component catalogue; `docs/example.html` — a sample IAM / infra console, both showcase and integration test; `docs/docs.css` — documentation-only styles, never shipped.
 - `scripts/` — dev tools, never shipped: `verify-browser.mjs`, `verify-matrix.mjs` (several pages and engines side by side), `build-min.sh`, `lint.sh` (stylelint and ESLint, error-catching rules only, configured in `stylelint.config.mjs` and `eslint.config.mjs`), `check-snippets.mjs`, `check-tokens.mjs`, `check-release.mjs` (tag, banners and CHANGELOG section agree; writes the release notes), `build-site.mjs` (the Pages tree in `tmp/site/`), `package-release.mjs` (assets, zip and `checksums.txt` in `tmp/release/`) with their shared `release-files.mjs`, `contrast-pairs.mjs` (palette contrast pairs shared by `verify-browser.mjs` and the catalogue's contrast table).
+- `.github/` — `workflows/` (`verify.yml`, `ci.yml`, `release.yml`) and `dependabot.yml`; see Section 14.
 - `.claude/` — Claude Code settings, hooks and skills. Store every plan in `.claude/plans/`.
 - `README.md`, `LICENSE` (MIT), `CHANGELOG.md` (Keep a Changelog, SemVer), `CONTRIBUTING.md`.
 
@@ -171,12 +172,13 @@ Code, comments, documentation, examples, commit messages, `README.md` and `CHANG
 
 ---
 
-## 14. Delivery & Distribution (Decided, Deferred)
+## 14. Delivery & Distribution
 
-These decisions are locked. **Do not implement any of them** (no `.github/workflows`, release or Pages configuration, Git tags or `CNAME`) until the maintainer declares the framework ready for release; until then only the local build (Section 9) exists.
+The pipeline is built; the first release (`v1.0.0-rc.1`, then `v1.0.0`) is in progress. Tagging, pushing and publishing stay manual (Section 11).
 
-- **Source of truth:** a public GitHub repository; a SemVer tag and its GitHub Release, with assets `cubicle.css`, `cubicle.min.css`, their `.js` counterparts, `checksums.txt` (SHA-256 and SRI hashes) and a distribution `.zip`.
-- **CDN:** jsDelivr serving the tag (`cdn.jsdelivr.net/gh/<owner>/cubicle@<version>/dist/...`). Documentation pins exact versions, never a branch, and describes CDN behaviour in `README.md` only after verifying it live.
-- **Docs hosting:** GitHub Pages from the release tag on `cubicle.threadnull.dev` (subdomain to be confirmed), serving `docs/` and `dist/` as one tree so the site loads the released stylesheet.
-- **Automation:** one GitHub Actions workflow on a manual `v*` tag push: verify, build minified assets, hash, create the release, deploy Pages. Least-privilege permissions, actions pinned by commit SHA. Tagging stays manual.
+- **Source of truth:** the public repository `ilyasirotin/cubicle-css`; a SemVer tag `vX.Y.Z` or `vX.Y.Z-rc.N` and its GitHub Release, with assets `cubicle.css`, `cubicle.min.css`, their `.js` counterparts, `checksums.txt` (SHA-256 lines, SRI as comments) and `cubicle-<version>.zip`. The version sits in the `/*! */` banner of `dist/cubicle.css` and `dist/cubicle.js`, committed before the tag. `scripts/check-release.mjs` fails on a mismatch with the tag or on a missing dated `CHANGELOG.md` section, whose body becomes the release notes.
+- **CDN:** jsDelivr serving the tag (`cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@<version>/dist/...`). Documentation pins exact versions, never a branch, and describes CDN behaviour in `README.md` only after verifying it live.
+- **Docs hosting:** GitHub Pages on `cubicle.threadnull.dev`, deployed from every `v*` tag, rc included, by Actions (so no `CNAME` file). `scripts/build-site.mjs` builds the tree: the catalogue at `/`, `/example.html` and `/dist/...`, with `../dist/` rewritten to `dist/` in the copies only.
+- **Automation:** `.github/workflows/verify.yml` is the reusable gate (lint, snippets, tokens, `verify-matrix --min` on `ubuntu-latest`); `ci.yml` runs it on pushes and pull requests to `master`, plus a packaging dry run; `release.yml` runs on a `v*` tag push: verify, package, deploy Pages, then a **draft** GitHub Release (a pre-release for `-rc` tags) that the maintainer publishes by hand. Top-level `permissions: {}`, least privilege per job, actions pinned by full commit SHA with a version comment, Dependabot weekly for actions and `scripts/`. No secrets: `GITHUB_TOKEN` and the Pages OIDC deploy only.
+- **Repository settings (maintainer-owned):** a ruleset on `v*` tags, a `master` ruleset requiring green CI with owner bypass, the `github-pages` environment limited to `v*` tags.
 - **Out of scope:** an npm package or a self-hosted nginx server.
