@@ -133,11 +133,13 @@ function executeRun(run, failures) {
       output += chunk;
     });
 
-    child.on('close', (exitCode) => {
+    child.on('close', (exitCode, exitSignal) => {
       writeFileSync(resolve(REPOSITORY_ROOT, `${REPORTS_DIRECTORY}/${run.name}.txt`), output);
       const outputLines = output.split('\n');
       const summary = output.trim().split('\n').at(-1) ?? '';
-      const counts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0] ?? 'crashed';
+      // A run with no summary either threw or was killed from outside (SIGKILL is the out-of-memory killer).
+      const missingSummary = exitSignal ? `killed by ${exitSignal}` : 'crashed';
+      const counts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0] ?? missingSummary;
       const passed = exitCode === 0;
       console.log(`${passed ? 'ok  ' : 'FAIL'}  ${run.name.padEnd(22)} ${counts}  ${secondsSince(startTime)}s`);
 
@@ -149,7 +151,7 @@ function executeRun(run, failures) {
         }
         if (!output.includes('checks passed')) {
           const errorLine = outputLines.find((line) => ERROR_LINE_PATTERN.test(line));
-          failures.push(`${run.name}: ${errorLine?.trim() ?? summary}`);
+          failures.push(`${run.name}: ${errorLine?.trim() ?? `${missingSummary}; last output: ${summary}`}`);
         }
       }
       done(passed);
