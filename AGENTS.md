@@ -114,7 +114,7 @@ A new token goes into `@layer tokens`, this list and the catalogue's token table
 - `dist/cubicle.js` — optional progressive enhancement, dependency-free.
 - `dist/*.min.*` — local build output, git-ignored, never edited by hand.
 - `docs/index.html` — the component catalogue; `docs/example.html` — a sample IAM / infra console, both showcase and integration test; `docs/docs.css` — documentation-only styles, never shipped.
-- `scripts/` — dev tools, never shipped: `verify-browser.mjs`, `verify-matrix.mjs` (several pages and engines side by side), `build-min.sh`, `check-snippets.mjs`, `check-tokens.mjs`, `contrast-pairs.mjs` (palette contrast pairs shared by `verify-browser.mjs` and the catalogue's contrast table).
+- `scripts/` — dev tools, never shipped: `verify-browser.mjs`, `verify-matrix.mjs` (several pages and engines side by side), `build-min.sh`, `lint.sh` (stylelint and ESLint, error-catching rules only, configured in `stylelint.config.mjs` and `eslint.config.mjs`), `check-snippets.mjs`, `check-tokens.mjs`, `contrast-pairs.mjs` (palette contrast pairs shared by `verify-browser.mjs` and the catalogue's contrast table).
 - `.claude/` — Claude Code settings, hooks and skills. Store every plan in `.claude/plans/`.
 - `README.md`, `LICENSE` (MIT), `CHANGELOG.md` (Keep a Changelog, SemVer), `CONTRIBUTING.md`.
 

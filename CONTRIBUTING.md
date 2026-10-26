@@ -74,6 +74,7 @@ node scripts/verify-browser.mjs --only forms --shots none
 Run these before every commit:
 
 ```sh
+bash scripts/lint.sh
 node scripts/check-snippets.mjs
 node scripts/check-tokens.mjs
 node scripts/verify-matrix.mjs --browsers chromium
@@ -100,6 +101,6 @@ add one only for a real engine difference.
 - No remote resource, runtime dependency or build requirement is added.
 - The catalogue shows every state with a matching snippet, verified at 360, 800 and 1360px.
 - Keyboard paths and the focus ring work; contrast is measured, not assumed.
-- `check-snippets`, `check-tokens` and `verify-browser` pass.
+- `lint`, `check-snippets`, `check-tokens` and `verify-browser` pass.
 - Naming follows AGENTS.md section 7; the stylesheet still reads top to bottom and its TOC is current.
 - `CHANGELOG.md` has an entry under `[Unreleased]`.
