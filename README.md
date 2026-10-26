@@ -15,186 +15,80 @@ management portals, VPN admin panels, infrastructure consoles and back-office da
   and hash, and tabular figures that line up.
 - **Controls look like what they do.** Raised keys travel 1px when pressed, fields are recessed, and
   every state (current, selected, busy, invalid, disabled) is unambiguous.
-- **One hand-written file.** `dist/cubicle.css` has no build step and no runtime dependencies.
-  `dist/cubicle.js` is optional progressive enhancement.
+- **One hand-written file.** `cubicle.css` has no build step and no runtime dependencies;
+  `cubicle.js` is optional progressive enhancement.
 
-## Quick start
+**[Catalogue](https://cubicle.threadnull.dev/)** of every component in every state, with copy-paste
+snippets · **[Example console](https://cubicle.threadnull.dev/example.html)** · [Changelog](CHANGELOG.md)
 
-Copy `dist/cubicle.css`, and optionally `dist/cubicle.js`, into your project and link them:
+## Install
+
+From the CDN, pinned to a release and checked by Subresource Integrity:
 
 ```html
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="cubicle.css">
-  <script src="cubicle.js" defer></script>
-</head>
-<body>
-  <div class="cb-app">
-    <header class="cb-app__top"><strong>VPN Console</strong></header>
-    <nav class="cb-app__side cb-nav" aria-label="Console">
-      <ul class="cb-nav__list">
-        <li><a class="cb-nav__link" href="/gateways" aria-current="page">Gateways</a></li>
-      </ul>
-    </nav>
-    <main class="cb-app__main">
-      <button class="cb-btn cb-btn--primary" type="button">Add gateway</button>
-    </main>
-    <footer class="cb-app__status"><span class="cb-led cb-led--ok">Connected</span></footer>
-  </div>
-</body>
-</html>
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.0.0/dist/cubicle.min.css"
+      integrity="sha384-7RV/49mx6TTlcuKA9zK2Jfi+PYsI3q4RJIeEp8PEJ0tzQBAyVgdKIoopWniMhc3F"
+      crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.0.0/dist/cubicle.min.js"
+        integrity="sha384-2qvZb9d/l3Xp2zrAyFO7aSiRHlNokRUHbqPv8xQhXO++v8CHny/FFmxGl1SUgJdx"
+        crossorigin="anonymous" defer></script>
 ```
 
-There are no releases, CDN links or packages yet; they arrive with the first tagged release.
+Or take the files: download the zip from the [latest release](https://github.com/ilyasirotin/cubicle-css/releases/latest)
+(with `checksums.txt`), or copy `dist/cubicle.css` and optionally `dist/cubicle.js` into your
+project. The minified files are 57 KB (10.6 KB gzip) and 12.8 KB (4.6 KB gzip).
 
-Open [`docs/index.html`](docs/index.html) for the full catalogue: every component in every state,
-with a copy-paste snippet that is identical to the live markup. Open
-[`docs/example.html`](docs/example.html) for a complete console screen.
-
-## Components
+## Use
 
 Everything is opt-in: Cubicle styles only elements with a `cb-*` class, plus the document's body
 text, links, monospace elements and the focus ring.
 
-| Component | Main classes and attributes | Catalogue |
-|---|---|---|
-| Application shell | `.cb-app` with `__top`, `__banner`, `__side`, `__main`, `__status`; `__toggle` Menu key | [Layout](docs/index.html#layout) |
-| Layout primitives | `.cb-stack`, `.cb-cluster`, `.cb-grid--2` / `--3` / `--4`, `.cb-split`, `.cb-center` | [Layout](docs/index.html#layout) |
-| Buttons | `.cb-btn`, `--primary`, `--danger`, `--danger-solid`, `--sm`, `--icon`, `.cb-btn-group`; `aria-pressed`, `aria-busy`, `aria-disabled` | [Buttons](docs/index.html#buttons) |
-| Fields and choices | `.cb-input`, `.cb-select`, `.cb-check`, `.cb-choice`, `.cb-field` (`--horizontal`), `.cb-input-group`, `.cb-range`, `.cb-tokens` with `__entry`; `readonly`, `aria-invalid`, `aria-disabled`, `aria-busy` | [Inputs & fields](docs/index.html#fields) |
-| Secret boxes | `.cb-secret`; `data-cb-copy`, `data-cb-reveal`, `data-cb-download` | [Secret boxes](docs/index.html#secrets) |
-| Fieldsets and panels | `.cb-fieldset`, `.cb-panel` with `__head`, `__title`, `__body`, `__foot`; `--inset`, status stripes, `<details>` panels; group errors through `aria-invalid` choices; `aria-busy` on a body | [Fieldsets & panels](docs/index.html#panels) |
-| Tabs | `.cb-tabs`, `__list`, `__tab`, `__panel`; link tabs with `aria-current`, ARIA tabs with `data-cb-tabs`; `disabled`, `aria-disabled` | [Tabs](docs/index.html#tabs) |
-| Data tables | `.cb-table-wrap`, `.cb-table`, `--compact`, `--wrap`, `--sticky`, `__num`, `__select`, `__actions`, `__sort`; `aria-selected`, `aria-disabled`, `aria-sort`, `aria-busy` (body or table), `data-cb-select-all` | [Data tables](docs/index.html#tables) |
-| Property lists | `.cb-props` on `<dl>`; `dt` / `dd` or a `<div>` per row; `aria-busy` | [Property lists](docs/index.html#props) |
-| Empty states | `.cb-empty`, `__title` | [Empty states](docs/index.html#empty) |
-| Badges, chips and LEDs | `.cb-badge` (`--ok`, `--warn`, `--danger`, `--info`, `--off`, `--solid`, `--count`), `.cb-chips` of `.cb-chip` with `__remove`, `.cb-led` | [Badges, chips & LEDs](docs/index.html#badges) |
-| Alerts | `.cb-alert` (tones, `--sm`, `--banner`), `__title`, `__actions`, `__close`; `data-cb-dismiss` | [Alerts](docs/index.html#alerts) |
-| Toasts | `.cb-toasts` with `aria-live="polite"`, holding `.cb-alert--sm` messages | [Toasts](docs/index.html#toasts) |
-| Navigation and trees | `.cb-nav`, `__list`, `__link`, `__kind`, `--lines`, `.cb-breadcrumb`; `aria-current`, `aria-disabled`, `data-cb-tree` | [Tree views & navigation](docs/index.html#nav) |
-| Meters and progress | `.cb-meter` on `<meter>` and `<progress>`, `--sm`, `--ticks`, `.cb-gauge`; `data-cb-marks` | [Meters & progress](docs/index.html#meters) |
-| Segmented controls | `.cb-btn-group.cb-segmented` with radios or checkboxes, `--fill` | [Segmented controls](docs/index.html#segmented) |
-| Details | `.cb-details`, `__body`, `--sm`, `--inline`; `<details name>` accordions | [Details & disclosure](docs/index.html#details) |
-| Dialogs | `.cb-dialog` (`--sm`, `--lg`, `--danger`) with the panel parts; `popover`, `data-cb-modal` | [Modals & dialogs](docs/index.html#dialogs) |
-| Pagination | `.cb-pagination`, `__summary`, `__pages`, `__sizes`, `__gap`, `__jump`, `--spaced` | [Pagination](docs/index.html#pagination) |
-| Menus | `.cb-menu` (`popover`, `role="menu"`, `data-cb-menu`), `__item`, `__item--danger`; key with `popovertarget` and `aria-haspopup="menu"` | [Menus](docs/index.html#menu) |
-| Logs | `.cb-log` on `<ol>` (`start`), `__time`, `__level`, `__msg`, `--nowrap`; `data-cb-level`, `:target` | [Logs](docs/index.html#log) |
-| Inline code and keys | `.cb-code`, `.cb-kbd` | [Utilities](docs/index.html#utilities) |
-| Utilities | `.cb-mono`, `.cb-num`, `.cb-muted`, `.cb-text-*`, `.cb-truncate`, `.cb-nowrap`, `.cb-break`, `.cb-sr-only`, `.cb-skip-link` | [Utilities](docs/index.html#utilities) |
-
-## `cubicle.js`
-
-The script is optional. It works through `data-cb-*` attributes with delegated listeners on the
-document, so markup swapped in later (HTMX, frameworks) needs no initialisation. Each value is the
-id of the target element.
-
-| Attribute | On | Behaviour |
-|---|---|---|
-| `data-cb-copy="id"` | button | Copies the target's value or text; falls back to a hidden buffer on plain HTTP and announces the result |
-| `data-cb-reveal="id"` | button with `aria-pressed` | Shows or masks a password field; `data-cb-reveal-timeout="30"` masks it again |
-| `data-cb-download="id"` | button | Saves the target's text as a file named by `data-cb-filename` |
-| `data-cb-select-all="id"` | header checkbox | Checks every row box of the table; shows the mixed state and follows rows swapped in or disabled |
-| `data-cb-dismiss="id"` | button | Hides the target (an alert) and moves focus on |
-| `data-cb-toggle="id"` | button with `aria-expanded` | Flips `aria-expanded`; the shell's Menu key folds the sidebar below 800px; closing returns focus to the key |
-| `data-cb-tabs` | tab set | Click, arrow keys, Home and End switch ARIA tabs |
-| `data-cb-tree` | tree | Arrow keys, Home, End, Enter and Space walk, open and select tree items; fires `cb-toggle` |
-| `data-cb-marks` | `<meter>` | Marks `low` and `high` on the ruler |
-| `data-cb-modal="id"` | button | Opens the `<dialog>` as a modal |
-| `data-cb-output` | `<output for="id">` | Shows the current value of its control (a range, a number) |
-| `data-cb-menu` | `.cb-menu` popover | Places the menu at its key, focuses its first item; arrow keys, Home and End move, Tab closes; closes on an item click, a scroll that moves its key, or a resize |
-| `data-cb-tokens="<separators>"` | `.cb-tokens` token field | Enter, the listed characters and a pasted list add values as chips from the field's `<template>`; a chip's key, Delete or Backspace removes it; checks the entry's `pattern` and repeats; a form reset restores the served chips |
-
-Without the script, buttons that only the script can serve are hidden, ARIA tab sets show every
-panel, trees show every branch, and token fields show a box on each chip: unticking one drops it.
-
-## Customisation
-
-**Tokens.** Every colour, radius, shadow, duration, size and spacing step is a `--cb-*` custom
-property. Override any of them in your own, unlayered CSS:
-
-```css
-:root {
-  --cb-accent: #24527a;
-}
+```html
+<div class="cb-app">
+  <header class="cb-app__top"><strong>VPN Console</strong></header>
+  <nav class="cb-app__side cb-nav" aria-label="Console">
+    <ul class="cb-nav__list">
+      <li><a class="cb-nav__link" href="/gateways" aria-current="page">Gateways</a></li>
+    </ul>
+  </nav>
+  <main class="cb-app__main">
+    <button class="cb-btn cb-btn--primary" type="button">Add gateway</button>
+  </main>
+  <footer class="cb-app__status"><span class="cb-led cb-led--ok">Connected</span></footer>
+</div>
 ```
 
-**Components.** The stylesheet is split into cascade layers (`reset, tokens, base, layout,
-components, utilities`). Any unlayered rule of yours wins over all of them, so overrides never need
-`!important`.
+The script works through `data-cb-*` attributes with delegated listeners on the document, so markup
+swapped in later (HTMX, frameworks) needs no initialisation. State lives in standard attributes
+(`aria-current`, `aria-selected`, `aria-invalid`, `aria-busy`, `disabled`, `open`), not in classes.
 
-**Density.** Put `data-cb-density="compact"` or `"comfortable"` on `<html>` or on any panel, table
-or form. Control heights, row heights and the small spacing steps change; type sizes do not.
+## Customise
 
-**Server-driven pages.** State lives in standard attributes (`aria-current`, `aria-selected`,
-`aria-pressed`, `aria-expanded`, `aria-invalid`, `aria-busy`, `disabled`, `open`), so HTMX swaps and
-framework renders need no class juggling.
+- **Tokens.** Every colour, radius, shadow, duration, size and spacing step is a `--cb-*` custom
+  property. Override any of them in your own CSS: `:root { --cb-accent: #24527a; }`.
+- **Layers.** The stylesheet is split into cascade layers (`reset, tokens, base, layout,
+  components, utilities`), so any unlayered rule of yours wins without `!important`.
+- **Density.** `data-cb-density="compact"` or `"comfortable"` on `<html>` or any subtree changes
+  control and row heights; type sizes stay.
 
-**Print.** Printing needs no extra markup: the application frame unrolls into one column without
-the sidebar, actions and toasts are left out, scrolling tables and logs print in full, and rows stay
-whole across pages. Page margins (`@page`) and printed headers are yours.
+Cubicle is light only.
 
-Cubicle is light only; it declares `color-scheme: light`.
+## Accessibility and browsers
 
-## Accessibility
+Text meets WCAG AA contrast, and boundaries and the focus ring meet 3:1, measured in a real browser
+for every palette pair; every control has a visible focus ring and a keyboard path. Forced colours,
+right to left and print are covered. Details and measurements: the
+[Accessibility](https://cubicle.threadnull.dev/#accessibility) section.
 
-Text meets WCAG AA contrast (4.5:1) and boundaries, fills and the focus ring meet 3:1, as measured
-in the browser for every palette pair. Every control has a visible focus ring and a keyboard path,
-and the only animation stops under `prefers-reduced-motion`.
+Cubicle targets Baseline "widely available" features in evergreen browsers, and the whole
+verification suite passes in Chromium, Firefox and WebKit. The few engine differences are listed
+under [Engines](https://cubicle.threadnull.dev/#a11y-engines).
 
-- **Target size** (WCAG 2.5.8): every target is 24px or spaced apart at default and comfortable
-  density; compact trades this for density, so use it on data panels, not on navigation and forms.
-- **Forced colours** (Windows High Contrast): selected, pressed, current and checked items take the
-  user's `Highlight`, unavailable controls `GrayText`, and marks, lit lamps, sort arrows and the
-  spinner stay visible. System colour keywords appear only in `@media (forced-colors: active)`.
-- **Right to left:** set `dir="rtl"` on `<html>` or any subtree; layout is logical, and the select
-  chevron, accent bars, the vertical tab line, chevrons and meter marks mirror.
-- **Autofill** keeps the browser's own tint, so people see what the browser filled.
+## Contributing
 
-See the [Accessibility section](docs/index.html#accessibility) for the contrast table, the measured
-target sizes, the keyboard map and these notes.
-
-## Browser support
-
-Cubicle targets Baseline "widely available" features in evergreen browsers (cascade layers, native
-nesting, `color-mix()`, `:has()`, container queries, subgrid, `:dir()`); the Popover API (dialogs,
-menus) is newly available and listed in AGENTS.md. The whole verification suite passes in
-Chromium, Firefox and WebKit. Known engine differences:
-
-- Firefox draws no ruler strip under meters, so ticks and threshold marks are absent there.
-- In Safari, Tab reaches links and buttons only with Option+Tab (the platform default).
-- Safari keeps its own grey selection in list boxes (`<select multiple>`); other engines show the
-  selected tint.
-- Number and search fields have no engine keys. Escape clears a search field, except in Safari.
-- Firefox and Safari show month and week fields as text fields; Firefox does not focus a readonly
-  date or time field.
-- Safari leaves colour fields out of the Tab order, even with Option+Tab.
-- In forced colours, Firefox and Safari paint list-box selection themselves; Safari does not force
-  colours at all, so the forced-colours rules apply only where the platform asks for them.
-
-Sizes: `cubicle.css` 115 KB (28 KB gzip), minified 57 KB (11 KB gzip); `cubicle.js` 36 KB
-(10 KB gzip), minified 13 KB (4.6 KB gzip).
-
-## Development
-
-Using Cubicle needs no tools. Working on it uses a few Node scripts in `scripts/`:
-
-| Command | Purpose |
-|---|---|
-| `node scripts/check-snippets.mjs` | Every catalogue demo matches its copy-paste snippet |
-| `node scripts/check-tokens.mjs` | Every token is documented with its value, and every `var(--cb-*)` is declared |
-| `node scripts/verify-browser.mjs [page] --browser chromium\|firefox\|webkit` | Contrast, focus, keyboard, layout and behaviour checks in a real browser; `--only <groups>` for a quick partial run |
-| `node scripts/verify-matrix.mjs [--min]` | The same checks for both pages in all three engines, side by side, with one summary |
-| `bash scripts/build-min.sh` | Rebuilds the committed `dist/*.min.*`; run it with every change to `dist/cubicle.css` or `.js` |
-| `bash scripts/lint.sh` | Stylelint on `dist/cubicle.css` and ESLint on `dist/cubicle.js`; error-catching rules only |
-| `node scripts/check-release.mjs <tag>` | Release gate: the tag's version is in every `dist/` banner and in a dated `CHANGELOG.md` section, whose body becomes the release notes |
-| `node scripts/build-site.mjs` | Assembles the documentation site in `tmp/site/` |
-| `node scripts/package-release.mjs <version>` | Writes the release assets, the zip and `checksums.txt` (SHA-256 and SRI) to `tmp/release/` |
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, rules and the definition of done, and
-[AGENTS.md](AGENTS.md) for the full specification.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers setup, the checks and the definition of done;
+[AGENTS.md](AGENTS.md) is the full specification.
 
 ## License
 
