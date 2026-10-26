@@ -115,7 +115,7 @@
     buffer.setAttribute('readonly', '');
     document.body.append(buffer);
     buffer.select();
-    let copied = false;
+    let copied;
     try {
       copied = document.execCommand('copy');
     } catch {
