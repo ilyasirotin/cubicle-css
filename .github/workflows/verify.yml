@@ -49,15 +49,15 @@ jobs:
       - name: Run the browser matrix
         run: node scripts/verify-matrix.mjs --min
 
-      # Reports and screenshots are kept even when the matrix fails: they are the evidence.
-      - name: Upload the reports and screenshots
+      # The text reports name every failing check with its measured values, so they are kept even
+      # when the matrix fails. Screenshots (about 160 MB) are not: they are for a person at a desk,
+      # and a Linux run is reproduced locally when a picture is needed.
+      - name: Upload the reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-reports
-          path: |
-            tmp/verify/
-            tmp/shots/
+          path: tmp/verify/
           if-no-files-found: warn
           retention-days: 14
 
