@@ -183,6 +183,9 @@ Using Cubicle needs no tools. Working on it uses a few Node scripts in `scripts/
 | `node scripts/verify-matrix.mjs [--min]` | The same checks for both pages in all three engines, side by side, with one summary |
 | `bash scripts/build-min.sh` | Builds `dist/*.min.*` for release checks |
 | `bash scripts/lint.sh` | Stylelint on `dist/cubicle.css` and ESLint on `dist/cubicle.js`; error-catching rules only |
+| `node scripts/check-release.mjs <tag>` | Release gate: the tag's version is in every `dist/` banner and in a dated `CHANGELOG.md` section, whose body becomes the release notes |
+| `node scripts/build-site.mjs` | Assembles the documentation site in `tmp/site/` |
+| `node scripts/package-release.mjs <version>` | Writes the release assets, the zip and `checksums.txt` (SHA-256 and SRI) to `tmp/release/` |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, rules and the definition of done, and
 [AGENTS.md](AGENTS.md) for the full specification.

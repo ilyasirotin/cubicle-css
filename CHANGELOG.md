@@ -139,6 +139,11 @@ The first release of Cubicle.
   - `scripts/lint.sh` runs stylelint on the stylesheet and ESLint on the script, with
     error-catching rules only (unknown names, invalid values, duplicate properties, `!important`,
     ID selectors, nesting depth, vendor prefixes, undefined variables).
+  - `scripts/check-release.mjs`, `scripts/build-site.mjs` and `scripts/package-release.mjs` prepare a
+    release locally: the first checks that a `vX.Y.Z` or `vX.Y.Z-rc.N` tag, the banners of the four
+    `dist/` files and a dated CHANGELOG section agree, and writes the release notes; the others
+    assemble the documentation site and the release assets with a zip and `checksums.txt`
+    (SHA-256 and SRI).
   - Every script, the Claude Code skills' scripts and `dist/cubicle.js` read top to bottom:
     configuration first, then helpers, then one entry point, with one statement per line and
     descriptive names.
