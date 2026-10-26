@@ -11,11 +11,16 @@
 //                 2. the "Cubicle vX.Y.Z" banner of dist/cubicle.css, dist/cubicle.js and both
 //                    minified files carries exactly the tag's version;
 //                 3. CHANGELOG.md has a "## [X.Y.Z] - YYYY-MM-DD" section with a real date and
-//                    a body.
+//                    a body;
+//                 4. the catalogue's header (docs/index.html) shows the tag;
+//                 5. for a stable tag (no -rc), README.md pins its CDN links to the tag and quotes
+//                    the SRI hash of dist/cubicle.min.css and dist/cubicle.min.js as they are now.
+//                    A pre-release is not documented in the README.
 // Output:         the body of that CHANGELOG section, written to the notes file, but only
 //                 when every check passes.
 // Exit code:      0 when every check passes, 1 otherwise.
 
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { REPOSITORY_ROOT, DIST_FILE_NAMES } from './release-files.mjs';
@@ -25,12 +30,18 @@ import { REPOSITORY_ROOT, DIST_FILE_NAMES } from './release-files.mjs';
 const USAGE = 'Usage: node scripts/check-release.mjs <tag> [--root <directory>] [--notes <file>]';
 const DEFAULT_NOTES_FILE = resolve(REPOSITORY_ROOT, 'tmp', 'release-notes.md');
 const CHANGELOG_FILE_NAME = 'CHANGELOG.md';
+const CATALOGUE_FILE_NAME = 'docs/index.html';
+const README_FILE_NAME = 'README.md';
+// The files whose SRI hash the README quotes.
+const SRI_FILE_NAMES = ['cubicle.min.css', 'cubicle.min.js'];
 
 // vX.Y.Z or vX.Y.Z-rc.N, without leading zeros. The capture group is the version.
 const TAG_PATTERN = /^v((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-rc\.[1-9]\d*)?)$/;
 // The first comment of a distributed file names the kit and its version.
 const BANNER_COMMENT_PATTERN = /^\/\*![\s\S]*?\*\//;
 const BANNER_VERSION_PATTERN = /Cubicle v(\S+)/;
+// The version label in the catalogue's top bar.
+const CATALOGUE_VERSION_PATTERN = /<span class="docs-topbar__meta">([^<]*)<\/span>/;
 const CHANGELOG_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const CHANGELOG_SECTION_START_PATTERN = /^## /;
 // A Keep a Changelog link reference such as "[1.0.0]: https://...", which closes the file.
@@ -196,6 +207,67 @@ function checkChangelog(rootDirectory, version) {
   return { results, notes: section.body };
 }
 
+// The catalogue's top bar names the release it documents.
+function checkCatalogueVersion(rootDirectory, tag) {
+  const description = `${CATALOGUE_FILE_NAME} header shows ${tag}`;
+  let catalogueText;
+  try {
+    catalogueText = readFileSync(resolve(rootDirectory, CATALOGUE_FILE_NAME), 'utf8');
+  } catch {
+    return [failed(description, 'the file is missing')];
+  }
+  const versionMatch = catalogueText.match(CATALOGUE_VERSION_PATTERN);
+  if (versionMatch === null) {
+    return [failed(description, 'no <span class="docs-topbar__meta"> in the header')];
+  }
+  if (versionMatch[1].trim() !== tag) {
+    return [failed(description, `the header shows "${versionMatch[1].trim()}"`)];
+  }
+  return [passed(description)];
+}
+
+function computeSriHash(fileBytes) {
+  return `sha384-${createHash('sha384').update(fileBytes).digest('base64')}`;
+}
+
+// A stable release is the one the README tells people to use: its CDN links must name the tag and
+// quote the hashes of the minified files that are about to ship, or a browser blocks them.
+function checkReadme(rootDirectory, tag) {
+  if (tag.includes('-')) {
+    return [];
+  }
+  let readmeText;
+  try {
+    readmeText = readFileSync(resolve(rootDirectory, README_FILE_NAME), 'utf8');
+  } catch {
+    return [failed(`${README_FILE_NAME} documents ${tag}`, 'the file is missing')];
+  }
+
+  const results = [];
+  const pinDescription = `${README_FILE_NAME} pins the CDN links to @${tag}`;
+  if (readmeText.includes(`@${tag}/dist/`)) {
+    results.push(passed(pinDescription));
+  } else {
+    results.push(failed(pinDescription, `no link contains @${tag}/dist/`));
+  }
+  for (const fileName of SRI_FILE_NAMES) {
+    const description = `${README_FILE_NAME} quotes the SRI hash of dist/${fileName}`;
+    let expectedHash;
+    try {
+      expectedHash = computeSriHash(readFileSync(resolve(rootDirectory, 'dist', fileName)));
+    } catch {
+      results.push(failed(description, `dist/${fileName} is missing`));
+      continue;
+    }
+    if (readmeText.includes(expectedHash)) {
+      results.push(passed(description));
+    } else {
+      results.push(failed(description, `${expectedHash} is not in the README`));
+    }
+  }
+  return results;
+}
+
 // --- Entry point -------------------------------------------------------------------
 
 function runChecks() {
@@ -216,6 +288,8 @@ function runChecks() {
     const changelogCheck = checkChangelog(options.rootDirectory, tagCheck.version);
     results.push(...changelogCheck.results);
     notes = changelogCheck.notes;
+    results.push(...checkCatalogueVersion(options.rootDirectory, options.tag));
+    results.push(...checkReadme(options.rootDirectory, options.tag));
   }
 
   let passedCount = 0;
