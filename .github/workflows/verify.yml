@@ -43,9 +43,29 @@ jobs:
             exit 1
           fi
 
+      # The browser binaries (about 600 MB) are cached by the lock file, which fixes Playwright's
+      # version; --with-deps below still installs the system libraries and fonts through apt.
+      - name: Cache the browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('scripts/package-lock.json') }}
+
+      # A stalled mirror must fail an attempt, not hang the job for an hour: apt drops a silent
+      # connection after 30 s and retries a download, and each whole attempt gets 5 minutes.
       - name: Install the browsers
         working-directory: scripts
-        run: npx playwright install --with-deps chromium firefox webkit
+        timeout-minutes: 20
+        run: |
+          printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+            | sudo tee /etc/apt/apt.conf.d/99-ci-retries > /dev/null
+          for attempt in 1 2 3; do
+            if timeout 300 npx playwright install --with-deps chromium firefox webkit; then
+              exit 0
+            fi
+            echo "Attempt $attempt to install the browsers failed or timed out." >&2
+          done
+          exit 1
 
       - name: Lint
         run: bash scripts/lint.sh
