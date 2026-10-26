@@ -1,0 +1,3 @@
+# Build output kept in git so a CDN can serve it (AGENTS.md Section 9): collapsed in diffs.
+dist/*.min.css linguist-generated=true
+dist/*.min.js linguist-generated=true

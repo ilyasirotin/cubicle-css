@@ -4,7 +4,9 @@
 # Usage:  bash scripts/build-min.sh
 # Setup:  cd scripts && npm install        (installs the pinned lightningcss-cli and terser)
 # Output: dist/cubicle.min.css, and dist/cubicle.min.js once dist/cubicle.js exists.
-#         Output is git-ignored. Never edit it, never commit it.
+#         The output is committed, because a CDN serves a tag's repository files. Never edit it by
+#         hand: rebuild it and commit it with every change to dist/cubicle.css or dist/cubicle.js.
+#         CI fails when the committed files differ from a fresh build.
 #
 # No browser targets are passed on purpose: the minifiers must not add vendor
 # prefixes or rewrite modern syntax (@layer, nesting, color-mix, ES2020) that

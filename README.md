@@ -187,7 +187,7 @@ Using Cubicle needs no tools. Working on it uses a few Node scripts in `scripts/
 | `node scripts/check-tokens.mjs` | Every token is documented with its value, and every `var(--cb-*)` is declared |
 | `node scripts/verify-browser.mjs [page] --browser chromium\|firefox\|webkit` | Contrast, focus, keyboard, layout and behaviour checks in a real browser; `--only <groups>` for a quick partial run |
 | `node scripts/verify-matrix.mjs [--min]` | The same checks for both pages in all three engines, side by side, with one summary |
-| `bash scripts/build-min.sh` | Builds `dist/*.min.*` for release checks |
+| `bash scripts/build-min.sh` | Rebuilds the committed `dist/*.min.*`; run it with every change to `dist/cubicle.css` or `.js` |
 | `bash scripts/lint.sh` | Stylelint on `dist/cubicle.css` and ESLint on `dist/cubicle.js`; error-catching rules only |
 | `node scripts/check-release.mjs <tag>` | Release gate: the tag's version is in every `dist/` banner and in a dated `CHANGELOG.md` section, whose body becomes the release notes |
 | `node scripts/build-site.mjs` | Assembles the documentation site in `tmp/site/` |

@@ -5,8 +5,6 @@
 tmp/
 
 node_modules/
-dist/*.min.css
-dist/*.min.js
 
 .claude/settings.local.json
 CLAUDE.local.md

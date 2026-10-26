@@ -71,6 +71,14 @@ While working on one part, run only its checks; the groups are listed at the top
 node scripts/verify-browser.mjs --only forms --shots none
 ```
 
+The minified files `dist/cubicle.min.css` and `dist/cubicle.min.js` are committed, because a CDN serves
+the repository's files. After any change to `dist/cubicle.css` or `dist/cubicle.js`, rebuild them and
+commit the result with the change; CI fails when they differ from a fresh build:
+
+```sh
+bash scripts/build-min.sh
+```
+
 Run these before every commit:
 
 ```sh
