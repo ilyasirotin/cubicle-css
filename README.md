@@ -3,6 +3,12 @@
 A dense, tactile, accessible CSS framework for critical enterprise tools: identity and access
 management portals, VPN admin panels, infrastructure consoles and back-office dashboards.
 
+[![CI](https://github.com/ilyasirotin/cubicle-css/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ilyasirotin/cubicle-css/actions/workflows/ci.yml)
+[![Release workflow](https://github.com/ilyasirotin/cubicle-css/actions/workflows/release.yml/badge.svg)](https://github.com/ilyasirotin/cubicle-css/actions/workflows/release.yml)
+[![Latest release](https://img.shields.io/github/v/release/ilyasirotin/cubicle-css?include_prereleases&sort=semver)](https://github.com/ilyasirotin/cubicle-css/releases)
+[![License: MIT](https://img.shields.io/github/license/ilyasirotin/cubicle-css)](LICENSE)
+[![Tested in Chromium, Firefox and WebKit](https://img.shields.io/badge/tested-Chromium%20%7C%20Firefox%20%7C%20WebKit-informational)](https://github.com/ilyasirotin/cubicle-css/actions/workflows/ci.yml)
+
 ![The example VPN console built with Cubicle: a sidebar with navigation and a filterable directory tree, a gateway panel with tabs, a filter bar with an active-filter chip, a peers table with selection, status badges and pagination, and an inspector for the selected peer.](docs/img/example-console.png)
 
 - **Made for operators.** Twenty to thirty table rows on a 1080p screen, monospace for every IP, key
