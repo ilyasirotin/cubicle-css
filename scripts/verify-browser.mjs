@@ -59,6 +59,12 @@ const GROUPS = [
 const DESKTOP_VIEWPORT = { width: 1360, height: 900 };
 const PHONE_WIDTH = 360;
 const SECTION_HEIGHT = 900;
+// How long a check waits for something the page does on its own (a live region filling on the next
+// frame, a transition ending) before it judges. Generous, because a loaded CI machine runs frames late.
+const ANNOUNCEMENT_WAIT_MS = 1000;
+const TRANSITION_WAIT_MS = 1000;
+// What the live region says after a successful copy ("Copied to clipboard").
+const COPIED_ANNOUNCEMENT = /copied/i;
 
 // Differences that come from an engine or from automation, not from the stylesheet. A failing
 // check whose name matches one of these, in that engine, is reported as "skip" with the reason.
@@ -868,18 +874,50 @@ function readAttributeValues(page, attribute) {
   return page.$$eval(`[${attribute}]`, (elements, name) => elements.map((element) => element.getAttribute(name)), attribute);
 }
 
+// The text of the shared live region, empty until the script has announced something.
+function readAnnouncement(page) {
+  return page.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '');
+}
+
+// Empties the live region, so a wait after the next click sees only the new announcement and not the
+// previous one.
+function clearAnnouncement(page) {
+  return page.evaluate(() => {
+    const liveRegion = document.querySelector('[role="status"][data-cb-sr]');
+    if (liveRegion) {
+      liveRegion.textContent = '';
+    }
+  });
+}
+
+// The script clears the live region and fills it on the next animation frame, which a busy machine
+// delays. Waits up to ANNOUNCEMENT_WAIT_MS for text matching `pattern`; when none arrives the
+// caller's check reports what the region holds.
+async function waitForAnnouncement(page, pattern) {
+  try {
+    await page.waitForFunction(
+      ({ source, flags }) => new RegExp(source, flags).test(document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? ''),
+      { source: pattern.source, flags: pattern.flags },
+      { timeout: ANNOUNCEMENT_WAIT_MS },
+    );
+  } catch {
+    // The check that follows reports the live region as it is.
+  }
+}
+
 async function checkCopyButtons(run, scriptPage) {
   const { check } = run;
   for (const targetId of await readAttributeValues(scriptPage, 'data-cb-copy')) {
     await exposeControl(scriptPage, `[data-cb-copy="${targetId}"]`);
     const button = scriptPage.locator(`[data-cb-copy="${targetId}"]`);
     await button.scrollIntoViewIfNeeded();
+    await clearAnnouncement(scriptPage);
     await button.click();
-    await scriptPage.waitForTimeout(100);
+    await waitForAnnouncement(scriptPage, COPIED_ANNOUNCEMENT);
     const copied = await readClipboard(scriptPage);
     const flagged = await button.evaluate((element) => element.hasAttribute('data-cb-copied'));
-    const announced = await scriptPage.evaluate(() => document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '');
-    check(flagged && /copied/i.test(announced), `copy #${targetId}: button and live region confirm`, `data-cb-copied ${flagged}, live "${announced}"`);
+    const announced = await readAnnouncement(scriptPage);
+    check(flagged && COPIED_ANNOUNCEMENT.test(announced), `copy #${targetId}: button and live region confirm`, `data-cb-copied ${flagged}, live "${announced}"`);
     const expected = await readTargetValue(scriptPage, targetId);
     let detail = copied === expected ? '' : 'MISMATCH';
     if (copied === null) {
@@ -4616,18 +4654,23 @@ async function checkRightToLeft(run) {
     const currentLink = page.locator('.docs-demo > [dir="rtl"] .cb-nav__link[aria-current="page"]');
     const linkPixelAt = await readPixels(page, currentLink);
     const bar = { right: brightness(await linkPixelAt(0.998, 0.5)), left: brightness(await linkPixelAt(0.002, 0.5)) };
-    // The chevron turns over --cb-duration: read it after that.
-    const geometry = await page.evaluate(async () => {
+    // The chevron turns over --cb-duration: read it once it has arrived, however late the frames run.
+    const geometry = await page.evaluate(async (waitLimit) => {
       const rtlDemo = document.querySelector('.docs-demo > [dir="rtl"]');
-      const waitForTurn = () => new Promise((resolveWait) => setTimeout(resolveWait, 120));
+      const readRotation = (summary) => getComputedStyle(summary, '::before').rotate;
+      const waitForRotation = async (summary, expectedRotation) => {
+        for (let waited = 0; waited < waitLimit && readRotation(summary) !== expectedRotation; waited += 20) {
+          await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+        }
+      };
       const tabList = rtlDemo.querySelector('.cb-tabs--vertical > .cb-tabs__list');
       const summary = rtlDemo.querySelector('details > summary');
-      const closedRotation = getComputedStyle(summary, '::before').rotate;
+      const closedRotation = readRotation(summary);
       summary.parentElement.open = true;
-      await waitForTurn();
-      const openRotation = getComputedStyle(summary, '::before').rotate;
+      await waitForRotation(summary, '-45deg');
+      const openRotation = readRotation(summary);
       summary.parentElement.open = false;
-      await waitForTurn();
+      await waitForRotation(summary, closedRotation);
       const tabStyle = getComputedStyle(tabList.querySelector('[aria-current="page"]'));
       return {
         line: getComputedStyle(tabList).backgroundPositionX,
@@ -4635,7 +4678,7 @@ async function checkRightToLeft(run) {
         open: openRotation,
         sheet: tabStyle.borderLeftColor === tabStyle.backgroundColor,
       };
-    });
+    }, TRANSITION_WAIT_MS);
     // The low and high marks (main ink, darker than the ticks) in the ruler strip, as fractions
     // from the left: low 70% and high 90% from the right are 0.3 and 0.1.
     const meter = page.locator('#rtl-cpu');
