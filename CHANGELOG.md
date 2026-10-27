@@ -35,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Hidden text in scrollers.** A `.cb-sr-only` label in a far cell of a wide table, or in a long
+  log line, no longer widens the page: `.cb-table-wrap` and `.cb-log` are positioned, so the hidden
+  text stays inside the scroll area (it pushed a 360px page 340px sideways).
 - **Chips.** A value that wraps keeps the room above and below it that one line has, instead of
   touching the frame; a one-line chip stays `--cb-row-h-sm` tall and the remove key still covers
   the frame.

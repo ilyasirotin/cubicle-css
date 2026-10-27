@@ -1900,8 +1900,11 @@
   /* 5.6 Data tables ------------------------------------------------------- */
 
   /* Wide tables scroll here instead of breaking the page. The wrapper draws
-     the frame; inside a flush panel body the panel frames it instead. */
+     the frame; inside a flush panel body the panel frames it instead. It is
+     positioned so a .cb-sr-only label in a far cell stays inside the scroll
+     area instead of widening the page. */
   .cb-table-wrap {
+    position: relative;
     overflow: auto;
     background: var(--cb-bg-surface);
     border: 1px solid var(--cb-border-main);
@@ -3371,6 +3374,7 @@
      <ol start> (Chromium ignores <li value>) and is left out of a copy.
      data-cb-level sets the line's tone; the level word stays in the text. */
   .cb-log {
+    position: relative; /* keeps a .cb-sr-only label of a long line inside the well (see .cb-table-wrap) */
     display: grid;
     grid-template-columns: [num] max-content [time] max-content [level] max-content [msg] minmax(0, 1fr);
     column-gap: var(--cb-space-2);
