@@ -632,6 +632,26 @@ function measureHiddenTextOverflow() {
   return overflow;
 }
 
+// In-page: a table whose first row has a checked box in a plain cell and whose second row has
+// a checked row-select box; returns each row's header background against the selected tint.
+function measureCheckedCellTint() {
+  const fixture = document.body.appendChild(document.createElement('div'));
+  fixture.innerHTML = '<table class="cb-table"><tbody>'
+    + '<tr><th scope="row">Operator</th><td><input class="cb-check" type="checkbox" checked aria-label="Operator: peers:write"></td></tr>'
+    + '<tr><td class="cb-table__select"><input class="cb-check" type="checkbox" checked aria-label="Select alice.ng"></td><th scope="row">alice.ng</th></tr>'
+    + '</tbody></table>';
+  const probe = fixture.appendChild(document.createElement('i'));
+  probe.style.color = 'var(--cb-bg-selected)';
+  const selected = getComputedStyle(probe).color;
+  const [plainRow, selectRow] = fixture.querySelectorAll('tbody tr');
+  const result = {
+    plainTinted: getComputedStyle(plainRow.querySelector('th')).backgroundColor === selected,
+    selectTinted: getComputedStyle(selectRow.querySelector('th')).backgroundColor === selected,
+  };
+  fixture.remove();
+  return result;
+}
+
 // 2b. A .cb-sr-only label past the right edge of a sideways scroller (a wide table, a one-line log)
 //     stays inside it: the page does not scroll sideways at 360px (WCAG 1.4.10).
 async function checkHiddenTextInScrollers(run) {
@@ -1807,6 +1827,16 @@ function readTableCellPaints(rows) {
     }
   }
   return cells;
+}
+
+// 11c. Only a row-select box (in .cb-table__select) tints its row: a checked box in a plain cell,
+//      such as a permission matrix's, leaves the row as it is.
+async function checkCheckedCellTint(run) {
+  if (!run.wants('tables')) {
+    return;
+  }
+  const tint = await run.page.evaluate(measureCheckedCellTint);
+  run.check(!tint.plainTinted && tint.selectTinted, 'tables: only a checked row-select box tints its row, not a checked box in a plain cell', JSON.stringify(tint));
 }
 
 // 11. Data tables: one row height (28px, compact 24px) with or without .cb-btn--sm,
@@ -6045,6 +6075,7 @@ async function runChecks() {
   await checkBadges(run);
   await checkTables(run);
   await checkTableNames(run);
+  await checkCheckedCellTint(run);
   await checkAlerts(run);
   await checkTabs(run);
   await checkDisabledTab(run);
