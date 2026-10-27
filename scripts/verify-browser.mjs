@@ -52,7 +52,7 @@ const GROUPS = [
   'layout', 'controls', 'contrast', 'states', 'script', 'badges', 'tables', 'alerts', 'tabs', 'nav', 'meters',
   'segmented', 'details', 'dialogs', 'pagination', 'utilities', 'frame', 'density', 'keyboard', 'snippets', 'forms',
   'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'targets', 'tokens',
-  'example',
+  'themes', 'example',
 ];
 
 // The main page's viewport, and the widths checked for layout and section screenshots.
@@ -5484,6 +5484,58 @@ async function checkExampleTreeFilter(run) {
   await treePage.close();
 }
 
+// The tokens built from palette tokens, and the property that shows each on a probe.
+const DERIVED_TOKEN_PROBES = [
+  ['--cb-focus-ring', 'outline'],
+  ['--cb-shadow-outset', 'boxShadow'],
+  ['--cb-shadow-outset-dark', 'boxShadow'],
+  ['--cb-shadow-inset', 'boxShadow'],
+  ['--cb-shadow-pressed', 'boxShadow'],
+  ['--cb-shadow-float', 'boxShadow'],
+  ['--cb-grad-surface', 'backgroundImage'],
+  ['--cb-grad-btn', 'backgroundImage'],
+  ['--cb-bg-backdrop', 'backgroundColor'],
+];
+
+// In-page: each derived token as the page resolves it and as a [data-cb-theme] subtree with its own
+// test palette resolves it, plus the subtree's focus ring colour.
+function measureThemedSubtree(tokenProbes) {
+  const subtree = document.body.appendChild(document.createElement('div'));
+  subtree.dataset.cbTheme = 'vb-probe';
+  subtree.style.setProperty('--cb-accent', 'rgb(255, 0, 0)');
+  subtree.style.setProperty('--cb-text-main', 'rgb(0, 128, 0)');
+  subtree.style.setProperty('--cb-border-strong', 'rgb(0, 0, 255)');
+  const resolveIn = (container, token, property) => {
+    const probe = container.appendChild(document.createElement('i'));
+    probe.style[property] = `var(${token})`;
+    const value = getComputedStyle(probe)[property === 'outline' ? 'outlineColor' : property];
+    probe.remove();
+    return value;
+  };
+  const tokens = tokenProbes.map(([token, property]) => ({
+    token,
+    page: resolveIn(document.body, token, property),
+    themed: resolveIn(subtree, token, property),
+  }));
+  const ring = resolveIn(subtree, '--cb-focus-ring', 'outline');
+  subtree.remove();
+  return { tokens, ring };
+}
+
+// 39. Themes. Inside a [data-cb-theme] subtree, every token built from the palette (focus ring,
+//     shadows, gradients, backdrop) follows the subtree's palette instead of the page's: the ring
+//     takes the subtree accent and each shade differs from the page's.
+async function checkThemes(run) {
+  if (!run.wants('themes')) {
+    return;
+  }
+  const subtree = await run.page.evaluate(measureThemedSubtree, DERIVED_TOKEN_PROBES);
+  const unchanged = subtree.tokens.filter((entry) => entry.themed === entry.page).map((entry) => entry.token);
+  const ringFollows = subtree.ring === 'rgb(255, 0, 0)';
+  const detail = `ring ${subtree.ring}${unchanged.length ? `; as on the page: ${unchanged.join(', ')}` : ''}`;
+  run.check(ringFollows && !unchanged.length, 'themes: tokens derived from the palette follow a [data-cb-theme] subtree', detail);
+}
+
 // =====================================================================================
 // Main
 // =====================================================================================
@@ -5557,6 +5609,7 @@ async function runChecks() {
   await checkPrint(run);
   await checkTargetSize(run);
   await checkTokenFields(run);
+  await checkThemes(run);
   await checkExampleRefresh(run);
   await checkExampleTreeFilter(run);
 
