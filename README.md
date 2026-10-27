@@ -71,8 +71,9 @@ swapped in later (HTMX, frameworks) needs no initialisation. State lives in stan
   components, utilities`), so any unlayered rule of yours wins without `!important`.
 - **Density.** `data-cb-density="compact"` or `"comfortable"` on `<html>` or any subtree changes
   control and row heights; type sizes stay.
-
-Cubicle is light only.
+- **Themes.** `data-cb-theme` on `<html>` or any subtree picks the palette: `glacier` (the
+  default), `steel` (the 1.0 look), `industrial` or `monochrome`. All four are light and pass the
+  same contrast checks.
 
 ## Accessibility and browsers
 

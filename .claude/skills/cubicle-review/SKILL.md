@@ -32,7 +32,7 @@ Open the shots of what changed, not all of them; each run's directory `tmp/shots
 
 Judge against the brief and name what you see, not an impression:
 
-- Steel palette discipline; colour only for status and primary actions.
+- Palette discipline in the theme under review (glacier by default); colour only for status and primary actions. A change to palette tokens or to colour mixes also runs `node scripts/verify-browser.mjs --theme <name> --only contrast,states,themes` for steel, industrial and monochrome.
 - Buttons raised (`--cb-bg-btn`, light top/left and dark bottom/right edges, `translate: 0 1px` on press); inputs and wells recessed.
 - Density: nothing taller than its control or row height; text not clipped or overflowing at 360.
 - Inline tinted `.cb-btn--danger` in tables versus solid `.cb-btn--danger-solid` in modal confirmations.

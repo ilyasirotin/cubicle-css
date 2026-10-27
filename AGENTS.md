@@ -17,9 +17,10 @@
 - **Corners** are `0` or `2px`–`3px`; never pills or `8px+` cards. Only LED dots, the busy spinner and radio buttons are round (`--cb-radius-round`).
 
 ### 2.2. Colour, Contrast and Focus
-- Layered cool steel grays (canvas, surface, button, header) separate panels, toolbars and workspaces instead of heavy shadows.
+- Layered cool neutrals (canvas, surface, button, header) separate panels, toolbars and workspaces instead of heavy shadows.
+- **Themes** swap the palette: `data-cb-theme="glacier"` (the default), `"steel"` (the 1.0 palette), `"industrial"` or `"monochrome"` on `<html>` or any subtree. A theme is one `[data-cb-theme="name"]` block in `@layer tokens` that declares exactly the 21 palette tokens (surfaces but the backdrop, ink, borders, status); shades, the focus ring and the backdrop derive from it (section 2.9 of the stylesheet). Every theme passes every pair of `scripts/contrast-pairs.mjs`, the `themes` check group and a full `verify-browser --theme <name>` run. All themes are light; there is no dark theme.
 - Text and borders meet WCAG AA/AAA. Borders between table cells, form groups and panels are always a visible `1px solid`, never whitespace alone.
-- Colour is reserved for communication and primary affordances, in desaturated enterprise tones: `--cb-accent` steel navy, `--cb-ok` forest green, `--cb-warn` ochre, `--cb-danger` crimson, `--cb-info` slate-blue. Inline destructive actions in dense tables use tinted steel (`.cb-btn--danger`); critical modal confirmations use solid crimson (`.cb-btn--danger-solid`).
+- Colour is reserved for communication and primary affordances, in restrained enterprise tones: `--cb-accent` blue (steel navy in steel, teal in industrial, black in monochrome), `--cb-ok` green, `--cb-warn` amber, `--cb-danger` red, `--cb-info` a blue apart from the accent; status tones stay distinct hues in every theme. Inline destructive actions in dense tables use a danger tint (`.cb-btn--danger`); critical modal confirmations use the solid danger tone (`.cb-btn--danger-solid`).
 - **Focus** is unmistakable: `--cb-focus-ring` (`2px solid var(--cb-accent)`) at a `1px` offset, drawn outside by default. It is drawn inside on scroll containers, where an outer ring would be clipped (except a sticky table's wrapper, whose pinned cells would cover it), and on the keys of a scrolling tab list; it sits on the row label of a tree item, and on the well of a token field while its entry has focus.
 
 ### 2.3. Typography
@@ -104,7 +105,7 @@ Tokens live in `@layer tokens` at the top of `dist/cubicle.css`, the single sour
 - **Type:** `--cb-font-sans`, `--cb-font-mono`; `--cb-text-xs`, `-sm` (base), `-md`, `-lg`; `--cb-line-tight`, `--cb-line-base`
 - **Motion and focus:** `--cb-duration`, `--cb-duration-spin`, `--cb-focus-ring`, `--cb-focus-offset`
 
-A new token goes into `@layer tokens`, this list and the catalogue's token tables, and only when `color-mix()` cannot derive it.
+A new token goes into `@layer tokens`, this list and the catalogue's token tables, and only when `color-mix()` cannot derive it. A palette token is declared in `:root` and in every theme block, and listed in the catalogue's theme table (`check-tokens.mjs` checks 7–9).
 
 ---
 
@@ -114,7 +115,7 @@ A new token goes into `@layer tokens`, this list and the catalogue's token table
 - `dist/cubicle.js` — optional progressive enhancement, dependency-free.
 - `dist/*.min.*` — build output, committed so a CDN can serve it, never edited by hand; rebuilt by `scripts/build-min.sh` and committed with every change to `dist/cubicle.css` or `dist/cubicle.js`. CI fails when they differ from a fresh build.
 - `docs/index.html` — the component catalogue; `docs/example.html` — a sample IAM / infra console, both showcase and integration test; `docs/docs.css` — documentation-only styles, never shipped.
-- `scripts/` — dev tools, never shipped: `verify-browser.mjs`, `verify-matrix.mjs` (several pages and engines side by side), `build-min.sh`, `lint.sh` (stylelint and ESLint, error-catching rules only, configured in `stylelint.config.mjs` and `eslint.config.mjs`), `check-snippets.mjs`, `check-tokens.mjs`, `check-release.mjs` (tag, banners, CHANGELOG section and the catalogue header agree; for a stable tag also the README's CDN pin and SRI hashes; writes the release notes), `build-site.mjs` (the Pages tree in `tmp/site/`), `package-release.mjs` (assets, zip and `checksums.txt` in `tmp/release/`) with their shared `release-files.mjs`, `contrast-pairs.mjs` (palette contrast pairs shared by `verify-browser.mjs` and the catalogue's contrast table).
+- `scripts/` — dev tools, never shipped: `verify-browser.mjs` (serves the repository over local HTTP; `--css`, `--js` and `--theme <name>` are applied by that server in every engine), `verify-matrix.mjs` (several pages and engines side by side), `build-min.sh`, `lint.sh` (stylelint and ESLint, error-catching rules only, configured in `stylelint.config.mjs` and `eslint.config.mjs`), `check-snippets.mjs`, `check-tokens.mjs`, `check-release.mjs` (tag, banners, CHANGELOG section and the catalogue header agree; for a stable tag also the README's CDN pin and SRI hashes; writes the release notes), `build-site.mjs` (the Pages tree in `tmp/site/`), `package-release.mjs` (assets, zip and `checksums.txt` in `tmp/release/`) with their shared `release-files.mjs`, `contrast-pairs.mjs` (palette contrast pairs shared by `verify-browser.mjs` and the catalogue's contrast table).
 - `.github/` — `workflows/` (`verify.yml`, `ci.yml`, `release.yml`) and `dependabot.yml`; see Section 14.
 - `.claude/` — Claude Code settings, hooks and skills. Store every plan in `.claude/plans/`.
 - `README.md`, `LICENSE` (MIT), `CHANGELOG.md` (Keep a Changelog, SemVer), `CONTRIBUTING.md`.
