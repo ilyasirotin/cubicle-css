@@ -1980,7 +1980,9 @@
     text-align: start;
   }
 
-  /* Rows: zebra, instant hover, selected by attribute or by a checked row box. */
+  /* Rows: zebra, instant hover, selected by attribute or by a checked box in
+     the row-select cell (.cb-table__select); a box in any other cell, as in a
+     permission matrix, leaves its row as it is. */
   .cb-table tbody tr {
     --_bg: var(--cb-bg-surface);
 
@@ -1998,11 +2000,11 @@
       --_bg: var(--cb-bg-hover);
     }
 
-    &:is([aria-selected="true"], :has(> td > .cb-check:checked)) {
+    &:is([aria-selected="true"], :has(> .cb-table__select > .cb-check:checked)) {
       --_bg: var(--cb-bg-selected);
     }
 
-    &:is([aria-selected="true"], :has(> td > .cb-check:checked)):hover {
+    &:is([aria-selected="true"], :has(> .cb-table__select > .cb-check:checked)):hover {
       --_bg: color-mix(in srgb, var(--cb-bg-selected) 70%, var(--cb-bg-raised));
     }
   }
@@ -3477,7 +3479,7 @@
      Canvas backplate behind its HighlightText. */
   @media (forced-colors: active) {
     .cb-btn:is([aria-pressed="true"], [aria-expanded="true"], :has(> input:checked), [aria-current]:not([aria-current="false"])):not(:disabled, [aria-disabled="true"], :has(> input:disabled)),
-    .cb-table tbody tr:is([aria-selected="true"], :has(> td > .cb-check:checked)) > :is(th, td),
+    .cb-table tbody tr:is([aria-selected="true"], :has(> .cb-table__select > .cb-check:checked)) > :is(th, td),
     .cb-nav__link[aria-current]:not([aria-current="false"]),
     [aria-selected="true"] > .cb-nav__link,
     .cb-tabs__list > .cb-tabs__tab:is([aria-selected="true"], [aria-current]:not([aria-current="false"])),
@@ -3489,7 +3491,7 @@
     }
 
     /* Links inside a highlighted row or cell would keep the accent ink. */
-    .cb-table tbody tr:is([aria-selected="true"], :has(> td > .cb-check:checked)) > :is(th, td) a,
+    .cb-table tbody tr:is([aria-selected="true"], :has(> .cb-table__select > .cb-check:checked)) > :is(th, td) a,
     .cb-log > li:target a {
       color: HighlightText;
     }
