@@ -241,7 +241,12 @@ const FORCED_DISABLED_SELECTORS = [
 const FORCED_SHOT_SECTIONS = ['fields', 'badges', 'meters', 'buttons', 'tables', 'nav'];
 // Check 35: the recipe filter bar, and the recipes shot.
 const RECIPE_FILTER_FORM = '#recipes-filter ~ .docs-demo form[role="search"]';
-const RECIPE_SHOT_SECTIONS = ['recipes-filter', 'recipes-inspector', 'recipes-signin'];
+const RECIPE_SHOT_SECTIONS = [
+  'recipes-filter', 'recipes-inspector', 'recipes-signin', 'recipes-account', 'recipes-bulk', 'recipes-permissions',
+  'recipes-health', 'recipes-password', 'recipes-mfa', 'recipes-timeout', 'recipes-errors',
+];
+// Check 35b: the account menu of the catalogue's recipe and of the example's top bar.
+const ACCOUNT_MENUS = ['#ra-menu', '#x-account-menu'];
 // Check 36: what print hides.
 const HIDDEN_IN_PRINT = '[data-cb-copy], [data-cb-reveal], [data-cb-download], [data-cb-dismiss], [data-cb-modal], [data-cb-toggle], .cb-chip__remove, .cb-toasts';
 // Check 36b: the rows of the catalogue's target-size table, in its order.
@@ -1092,8 +1097,13 @@ async function checkSelectAll(run, scriptPage) {
       }
       return { master: masterState, on: boxes.filter((box) => box.checked).length, lit: litCount, total: boxes.length };
     }, tableId);
+    // One listener for every table of the page; the count restarts per table.
     await scriptPage.evaluate(() => {
       window.__changes = 0;
+      if (window.__countsChanges) {
+        return;
+      }
+      window.__countsChanges = true;
       document.addEventListener('change', (event) => {
         if (!event.target.matches('[data-cb-select-all]')) {
           window.__changes++;
@@ -2301,6 +2311,10 @@ async function checkMeters(run) {
   const seenLooks = new Set();
   for (let i = 0; i < await meters.count(); i++) {
     const meter = meters.nth(i);
+    // A meter inside a closed dialog (the session-timeout recipe) has no box to read.
+    if (!await meter.isVisible()) {
+      continue;
+    }
     const info = await meter.evaluate(describeMeter);
     if (seenLooks.has(info.key)) {
       continue;
@@ -4928,6 +4942,96 @@ async function checkRightToLeft(run) {
   check(!overflows.length, 'right to left: the whole page has no horizontal overflow at 360, 800 and 1360px', overflows.join(', '));
 }
 
+// In-page: the structure the console recipes promise (bulk bar, permission matrix, health grid).
+function readConsoleRecipes() {
+  const bulkForm = document.getElementById('rb-form');
+  const checkedPeers = bulkForm.querySelectorAll('input[name="peer"]:checked').length;
+  const bulkStatus = bulkForm.querySelector('[role="status"]')?.textContent.trim() ?? '';
+  const bulkKeys = [...bulkForm.querySelectorAll('button[name="action"]')].map((key) => `${key.value}:${key.textContent.trim()}`);
+
+  const matrix = document.querySelector('#recipes-permissions ~ .docs-demo table');
+  const columnNames = [...matrix.tHead.rows[0].cells].map((cell) => cell.textContent.trim());
+  const misnamed = [];
+  for (const row of matrix.tBodies[0].rows) {
+    const rowHeader = row.cells[0].textContent.trim();
+    const roleName = rowHeader.split(' ')[0];
+    [...row.cells].slice(1).forEach((cell, i) => {
+      const box = cell.querySelector('input[type="checkbox"]');
+      const boxName = box?.getAttribute('aria-label') ?? '';
+      const wantedName = `${roleName}: ${columnNames[i + 1]}`;
+      const inheritedRow = /inherited/.test(rowHeader) && rowHeader.includes(columnNames[i + 1]);
+      const tintsRow = getComputedStyle(cell).backgroundColor !== getComputedStyle(row.cells[0]).backgroundColor;
+      if (!box || boxName !== wantedName || box.disabled !== inheritedRow || tintsRow) {
+        misnamed.push(`${wantedName} (${boxName}, disabled ${box?.disabled}, tinted ${tintsRow})`);
+      }
+    });
+  }
+
+  const unlabelledHealth = [];
+  const healthDemo = document.querySelector('#recipes-health ~ .docs-demo');
+  for (const panel of healthDemo.querySelectorAll('.cb-panel')) {
+    const lampWord = panel.querySelector('.cb-led')?.textContent.trim() ?? '';
+    const unlabelledMeters = [...panel.querySelectorAll('meter')].filter((meter) => !meter.labels.length && !meter.getAttribute('aria-label'));
+    if (!lampWord || unlabelledMeters.length) {
+      unlabelledHealth.push(panel.querySelector('.cb-panel__title')?.textContent ?? 'panel');
+    }
+  }
+  return { checkedPeers, bulkStatus, bulkKeys, misnamed, unlabelledHealth };
+}
+
+// Opens an account menu by its key, then closes it with Escape. Returns what was seen.
+async function exerciseAccountMenu(page, menuSelector) {
+  const keySelector = `[popovertarget="${menuSelector.slice(1)}"]`;
+  await page.click(keySelector);
+  const opened = await page.$eval(menuSelector, (menu) => menu.matches(':popover-open'));
+  await page.keyboard.press('Escape');
+  return page.$eval(menuSelector, (menu, key) => ({
+    opened: true,
+    closed: !menu.matches(':popover-open'),
+    focusBack: document.activeElement === document.querySelector(key),
+    items: [...menu.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent.trim()),
+  }), keySelector).then((state) => ({ ...state, opened }));
+}
+
+// 35b. Console recipes: the account menu opens from its key and Escape closes it with focus back
+//      on the key (catalogue and example); the bulk bar's count matches the checked rows and every
+//      action key names its action; every matrix box is named "Role: permission" and only inherited
+//      grants are disabled; every health panel has an LED word and labelled meters; the session
+//      warning opens as a modal with focus on "Stay signed in".
+async function checkConsoleRecipes(run) {
+  if (!run.wants('recipes')) {
+    return;
+  }
+  const { page, check } = run;
+  for (const menuSelector of ACCOUNT_MENUS) {
+    if (!await page.locator(menuSelector).count()) {
+      continue;
+    }
+    await exposeControl(page, `[popovertarget="${menuSelector.slice(1)}"]`);
+    const menu = await exerciseAccountMenu(page, menuSelector);
+    const signsOut = menu.items.at(-1) === 'Sign out';
+    check(menu.opened && menu.closed && menu.focusBack && signsOut, `account menu ${menuSelector}: opens from its key, Escape closes it and returns focus; Sign out last`, JSON.stringify(menu));
+  }
+  if (!await page.locator('#recipes-bulk').count()) {
+    return;
+  }
+
+  const recipes = await page.evaluate(readConsoleRecipes);
+  const bulkOk = recipes.bulkStatus === `${recipes.checkedPeers} selected` && recipes.bulkKeys.length === 2 && recipes.bulkKeys.every((key) => /selected$/.test(key));
+  check(bulkOk, 'recipe bulk bar: the status counts the checked rows; each key names its action', JSON.stringify({ status: recipes.bulkStatus, checked: recipes.checkedPeers, keys: recipes.bulkKeys }));
+  check(!recipes.misnamed.length, 'recipe permission matrix: every box named "Role: permission", only inherited grants disabled, no row tinted as selected', recipes.misnamed.slice(0, 3).join(' | '));
+  check(!recipes.unlabelledHealth.length, 'recipe health grid: every panel has an LED word and labelled meters', recipes.unlabelledHealth.join(', '));
+
+  await page.click('[data-cb-modal="rt-dialog"]');
+  const warning = await page.$eval('#rt-dialog', (dialog) => ({
+    modal: dialog.matches(':modal'),
+    focus: document.activeElement?.textContent.trim() ?? '',
+  }));
+  await page.keyboard.press('Escape');
+  const closed = await page.$eval('#rt-dialog', (dialog) => !dialog.open);
+  check(warning.modal && warning.focus === 'Stay signed in' && closed, 'recipe session timeout: opens as a modal with focus on "Stay signed in"; Escape closes it', JSON.stringify({ ...warning, closed }));
+}
+
 // 35. Recipes and their primitives. .cb-center puts its child in the middle of the frame on
 //     both axes, at most 24rem wide (full width less 16px on each side when narrower).
 async function checkCentre(run) {
@@ -4937,7 +5041,7 @@ async function checkCentre(run) {
   const { page } = run;
   for (const width of [1360, 360]) {
     await page.setViewportSize({ width, height: 900 });
-    const centre = await page.$eval('.docs-demo .cb-center', (element) => {
+    const centres = await page.$$eval('.docs-demo .cb-center', (elements) => elements.map((element) => {
       const frameBox = element.getBoundingClientRect();
       const childBox = element.firstElementChild.getBoundingClientRect();
       const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -4949,9 +5053,10 @@ async function checkCentre(run) {
         h: frameBox.height,
         frame: element.parentElement.clientHeight,
       };
-    });
-    const centred = Math.abs(centre.dx) < 1 && Math.abs(centre.dy) < 1 && Math.abs(centre.w - centre.want) < 1 && Math.abs(centre.h - centre.frame) < 1;
-    run.check(centred, `centre at ${width}px: the child sits in the middle, ${Math.round(centre.want)}px wide`, JSON.stringify(centre));
+    }));
+    const offCentre = centres.filter((centre) => !(Math.abs(centre.dx) < 1 && Math.abs(centre.dy) < 1 && Math.abs(centre.w - centre.want) < 1 && Math.abs(centre.h - centre.frame) < 1));
+    const wantWidth = Math.round(centres[0].want);
+    run.check(!offCentre.length, `centre at ${width}px: the child sits in the middle, ${wantWidth}px wide (${centres.length} demos)`, JSON.stringify(offCentre[0] ?? centres[0]));
   }
   await page.setViewportSize(DESKTOP_VIEWPORT);
 }
@@ -5943,6 +6048,7 @@ async function runChecks() {
   await checkRightToLeft(run);
   await checkCentre(run);
   await checkRecipes(run);
+  await checkConsoleRecipes(run);
   await checkPrint(run);
   await checkTargetSize(run);
   await checkTokenFields(run);
