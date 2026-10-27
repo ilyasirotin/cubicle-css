@@ -118,34 +118,34 @@
 
 @layer tokens {
   :root {
-    /* 2.1 Surfaces & backgrounds (cool industrial steel / slate gray) */
-    --cb-bg-canvas: #e4e7ec;       /* Main workspace background (cool steel) */
-    --cb-bg-surface: #f4f6f8;      /* Panels, cards, table bodies */
+    /* 2.1 Surfaces & backgrounds (glacier: white panels on a light blue-grey page) */
+    --cb-bg-canvas: #f6f8fa;       /* Main workspace background */
+    --cb-bg-surface: #ffffff;      /* Panels, cards, table bodies */
     --cb-bg-raised: #ffffff;       /* Inputs, active tabs, modals */
-    --cb-bg-btn: #eaedf2;          /* Dedicated tactile button surface */
-    --cb-bg-recessed: #dce1e8;     /* Wells, code blocks, readonly/disabled fields */
-    --cb-bg-header: #d5dae2;       /* Panel headers, table heads, topbars */
-    --cb-bg-zebra: #edf0f4;        /* Alternating table row tint */
-    --cb-bg-hover: #e2e8f0;        /* Crisp row/item hover highlight */
-    --cb-bg-selected: #cfe0f5;     /* Selected table row / active tree node */
+    --cb-bg-btn: #f3f4f6;          /* Dedicated tactile button surface */
+    --cb-bg-recessed: #ebeef1;     /* Wells, code blocks, readonly/disabled fields */
+    --cb-bg-header: #eff2f5;       /* Panel headers, table heads, topbars */
+    --cb-bg-zebra: #f9fafb;        /* Alternating table row tint */
+    --cb-bg-hover: #eef1f4;        /* Crisp row/item hover highlight */
+    --cb-bg-selected: #ddf4ff;     /* Selected table row / active tree node */
 
-    /* 2.2 Typography & ink (cool deep slate) */
-    --cb-text-main: #11161d;       /* Primary high-contrast ink */
-    --cb-text-muted: #4b5563;      /* Secondary labels, metadata, hints */
-    --cb-text-disabled: #8892a0;   /* Disabled control text */
-    --cb-text-inverse: #f8fafc;    /* Text on dark/semantic buttons */
+    /* 2.2 Typography & ink (near-black, cool grey) */
+    --cb-text-main: #1f2328;       /* Primary high-contrast ink */
+    --cb-text-muted: #59636e;      /* Secondary labels, metadata, hints */
+    --cb-text-disabled: #8c959f;   /* Disabled control text */
+    --cb-text-inverse: #ffffff;    /* Text on dark/semantic buttons */
 
-    /* 2.3 Structural borders (crisp metallic edges) */
-    --cb-border-subtle: #cbd2dc;   /* Table cell dividers, internal lines */
-    --cb-border-main: #9aa3b2;     /* Standard panel, input, and button borders */
-    --cb-border-strong: #646f80;   /* Active control frames, bottom bevel edge */
+    /* 2.3 Structural borders (crisp, thin, cool grey) */
+    --cb-border-subtle: #e5e7eb;   /* Table cell dividers, internal lines */
+    --cb-border-main: #c4ccd4;     /* Standard panel, input, and button borders */
+    --cb-border-strong: #5f6873;   /* Active control frames, bottom bevel edge */
 
-    /* 2.4 Semantic status & actions (desaturated enterprise tones) */
-    --cb-accent: #1e4b85;          /* Muted steel navy for primary actions & focus */
-    --cb-ok: #166534;              /* Deep forest green (Online, Active, Valid) */
-    --cb-warn: #9a4a06;            /* Industrial ochre/amber (Pending, Degraded) */
-    --cb-danger: #991b1b;          /* Deep crimson (Revoked, Offline, Destructive) */
-    --cb-info: #075985;            /* Technical slate-blue (System notice) */
+    /* 2.4 Semantic status & actions (clear enterprise tones) */
+    --cb-accent: #0860ca;          /* Vivid blue for primary actions & focus */
+    --cb-ok: #116329;              /* Deep green (Online, Active, Valid) */
+    --cb-warn: #7d4e00;            /* Dark amber (Pending, Degraded) */
+    --cb-danger: #b31d28;          /* Red (Revoked, Offline, Destructive) */
+    --cb-info: #0550ae;            /* Deep blue, apart from the accent (System notice) */
 
     /* 2.5 Tactile depth & lighting (crisp micro-bevel, subtle 3D volume).
        The shades that take the palette's ink are in 2.9. */
@@ -224,7 +224,8 @@
   /* 2.10 Themes. data-cb-theme="name" on <html> or any subtree swaps the
      palette (2.1-2.4); 2.9 then derives the shades, ring and backdrop from
      it. Each block declares the whole palette, so themes nest in any order.
-     The steel block repeats :root, so steel also works inside another theme. */
+     The glacier block repeats :root (the default), so glacier also works
+     inside another theme; steel is the 1.0 palette. */
 
   /* Steel: layered cool steel greys, steel-navy accent (the 1.0 palette). */
   [data-cb-theme="steel"] {

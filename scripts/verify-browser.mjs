@@ -77,7 +77,7 @@ const GROUPS = [
 
 // The named themes of dist/cubicle.css (2.10), the one :root paints, and what --theme accepts.
 const THEME_NAMES = ['steel', 'glacier', 'industrial', 'monochrome'];
-const DEFAULT_THEME = 'steel';
+const DEFAULT_THEME = 'glacier';
 const THEME_NAME_PATTERN = /^[a-z-]+$/;
 // The palette a theme redefines (the backdrop and the shades derive from it, section 2.9).
 const PALETTE_TOKENS = [
@@ -3192,35 +3192,64 @@ async function checkKeyboardAudit(run) {
 }
 
 // 22. The catalogue's contrast table (generated from scripts/contrast-pairs.mjs) matches the
-//     live ratios row for row, so a token change cannot leave it stale.
+//     live ratios row for row, in a column per theme (named in its head), so a token change
+//     cannot leave it stale. Each theme is measured by setting it on <html> for a moment.
 async function checkContrastTable(run, measuredPairs) {
   if (!run.wants('contrast') || run.theme) {
     return;
   }
-  const tableRows = await run.page.$$eval('#a11y-contrast-table tbody tr', (rows) => {
-    return rows.map((row) => [...row.children].map((cell) => cell.textContent.trim()));
-  });
-  if (!tableRows.length) {
+  const table = await run.page.$eval('#a11y-contrast-table', (element) => ({
+    head: [...element.tHead.rows[0].cells].map((cell) => cell.textContent.trim().toLowerCase()),
+    rows: [...element.tBodies[0].rows].map((row) => [...row.cells].map((cell) => cell.textContent.trim())),
+  })).catch(() => null);
+  if (!table) {
     return;
   }
+  const minimumColumn = table.head.indexOf('minimum');
+  const themeColumns = THEME_NAMES.map((themeName) => [themeName, table.head.indexOf(themeName)]);
   const stale = [];
+  for (const [themeName, column] of themeColumns) {
+    if (column < 0) {
+      stale.push(`no column for ${themeName}`);
+    }
+  }
+
+  const setTheme = (themeName) => run.page.evaluate((name) => {
+    if (name) {
+      document.documentElement.dataset.cbTheme = name;
+    } else {
+      delete document.documentElement.dataset.cbTheme;
+    }
+  }, themeName);
+  const ratiosByTheme = {};
+  for (const [themeName] of themeColumns) {
+    await setTheme(themeName);
+    ratiosByTheme[themeName] = (await measurePairs(run.page)).map((pair) => pair.ratio);
+  }
+  await setTheme(null);
+
   measuredPairs.forEach((pair, i) => {
-    const row = tableRows[i];
+    const row = table.rows[i];
     const foreground = colourLabel(pair.fg);
     const background = colourLabel(pair.bg);
     if (!row) {
       stale.push(`missing row for ${foreground} on ${background}`);
       return;
     }
-    const matches = row[0] === foreground && row[1] === background && Math.abs(Number(row[2]) - pair.ratio) <= 0.01 && row[3] === `≥ ${pair.need}`;
-    if (!matches) {
-      stale.push(`${row.slice(0, 4).join(' ')} vs live ${foreground} ${background} ${pair.ratio.toFixed(2)}`);
+    if (row[0] !== foreground || row[1] !== background || row[minimumColumn] !== `≥ ${pair.need}`) {
+      stale.push(`row ${i + 1}: ${row[0]} ${row[1]} ${row[minimumColumn]} vs live ${foreground} ${background} ≥ ${pair.need}`);
+    }
+    for (const [themeName, column] of themeColumns) {
+      const liveRatio = ratiosByTheme[themeName][i];
+      if (column >= 0 && Math.abs(Number(row[column]) - liveRatio) > 0.01) {
+        stale.push(`${themeName} ${foreground} on ${background}: ${row[column]} vs live ${liveRatio.toFixed(2)}`);
+      }
     }
   });
-  if (tableRows.length !== measuredPairs.length) {
-    stale.push(`${tableRows.length} rows for ${measuredPairs.length} pairs`);
+  if (table.rows.length !== measuredPairs.length) {
+    stale.push(`${table.rows.length} rows for ${measuredPairs.length} pairs`);
   }
-  run.check(stale.length === 0, 'the catalogue contrast table matches the live ratios', stale.slice(0, 3).join(' | ') || `${tableRows.length} rows`);
+  run.check(stale.length === 0, 'the catalogue contrast table matches the live ratios of every theme', stale.slice(0, 3).join(' | ') || `${table.rows.length} rows x ${themeColumns.length} themes`);
 }
 
 // "rgb(1, 2, 3)" or "rgba(1, 2, 3, 0.5)" -> [1, 2, 3]

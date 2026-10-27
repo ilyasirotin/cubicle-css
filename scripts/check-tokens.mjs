@@ -14,7 +14,10 @@
 //                    inside @media (forced-colors: active);
 //                 7. every theme block ([data-cb-theme="name"]) declares exactly the palette: the
 //                    :root surfaces (but the backdrop), ink, borders and status tones;
-//                 8. the default palette equals one named theme, value for value.
+//                 8. the default palette equals one named theme, value for value;
+//                 9. the catalogue's theme table (<table data-docs-themes="name name ...">: in each
+//                    row a token <code>, then one value <code> per listed theme) matches every
+//                    theme block.
 //                 Default values are read from the rules of @layer tokens whose selector list
 //                 includes :root.
 // Exit code:      0 when every check passes, 1 otherwise.
@@ -41,6 +44,7 @@ const PALETTE_TOKEN_PATTERN = /^--cb-(bg-(?!backdrop$)[a-z-]+|text-(?:main|muted
 const VAR_REFERENCE_PATTERN = /var\(\s*(--cb-[a-z0-9-]+)/g;
 const TABLE_ROW_PATTERN = /<tr\b[^>]*>([\s\S]*?)<\/tr>/g;
 const CODE_ELEMENT_PATTERN = /<code\b[^>]*>([\s\S]*?)<\/code>/g;
+const THEME_TABLE_PATTERN = /<table\b[^>]*\bdata-docs-themes="([a-z -]+)"[^>]*>([\s\S]*?)<\/table>/g;
 
 // Check 6 (AGENTS.md section 6): system colours are the user's theme inside forced colours, and
 // hard-coded colours anywhere else.
@@ -184,6 +188,26 @@ function readDocumentedTokens(html) {
   return documented;
 }
 
+// Reads the catalogue's theme tables. Returns [theme names, rows]: each row is the text of its
+// <code> elements, the token first and then one value per theme.
+function readThemeTables(html) {
+  const tables = [];
+  for (const [, themeList, tableMarkup] of html.matchAll(THEME_TABLE_PATTERN)) {
+    const rows = [];
+    for (const [, rowMarkup] of tableMarkup.matchAll(TABLE_ROW_PATTERN)) {
+      const codeTexts = [];
+      for (const [, codeMarkup] of rowMarkup.matchAll(CODE_ELEMENT_PATTERN)) {
+        codeTexts.push(squashWhitespace(unescapeHtml(codeMarkup)));
+      }
+      if (TOKEN_NAME_PATTERN.test(codeTexts[0] ?? '')) {
+        rows.push(codeTexts);
+      }
+    }
+    tables.push([themeList.trim().split(/\s+/), rows]);
+  }
+  return tables;
+}
+
 // Every distinct var(--cb-*) name a stylesheet file references, comments excluded.
 function readVarReferences(file) {
   const css = stripComments(readFileSync(file, 'utf8'));
@@ -257,7 +281,8 @@ function runChecks() {
   if (!layerFound) {
     check(false, '@layer tokens block found', relative(REPOSITORY_ROOT, cssFile));
   }
-  const documented = readDocumentedTokens(readFileSync(docsFile, 'utf8'));
+  const catalogue = readFileSync(docsFile, 'utf8');
+  const documented = readDocumentedTokens(catalogue);
 
   // 1. Declared -> documented
   const undocumented = [...declared.keys()].filter((name) => !documented.has(name));
@@ -341,6 +366,33 @@ function runChecks() {
   });
   const defaultNames = defaultThemes.map(([themeName]) => themeName);
   check(defaultNames.length === 1, 'the default palette (:root) equals one named theme', defaultNames.join(', ') || 'none');
+
+  // 9. The catalogue's theme table matches the theme blocks
+  const themeTables = readThemeTables(catalogue);
+  if (!themeTables.length) {
+    check(false, 'the catalogue has a theme table (data-docs-themes)');
+  }
+  for (const [themeNames, rows] of themeTables) {
+    const problems = [];
+    const unknownThemes = themeNames.filter((themeName) => !themes.has(themeName));
+    for (const themeName of unknownThemes) {
+      problems.push(`no theme "${themeName}"`);
+    }
+    const listedTokens = rows.map(([token]) => token);
+    for (const token of palette.filter((name) => !listedTokens.includes(name))) {
+      problems.push(`no row for ${token}`);
+    }
+    for (const [token, ...values] of rows) {
+      themeNames.forEach((themeName, i) => {
+        const declaredValue = themes.get(themeName)?.get(token);
+        if (declaredValue !== undefined && !valuesMatch(values[i] ?? '', declaredValue)) {
+          problems.push(`${themeName} ${token}: docs ${values[i] ?? 'none'} vs css ${declaredValue}`);
+        }
+      });
+    }
+    const detail = problems.slice(0, 3).join(' | ') || `${rows.length} rows x ${themeNames.length} themes`;
+    check(problems.length === 0, `the catalogue theme table (${themeNames.join(', ')}) matches the theme blocks`, detail);
+  }
 
   for (const result of results) {
     console.log(formatResult(result));

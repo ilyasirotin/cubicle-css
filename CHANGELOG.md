@@ -9,13 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Themes.** `data-cb-theme="steel"`, `"glacier"`, `"industrial"` or `"monochrome"` on `<html>`
+- **Themes.** `data-cb-theme="glacier"`, `"steel"`, `"industrial"` or `"monochrome"` on `<html>`
   or any subtree swaps the palette (surfaces, ink, borders, status tones); shades, the focus ring
-  and the backdrop follow it. Every theme passes the same contrast pairs; steel is the 1.0 palette
-  and stays the default for now.
+  and the backdrop follow it. Every theme passes the same contrast pairs. The catalogue lists each
+  theme's values and its contrast ratios.
 
 ### Changed
 
+- **Default palette: glacier.** White panels on a light blue-grey page, thin cool-grey frames and a
+  vivid blue accent replace the steel greys. Class names, attributes and token names are unchanged.
+  To keep the 1.0 look, set `data-cb-theme="steel"` on `<html>`.
 - **Depth tokens.** The shades of `--cb-shadow-outset`, `-outset-dark`, `-inset`, `-pressed`,
   `-float`, `--cb-grad-surface`, `--cb-grad-btn` and `--cb-bg-backdrop` mix `--cb-text-main` at
   their former alphas instead of a fixed slate (`rgb(15, 23, 42)`), so depth follows the palette;
