@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tiles with miniature windows; the choice is remembered in the browser, and the example console
   follows it.
 
+- **Recipes.** Account menu, bulk action bar, permission matrix, node health grid, password policy,
+  MFA enrolment, session-timeout warning and error pages (403 with the wording for 401, 404, 500,
+  503), each built from existing components only. The example console's top bar has the account
+  menu.
+
 ### Changed
 
 - **Default palette: glacier.** White panels on a light blue-grey page, thin cool-grey frames and a

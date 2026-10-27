@@ -89,6 +89,14 @@
         <li><a class="docs-nav__link" href="#recipes-secret">Masked secret</a></li>
         <li><a class="docs-nav__link" href="#recipes-colour">Tag colour</a></li>
         <li><a class="docs-nav__link" href="#recipes-steps">Wizard steps</a></li>
+        <li><a class="docs-nav__link" href="#recipes-account">Account menu</a></li>
+        <li><a class="docs-nav__link" href="#recipes-bulk">Bulk action bar</a></li>
+        <li><a class="docs-nav__link" href="#recipes-permissions">Permission matrix</a></li>
+        <li><a class="docs-nav__link" href="#recipes-health">Node health grid</a></li>
+        <li><a class="docs-nav__link" href="#recipes-password">Password policy</a></li>
+        <li><a class="docs-nav__link" href="#recipes-mfa">MFA enrolment</a></li>
+        <li><a class="docs-nav__link" href="#recipes-timeout">Session timeout</a></li>
+        <li><a class="docs-nav__link" href="#recipes-errors">Error pages</a></li>
         <li><a class="docs-nav__link" href="#recipes-tooltips">Tooltips</a></li>
         <li><a class="docs-nav__link" href="#recipes-print">Print</a></li>
       </ul>
@@ -6126,6 +6134,494 @@ function hideLater(message, ms = 10000) {
     &lt;li&gt;&lt;span class=&quot;cb-muted&quot;&gt;4. Review&lt;/span&gt;&lt;/li&gt;
   &lt;/ol&gt;
 &lt;/nav&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-account">Account menu</h3>
+        <p class="docs-text">The signed-in user's key in the top bar opens an <a href="#menu">action menu</a>: profile,
+          API keys, sessions and Sign out. Sign out is a POST, so the menu item submits a form outside the menu
+          with <code>form="…"</code>; links stay links. The key names the user; the menu's name repeats it.</p>
+        <div class="docs-demo">
+          <header class="cb-app__top">
+            <strong>VPN Console</strong>
+            <span>corp.example.net</span>
+            <button class="cb-btn cb-btn--sm" type="button" popovertarget="ra-menu" aria-haspopup="menu">alice.ng</button>
+            <div class="cb-menu" id="ra-menu" popover role="menu" aria-label="Account alice.ng" data-cb-menu>
+              <a class="cb-menu__item" role="menuitem" href="#recipes-account">Profile</a>
+              <a class="cb-menu__item" role="menuitem" href="#recipes-account">API keys</a>
+              <a class="cb-menu__item" role="menuitem" href="#recipes-account">Sessions</a>
+              <hr>
+              <button class="cb-menu__item cb-menu__item--danger" type="submit" role="menuitem" form="ra-sign-out">Sign out</button>
+            </div>
+            <form id="ra-sign-out" method="post" action="#recipes-account"></form>
+          </header>
+        </div>
+        <pre class="docs-snippet"><code>&lt;header class=&quot;cb-app__top&quot;&gt;
+  &lt;strong&gt;VPN Console&lt;/strong&gt;
+  &lt;span&gt;corp.example.net&lt;/span&gt;
+  &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;button&quot; popovertarget=&quot;ra-menu&quot; aria-haspopup=&quot;menu&quot;&gt;alice.ng&lt;/button&gt;
+  &lt;div class=&quot;cb-menu&quot; id=&quot;ra-menu&quot; popover role=&quot;menu&quot; aria-label=&quot;Account alice.ng&quot; data-cb-menu&gt;
+    &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#recipes-account&quot;&gt;Profile&lt;/a&gt;
+    &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#recipes-account&quot;&gt;API keys&lt;/a&gt;
+    &lt;a class=&quot;cb-menu__item&quot; role=&quot;menuitem&quot; href=&quot;#recipes-account&quot;&gt;Sessions&lt;/a&gt;
+    &lt;hr&gt;
+    &lt;button class=&quot;cb-menu__item cb-menu__item--danger&quot; type=&quot;submit&quot; role=&quot;menuitem&quot; form=&quot;ra-sign-out&quot;&gt;Sign out&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;form id=&quot;ra-sign-out&quot; method=&quot;post&quot; action=&quot;#recipes-account&quot;&gt;&lt;/form&gt;
+&lt;/header&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-bulk">Bulk action bar</h3>
+        <p class="docs-text">Actions on the selected rows of a <a href="#tables">table</a>: a cluster over it with the count and one
+          key per action. The row boxes and the keys share the form, so the server gets
+          <code>action</code> and every checked <code>peer</code>. The count sits in a <code>role="status"</code>
+          span; the host updates it and sets <code>disabled</code> on the keys while nothing is selected.</p>
+        <div class="docs-demo">
+          <form class="cb-stack" id="rb-form" method="post" action="#recipes-bulk" aria-label="Peers on gw-eu-1">
+            <div class="cb-cluster">
+              <span role="status">2 selected</span>
+              <button class="cb-btn cb-btn--sm" type="submit" name="action" value="disable">Disable selected</button>
+              <button class="cb-btn cb-btn--sm cb-btn--danger" type="submit" name="action" value="revoke">Revoke selected</button>
+            </div>
+            <div class="cb-table-wrap">
+              <table class="cb-table" id="rb-peers">
+                <caption class="cb-sr-only">Peers on gw-eu-1</caption>
+                <thead>
+                  <tr>
+                    <th class="cb-table__select" scope="col"><input class="cb-check" type="checkbox" data-cb-select-all="rb-peers" aria-label="Select all peers"></th>
+                    <th scope="col">Peer</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Tunnel IP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td class="cb-table__select"><input class="cb-check" type="checkbox" name="peer" value="laptop-an-1" aria-label="Select laptop-an-1" checked></td><th scope="row">laptop-an-1</th><td><span class="cb-badge cb-badge--ok">Online</span></td><td><code>10.8.0.11</code></td></tr>
+                  <tr><td class="cb-table__select"><input class="cb-check" type="checkbox" name="peer" value="phone-bk-2" aria-label="Select phone-bk-2" checked></td><th scope="row">phone-bk-2</th><td><span class="cb-badge cb-badge--warn">Stale</span></td><td><code>10.8.0.12</code></td></tr>
+                  <tr><td class="cb-table__select"><input class="cb-check" type="checkbox" name="peer" value="svc-backup" aria-label="Select svc-backup"></td><th scope="row">svc-backup</th><td><span class="cb-badge cb-badge--info">Service</span></td><td><code>10.8.0.40</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </form>
+        </div>
+        <pre class="docs-snippet"><code>&lt;form class=&quot;cb-stack&quot; id=&quot;rb-form&quot; method=&quot;post&quot; action=&quot;#recipes-bulk&quot; aria-label=&quot;Peers on gw-eu-1&quot;&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;span role=&quot;status&quot;&gt;2 selected&lt;/span&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm&quot; type=&quot;submit&quot; name=&quot;action&quot; value=&quot;disable&quot;&gt;Disable selected&lt;/button&gt;
+    &lt;button class=&quot;cb-btn cb-btn--sm cb-btn--danger&quot; type=&quot;submit&quot; name=&quot;action&quot; value=&quot;revoke&quot;&gt;Revoke selected&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-table-wrap&quot;&gt;
+    &lt;table class=&quot;cb-table&quot; id=&quot;rb-peers&quot;&gt;
+      &lt;caption class=&quot;cb-sr-only&quot;&gt;Peers on gw-eu-1&lt;/caption&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th class=&quot;cb-table__select&quot; scope=&quot;col&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; data-cb-select-all=&quot;rb-peers&quot; aria-label=&quot;Select all peers&quot;&gt;&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;Peer&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;Status&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;Tunnel IP&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;peer&quot; value=&quot;laptop-an-1&quot; aria-label=&quot;Select laptop-an-1&quot; checked&gt;&lt;/td&gt;&lt;th scope=&quot;row&quot;&gt;laptop-an-1&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.8.0.11&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;peer&quot; value=&quot;phone-bk-2&quot; aria-label=&quot;Select phone-bk-2&quot; checked&gt;&lt;/td&gt;&lt;th scope=&quot;row&quot;&gt;phone-bk-2&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--warn&quot;&gt;Stale&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.8.0.12&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td class=&quot;cb-table__select&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;peer&quot; value=&quot;svc-backup&quot; aria-label=&quot;Select svc-backup&quot;&gt;&lt;/td&gt;&lt;th scope=&quot;row&quot;&gt;svc-backup&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;cb-badge cb-badge--info&quot;&gt;Service&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;10.8.0.40&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-permissions">Permission matrix</h3>
+        <p class="docs-text">Roles down, permissions across, a box in every cell. Each box is named after its row and column
+          ("Operator: peers:write"), because a screen reader reads the cell, not the grid, and sits in a
+          <code>&lt;label&gt;</code>: a box straight in a cell reads to the table as a row selector and tints its
+          row. A grant inherited from
+          another group is checked and <code>disabled</code>, and the row header says where it comes from. On a
+          narrow screen the matrix scrolls sideways in its wrapper. It is not sticky: a pinned role column would
+          cover the first box of each row when focus moves back to it.</p>
+        <div class="docs-demo">
+          <form method="post" action="#recipes-permissions">
+            <div class="cb-table-wrap" tabindex="0" role="region" aria-label="Role permissions">
+              <table class="cb-table">
+                <caption class="cb-sr-only">Permissions by role</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Role</th>
+                    <th scope="col"><code>peers:read</code></th>
+                    <th scope="col"><code>peers:write</code></th>
+                    <th scope="col"><code>sessions:disconnect</code></th>
+                    <th scope="col"><code>keys:rotate</code></th>
+                    <th scope="col"><code>audit:export</code></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">Administrator</th><td><label><input class="cb-check" type="checkbox" name="admin" value="peers:read" aria-label="Administrator: peers:read" checked></label></td><td><label><input class="cb-check" type="checkbox" name="admin" value="peers:write" aria-label="Administrator: peers:write" checked></label></td><td><label><input class="cb-check" type="checkbox" name="admin" value="sessions:disconnect" aria-label="Administrator: sessions:disconnect" checked></label></td><td><label><input class="cb-check" type="checkbox" name="admin" value="keys:rotate" aria-label="Administrator: keys:rotate" checked></label></td><td><label><input class="cb-check" type="checkbox" name="admin" value="audit:export" aria-label="Administrator: audit:export" checked></label></td></tr>
+                  <tr><th scope="row">Operator</th><td><label><input class="cb-check" type="checkbox" name="operator" value="peers:read" aria-label="Operator: peers:read" checked></label></td><td><label><input class="cb-check" type="checkbox" name="operator" value="peers:write" aria-label="Operator: peers:write" checked></label></td><td><label><input class="cb-check" type="checkbox" name="operator" value="sessions:disconnect" aria-label="Operator: sessions:disconnect" checked></label></td><td><label><input class="cb-check" type="checkbox" name="operator" value="keys:rotate" aria-label="Operator: keys:rotate"></label></td><td><label><input class="cb-check" type="checkbox" name="operator" value="audit:export" aria-label="Operator: audit:export"></label></td></tr>
+                  <tr><th scope="row">Auditor</th><td><label><input class="cb-check" type="checkbox" name="auditor" value="peers:read" aria-label="Auditor: peers:read" checked></label></td><td><label><input class="cb-check" type="checkbox" name="auditor" value="peers:write" aria-label="Auditor: peers:write"></label></td><td><label><input class="cb-check" type="checkbox" name="auditor" value="sessions:disconnect" aria-label="Auditor: sessions:disconnect"></label></td><td><label><input class="cb-check" type="checkbox" name="auditor" value="keys:rotate" aria-label="Auditor: keys:rotate"></label></td><td><label><input class="cb-check" type="checkbox" name="auditor" value="audit:export" aria-label="Auditor: audit:export" checked></label></td></tr>
+                  <tr><th scope="row">Helpdesk <span class="cb-muted">(peers:read inherited from Staff)</span></th><td><label><input class="cb-check" type="checkbox" name="helpdesk" value="peers:read" aria-label="Helpdesk: peers:read" checked disabled></label></td><td><label><input class="cb-check" type="checkbox" name="helpdesk" value="peers:write" aria-label="Helpdesk: peers:write"></label></td><td><label><input class="cb-check" type="checkbox" name="helpdesk" value="sessions:disconnect" aria-label="Helpdesk: sessions:disconnect" checked></label></td><td><label><input class="cb-check" type="checkbox" name="helpdesk" value="keys:rotate" aria-label="Helpdesk: keys:rotate"></label></td><td><label><input class="cb-check" type="checkbox" name="helpdesk" value="audit:export" aria-label="Helpdesk: audit:export"></label></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </form>
+        </div>
+        <pre class="docs-snippet"><code>&lt;form method=&quot;post&quot; action=&quot;#recipes-permissions&quot;&gt;
+  &lt;div class=&quot;cb-table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Role permissions&quot;&gt;
+    &lt;table class=&quot;cb-table&quot;&gt;
+      &lt;caption class=&quot;cb-sr-only&quot;&gt;Permissions by role&lt;/caption&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th scope=&quot;col&quot;&gt;Role&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;&lt;code&gt;peers:read&lt;/code&gt;&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;&lt;code&gt;peers:write&lt;/code&gt;&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;&lt;code&gt;sessions:disconnect&lt;/code&gt;&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;&lt;code&gt;keys:rotate&lt;/code&gt;&lt;/th&gt;
+          &lt;th scope=&quot;col&quot;&gt;&lt;code&gt;audit:export&lt;/code&gt;&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Administrator&lt;/th&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;admin&quot; value=&quot;peers:read&quot; aria-label=&quot;Administrator: peers:read&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;admin&quot; value=&quot;peers:write&quot; aria-label=&quot;Administrator: peers:write&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;admin&quot; value=&quot;sessions:disconnect&quot; aria-label=&quot;Administrator: sessions:disconnect&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;admin&quot; value=&quot;keys:rotate&quot; aria-label=&quot;Administrator: keys:rotate&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;admin&quot; value=&quot;audit:export&quot; aria-label=&quot;Administrator: audit:export&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Operator&lt;/th&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;operator&quot; value=&quot;peers:read&quot; aria-label=&quot;Operator: peers:read&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;operator&quot; value=&quot;peers:write&quot; aria-label=&quot;Operator: peers:write&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;operator&quot; value=&quot;sessions:disconnect&quot; aria-label=&quot;Operator: sessions:disconnect&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;operator&quot; value=&quot;keys:rotate&quot; aria-label=&quot;Operator: keys:rotate&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;operator&quot; value=&quot;audit:export&quot; aria-label=&quot;Operator: audit:export&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Auditor&lt;/th&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;auditor&quot; value=&quot;peers:read&quot; aria-label=&quot;Auditor: peers:read&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;auditor&quot; value=&quot;peers:write&quot; aria-label=&quot;Auditor: peers:write&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;auditor&quot; value=&quot;sessions:disconnect&quot; aria-label=&quot;Auditor: sessions:disconnect&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;auditor&quot; value=&quot;keys:rotate&quot; aria-label=&quot;Auditor: keys:rotate&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;auditor&quot; value=&quot;audit:export&quot; aria-label=&quot;Auditor: audit:export&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Helpdesk &lt;span class=&quot;cb-muted&quot;&gt;(peers:read inherited from Staff)&lt;/span&gt;&lt;/th&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;helpdesk&quot; value=&quot;peers:read&quot; aria-label=&quot;Helpdesk: peers:read&quot; checked disabled&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;helpdesk&quot; value=&quot;peers:write&quot; aria-label=&quot;Helpdesk: peers:write&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;helpdesk&quot; value=&quot;sessions:disconnect&quot; aria-label=&quot;Helpdesk: sessions:disconnect&quot; checked&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;helpdesk&quot; value=&quot;keys:rotate&quot; aria-label=&quot;Helpdesk: keys:rotate&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;td&gt;&lt;label&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;helpdesk&quot; value=&quot;audit:export&quot; aria-label=&quot;Helpdesk: audit:export&quot;&gt;&lt;/label&gt;&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-health">Node health grid</h3>
+        <p class="docs-text">One small panel per node in a <a href="#layout">grid</a>: the status stripe and an
+          <a href="#badges-led">LED</a> with its word, two small <a href="#meters">gauges</a> and the time of the last
+          heartbeat. Colour is never the only signal; a node without data says so instead of showing zero.</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--3">
+            <section class="cb-panel cb-panel--ok" aria-labelledby="rh-eu1">
+              <header class="cb-panel__head"><h4 class="cb-panel__title" id="rh-eu1">gw-eu-1</h4><span class="cb-led cb-led--ok">Healthy</span></header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-gauge"><label class="cb-gauge__label" for="rh-eu1-cpu">CPU</label><span class="cb-gauge__value">37%</span><meter class="cb-meter" id="rh-eu1-cpu" min="0" max="100" low="70" high="90" optimum="0" value="37">37%</meter></div>
+                <div class="cb-gauge"><label class="cb-gauge__label" for="rh-eu1-mem">Memory</label><span class="cb-gauge__value">52%</span><meter class="cb-meter" id="rh-eu1-mem" min="0" max="100" low="70" high="90" optimum="0" value="52">52%</meter></div>
+                <p class="cb-muted">Heartbeat <time datetime="2026-10-27T10:42:02Z">4 s ago</time></p>
+              </div>
+            </section>
+            <section class="cb-panel cb-panel--warn" aria-labelledby="rh-us1">
+              <header class="cb-panel__head"><h4 class="cb-panel__title" id="rh-us1">gw-us-1</h4><span class="cb-led cb-led--warn">Degraded</span></header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-gauge"><label class="cb-gauge__label" for="rh-us1-cpu">CPU</label><span class="cb-gauge__value">91%</span><meter class="cb-meter" id="rh-us1-cpu" min="0" max="100" low="70" high="90" optimum="0" value="91">91%</meter></div>
+                <div class="cb-gauge"><label class="cb-gauge__label" for="rh-us1-mem">Memory</label><span class="cb-gauge__value">74%</span><meter class="cb-meter" id="rh-us1-mem" min="0" max="100" low="70" high="90" optimum="0" value="74">74%</meter></div>
+                <p class="cb-muted">Heartbeat <time datetime="2026-10-27T10:42:00Z">6 s ago</time></p>
+              </div>
+            </section>
+            <section class="cb-panel cb-panel--danger" aria-labelledby="rh-ap2">
+              <header class="cb-panel__head"><h4 class="cb-panel__title" id="rh-ap2">gw-ap-2</h4><span class="cb-led cb-led--danger">Down</span></header>
+              <div class="cb-panel__body cb-stack">
+                <div class="cb-gauge"><label class="cb-gauge__label" for="rh-ap2-cpu">CPU</label><span class="cb-gauge__value">no data</span><meter class="cb-meter" id="rh-ap2-cpu" min="0" max="100" low="70" high="90" optimum="0" value="0">no data</meter></div>
+                <div class="cb-gauge"><label class="cb-gauge__label" for="rh-ap2-mem">Memory</label><span class="cb-gauge__value">no data</span><meter class="cb-meter" id="rh-ap2-mem" min="0" max="100" low="70" high="90" optimum="0" value="0">no data</meter></div>
+                <p class="cb-muted">Heartbeat <time datetime="2026-10-27T10:38:12Z">4 min ago</time></p>
+              </div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--3&quot;&gt;
+  &lt;section class=&quot;cb-panel cb-panel--ok&quot; aria-labelledby=&quot;rh-eu1&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;&lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rh-eu1&quot;&gt;gw-eu-1&lt;/h4&gt;&lt;span class=&quot;cb-led cb-led--ok&quot;&gt;Healthy&lt;/span&gt;&lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-gauge&quot;&gt;&lt;label class=&quot;cb-gauge__label&quot; for=&quot;rh-eu1-cpu&quot;&gt;CPU&lt;/label&gt;&lt;span class=&quot;cb-gauge__value&quot;&gt;37%&lt;/span&gt;&lt;meter class=&quot;cb-meter&quot; id=&quot;rh-eu1-cpu&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;37&quot;&gt;37%&lt;/meter&gt;&lt;/div&gt;
+      &lt;div class=&quot;cb-gauge&quot;&gt;&lt;label class=&quot;cb-gauge__label&quot; for=&quot;rh-eu1-mem&quot;&gt;Memory&lt;/label&gt;&lt;span class=&quot;cb-gauge__value&quot;&gt;52%&lt;/span&gt;&lt;meter class=&quot;cb-meter&quot; id=&quot;rh-eu1-mem&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;52&quot;&gt;52%&lt;/meter&gt;&lt;/div&gt;
+      &lt;p class=&quot;cb-muted&quot;&gt;Heartbeat &lt;time datetime=&quot;2026-10-27T10:42:02Z&quot;&gt;4 s ago&lt;/time&gt;&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel cb-panel--warn&quot; aria-labelledby=&quot;rh-us1&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;&lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rh-us1&quot;&gt;gw-us-1&lt;/h4&gt;&lt;span class=&quot;cb-led cb-led--warn&quot;&gt;Degraded&lt;/span&gt;&lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-gauge&quot;&gt;&lt;label class=&quot;cb-gauge__label&quot; for=&quot;rh-us1-cpu&quot;&gt;CPU&lt;/label&gt;&lt;span class=&quot;cb-gauge__value&quot;&gt;91%&lt;/span&gt;&lt;meter class=&quot;cb-meter&quot; id=&quot;rh-us1-cpu&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;91&quot;&gt;91%&lt;/meter&gt;&lt;/div&gt;
+      &lt;div class=&quot;cb-gauge&quot;&gt;&lt;label class=&quot;cb-gauge__label&quot; for=&quot;rh-us1-mem&quot;&gt;Memory&lt;/label&gt;&lt;span class=&quot;cb-gauge__value&quot;&gt;74%&lt;/span&gt;&lt;meter class=&quot;cb-meter&quot; id=&quot;rh-us1-mem&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;74&quot;&gt;74%&lt;/meter&gt;&lt;/div&gt;
+      &lt;p class=&quot;cb-muted&quot;&gt;Heartbeat &lt;time datetime=&quot;2026-10-27T10:42:00Z&quot;&gt;6 s ago&lt;/time&gt;&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel cb-panel--danger&quot; aria-labelledby=&quot;rh-ap2&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;&lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rh-ap2&quot;&gt;gw-ap-2&lt;/h4&gt;&lt;span class=&quot;cb-led cb-led--danger&quot;&gt;Down&lt;/span&gt;&lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;div class=&quot;cb-gauge&quot;&gt;&lt;label class=&quot;cb-gauge__label&quot; for=&quot;rh-ap2-cpu&quot;&gt;CPU&lt;/label&gt;&lt;span class=&quot;cb-gauge__value&quot;&gt;no data&lt;/span&gt;&lt;meter class=&quot;cb-meter&quot; id=&quot;rh-ap2-cpu&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;0&quot;&gt;no data&lt;/meter&gt;&lt;/div&gt;
+      &lt;div class=&quot;cb-gauge&quot;&gt;&lt;label class=&quot;cb-gauge__label&quot; for=&quot;rh-ap2-mem&quot;&gt;Memory&lt;/label&gt;&lt;span class=&quot;cb-gauge__value&quot;&gt;no data&lt;/span&gt;&lt;meter class=&quot;cb-meter&quot; id=&quot;rh-ap2-mem&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;0&quot;&gt;no data&lt;/meter&gt;&lt;/div&gt;
+      &lt;p class=&quot;cb-muted&quot;&gt;Heartbeat &lt;time datetime=&quot;2026-10-27T10:38:12Z&quot;&gt;4 min ago&lt;/time&gt;&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-password">Password policy</h3>
+        <p class="docs-text">The administrator's form for the sign-in rules: number fields with their ranges, a group of character
+          classes, the maximum age and the lockout threshold, each with a hint that says what it does. An info
+          alert says when the policy reaches existing passwords.</p>
+        <div class="docs-demo">
+          <form class="cb-stack" method="post" action="#recipes-password" aria-labelledby="rp-title">
+            <fieldset class="cb-fieldset">
+              <legend id="rp-title">Password policy</legend>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="rp-length">Minimum length</label>
+                <input class="cb-input" id="rp-length" name="min_length" type="number" min="8" max="128" value="14" required aria-describedby="rp-length-hint">
+                <p class="cb-field__hint" id="rp-length-hint">8 to 128 characters; length matters more than character classes.</p>
+              </div>
+              <fieldset class="cb-fieldset">
+                <legend>Must contain</legend>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="classes" value="lower" checked>Lower-case letter</label>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="classes" value="upper" checked>Upper-case letter</label>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="classes" value="digit">Digit</label>
+                <label class="cb-choice"><input class="cb-check" type="checkbox" name="classes" value="symbol">Symbol</label>
+              </fieldset>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="rp-age">Maximum age</label>
+                <select class="cb-select" id="rp-age" name="max_age"><option value="0" selected>Never expires</option><option value="90">90 days</option><option value="365">365 days</option></select>
+              </div>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="rp-history">Remember</label>
+                <input class="cb-input" id="rp-history" name="history" type="number" min="0" max="24" value="5" aria-describedby="rp-history-hint">
+                <p class="cb-field__hint" id="rp-history-hint">Previous passwords that cannot be used again.</p>
+              </div>
+              <div class="cb-field cb-field--horizontal">
+                <label class="cb-field__label" for="rp-lockout">Lock after</label>
+                <input class="cb-input" id="rp-lockout" name="lockout" type="number" min="3" max="50" value="10" aria-describedby="rp-lockout-hint">
+                <p class="cb-field__hint" id="rp-lockout-hint">Failed sign-ins in 15 minutes; the account unlocks after 15 minutes.</p>
+              </div>
+            </fieldset>
+            <div class="cb-alert cb-alert--info">
+              <p class="cb-alert__title">Applies at the next password change</p>
+              <p>Existing passwords stay valid; users who sign in with a shorter one are asked to change it.</p>
+            </div>
+            <div class="cb-cluster">
+              <button class="cb-btn cb-btn--primary" type="submit">Save policy</button>
+            </div>
+          </form>
+        </div>
+        <pre class="docs-snippet"><code>&lt;form class=&quot;cb-stack&quot; method=&quot;post&quot; action=&quot;#recipes-password&quot; aria-labelledby=&quot;rp-title&quot;&gt;
+  &lt;fieldset class=&quot;cb-fieldset&quot;&gt;
+    &lt;legend id=&quot;rp-title&quot;&gt;Password policy&lt;/legend&gt;
+    &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;rp-length&quot;&gt;Minimum length&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;rp-length&quot; name=&quot;min_length&quot; type=&quot;number&quot; min=&quot;8&quot; max=&quot;128&quot; value=&quot;14&quot; required aria-describedby=&quot;rp-length-hint&quot;&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;rp-length-hint&quot;&gt;8 to 128 characters; length matters more than character classes.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;fieldset class=&quot;cb-fieldset&quot;&gt;
+      &lt;legend&gt;Must contain&lt;/legend&gt;
+      &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;classes&quot; value=&quot;lower&quot; checked&gt;Lower-case letter&lt;/label&gt;
+      &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;classes&quot; value=&quot;upper&quot; checked&gt;Upper-case letter&lt;/label&gt;
+      &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;classes&quot; value=&quot;digit&quot;&gt;Digit&lt;/label&gt;
+      &lt;label class=&quot;cb-choice&quot;&gt;&lt;input class=&quot;cb-check&quot; type=&quot;checkbox&quot; name=&quot;classes&quot; value=&quot;symbol&quot;&gt;Symbol&lt;/label&gt;
+    &lt;/fieldset&gt;
+    &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;rp-age&quot;&gt;Maximum age&lt;/label&gt;
+      &lt;select class=&quot;cb-select&quot; id=&quot;rp-age&quot; name=&quot;max_age&quot;&gt;&lt;option value=&quot;0&quot; selected&gt;Never expires&lt;/option&gt;&lt;option value=&quot;90&quot;&gt;90 days&lt;/option&gt;&lt;option value=&quot;365&quot;&gt;365 days&lt;/option&gt;&lt;/select&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;rp-history&quot;&gt;Remember&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;rp-history&quot; name=&quot;history&quot; type=&quot;number&quot; min=&quot;0&quot; max=&quot;24&quot; value=&quot;5&quot; aria-describedby=&quot;rp-history-hint&quot;&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;rp-history-hint&quot;&gt;Previous passwords that cannot be used again.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field cb-field--horizontal&quot;&gt;
+      &lt;label class=&quot;cb-field__label&quot; for=&quot;rp-lockout&quot;&gt;Lock after&lt;/label&gt;
+      &lt;input class=&quot;cb-input&quot; id=&quot;rp-lockout&quot; name=&quot;lockout&quot; type=&quot;number&quot; min=&quot;3&quot; max=&quot;50&quot; value=&quot;10&quot; aria-describedby=&quot;rp-lockout-hint&quot;&gt;
+      &lt;p class=&quot;cb-field__hint&quot; id=&quot;rp-lockout-hint&quot;&gt;Failed sign-ins in 15 minutes; the account unlocks after 15 minutes.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+  &lt;div class=&quot;cb-alert cb-alert--info&quot;&gt;
+    &lt;p class=&quot;cb-alert__title&quot;&gt;Applies at the next password change&lt;/p&gt;
+    &lt;p&gt;Existing passwords stay valid; users who sign in with a shorter one are asked to change it.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cb-cluster&quot;&gt;
+    &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;submit&quot;&gt;Save policy&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-mfa">MFA enrolment</h3>
+        <p class="docs-text">Setting up an authenticator app in one panel: the <a href="#recipes-steps">steps</a>, the QR code, the same
+          key as text with Copy, the first code to prove it works, and the recovery codes with Copy and Save. The
+          host renders the QR code as an <code>&lt;img alt="QR code for alice.ng"&gt;</code> where the demo shows
+          its placeholder; the codes are shown once, like any <a href="#secrets">secret</a>.</p>
+        <div class="docs-demo">
+          <section class="cb-panel" aria-labelledby="rm2-title">
+            <header class="cb-panel__head"><h4 class="cb-panel__title" id="rm2-title">Set up two-step verification</h4></header>
+            <div class="cb-panel__body cb-stack">
+              <nav aria-label="Enrolment steps">
+                <ol class="cb-breadcrumb">
+                  <li><span aria-current="step">1. Scan</span></li>
+                  <li><span class="cb-muted">2. Verify</span></li>
+                  <li><span class="cb-muted">3. Recovery codes</span></li>
+                </ol>
+              </nav>
+              <div class="cb-grid cb-grid--2">
+                <div class="cb-panel">
+                  <div class="cb-empty">
+                    <p class="cb-empty__title">QR code</p>
+                    <p>The host renders the enrolment image here.</p>
+                  </div>
+                </div>
+                <div class="cb-stack">
+                  <div class="cb-field">
+                    <span class="cb-field__label" id="rm2-key-label">Can't scan? Enter this key</span>
+                    <div class="cb-secret">
+                      <pre class="cb-secret__value" id="rm2-key" aria-labelledby="rm2-key-label">JBSW Y3DP EHPK 3PXP</pre>
+                      <div class="cb-secret__actions">
+                        <button class="cb-btn" type="button" data-cb-copy="rm2-key" aria-label="Copy setup key">Copy</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cb-field">
+                    <label class="cb-field__label" for="rm2-code">Code from the app</label>
+                    <input class="cb-input cb-mono" id="rm2-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required aria-describedby="rm2-code-hint">
+                    <p class="cb-field__hint" id="rm2-code-hint">6 digits, to prove the app is set up.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="cb-field">
+                <span class="cb-field__label" id="rm2-codes-label">Recovery codes (shown once)</span>
+                <div class="cb-secret">
+                  <pre class="cb-secret__value" id="rm2-codes" aria-labelledby="rm2-codes-label">4f7k-29qd  8m3x-pw61&#10;c2rn-75vh  j9e4-k0tb&#10;q6ws-31la  t8yd-m5ce</pre>
+                  <div class="cb-secret__actions">
+                    <button class="cb-btn" type="button" data-cb-copy="rm2-codes" aria-label="Copy recovery codes">Copy</button>
+                    <button class="cb-btn" type="button" data-cb-download="rm2-codes" data-cb-filename="recovery-codes.txt" aria-label="Save recovery codes">Save</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <footer class="cb-panel__foot">
+              <a href="#recipes-mfa">Cancel</a>
+              <button class="cb-btn cb-btn--primary" type="button">Verify</button>
+            </footer>
+          </section>
+        </div>
+        <pre class="docs-snippet"><code>&lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;rm2-title&quot;&gt;
+  &lt;header class=&quot;cb-panel__head&quot;&gt;&lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rm2-title&quot;&gt;Set up two-step verification&lt;/h4&gt;&lt;/header&gt;
+  &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+    &lt;nav aria-label=&quot;Enrolment steps&quot;&gt;
+      &lt;ol class=&quot;cb-breadcrumb&quot;&gt;
+        &lt;li&gt;&lt;span aria-current=&quot;step&quot;&gt;1. Scan&lt;/span&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;span class=&quot;cb-muted&quot;&gt;2. Verify&lt;/span&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;span class=&quot;cb-muted&quot;&gt;3. Recovery codes&lt;/span&gt;&lt;/li&gt;
+      &lt;/ol&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+      &lt;div class=&quot;cb-panel&quot;&gt;
+        &lt;div class=&quot;cb-empty&quot;&gt;
+          &lt;p class=&quot;cb-empty__title&quot;&gt;QR code&lt;/p&gt;
+          &lt;p&gt;The host renders the enrolment image here.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cb-stack&quot;&gt;
+        &lt;div class=&quot;cb-field&quot;&gt;
+          &lt;span class=&quot;cb-field__label&quot; id=&quot;rm2-key-label&quot;&gt;Can't scan? Enter this key&lt;/span&gt;
+          &lt;div class=&quot;cb-secret&quot;&gt;
+            &lt;pre class=&quot;cb-secret__value&quot; id=&quot;rm2-key&quot; aria-labelledby=&quot;rm2-key-label&quot;&gt;JBSW Y3DP EHPK 3PXP&lt;/pre&gt;
+            &lt;div class=&quot;cb-secret__actions&quot;&gt;
+              &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-copy=&quot;rm2-key&quot; aria-label=&quot;Copy setup key&quot;&gt;Copy&lt;/button&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;cb-field&quot;&gt;
+          &lt;label class=&quot;cb-field__label&quot; for=&quot;rm2-code&quot;&gt;Code from the app&lt;/label&gt;
+          &lt;input class=&quot;cb-input cb-mono&quot; id=&quot;rm2-code&quot; name=&quot;code&quot; type=&quot;text&quot; inputmode=&quot;numeric&quot; autocomplete=&quot;one-time-code&quot; pattern=&quot;[0-9]{6}&quot; maxlength=&quot;6&quot; required aria-describedby=&quot;rm2-code-hint&quot;&gt;
+          &lt;p class=&quot;cb-field__hint&quot; id=&quot;rm2-code-hint&quot;&gt;6 digits, to prove the app is set up.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cb-field&quot;&gt;
+      &lt;span class=&quot;cb-field__label&quot; id=&quot;rm2-codes-label&quot;&gt;Recovery codes (shown once)&lt;/span&gt;
+      &lt;div class=&quot;cb-secret&quot;&gt;
+        &lt;pre class=&quot;cb-secret__value&quot; id=&quot;rm2-codes&quot; aria-labelledby=&quot;rm2-codes-label&quot;&gt;4f7k-29qd  8m3x-pw61&amp;#10;c2rn-75vh  j9e4-k0tb&amp;#10;q6ws-31la  t8yd-m5ce&lt;/pre&gt;
+        &lt;div class=&quot;cb-secret__actions&quot;&gt;
+          &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-copy=&quot;rm2-codes&quot; aria-label=&quot;Copy recovery codes&quot;&gt;Copy&lt;/button&gt;
+          &lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-download=&quot;rm2-codes&quot; data-cb-filename=&quot;recovery-codes.txt&quot; aria-label=&quot;Save recovery codes&quot;&gt;Save&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+    &lt;a href=&quot;#recipes-mfa&quot;&gt;Cancel&lt;/a&gt;
+    &lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot;&gt;Verify&lt;/button&gt;
+  &lt;/footer&gt;
+&lt;/section&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-timeout">Session timeout</h3>
+        <p class="docs-text">A modal warning before an idle session ends, opened by the host's timer (here by a key). It says when
+          and why, shows the time left as a <a href="#meters">meter</a>, and puts <code>autofocus</code> on Stay
+          signed in. Update the time quietly; the dialog itself is announced once, not every second.</p>
+        <div class="docs-demo">
+          <button class="cb-btn" type="button" data-cb-modal="rt-dialog">Show the warning</button>
+          <dialog class="cb-dialog cb-dialog--sm" id="rt-dialog" aria-labelledby="rt-title" aria-describedby="rt-text">
+            <form method="dialog">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="rt-title">Your session is about to end</h4>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <p id="rt-text">You will be signed out in <time datetime="PT2M">2:00</time> because nothing happened for 28 minutes. Unsaved changes are lost.</p>
+                <meter class="cb-meter" min="0" max="300" low="60" high="240" optimum="300" value="120" aria-label="Time left">2 of 5 minutes left</meter>
+              </div>
+              <footer class="cb-panel__foot">
+                <button class="cb-btn" value="sign-out">Sign out</button>
+                <button class="cb-btn cb-btn--primary" value="stay" autofocus>Stay signed in</button>
+              </footer>
+            </form>
+          </dialog>
+        </div>
+        <pre class="docs-snippet"><code>&lt;button class=&quot;cb-btn&quot; type=&quot;button&quot; data-cb-modal=&quot;rt-dialog&quot;&gt;Show the warning&lt;/button&gt;
+&lt;dialog class=&quot;cb-dialog cb-dialog--sm&quot; id=&quot;rt-dialog&quot; aria-labelledby=&quot;rt-title&quot; aria-describedby=&quot;rt-text&quot;&gt;
+  &lt;form method=&quot;dialog&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;rt-title&quot;&gt;Your session is about to end&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;p id=&quot;rt-text&quot;&gt;You will be signed out in &lt;time datetime=&quot;PT2M&quot;&gt;2:00&lt;/time&gt; because nothing happened for 28 minutes. Unsaved changes are lost.&lt;/p&gt;
+      &lt;meter class=&quot;cb-meter&quot; min=&quot;0&quot; max=&quot;300&quot; low=&quot;60&quot; high=&quot;240&quot; optimum=&quot;300&quot; value=&quot;120&quot; aria-label=&quot;Time left&quot;&gt;2 of 5 minutes left&lt;/meter&gt;
+    &lt;/div&gt;
+    &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+      &lt;button class=&quot;cb-btn&quot; value=&quot;sign-out&quot;&gt;Sign out&lt;/button&gt;
+      &lt;button class=&quot;cb-btn cb-btn--primary&quot; value=&quot;stay&quot; autofocus&gt;Stay signed in&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/form&gt;
+&lt;/dialog&gt;</code></pre>
+
+        <h3 class="docs-h3" id="recipes-errors">Error pages</h3>
+        <p class="docs-text">One centred panel for every error page: the code and its name as the title, what happened in the
+          user's terms, the request ID for support, and the way out. The table gives the wording for the other
+          codes.</p>
+        <div class="docs-demo docs-frame docs-frame--tall">
+          <div class="cb-center">
+            <section class="cb-panel" aria-labelledby="re-title">
+              <header class="cb-panel__head">
+                <h4 class="cb-panel__title" id="re-title">403 · Access denied</h4>
+              </header>
+              <div class="cb-panel__body cb-stack">
+                <p>Your role <strong>Auditor</strong> cannot change gateway settings. Ask an administrator for <code>gateways:write</code>.</p>
+                <p class="cb-muted">Request ID <code>req-7f3c9a12e4b1</code></p>
+              </div>
+              <footer class="cb-panel__foot">
+                <a href="#recipes-errors">Back</a>
+                <a class="cb-btn cb-btn--primary" href="#recipes-errors">Request access</a>
+              </footer>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-center&quot;&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;re-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;
+      &lt;h4 class=&quot;cb-panel__title&quot; id=&quot;re-title&quot;&gt;403 · Access denied&lt;/h4&gt;
+    &lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body cb-stack&quot;&gt;
+      &lt;p&gt;Your role &lt;strong&gt;Auditor&lt;/strong&gt; cannot change gateway settings. Ask an administrator for &lt;code&gt;gateways:write&lt;/code&gt;.&lt;/p&gt;
+      &lt;p class=&quot;cb-muted&quot;&gt;Request ID &lt;code&gt;req-7f3c9a12e4b1&lt;/code&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class=&quot;cb-panel__foot&quot;&gt;
+      &lt;a href=&quot;#recipes-errors&quot;&gt;Back&lt;/a&gt;
+      &lt;a class=&quot;cb-btn cb-btn--primary&quot; href=&quot;#recipes-errors&quot;&gt;Request access&lt;/a&gt;
+    &lt;/footer&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
+        <div class="cb-table-wrap docs-ref">
+          <table class="cb-table cb-table--wrap">
+            <thead>
+              <tr><th scope="col">Code</th><th scope="col">Title</th><th scope="col">Body</th><th scope="col">Way out</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><code>401</code></th><td>Signed out</td><td>The session ended; sign in again to continue where you were.</td><td>Sign in (back to this page)</td></tr>
+              <tr><th scope="row"><code>403</code></th><td>Access denied</td><td>The role, and the permission it lacks.</td><td>Back; Request access</td></tr>
+              <tr><th scope="row"><code>404</code></th><td>Not found</td><td>The object or page does not exist, or was removed.</td><td>Back to the list; Search</td></tr>
+              <tr><th scope="row"><code>500</code></th><td>Something went wrong</td><td>Nothing was changed; the error is logged with the request ID.</td><td>Try again; Status page</td></tr>
+              <tr><th scope="row"><code>503</code></th><td>Under maintenance</td><td>When it ends, from the maintenance window.</td><td>Status page</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <h3 class="docs-h3" id="recipes-tooltips">Tooltips</h3>
         <p class="docs-text">A <code>title</code> shows a native hint under the pointer: use it to repeat an icon
