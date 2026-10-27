@@ -98,6 +98,7 @@ function buildPairs() {
 
   // Tones on their 10% tints and on the page
   pairs.push(['--cb-danger', 'color-mix(in srgb, var(--cb-danger) 10%, var(--cb-bg-btn))', TEXT_MINIMUM, 'Tinted danger button']);
+  pairs.push(['--cb-danger', 'color-mix(in srgb, var(--cb-danger) 16%, var(--cb-bg-btn))', TEXT_MINIMUM, 'Tinted danger button: hovered, pressed']);
   for (const tone of BADGE_TONES) {
     pairs.push([tone, tintOf(tone, '--cb-bg-surface'), TEXT_MINIMUM, 'Status badges, alert titles']);
   }
