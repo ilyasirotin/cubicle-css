@@ -4,6 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cubicle — Component Catalogue</title>
+  <!-- Docs only: the theme picked on the theme tiles, applied before the first paint. -->
+  <script>
+    (() => {
+      const THEMES = ['steel', 'industrial', 'monochrome'];
+      let stored = null;
+      try {
+        stored = localStorage.getItem('cubicle-docs-theme');
+      } catch {
+        stored = null;
+      }
+      if (THEMES.includes(stored)) {
+        document.documentElement.dataset.cbTheme = stored;
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="../dist/cubicle.css">
   <link rel="stylesheet" href="docs.css">
   <script src="../dist/cubicle.js" defer></script>
@@ -14,6 +29,7 @@
   <header class="docs-topbar">
     <p class="docs-topbar__brand">Cubicle</p>
     <span class="docs-topbar__meta">v1.0.0</span>
+    <a class="docs-topbar__theme" href="#tokens-themes">Theme: Glacier</a>
     <a class="cb-btn cb-btn--sm" href="example.html">Example console</a>
   </header>
 
@@ -230,11 +246,52 @@ async function reloadRows(url) {
 
         <!-- Themes ------------------------------------------------------- -->
         <h3 class="docs-h3" id="tokens-themes">Themes</h3>
-        <p class="docs-text">A theme swaps the palette: the surfaces, ink, borders and status tones above. Set
-          <code>data-cb-theme</code> to <code>glacier</code> (the default), <code>steel</code> (the 1.0 palette),
-          <code>industrial</code> or <code>monochrome</code> on <code>&lt;html&gt;</code> or on any subtree; shades,
-          the focus ring and the backdrop follow it. Every theme is light and passes the same
-          <a href="#a11y-contrast">contrast pairs</a>.</p>
+        <p class="docs-text">A theme swaps the palette: the surfaces, ink, borders and status tones above. Pick one
+          to see the whole catalogue in it; the choice is remembered in this browser.</p>
+        <div class="docs-themes" role="radiogroup" aria-label="Catalogue theme" hidden>
+          <label class="docs-theme">
+            <span class="docs-theme__window" data-cb-theme="glacier" aria-hidden="true"><span class="docs-theme__bar"><i></i><i></i><i></i></span><span class="docs-theme__panel"><span class="docs-theme__row"></span><span class="docs-theme__row docs-theme__row--selected"></span><span class="docs-theme__row"></span><span class="docs-theme__foot"><span class="docs-theme__key"></span><i class="docs-theme__led docs-theme__led--ok"></i><i class="docs-theme__led docs-theme__led--warn"></i><i class="docs-theme__led docs-theme__led--danger"></i><i class="docs-theme__led docs-theme__led--info"></i></span></span></span>
+            <span class="docs-theme__name"><input class="cb-check" type="radio" name="docs-theme" value="glacier" checked> Glacier <span class="docs-theme__note">default</span></span>
+          </label>
+          <label class="docs-theme">
+            <span class="docs-theme__window" data-cb-theme="steel" aria-hidden="true"><span class="docs-theme__bar"><i></i><i></i><i></i></span><span class="docs-theme__panel"><span class="docs-theme__row"></span><span class="docs-theme__row docs-theme__row--selected"></span><span class="docs-theme__row"></span><span class="docs-theme__foot"><span class="docs-theme__key"></span><i class="docs-theme__led docs-theme__led--ok"></i><i class="docs-theme__led docs-theme__led--warn"></i><i class="docs-theme__led docs-theme__led--danger"></i><i class="docs-theme__led docs-theme__led--info"></i></span></span></span>
+            <span class="docs-theme__name"><input class="cb-check" type="radio" name="docs-theme" value="steel"> Steel <span class="docs-theme__note">1.0 palette</span></span>
+          </label>
+          <label class="docs-theme">
+            <span class="docs-theme__window" data-cb-theme="industrial" aria-hidden="true"><span class="docs-theme__bar"><i></i><i></i><i></i></span><span class="docs-theme__panel"><span class="docs-theme__row"></span><span class="docs-theme__row docs-theme__row--selected"></span><span class="docs-theme__row"></span><span class="docs-theme__foot"><span class="docs-theme__key"></span><i class="docs-theme__led docs-theme__led--ok"></i><i class="docs-theme__led docs-theme__led--warn"></i><i class="docs-theme__led docs-theme__led--danger"></i><i class="docs-theme__led docs-theme__led--info"></i></span></span></span>
+            <span class="docs-theme__name"><input class="cb-check" type="radio" name="docs-theme" value="industrial"> Industrial</span>
+          </label>
+          <label class="docs-theme">
+            <span class="docs-theme__window" data-cb-theme="monochrome" aria-hidden="true"><span class="docs-theme__bar"><i></i><i></i><i></i></span><span class="docs-theme__panel"><span class="docs-theme__row"></span><span class="docs-theme__row docs-theme__row--selected"></span><span class="docs-theme__row"></span><span class="docs-theme__foot"><span class="docs-theme__key"></span><i class="docs-theme__led docs-theme__led--ok"></i><i class="docs-theme__led docs-theme__led--warn"></i><i class="docs-theme__led docs-theme__led--danger"></i><i class="docs-theme__led docs-theme__led--info"></i></span></span></span>
+            <span class="docs-theme__name"><input class="cb-check" type="radio" name="docs-theme" value="monochrome"> Monochrome</span>
+          </label>
+        </div>
+        <p class="docs-text">Set <code>data-cb-theme</code> to <code>glacier</code> (the default), <code>steel</code>
+          (the 1.0 palette), <code>industrial</code> or <code>monochrome</code> on <code>&lt;html&gt;</code> or on any
+          subtree; shades, the focus ring and the backdrop follow it. Every theme is light and passes the same
+          <a href="#a11y-contrast">contrast pairs</a>. A subtree takes its own theme inside the page's:</p>
+        <div class="docs-demo">
+          <div class="cb-grid cb-grid--2">
+            <section class="cb-panel" aria-labelledby="th-page-title">
+              <header class="cb-panel__head"><h4 class="cb-panel__title" id="th-page-title">gw-eu-1</h4><span class="cb-badge cb-badge--ok">Online</span></header>
+              <div class="cb-panel__body"><button class="cb-btn cb-btn--primary" type="button">Restart</button></div>
+            </section>
+            <section class="cb-panel" data-cb-theme="industrial" aria-labelledby="th-sub-title">
+              <header class="cb-panel__head"><h4 class="cb-panel__title" id="th-sub-title">gw-eu-1</h4><span class="cb-badge cb-badge--ok">Online</span></header>
+              <div class="cb-panel__body"><button class="cb-btn cb-btn--primary" type="button">Restart</button></div>
+            </section>
+          </div>
+        </div>
+        <pre class="docs-snippet"><code>&lt;div class=&quot;cb-grid cb-grid--2&quot;&gt;
+  &lt;section class=&quot;cb-panel&quot; aria-labelledby=&quot;th-page-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;&lt;h4 class=&quot;cb-panel__title&quot; id=&quot;th-page-title&quot;&gt;gw-eu-1&lt;/h4&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot;&gt;Restart&lt;/button&gt;&lt;/div&gt;
+  &lt;/section&gt;
+  &lt;section class=&quot;cb-panel&quot; data-cb-theme=&quot;industrial&quot; aria-labelledby=&quot;th-sub-title&quot;&gt;
+    &lt;header class=&quot;cb-panel__head&quot;&gt;&lt;h4 class=&quot;cb-panel__title&quot; id=&quot;th-sub-title&quot;&gt;gw-eu-1&lt;/h4&gt;&lt;span class=&quot;cb-badge cb-badge--ok&quot;&gt;Online&lt;/span&gt;&lt;/header&gt;
+    &lt;div class=&quot;cb-panel__body&quot;&gt;&lt;button class=&quot;cb-btn cb-btn--primary&quot; type=&quot;button&quot;&gt;Restart&lt;/button&gt;&lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;</code></pre>
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap" data-docs-themes="glacier steel industrial monochrome">
             <thead>
@@ -6643,6 +6700,51 @@ Prism.languages.javascript=Prism.languages.extend("clike",{"class-name":[Prism.l
         event.preventDefault();
         copy(block);
       });
+    })();
+  </script>
+
+  <!-- Docs only: the theme tiles set data-cb-theme on <html>, remember it and name it in the top bar;
+       glacier, the default, is the page as served. The tiles stay hidden without this script. -->
+  <script>
+    (() => {
+      const STORAGE_KEY = 'cubicle-docs-theme';
+      const DEFAULT_THEME = 'glacier';
+      const tiles = document.querySelector('.docs-themes');
+      const topBarLink = document.querySelector('.docs-topbar__theme');
+
+      const nameOf = (theme) => theme.charAt(0).toUpperCase() + theme.slice(1);
+
+      const showTheme = (theme) => {
+        topBarLink.textContent = `Theme: ${nameOf(theme)}`;
+        const radio = tiles.querySelector(`input[value="${theme}"]`);
+        if (radio) {
+          radio.checked = true;
+        }
+      };
+
+      const applyTheme = (theme) => {
+        if (theme === DEFAULT_THEME) {
+          delete document.documentElement.dataset.cbTheme;
+        } else {
+          document.documentElement.dataset.cbTheme = theme;
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, theme);
+        } catch {
+          // Storage may be off (private window, blocked site data); the choice lasts this page.
+        }
+        showTheme(theme);
+      };
+
+      const handleTileChange = (event) => {
+        if (event.target.name === 'docs-theme') {
+          applyTheme(event.target.value);
+        }
+      };
+
+      tiles.hidden = false;
+      showTheme(document.documentElement.dataset.cbTheme ?? DEFAULT_THEME);
+      tiles.addEventListener('change', handleTileChange);
     })();
   </script>
 

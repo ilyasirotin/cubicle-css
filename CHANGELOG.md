@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Themes.** `data-cb-theme="glacier"`, `"steel"`, `"industrial"` or `"monochrome"` on `<html>`
   or any subtree swaps the palette (surfaces, ink, borders, status tones); shades, the focus ring
   and the backdrop follow it. Every theme passes the same contrast pairs. The catalogue lists each
-  theme's values and its contrast ratios.
+  theme's values and its contrast ratios, and switches the whole page live from a row of theme
+  tiles with miniature windows; the choice is remembered in the browser.
 
 ### Changed
 
