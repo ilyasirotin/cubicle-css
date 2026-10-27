@@ -11,7 +11,10 @@
 //                 4. every var(--cb-*) used in the stylesheet and docs/docs.css is declared;
 //                 5. density blocks ([data-cb-density]) only redefine tokens that :root declares;
 //                 6. CSS system colour keywords (Canvas, Highlight, GrayText...) appear only
-//                    inside @media (forced-colors: active).
+//                    inside @media (forced-colors: active);
+//                 7. every theme block ([data-cb-theme="name"]) declares exactly the palette: the
+//                    :root surfaces (but the backdrop), ink, borders and status tones;
+//                 8. the default palette equals one named theme, value for value.
 //                 Default values are read from the rules of @layer tokens whose selector list
 //                 includes :root.
 // Exit code:      0 when every check passes, 1 otherwise.
@@ -32,6 +35,9 @@ const TOKENS_LAYER_PATTERN = /@layer\s+tokens\s*\{/;
 // A rule without nested rules inside the tokens layer: its selector and its declarations.
 const FLAT_RULE_PATTERN = /([^{}]+)\{([^{}]*)\}/g;
 const TOKEN_DECLARATION_PATTERN = /(--cb-[a-z0-9-]+)\s*:\s*([^;]+);/g;
+const THEME_SELECTOR_PATTERN = /^\[data-cb-theme="([a-z-]+)"\]$/;
+// Checks 7 and 8: the palette a theme redefines. The backdrop is derived from the ink (2.9).
+const PALETTE_TOKEN_PATTERN = /^--cb-(bg-(?!backdrop$)[a-z-]+|text-(?:main|muted|disabled|inverse)|border-[a-z-]+|accent|ok|warn|danger|info)$/;
 const VAR_REFERENCE_PATTERN = /var\(\s*(--cb-[a-z0-9-]+)/g;
 const TABLE_ROW_PATTERN = /<tr\b[^>]*>([\s\S]*?)<\/tr>/g;
 const CODE_ELEMENT_PATTERN = /<code\b[^>]*>([\s\S]*?)<\/code>/g;
@@ -112,16 +118,18 @@ function findClosingBrace(text, openOffset) {
 }
 
 // Reads @layer tokens { ... } of a comment-free stylesheet.
-// Returns { layerFound, declared, overrides }: declared maps each token of a rule whose selector
-// list includes :root (also ":root, [data-cb-theme]", the tokens derived from the palette) to its
-// whitespace-normalised value; overrides lists [selector, token names] for every other block
-// (the density modes).
+// Returns { layerFound, declared, themes, overrides }: declared maps each token of a rule whose
+// selector list includes :root (also ":root, [data-cb-theme]", the tokens derived from the
+// palette) to its whitespace-normalised value; themes maps each [data-cb-theme="name"] block to
+// its tokens and values; overrides lists [selector, token names] for every other block (the
+// density modes).
 function readDeclaredTokens(css) {
   const declared = new Map();
+  const themes = new Map();
   const overrides = [];
   const layerOffset = css.search(TOKENS_LAYER_PATTERN);
   if (layerOffset < 0) {
-    return { layerFound: false, declared, overrides };
+    return { layerFound: false, declared, themes, overrides };
   }
 
   const openOffset = css.indexOf('{', layerOffset);
@@ -132,16 +140,23 @@ function readDeclaredTokens(css) {
     const selector = squashWhitespace(rawSelector);
     const declarations = [...block.matchAll(TOKEN_DECLARATION_PATTERN)];
     const selectorList = selector.split(',').map((part) => part.trim());
+    const themeMatch = selector.match(THEME_SELECTOR_PATTERN);
     if (selectorList.includes(':root')) {
       for (const [, name, value] of declarations) {
         declared.set(name, squashWhitespace(value));
       }
+    } else if (themeMatch) {
+      const themeTokens = new Map();
+      for (const [, name, value] of declarations) {
+        themeTokens.set(name, squashWhitespace(value));
+      }
+      themes.set(themeMatch[1], themeTokens);
     } else {
       const names = declarations.map(([, name]) => name);
       overrides.push([selector, names]);
     }
   }
-  return { layerFound: true, declared, overrides };
+  return { layerFound: true, declared, themes, overrides };
 }
 
 // Reads the catalogue's table rows. Returns a map of token name -> every value written for it
@@ -238,7 +253,7 @@ function runChecks() {
 
   // 0. Declared tokens: the body of @layer tokens { ... }.
   const css = stripComments(readFileSync(cssFile, 'utf8'));
-  const { layerFound, declared, overrides } = readDeclaredTokens(css);
+  const { layerFound, declared, themes, overrides } = readDeclaredTokens(css);
   if (!layerFound) {
     check(false, '@layer tokens block found', relative(REPOSITORY_ROOT, cssFile));
   }
@@ -307,6 +322,25 @@ function runChecks() {
   const { misplaced, insideCount } = findSystemColourUses(css);
   const systemColourDetail = misplaced.slice(0, 3).join(' | ') || `${insideCount} declarations`;
   check(misplaced.length === 0, 'system colour keywords appear only inside @media (forced-colors: active)', systemColourDetail);
+
+  // 7. Theme blocks declare exactly the palette
+  const palette = [...declared.keys()].filter((name) => PALETTE_TOKEN_PATTERN.test(name));
+  if (!themes.size) {
+    check(false, 'theme blocks ([data-cb-theme="name"]) found in @layer tokens');
+  }
+  for (const [themeName, themeTokens] of themes) {
+    const missing = palette.filter((name) => !themeTokens.has(name));
+    const extra = [...themeTokens.keys()].filter((name) => !palette.includes(name));
+    const detail = [...missing.map((name) => `missing ${name}`), ...extra.map((name) => `extra ${name}`)].join(', ') || `${palette.length} tokens`;
+    check(missing.length === 0 && extra.length === 0, `theme "${themeName}" declares exactly the palette`, detail);
+  }
+
+  // 8. The default palette is one named theme
+  const defaultThemes = [...themes].filter(([, themeTokens]) => {
+    return palette.every((name) => valuesMatch(themeTokens.get(name) ?? '', declared.get(name)));
+  });
+  const defaultNames = defaultThemes.map(([themeName]) => themeName);
+  check(defaultNames.length === 1, 'the default palette (:root) equals one named theme', defaultNames.join(', ') || 'none');
 
   for (const result of results) {
     console.log(formatResult(result));

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Themes.** `data-cb-theme="steel"`, `"glacier"`, `"industrial"` or `"monochrome"` on `<html>`
+  or any subtree swaps the palette (surfaces, ink, borders, status tones); shades, the focus ring
+  and the backdrop follow it. Every theme passes the same contrast pairs; steel is the 1.0 palette
+  and stays the default for now.
+
 ### Changed
 
 - **Depth tokens.** The shades of `--cb-shadow-outset`, `-outset-dark`, `-inset`, `-pressed`,
