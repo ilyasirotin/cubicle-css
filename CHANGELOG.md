@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Depth tokens.** The shades of `--cb-shadow-outset`, `-outset-dark`, `-inset`, `-pressed`,
   `-float`, `--cb-grad-surface`, `--cb-grad-btn` and `--cb-bg-backdrop` mix `--cb-text-main` at
   their former alphas instead of a fixed slate (`rgb(15, 23, 42)`), so depth follows the palette;
-  the default look moves by at most 6/255. The tokens built from palette tokens (these and
+  steel's look moves by at most 6/255. The tokens built from palette tokens (these and
   `--cb-focus-ring`) are declared again on any `[data-cb-theme]` element, so a subtree with its
   own palette resolves them from it.
 

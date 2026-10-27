@@ -2893,7 +2893,10 @@ async function reloadRows(url) {
         <h3 class="docs-h3" id="tables-grid">Full grid</h3>
         <p class="docs-text">Cells stay on one line, so a wide table scrolls inside
           <code>.cb-table-wrap</code>. <code>--sticky</code> pins the header and the first column (here the
-          select and user columns). A checked row box highlights its row; the header box selects all rows
+          select and user columns). Keep each row's first control (its box or its row header link) in a pinned
+          column: when focus moves back to the start of a row, the browser scrolls that control into view, and a
+          control just right of the pinned column would end up under it (WCAG 2.4.11). A checked row box
+          highlights its row; the header box selects all rows
           (needs <code>cubicle.js</code>). Sorting is done by the server, which re-renders
           <code>aria-sort</code>.</p>
         <div class="docs-demo">
@@ -3412,7 +3415,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-table</code></th><td><code>&lt;table&gt;</code></td><td>Bordered grid; cells styled by element, one line each, 28px rows</td></tr>
               <tr><th scope="row"><code>.cb-table--compact</code></th><td>Table</td><td>24px rows</td></tr>
               <tr><th scope="row"><code>.cb-table--wrap</code></th><td>Table</td><td>Data cells wrap; headers stay on one line</td></tr>
-              <tr><th scope="row"><code>.cb-table--sticky</code></th><td>Table</td><td>Pins the header and the first column (and the one after a select column); its focused wrapper draws the ring outside</td></tr>
+              <tr><th scope="row"><code>.cb-table--sticky</code></th><td>Table</td><td>Pins the header and the first column (and the one after a select column); its focused wrapper draws the ring outside. Keep each row's first control in a pinned column</td></tr>
               <tr><th scope="row"><code>.cb-table__num</code></th><td><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td>Right-aligned numbers</td></tr>
               <tr><th scope="row"><code>.cb-table__select</code></th><td><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td>Narrow centred column for a <code>.cb-check</code></td></tr>
               <tr><th scope="row"><code>.cb-table__actions</code></th><td><code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td><td>Shrinks to its <code>.cb-btn--sm</code> keys, aligned to the end</td></tr>
