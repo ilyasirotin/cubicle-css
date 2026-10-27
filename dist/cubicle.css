@@ -3301,10 +3301,23 @@
     color: var(--_tone);
   }
 
+  /* A message takes its direction from its own first strong letter, as
+     dir="auto" would: a Latin line in a right-to-left console keeps its
+     final punctuation at its end. isolate alone keeps the inherited base
+     direction, which moves that punctuation. The lines still align with
+     the log's direction, next to the level: engines resolve start against
+     the message's own direction differently, and Chromium has no
+     match-parent, so :dir() names the side. */
   .cb-log__msg {
     grid-column: msg;
+    unicode-bidi: plaintext;
+    text-align: left;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+
+    &:dir(rtl) {
+      text-align: right;
+    }
   }
 
   /* One line per entry; the well scrolls sideways. */

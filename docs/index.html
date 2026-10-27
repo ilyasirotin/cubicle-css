@@ -6371,7 +6371,8 @@ function hideLater(message, ms = 10000) {
         <p class="docs-text">Set <code>dir="rtl"</code> on <code>&lt;html&gt;</code> or on any subtree. Layout uses
           logical properties, so padding, edges and columns follow the reading direction; the select
           chevron, the current link's accent bar, the vertical tab line, the disclosure and menu chevrons and
-          the meter marks mirror too. Arrows in text (‹ ›) mirror by themselves.</p>
+          the meter marks mirror too. Arrows in text (‹ ›) mirror by themselves. A log message takes its
+          direction from its own text, so a Latin line keeps its punctuation at its end.</p>
         <div class="docs-demo">
           <div class="cb-grid cb-grid--2" dir="rtl">
             <div class="cb-stack">
@@ -6398,6 +6399,10 @@ function hideLater(message, ms = 10000) {
                 <span class="cb-gauge__value">37%</span>
                 <meter class="cb-meter cb-meter--ticks" id="rtl-cpu" min="0" max="100" low="70" high="90" optimum="0" value="37" data-cb-marks>37%</meter>
               </div>
+              <ol class="cb-log" tabindex="0" aria-label="Right-to-left log">
+                <li data-cb-level="info"><time class="cb-log__time" datetime="2026-10-21T10:42:02Z">10:42:02</time><span class="cb-log__level">INFO</span><span class="cb-log__msg">Peer 10.8.0.2 connected.</span></li>
+                <li data-cb-level="warn"><time class="cb-log__time" datetime="2026-10-21T10:42:09Z">10:42:09</time><span class="cb-log__level">WARN</span><span class="cb-log__msg">No handshake from svc-backup (240 s).</span></li>
+              </ol>
             </div>
             <nav class="cb-tabs cb-tabs--vertical" aria-label="Right-to-left settings">
               <div class="cb-tabs__list">
@@ -6436,6 +6441,10 @@ function hideLater(message, ms = 10000) {
       &lt;span class=&quot;cb-gauge__value&quot;&gt;37%&lt;/span&gt;
       &lt;meter class=&quot;cb-meter cb-meter--ticks&quot; id=&quot;rtl-cpu&quot; min=&quot;0&quot; max=&quot;100&quot; low=&quot;70&quot; high=&quot;90&quot; optimum=&quot;0&quot; value=&quot;37&quot; data-cb-marks&gt;37%&lt;/meter&gt;
     &lt;/div&gt;
+    &lt;ol class=&quot;cb-log&quot; tabindex=&quot;0&quot; aria-label=&quot;Right-to-left log&quot;&gt;
+      &lt;li data-cb-level=&quot;info&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:02Z&quot;&gt;10:42:02&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;INFO&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;Peer 10.8.0.2 connected.&lt;/span&gt;&lt;/li&gt;
+      &lt;li data-cb-level=&quot;warn&quot;&gt;&lt;time class=&quot;cb-log__time&quot; datetime=&quot;2026-10-21T10:42:09Z&quot;&gt;10:42:09&lt;/time&gt;&lt;span class=&quot;cb-log__level&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;cb-log__msg&quot;&gt;No handshake from svc-backup (240 s).&lt;/span&gt;&lt;/li&gt;
+    &lt;/ol&gt;
   &lt;/div&gt;
   &lt;nav class=&quot;cb-tabs cb-tabs--vertical&quot; aria-label=&quot;Right-to-left settings&quot;&gt;
     &lt;div class=&quot;cb-tabs__list&quot;&gt;

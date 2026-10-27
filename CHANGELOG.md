@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Token field.** Several values not added (repeated, or breaking the entry's pattern) no longer
   come back joined by a space into one false value: they are joined by the field's first
   separator, and a field without separators keeps the first in the entry and announces the rest.
+- **Logs.** A message takes its direction from its own text (`unicode-bidi: plaintext`), so a
+  Latin line in a right-to-left console keeps its final punctuation at its end, and its lines still
+  align next to the level column in every engine. The catalogue's right-to-left demo shows a log.
 
 ## [1.0.0] - 2026-10-27
 
