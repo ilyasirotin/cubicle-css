@@ -620,6 +620,30 @@ function findShortFieldControls() {
   return short;
 }
 
+// In-page: appends a wide table in its wrapper and a one-line log, each with a .cb-sr-only label
+// past the right edge, and returns how far the page scrolls sideways; removes them again.
+function measureHiddenTextOverflow() {
+  const fixture = document.body.appendChild(document.createElement('div'));
+  const longText = 'x'.repeat(120);
+  fixture.innerHTML = `<div class="cb-table-wrap"><table class="cb-table"><tbody><tr><td>${longText}</td><td><span class="cb-sr-only">hidden label</span>end</td></tr></tbody></table></div>`
+    + `<ol class="cb-log cb-log--nowrap"><li><span class="cb-log__time">10:00</span><span class="cb-log__level">INFO</span><span class="cb-log__msg">${longText}<span class="cb-sr-only">hidden label</span></span></li></ol>`;
+  const overflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+  fixture.remove();
+  return overflow;
+}
+
+// 2b. A .cb-sr-only label past the right edge of a sideways scroller (a wide table, a one-line log)
+//     stays inside it: the page does not scroll sideways at 360px (WCAG 1.4.10).
+async function checkHiddenTextInScrollers(run) {
+  if (!run.wants('layout')) {
+    return;
+  }
+  const fixturePage = await run.openPage({ viewport: { width: 360, height: 900 } });
+  const overflow = await fixturePage.evaluate(measureHiddenTextOverflow);
+  await fixturePage.close();
+  run.check(overflow === 0, 'hidden text past the edge of a wide table or a one-line log does not widen the page at 360px', `${overflow}px`);
+}
+
 // 2. No horizontal overflow at 360, 800 and 1360px, and none at 320px with every panel open
 async function checkLayout(run) {
   if (!run.wants('layout')) {
@@ -6012,6 +6036,7 @@ async function runChecks() {
   checkConsole(run, consoleProblems);
   await checkOverridesServed(run, options);
   await checkLayout(run);
+  await checkHiddenTextInScrollers(run);
   await checkControls(run);
   const measuredPairs = await checkContrastPairs(run);
   await checkControlStates(run);
