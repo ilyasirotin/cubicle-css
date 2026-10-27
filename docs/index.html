@@ -210,7 +210,7 @@ async function reloadRows(url) {
               <tr><td><span class="docs-chip docs-chip--bg-zebra"></span></td><th scope="row"><code>--cb-bg-zebra</code></th><td><code>#edf0f4</code></td><td>Alternating table row tint</td></tr>
               <tr><td><span class="docs-chip docs-chip--bg-hover"></span></td><th scope="row"><code>--cb-bg-hover</code></th><td><code>#e2e8f0</code></td><td>Row and item hover highlight</td></tr>
               <tr><td><span class="docs-chip docs-chip--bg-selected"></span></td><th scope="row"><code>--cb-bg-selected</code></th><td><code>#cfe0f5</code></td><td>Selected table row, active tree node</td></tr>
-              <tr><td><span class="docs-chip docs-chip--bg-backdrop"></span></td><th scope="row"><code>--cb-bg-backdrop</code></th><td><code>rgba(15, 23, 42, 0.45)</code></td><td>Dimmed page under modal dialogs</td></tr>
+              <tr><td><span class="docs-chip docs-chip--bg-backdrop"></span></td><th scope="row"><code>--cb-bg-backdrop</code></th><td><code>color-mix(in srgb, var(--cb-text-main) 45%, transparent)</code></td><td>Dimmed page under modal dialogs, in the main ink</td></tr>
               <tr><td><span class="docs-chip docs-chip--text-main"></span></td><th scope="row"><code>--cb-text-main</code></th><td><code>#11161d</code></td><td>Primary high-contrast ink</td></tr>
               <tr><td><span class="docs-chip docs-chip--text-muted"></span></td><th scope="row"><code>--cb-text-muted</code></th><td><code>#4b5563</code></td><td>Secondary labels, metadata, hints</td></tr>
               <tr><td><span class="docs-chip docs-chip--text-disabled"></span></td><th scope="row"><code>--cb-text-disabled</code></th><td><code>#8892a0</code></td><td>Disabled control text</td></tr>
@@ -230,7 +230,9 @@ async function reloadRows(url) {
         <!-- Depth -------------------------------------------------------- -->
         <h3 class="docs-h3" id="tokens-depth">Depth &amp; shadow</h3>
         <p class="docs-text">Multi-layer micro-bevels give controls physical volume. Values are in
-          <code>dist/cubicle.css</code>, section 2.5.</p>
+          <code>dist/cubicle.css</code>, sections 2.5 and 2.9. Shades mix the main ink
+          (<code>--cb-text-main</code>) and the floating frame uses <code>--cb-border-strong</code>, so depth
+          follows the palette.</p>
         <div class="cb-table-wrap docs-ref">
           <table class="cb-table cb-table--wrap">
             <thead>

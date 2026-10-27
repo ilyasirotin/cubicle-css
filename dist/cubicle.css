@@ -9,7 +9,8 @@
    --------------------------------------------------------------------------
    0. Layer order
    1. Reset ........... box model, body margin, form-control font inheritance
-   2. Tokens .......... colour, depth, geometry, spacing, type, motion
+   2. Tokens .......... colour, depth, geometry, spacing, type, motion; tokens derived
+                        from the palette, declared again on [data-cb-theme] subtrees
    3. Base ............ document typography, links, monospace (no ligatures), focus ring
    4. Layout
       4.1 Application shell .. .cb-app top / banner / side / main / status regions;
@@ -126,7 +127,6 @@
     --cb-bg-zebra: #edf0f4;        /* Alternating table row tint */
     --cb-bg-hover: #e2e8f0;        /* Crisp row/item hover highlight */
     --cb-bg-selected: #cfe0f5;     /* Selected table row / active tree node */
-    --cb-bg-backdrop: rgba(15, 23, 42, 0.45); /* Dimmed page under modal dialogs */
 
     /* 2.2 Typography & ink (cool deep slate) */
     --cb-text-main: #11161d;       /* Primary high-contrast ink */
@@ -146,29 +146,9 @@
     --cb-danger: #991b1b;          /* Deep crimson (Revoked, Offline, Destructive) */
     --cb-info: #075985;            /* Technical slate-blue (System notice) */
 
-    /* 2.5 Tactile depth & lighting (crisp micro-bevel, subtle 3D volume) */
-    --cb-shadow-outset:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
-      inset 1px 0 0 0 rgba(255, 255, 255, 0.45),
-      inset 0 -1px 0 0 rgba(15, 23, 42, 0.16),
-      0 1px 1px 0 rgba(15, 23, 42, 0.08);
-    --cb-shadow-outset-dark:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-      inset 0 -1px 0 0 rgba(0, 0, 0, 0.35),
-      0 1px 1px 0 rgba(15, 23, 42, 0.12);
-    --cb-shadow-inset:
-      inset 0 1px 2px 0 rgba(15, 23, 42, 0.14),
-      0 1px 0 0 rgba(255, 255, 255, 0.8);
-    --cb-shadow-pressed:
-      inset 0 1px 3px 0 rgba(15, 23, 42, 0.26),
-      inset 0 0 0 1px rgba(15, 23, 42, 0.08);
-    --cb-shadow-float:
-      0 4px 12px -2px rgba(15, 23, 42, 0.18),
-      0 0 0 1px var(--cb-border-strong);
+    /* 2.5 Tactile depth & lighting (crisp micro-bevel, subtle 3D volume).
+       The shades that take the palette's ink are in 2.9. */
     --cb-shadow-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.6); /* Top-edge light on static chips: badges, LED lamps */
-
-    --cb-grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(15, 23, 42, 0.03) 100%);
-    --cb-grad-btn: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 55%, rgba(15, 23, 42, 0.05) 100%);
     --cb-grad-btn-dark: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(0, 0, 0, 0.12) 100%);
 
     /* 2.6 Geometry, spacing & density */
@@ -202,8 +182,42 @@
     /* 2.8 Motion & focus */
     --cb-duration: 50ms;           /* Instantaneous mechanical feedback */
     --cb-duration-spin: 800ms;     /* One stepped revolution of the busy spinner */
-    --cb-focus-ring: 2px solid var(--cb-accent);
     --cb-focus-offset: 1px;
+  }
+
+  /* 2.9 Tokens derived from the palette. A custom property resolves its
+     var() where it is declared, so these are declared again on any
+     [data-cb-theme] subtree: there they follow that subtree's palette
+     instead of the page's. Shades mix the main ink, so they follow it too.
+     Constant tokens stay on :root alone, so a themed subtree keeps the
+     density in force around it. */
+  :root,
+  [data-cb-theme] {
+    --cb-bg-backdrop: color-mix(in srgb, var(--cb-text-main) 45%, transparent); /* Dimmed page under modal dialogs */
+
+    --cb-shadow-outset:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      inset 1px 0 0 0 rgba(255, 255, 255, 0.45),
+      inset 0 -1px 0 0 color-mix(in srgb, var(--cb-text-main) 16%, transparent),
+      0 1px 1px 0 color-mix(in srgb, var(--cb-text-main) 8%, transparent);
+    --cb-shadow-outset-dark:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.35),
+      0 1px 1px 0 color-mix(in srgb, var(--cb-text-main) 12%, transparent);
+    --cb-shadow-inset:
+      inset 0 1px 2px 0 color-mix(in srgb, var(--cb-text-main) 14%, transparent),
+      0 1px 0 0 rgba(255, 255, 255, 0.8);
+    --cb-shadow-pressed:
+      inset 0 1px 3px 0 color-mix(in srgb, var(--cb-text-main) 26%, transparent),
+      inset 0 0 0 1px color-mix(in srgb, var(--cb-text-main) 8%, transparent);
+    --cb-shadow-float:
+      0 4px 12px -2px color-mix(in srgb, var(--cb-text-main) 18%, transparent),
+      0 0 0 1px var(--cb-border-strong);
+
+    --cb-grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, color-mix(in srgb, var(--cb-text-main) 3%, transparent) 100%);
+    --cb-grad-btn: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 55%, color-mix(in srgb, var(--cb-text-main) 5%, transparent) 100%);
+
+    --cb-focus-ring: 2px solid var(--cb-accent);
   }
 
   /* Density: the same screen tighter or roomier, on <html> or any subtree.

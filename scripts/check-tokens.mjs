@@ -12,7 +12,8 @@
 //                 5. density blocks ([data-cb-density]) only redefine tokens that :root declares;
 //                 6. CSS system colour keywords (Canvas, Highlight, GrayText...) appear only
 //                    inside @media (forced-colors: active).
-//                 Default values are read from the :root block of @layer tokens.
+//                 Default values are read from the rules of @layer tokens whose selector list
+//                 includes :root.
 // Exit code:      0 when every check passes, 1 otherwise.
 
 import { readFileSync } from 'node:fs';
@@ -111,7 +112,8 @@ function findClosingBrace(text, openOffset) {
 }
 
 // Reads @layer tokens { ... } of a comment-free stylesheet.
-// Returns { layerFound, declared, overrides }: declared maps each :root token to its
+// Returns { layerFound, declared, overrides }: declared maps each token of a rule whose selector
+// list includes :root (also ":root, [data-cb-theme]", the tokens derived from the palette) to its
 // whitespace-normalised value; overrides lists [selector, token names] for every other block
 // (the density modes).
 function readDeclaredTokens(css) {
@@ -127,9 +129,10 @@ function readDeclaredTokens(css) {
   const layerBody = css.slice(openOffset + 1, closeOffset);
 
   for (const [, rawSelector, block] of layerBody.matchAll(FLAT_RULE_PATTERN)) {
-    const selector = rawSelector.trim();
+    const selector = squashWhitespace(rawSelector);
     const declarations = [...block.matchAll(TOKEN_DECLARATION_PATTERN)];
-    if (selector === ':root') {
+    const selectorList = selector.split(',').map((part) => part.trim());
+    if (selectorList.includes(':root')) {
       for (const [, name, value] of declarations) {
         declared.set(name, squashWhitespace(value));
       }
