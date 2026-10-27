@@ -4,6 +4,7 @@
 // Run:            node scripts/verify-browser.mjs [docs/index.html] [--browser chromium|firefox|webkit]
 //                                                 [--css dist/cubicle.min.css] [--js dist/cubicle.min.js]
 //                                                 [--only forms,keyboard] [--shots tmp/shots/x]
+//                                                 [--theme glacier]
 //                 --browser picks the engine (chromium by default).
 //                 --only runs the named groups of checks (GROUPS below) plus the console check,
 //                 for quick runs while working on one part; the full run is the verdict.
@@ -11,7 +12,11 @@
 //                 so runs can go side by side (scripts/verify-matrix.mjs does that); --shots none
 //                 saves none, for quick runs.
 //                 --css / --js serve the given file in place of dist/cubicle.css / dist/cubicle.js
-//                 (to check the minified build).
+//                 (to check the minified build). The repository is served over local HTTP, so
+//                 these overrides hold in every engine; check 0 fails when one was not served.
+//                 --theme serves the page with data-cb-theme="<name>" on <html>, so every check runs
+//                 in that palette; the catalogue's contrast table (check 22) documents the default
+//                 palette and is not compared then.
 //                 Known engine limits (ENGINE_LIMITS below) are reported as "skip", with the reason.
 // Output:         a pass/fail report and screenshots in tmp/shots/ (git-ignored, or --shots), including
 //                 state-<element>-<rest|hover|focus|active>.png for every interactive demo control
@@ -32,9 +37,10 @@
 
 
 import { chromium, firefox, webkit } from 'playwright';
-import { mkdirSync, readFileSync } from 'node:fs';
-import { resolve, dirname, relative } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { mkdirSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { resolve, dirname, relative, extname, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { measurePairs, contrastRatio, colourLabel } from './contrast-pairs.mjs';
 
 // =====================================================================================
@@ -43,6 +49,20 @@ import { measurePairs, contrastRatio, colourLabel } from './contrast-pairs.mjs';
 
 const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ENGINES = { chromium, firefox, webkit };
+// The pages are served over local HTTP, not file://: Firefox does not route file:// requests,
+// so --css, --js and --theme are applied by the server, the same way in every engine.
+const SERVER_HOST = '127.0.0.1';
+const CONTENT_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+};
 const DEFAULT_ENGINE = 'chromium';
 const DEFAULT_PAGE = 'docs/index.html';
 const DEFAULT_SHOTS_DIRECTORY = 'tmp/shots';
@@ -54,6 +74,29 @@ const GROUPS = [
   'props', 'busy', 'empty', 'toasts', 'menu', 'log', 'split', 'forced', 'rtl', 'recipes', 'print', 'targets', 'tokens',
   'themes', 'example',
 ];
+
+// The named themes of dist/cubicle.css (2.10), the one :root paints, and what --theme accepts.
+const THEME_NAMES = ['steel', 'glacier', 'industrial', 'monochrome'];
+const DEFAULT_THEME = 'steel';
+const THEME_NAME_PATTERN = /^[a-z-]+$/;
+// The palette a theme redefines (the backdrop and the shades derive from it, section 2.9).
+const PALETTE_TOKENS = [
+  '--cb-bg-canvas', '--cb-bg-surface', '--cb-bg-raised', '--cb-bg-btn', '--cb-bg-recessed', '--cb-bg-header',
+  '--cb-bg-zebra', '--cb-bg-hover', '--cb-bg-selected',
+  '--cb-text-main', '--cb-text-muted', '--cb-text-disabled', '--cb-text-inverse',
+  '--cb-border-subtle', '--cb-border-main', '--cb-border-strong',
+  '--cb-accent', '--cb-ok', '--cb-warn', '--cb-danger', '--cb-info',
+];
+// Check 39: surface pairs that must stay apart (RGB distance, colourDistance), so zebra, hover,
+// selection, header bars and wells stay visible; and the status tones, so LEDs stay apart. Steel's
+// closest pairs are zebra/surface (10) and warn/danger (52).
+const LAYER_PAIRS = [
+  ['--cb-bg-canvas', '--cb-bg-surface'], ['--cb-bg-header', '--cb-bg-surface'], ['--cb-bg-zebra', '--cb-bg-surface'],
+  ['--cb-bg-hover', '--cb-bg-zebra'], ['--cb-bg-selected', '--cb-bg-hover'], ['--cb-bg-recessed', '--cb-bg-surface'],
+];
+const LAYER_MIN_DISTANCE = 8;
+const STATUS_TONES_FOR_LAMPS = ['--cb-ok', '--cb-warn', '--cb-danger', '--cb-info'];
+const LAMP_MIN_DISTANCE = 40;
 
 // The main page's viewport, and the widths checked for layout and section screenshots.
 const DESKTOP_VIEWPORT = { width: 1360, height: 900 };
@@ -239,6 +282,7 @@ function parseArguments(argv) {
   const shotsArgument = takeOption('--shots', DEFAULT_SHOTS_DIRECTORY) ?? '';
   const onlyArgument = takeOption('--only', null);
   const only = onlyArgument === null ? null : (onlyArgument ?? '').split(',').filter(Boolean);
+  const theme = takeOption('--theme', null);
 
   return {
     cssOverride: cssOverride === null ? null : resolve(REPOSITORY_ROOT, cssOverride ?? ''),
@@ -246,6 +290,7 @@ function parseArguments(argv) {
     engine,
     shotsArgument,
     only,
+    theme: theme === null ? null : theme ?? '',
     pagePath: resolve(REPOSITORY_ROOT, remaining[0] ?? DEFAULT_PAGE),
   };
 }
@@ -253,6 +298,54 @@ function parseArguments(argv) {
 // =====================================================================================
 // Helpers
 // =====================================================================================
+
+// Serves the repository on a free local port, with the overrides of the command line: the --css
+// and --js files in place of dist/cubicle.css and dist/cubicle.js, and the page under test with
+// data-cb-theme on <html> for --theme. `served` counts each override delivered, so a run can tell
+// that its options took effect. Resolves to { server, origin, served }.
+function startRepositoryServer(options) {
+  const served = { css: 0, js: 0, theme: 0 };
+  const overrideFiles = new Map();
+  if (options.cssOverride) {
+    overrideFiles.set(resolve(REPOSITORY_ROOT, 'dist/cubicle.css'), ['css', options.cssOverride]);
+  }
+  if (options.jsOverride) {
+    overrideFiles.set(resolve(REPOSITORY_ROOT, 'dist/cubicle.js'), ['js', options.jsOverride]);
+  }
+
+  const handleRequest = (request, response) => {
+    const requestPath = decodeURIComponent(new URL(request.url, 'http://host').pathname);
+    const filePath = resolve(REPOSITORY_ROOT, `.${requestPath}`);
+    const insideRepository = filePath === REPOSITORY_ROOT || filePath.startsWith(REPOSITORY_ROOT + sep);
+    if (!insideRepository || !existsSync(filePath) || !statSync(filePath).isFile()) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+    const contentType = CONTENT_TYPES[extname(filePath)] ?? 'application/octet-stream';
+    let body = null;
+    const override = overrideFiles.get(filePath);
+    if (override) {
+      const [kind, overridePath] = override;
+      served[kind] += 1;
+      body = readFileSync(overridePath);
+    } else if (options.theme && filePath === options.pagePath) {
+      served.theme += 1;
+      body = readFileSync(filePath, 'utf8').replace('<html', `<html data-cb-theme="${options.theme}"`);
+    } else {
+      body = readFileSync(filePath);
+    }
+    response.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': 'no-store' });
+    response.end(body);
+  };
+
+  const server = createServer(handleRequest);
+  return new Promise((started) => {
+    server.listen(0, SERVER_HOST, () => {
+      started({ server, origin: `http://${SERVER_HOST}:${server.address().port}`, served });
+    });
+  });
+}
 
 // Reading the clipboard from automation is refused in WebKit; null means "could not read".
 function readClipboard(page) {
@@ -322,12 +415,13 @@ function formatResult(result, engine) {
 // Everything the check groups share: the engine and its keys, the browser, the main page, the
 // result list and the screenshot writer. Created once by runChecks().
 async function createRun(options) {
-  const { engine, cssOverride, jsOverride } = options;
+  const { engine } = options;
   // --shots none saves no screenshot (pixel checks still take theirs in memory) and skips the
   // width changes made only for them, keeping the last width, which later checks start from.
   const saving = options.shotsArgument !== 'none';
   const shotsDirectory = saving ? resolve(REPOSITORY_ROOT, options.shotsArgument) : null;
-  const pageUrl = pathToFileURL(options.pagePath).href;
+  const { server, origin, served } = await startRepositoryServer(options);
+  const pageUrl = `${origin}/${relative(REPOSITORY_ROOT, options.pagePath).split(sep).join('/')}`;
   const results = [];
 
   const check = (ok, name, detail = '') => {
@@ -347,16 +441,6 @@ async function createRun(options) {
     return target.screenshot({ caret: 'initial', ...screenshotOptions, path: resolve(shotsDirectory, name) });
   };
 
-  // --css and --js serve another file in place of the stylesheet or the script.
-  const applyOverrides = async (targetPage) => {
-    if (cssOverride) {
-      await targetPage.route(/\/dist\/cubicle\.css$/, (route) => route.fulfill({ path: cssOverride, contentType: 'text/css' }));
-    }
-    if (jsOverride) {
-      await targetPage.route(/\/dist\/cubicle\.js$/, (route) => route.fulfill({ path: jsOverride, contentType: 'text/javascript' }));
-    }
-  };
-
   // Firefox on macOS skips links on Tab unless "full keyboard access" is on; keyboard users turn it
   // on, and the audit must walk the same path, so the preference is set here.
   const launchOptions = engine === 'firefox' ? { firefoxUserPrefs: { 'accessibility.tabfocus': 7 } } : {};
@@ -368,13 +452,12 @@ async function createRun(options) {
   const page = await context.newPage();
 
   // A fresh tab of the page under test: optional setup before load (a clock, an init script),
-  // the overrides, an optional viewport, then the page.
+  // an optional viewport, then the page.
   const openPage = async ({ browserContext = context, beforeLoad, viewport } = {}) => {
     const freshPage = await browserContext.newPage();
     if (beforeLoad) {
       await beforeLoad(freshPage);
     }
-    await applyOverrides(freshPage);
     if (viewport) {
       await freshPage.setViewportSize(viewport);
     }
@@ -388,6 +471,7 @@ async function createRun(options) {
     tabKey: engine === 'webkit' ? 'Alt+Tab' : 'Tab',
     shiftTabKey: engine === 'webkit' ? 'Alt+Shift+Tab' : 'Shift+Tab',
     only: options.only,
+    theme: options.theme,
     wants: (group) => !options.only || options.only.includes(group),
     saving,
     shotsDirectory,
@@ -395,8 +479,9 @@ async function createRun(options) {
     results,
     check,
     snap,
-    applyOverrides,
     openPage,
+    server,
+    served,
     browser,
     engineVersion: browser.version(),
     contextOptions,
@@ -3109,7 +3194,7 @@ async function checkKeyboardAudit(run) {
 // 22. The catalogue's contrast table (generated from scripts/contrast-pairs.mjs) matches the
 //     live ratios row for row, so a token change cannot leave it stale.
 async function checkContrastTable(run, measuredPairs) {
-  if (!run.wants('contrast')) {
+  if (!run.wants('contrast') || run.theme) {
     return;
   }
   const tableRows = await run.page.$$eval('#a11y-contrast-table tbody tr', (rows) => {
@@ -5522,13 +5607,107 @@ function measureThemedSubtree(tokenProbes) {
   return { tokens, ring };
 }
 
+// In-page: the palette of the page and of a subtree for each named theme, as [r, g, b] per token.
+function measureThemePalettes([themeNames, paletteTokens]) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  const canvasContext = canvas.getContext('2d', { willReadFrequently: true });
+  const paletteIn = (container) => {
+    const probe = container.appendChild(document.createElement('i'));
+    const palette = {};
+    for (const token of paletteTokens) {
+      probe.style.color = `var(${token})`;
+      canvasContext.clearRect(0, 0, 1, 1);
+      canvasContext.fillStyle = getComputedStyle(probe).color;
+      canvasContext.fillRect(0, 0, 1, 1);
+      const pixel = canvasContext.getImageData(0, 0, 1, 1).data;
+      palette[token] = [pixel[0], pixel[1], pixel[2]];
+    }
+    probe.remove();
+    return palette;
+  };
+  const themes = {};
+  for (const themeName of themeNames) {
+    const subtree = document.body.appendChild(document.createElement('div'));
+    subtree.dataset.cbTheme = themeName;
+    themes[themeName] = paletteIn(subtree);
+    subtree.remove();
+  }
+  return { page: paletteIn(document.body), themes };
+}
+
+// The layer pairs and status-tone pairs of one palette that are closer than their minimum.
+function findCloseColours(palette) {
+  const close = [];
+  for (const [first, second] of LAYER_PAIRS) {
+    const distance = colourDistance(palette[first], palette[second]);
+    if (distance < LAYER_MIN_DISTANCE) {
+      close.push(`${first}/${second} ${distance.toFixed(1)}`);
+    }
+  }
+  STATUS_TONES_FOR_LAMPS.forEach((first, i) => {
+    for (const second of STATUS_TONES_FOR_LAMPS.slice(i + 1)) {
+      const distance = colourDistance(palette[first], palette[second]);
+      if (distance < LAMP_MIN_DISTANCE) {
+        close.push(`${first}/${second} ${distance.toFixed(1)}`);
+      }
+    }
+  });
+  return close;
+}
+
+// 0. The command line took effect: the --css and --js files were served in place of the shipped
+//    ones, and under --theme the page carries the theme on <html>. Without this a run could pass
+//    on the wrong files (Firefox never routed file:// requests, so --css once tested nothing).
+async function checkOverridesServed(run, options) {
+  const wanted = [];
+  if (options.cssOverride) {
+    wanted.push(['css', relative(REPOSITORY_ROOT, options.cssOverride)]);
+  }
+  if (options.jsOverride) {
+    wanted.push(['js', relative(REPOSITORY_ROOT, options.jsOverride)]);
+  }
+  if (options.theme) {
+    wanted.push(['theme', `data-cb-theme="${options.theme}"`]);
+  }
+  if (!wanted.length) {
+    return;
+  }
+  const pageTheme = await run.page.evaluate(() => document.documentElement.dataset.cbTheme ?? '');
+  const missed = wanted.filter(([kind]) => !run.served[kind] || (kind === 'theme' && pageTheme !== options.theme));
+  const detail = wanted.map(([kind, what]) => `${what} ${run.served[kind]}x`).join(', ');
+  run.check(!missed.length, 'command-line overrides were served (--css, --js, --theme)', detail);
+}
+
 // 39. Themes. Inside a [data-cb-theme] subtree, every token built from the palette (focus ring,
 //     shadows, gradients, backdrop) follows the subtree's palette instead of the page's: the ring
-//     takes the subtree accent and each shade differs from the page's.
+//     takes the subtree accent and each shade differs from the page's. Each named theme exists:
+//     steel paints as the default page, the other three differ from it and from each other; and
+//     in every theme the surface layers and the status tones stay apart.
 async function checkThemes(run) {
   if (!run.wants('themes')) {
     return;
   }
+  const palettes = await run.page.evaluate(measureThemePalettes, [THEME_NAMES, PALETTE_TOKENS]);
+  const signatureOf = (palette) => JSON.stringify(PALETTE_TOKENS.map((token) => palette[token]));
+  // Under --theme the page must paint as that theme; otherwise as the default one.
+  const expectedTheme = run.theme ?? DEFAULT_THEME;
+  const expectedPalette = palettes.themes[expectedTheme];
+  const pageMatches = Boolean(expectedPalette) && signatureOf(expectedPalette) === signatureOf(palettes.page);
+  const signatures = THEME_NAMES.map((themeName) => signatureOf(palettes.themes[themeName]));
+  const allDistinct = new Set(signatures).size === THEME_NAMES.length;
+  const namedDetail = `page as ${expectedTheme}: ${pageMatches}, ${new Set(signatures).size} distinct palettes of ${THEME_NAMES.length}`;
+  run.check(pageMatches && allDistinct, `themes: the page paints as ${expectedTheme}, and the ${THEME_NAMES.length} named themes are distinct palettes`, namedDetail);
+
+  const closeColours = [];
+  for (const themeName of THEME_NAMES) {
+    for (const problem of findCloseColours(palettes.themes[themeName])) {
+      closeColours.push(`${themeName}: ${problem}`);
+    }
+  }
+  run.check(!closeColours.length, 'themes: in every theme the surface layers and the status lamps stay apart', closeColours.slice(0, 4).join(' | '));
+
   const subtree = await run.page.evaluate(measureThemedSubtree, DERIVED_TOKEN_PROBES);
   const unchanged = subtree.tokens.filter((entry) => entry.themed === entry.page).map((entry) => entry.token);
   const ringFollows = subtree.ring === 'rgb(255, 0, 0)';
@@ -5549,6 +5728,10 @@ async function runChecks() {
   if (options.shotsArgument !== 'none') {
     mkdirSync(resolve(REPOSITORY_ROOT, options.shotsArgument), { recursive: true });
   }
+  if (options.theme !== null && !THEME_NAME_PATTERN.test(options.theme)) {
+    console.error(`--theme takes a theme name such as ${THEME_NAMES.join(', ')}`);
+    process.exit(2);
+  }
   const onlyIsInvalid = options.only && (!options.only.length || options.only.some((group) => !GROUPS.includes(group)));
   if (onlyIsInvalid) {
     console.error(`unknown --only group in "${options.only.join(',')}"; use ${GROUPS.join(', ')}`);
@@ -5563,12 +5746,12 @@ async function runChecks() {
     }
   });
   run.page.on('pageerror', (error) => consoleProblems.push(error.message));
-  await run.applyOverrides(run.page);
   await run.page.goto(run.pageUrl);
 
   // The groups run in this order on one page; later checks start from the state earlier ones
   // leave (scroll position, viewport width, opened panels).
   checkConsole(run, consoleProblems);
+  await checkOverridesServed(run, options);
   await checkLayout(run);
   await checkControls(run);
   const measuredPairs = await checkContrastPairs(run);
@@ -5614,19 +5797,21 @@ async function runChecks() {
   await checkExampleTreeFilter(run);
 
   await run.browser.close();
+  run.server.close();
 
   const { results, engine } = run;
   const failedCount = results.filter((result) => !result.ok).length;
   const skippedCount = results.filter((result) => result.skip).length;
   const skippedNote = skippedCount ? ` (${skippedCount} skipped as engine limits)` : '';
   const onlyNote = run.only ? ` (only ${run.only.join(', ')})` : '';
+  const themeNote = run.theme ? ` (theme ${run.theme})` : '';
   const shotsNote = run.saving ? `${relative(REPOSITORY_ROOT, run.shotsDirectory)}/` : 'none';
   const passedCount = results.length - failedCount;
   let report = '';
   for (const result of results) {
     report += `${formatResult(result, engine)}\n`;
   }
-  report += `\n${engine} ${run.engineVersion}: ${passedCount}/${results.length} checks passed${skippedNote}${onlyNote}. Screenshots: ${shotsNote}\n`;
+  report += `\n${engine} ${run.engineVersion}: ${passedCount}/${results.length} checks passed${skippedNote}${onlyNote}${themeNote}. Screenshots: ${shotsNote}\n`;
   // The whole report is written here, in one burst. process.exit() would drop what a pipe (the
   // matrix reads this through one) has not taken yet, so wait until the write has completed.
   await new Promise((resolveWrite) => process.stdout.write(report, resolveWrite));
