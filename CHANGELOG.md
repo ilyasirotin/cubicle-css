@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Chips.** A value that wraps keeps the room above and below it that one line has, instead of
   touching the frame; a one-line chip stays `--cb-row-h-sm` tall and the remove key still covers
   the frame.
+- **Token field.** Several values not added (repeated, or breaking the entry's pattern) no longer
+  come back joined by a space into one false value: they are joined by the field's first
+  separator, and a field without separators keeps the first in the entry and announces the rest.
 
 ## [1.0.0] - 2026-10-27
 

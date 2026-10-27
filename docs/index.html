@@ -1854,7 +1854,8 @@ async function reloadRows(url) {
           the box and after it, and into both labels), the characters in <code>data-cb-tokens</code> and a
           pasted list add several, and a chip's key removes it. The entry's own <code>pattern</code> or
           <code>type</code> decides what is valid, so a block that breaks it stays in the entry, as does a value
-          already listed. A form reset puts back the chips the page was served with.</p>
+          already listed. Several such values stay joined by the first separator; a field without separators
+          keeps the first and announces the rest. A form reset puts back the chips the page was served with.</p>
         <p class="docs-text">Without the script the boxes show and the keys stay hidden: unticking a box strikes
           the value through and drops it when the form is sent, and the entry sends one more value. The field
           holds no submit key, so Enter in any field still presses the form's own. A rejected value takes

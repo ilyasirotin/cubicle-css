@@ -42,7 +42,10 @@
  *                                              a resize
  *   data-cb-tokens="<separators>" (on a        token field: Enter, a separator character
  *     .cb-tokens well)                         or a pasted list adds values as chips copied
- *                                              from the field's <template>; a chip's key, or
+ *                                              from the field's <template>; values not added
+ *                                              stay in the entry, joined by the first
+ *                                              separator (without one: the first stays and
+ *                                              the rest are announced); a chip's key, or
  *                                              Delete and Backspace on it, removes it;
  *                                              Backspace in an empty entry reaches the last key;
  *                                              a form reset restores the served chips
@@ -554,8 +557,12 @@
     return parts;
   };
 
-  // What an add says: the values added and a value that was already listed.
-  const additionMessage = (added, repeated) => {
+  // The first separator of a field, '' when Enter and newlines are its only ones.
+  const firstSeparatorOf = (field) => (field.getAttribute('data-cb-tokens') ?? '').charAt(0);
+
+  // What an add says: the values added, a value that was already listed and
+  // the values that could not go back into the entry.
+  const additionMessage = (added, repeated, dropped) => {
     const messages = [];
     if (added.length === 1) {
       messages.push(`Added ${added[0]}`);
@@ -564,6 +571,10 @@
     }
     if (repeated) {
       messages.push(`${repeated} is already in the list`);
+    }
+    if (dropped.length) {
+      const quoted = dropped.map((value) => `"${value}"`);
+      messages.push(`Not added: ${quoted.join(', ')}`);
     }
     return messages.join('; ');
   };
@@ -604,8 +615,18 @@
       list.append(chip);
       added.push(value);
     }
-    entry.value = kept.join(' ');
-    const message = additionMessage(added, repeated);
+    // Joined by the field's separator, the values not added split again on
+    // the next add. Without one they cannot share the entry: it keeps the
+    // first, and the announcement names the rest.
+    const separator = firstSeparatorOf(field);
+    let dropped = [];
+    if (separator) {
+      entry.value = kept.join(separator);
+    } else {
+      entry.value = kept[0] ?? '';
+      dropped = kept.slice(1);
+    }
+    const message = additionMessage(added, repeated, dropped);
     if (message) {
       announce(message);
     }
@@ -817,11 +838,12 @@
     }
     // A typed separator adds the values before it; the rest stays.
     if (control.matches(ENTRY)) {
-      const parts = splitTokens(control.closest(TOKENS), control.value);
+      const field = control.closest(TOKENS);
+      const parts = splitTokens(field, control.value);
       if (parts.length > 1) {
         const rest = parts.pop();
         addTokens(control, parts);
-        control.value = [control.value, rest].filter(Boolean).join(' ');
+        control.value = [control.value, rest].filter(Boolean).join(firstSeparatorOf(field));
       }
     }
     if (!control.id) {
