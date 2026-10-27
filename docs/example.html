@@ -32,8 +32,14 @@
       <strong>Corp VPN Console</strong>
       <span class="cb-badge cb-badge--solid cb-badge--danger">prod</span>
       <span class="cb-muted">corp.example.net</span>
-      <span class="cb-muted">alice.ng (network operations)</span>
-      <a class="cb-btn cb-btn--sm" href="index.html">Sign out</a>
+      <button class="cb-btn cb-btn--sm" type="button" popovertarget="x-account-menu" aria-haspopup="menu" aria-label="Account alice.ng, network operations">alice.ng</button>
+      <div class="cb-menu" id="x-account-menu" popover role="menu" aria-label="Account alice.ng" data-cb-menu>
+        <a class="cb-menu__item" role="menuitem" href="index.html#recipes-account">Profile</a>
+        <a class="cb-menu__item" role="menuitem" href="index.html#recipes-account">API keys</a>
+        <a class="cb-menu__item" role="menuitem" href="index.html#recipes-account">Sessions</a>
+        <hr>
+        <a class="cb-menu__item cb-menu__item--danger" role="menuitem" href="index.html">Sign out</a>
+      </div>
     </header>
 
     <div class="cb-app__banner">
