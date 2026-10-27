@@ -1711,22 +1711,26 @@
     list-style: none;
   }
 
+  /* The block padding is the room one line has when centred in the frame,
+     so a wrapped value keeps it and one line stays --cb-row-h-sm tall. */
   .cb-chip {
+    --_pad: calc((var(--cb-row-h-sm) - 2px - var(--cb-text-xs) * var(--cb-line-tight)) / 2);
     display: inline-flex;
     align-items: center;
     max-inline-size: 100%;
     min-block-size: var(--cb-row-h-sm);
-    padding-inline: var(--cb-space-2);
+    padding: var(--_pad) var(--cb-space-2);
     overflow-wrap: anywhere; /* a long DN wraps instead of overflowing */
   }
 
-  /* The key overlaps the chip's frame on the top, bottom and end, so the
-     two read as one frame; it stays square at the top when the value wraps. */
+  /* The key overlaps the chip's padding and frame on the top, bottom and
+     end, so the two read as one frame; it stays square at the top when the
+     value wraps. */
   .cb-chip__remove {
     --_h: var(--cb-row-h-sm);
     flex: none;
     align-self: flex-start;
-    margin-block: -1px;
+    margin-block: calc(-1px - var(--_pad));
     margin-inline: var(--cb-space-2) calc(-1px - var(--cb-space-2));
     font-size: var(--cb-text-xs);
     border-start-start-radius: var(--cb-radius-none);

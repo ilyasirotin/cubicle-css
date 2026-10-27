@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Chips.** A value that wraps keeps the room above and below it that one line has, instead of
+  touching the frame; a one-line chip stays `--cb-row-h-sm` tall and the remove key still covers
+  the frame.
+
 ## [1.0.0] - 2026-10-27
 
 The first release of Cubicle.
