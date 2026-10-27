@@ -15,8 +15,9 @@
 //   spacing   1.4.12 Text Spacing: the WCAG override (line 1.5, letters 0.12em, words 0.16em,
 //             paragraphs 2em) at 1360 and 360px, then text clipped by its own box.
 //   obscured  2.4.11 Focus Not Obscured (Minimum): Tab through the page at 1360 x 800 and at
-//             360 x 640 and list focused elements entirely covered by another box
-//             (sticky heads, fixed toasts, the app frame).
+//             360 x 640, wait for focus scrolling to settle, then list focused elements entirely
+//             covered by another box (sticky heads, fixed toasts, the app frame) and, apart,
+//             those left wholly outside the viewport (out of view, not covered).
 //   --verbose prints every finding with its location, not one example per group.
 //   --as-served measures the page as served. By default closed <details> are opened and hidden
 //             ARIA tab panels shown, so the demos inside them count.
@@ -45,6 +46,8 @@ const OBSCURED_VIEWPORTS = [[1360, 800], [360, 640]];
 const DENSITIES = ['compact', 'default', 'comfortable'];
 // Tab presses per walk at most, in case focus never leaves the page.
 const MAX_TAB_STOPS = 2000;
+// Animation frames to wait at most for focus scrolling to settle after a Tab.
+const FOCUS_SETTLE_FRAMES = 20;
 // Places listed per group of findings before "+N more".
 const PLACES_SHOWN = 4;
 
@@ -200,7 +203,9 @@ const REFLOW_PROBE = `(() => {${IN_PAGE_HELPERS}
   return findings;
 })()`;
 
-// 2.4.11: the focused element, and whether other boxes cover all five sample points of it.
+// 2.4.11: the focused element, and whether it is out of view (its box lies wholly outside the
+// viewport) or covered (other boxes cover every one of its five sample points that lies inside
+// the viewport). A point outside the viewport has no element there, which is not a cover.
 // "end" means focus left the page; "skip" means a dialog or popover holds focus, or the element
 // has no box.
 const FOCUS_COVER_PROBE = `(() => {${IN_PAGE_HELPERS}
@@ -215,28 +220,65 @@ const FOCUS_COVER_PROBE = `(() => {${IN_PAGE_HELPERS}
   if (!box.width || !box.height) {
     return { skip: true };
   }
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = document.documentElement.clientHeight;
+  const isInView = (pointX, pointY) => pointX >= 0 && pointY >= 0 && pointX < viewportWidth && pointY < viewportHeight;
   const samplePoints = [[0.5, 0.5], [0.1, 0.1], [0.9, 0.1], [0.1, 0.9], [0.9, 0.9]].map(([fractionX, fractionY]) => {
     return [box.left + box.width * fractionX, box.top + box.height * fractionY];
   });
+  const pointsInView = samplePoints.filter(([pointX, pointY]) => isInView(pointX, pointY));
   const covers = (topElement) => {
     if (!topElement) {
-      return true;
+      return false;
     }
     const isLabelOfElement = element.labels && [...element.labels].includes(topElement);
     return !element.contains(topElement) && !topElement.contains(element) && topElement.control !== element && !isLabelOfElement;
   };
-  const topElements = samplePoints.map(([pointX, pointY]) => document.elementFromPoint(pointX, pointY));
-  const entirelyCovered = topElements.every(covers);
+  const topElements = pointsInView.map(([pointX, pointY]) => document.elementFromPoint(pointX, pointY));
+  const outOfView = pointsInView.length === 0;
+  const entirelyCovered = !outOfView && topElements.every(covers);
   const documentPosition = [...document.querySelectorAll('*')].indexOf(element);
+  let detail = '';
+  if (entirelyCovered) {
+    detail = 'under ' + signatureOf(topElements[0]);
+  } else if (outOfView) {
+    detail = 'box at ' + Math.round(box.left) + ',' + Math.round(box.top);
+  }
   return {
     key: signatureOf(element) + '@' + documentPosition,
     all: entirelyCovered,
+    outOfView,
     sig: signatureOf(element),
     at: locationOf(element),
     text: shortTextOf(element),
-    detail: entirelyCovered && topElements[0] ? 'under ' + signatureOf(topElements[0]) : '',
+    detail,
   };
 })()`;
+
+// 2.4.11: resolves once the focused element's box is the same on two animation frames in a row,
+// or after FOCUS_SETTLE_FRAMES frames: WebKit scrolls focus into view after the Tab returns.
+const FOCUS_SETTLE_PROBE = `new Promise((settled) => {
+  let framesLeft = ${FOCUS_SETTLE_FRAMES};
+  let lastPosition = '';
+  const positionOfFocus = () => {
+    const box = document.activeElement?.getBoundingClientRect();
+    return box ? box.left + ',' + box.top : '';
+  };
+  const compareOnNextFrame = () => {
+    requestAnimationFrame(() => {
+      const position = positionOfFocus();
+      framesLeft -= 1;
+      if (position === lastPosition || framesLeft <= 0) {
+        settled();
+        return;
+      }
+      lastPosition = position;
+      compareOnNextFrame();
+    });
+  };
+  lastPosition = positionOfFocus();
+  compareOnNextFrame();
+})`;
 
 // --- Helpers -----------------------------------------------------------------------
 
@@ -369,11 +411,13 @@ async function probeFocusObscured(page, options) {
     await page.setViewportSize({ width, height });
     await loadPage(page, options);
     const covered = [];
+    const outOfView = [];
     const seenStops = new Set();
     let lastStop = null;
     // Date and time fields take one Tab per segment, so a repeat of the last stop is not the end.
     for (let i = 0; i < MAX_TAB_STOPS; i++) {
       await page.keyboard.press(tabKey);
+      await page.evaluate(FOCUS_SETTLE_PROBE);
       const stop = await page.evaluate(FOCUS_COVER_PROBE);
       if (stop.end) {
         break;
@@ -393,9 +437,13 @@ async function probeFocusObscured(page, options) {
       if (stop.all) {
         covered.push(stop);
       }
+      if (stop.outOfView) {
+        outOfView.push(stop);
+      }
     }
     console.log('');
     printFindings(`2.4.11 Focus not obscured at ${width}px (${seenStops.size} stops), entirely covered`, covered, options.verbose);
+    printFindings(`2.4.11 Focus not obscured at ${width}px, out of view after scrolling`, outOfView, options.verbose);
   }
 }
 

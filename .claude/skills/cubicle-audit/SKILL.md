@@ -56,7 +56,7 @@ node .claude/skills/cubicle-audit/scripts/wcag-probe.mjs docs/index.html
 node .claude/skills/cubicle-audit/scripts/wcag-probe.mjs docs/example.html --browser webkit
 ```
 
-It reports 2.5.8 target size per density, 1.4.10 reflow at 320px, 1.4.4 text at 200%, 1.4.12 text spacing and 2.4.11 focus not obscured, each grouped with the `#id` where it occurs. It opens closed `<details>` and shows hidden tab panels first, so the example's Peers, Config and Log tabs count. `--verbose` lists every finding instead of one per group; `--aria "<selector>"` prints the accessibility tree of a widget for 4.1.2, instead of inferring roles from markup. Run it on both pages in both engines; differences between engines are findings too.
+It reports 2.5.8 target size per density, 1.4.10 reflow at 320px, 1.4.4 text at 200%, 1.4.12 text spacing and 2.4.11 focus not obscured (after focus scrolling settles; "entirely covered" and "out of view" are separate lists, and only the first is a 2.4.11 failure by another box), each grouped with the `#id` where it occurs. It opens closed `<details>` and shows hidden tab panels first, so the example's Peers, Config and Log tabs count. `--verbose` lists every finding instead of one per group; `--aria "<selector>"` prints the accessibility tree of a widget for 4.1.2, instead of inferring roles from markup. Run it on both pages in both engines; differences between engines are findings too.
 
 Classify every row as Pass, Fail, Host or n/a, with evidence. Density is a deliberate feature, so a target-size failure is reported with the density that causes it and a concrete remedy or a documented trade-off; do not wave it through, and do not treat opt-in compact density like the default.
 
