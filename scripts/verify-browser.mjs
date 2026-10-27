@@ -4305,8 +4305,8 @@ async function checkMenus(run) {
   check(opens && walks && escapes && arrowsOpen && closes && flips && placesLeft, 'menu with cubicle.js: placed at its key, keys, Escape, Tab, closes on item, outside click and scroll, flips up', JSON.stringify(steps));
 }
 
-// In-page: every demo log, with the problems found in its type, well, columns, gutter, tones,
-// edges, wrapping and scrolling.
+// In-page: every demo log of the Logs section's kind (the right-to-left demo's log is check 34's),
+// with the problems found in its type, well, columns, gutter, tones, edges, wrapping and scrolling.
 function measureLogs() {
   const probe = document.body.appendChild(document.createElement('i'));
   const tokenColour = (name) => {
@@ -4326,7 +4326,7 @@ function measureLogs() {
   probe.remove();
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-  return [...document.querySelectorAll('.docs-demo .cb-log')].map((log, i) => {
+  return [...document.querySelectorAll('.docs-demo .cb-log:not([dir="rtl"] *)')].map((log, i) => {
     const style = getComputedStyle(log);
     const problems = [];
     const isMonoType = style.fontFamily === monoFamily && style.fontSize === '12px' && style.fontVariantNumeric.includes('tabular-nums') && style.fontVariantLigatures === 'none';
@@ -4388,7 +4388,7 @@ function measureLogs() {
 //     :target line selected, wrapping (or one line per entry with --nowrap), scrolling past
 //     20rem, and the focus ring drawn inside.
 async function checkLogs(run) {
-  if (!run.wants('log') || !await run.page.locator('.docs-demo .cb-log').count()) {
+  if (!run.wants('log') || !await run.page.locator('.docs-demo .cb-log:not([dir="rtl"] *)').count()) {
     return;
   }
   const { page, check, snap } = run;
@@ -4684,9 +4684,47 @@ async function countDarkSamples(page, locator, from, to) {
   return darkCount;
 }
 
+// In-page, for the log lines of a right-to-left subtree: whether time, level and message run
+// from the right, whether each message (Latin text) ends with its last character on the right,
+// and whether every line of the message meets the level column (aligned to the right).
+function measureLogLineDirections(lines) {
+  const characterBox = (textNode, offset) => {
+    const range = document.createRange();
+    range.setStart(textNode, offset);
+    range.setEnd(textNode, offset + 1);
+    return range.getBoundingClientRect();
+  };
+  const directions = [];
+  for (const line of lines) {
+    const boxOf = (selector) => line.querySelector(selector).getBoundingClientRect();
+    const time = boxOf('.cb-log__time');
+    const level = boxOf('.cb-log__level');
+    const messageBox = boxOf('.cb-log__msg');
+    const messageText = line.querySelector('.cb-log__msg').firstChild;
+    const firstCharacter = characterBox(messageText, 0);
+    const lastCharacter = characterBox(messageText, messageText.length - 1);
+    const wholeMessage = document.createRange();
+    wholeMessage.selectNodeContents(messageText);
+    // WebKit returns one box per word run, so the right end of each line is the furthest one.
+    const lineEnds = new Map();
+    for (const runBox of wholeMessage.getClientRects()) {
+      const lineTop = Math.round(runBox.top);
+      lineEnds.set(lineTop, Math.max(lineEnds.get(lineTop) ?? -Infinity, runBox.right));
+    }
+    directions.push({
+      text: messageText.textContent,
+      columnsFromRight: time.right > level.right && level.right > messageBox.right,
+      endPunctuationLast: lastCharacter.left > firstCharacter.left,
+      alignedRight: [...lineEnds.values()].every((lineEnd) => messageBox.right - lineEnd < 1),
+    });
+  }
+  return directions;
+}
+
 // 34. Right to left. On the catalogue's dir="rtl" demo: the select chevron sits at the left end,
 //     the current link's accent bar on its right edge, the vertical tab line on the list's left
-//     edge, a closed disclosure chevron points left and an open one down, and the meter's low
+//     edge, a closed disclosure chevron points left and an open one down, log columns run from
+//     the right while a Latin message keeps its final punctuation at its end, and the meter's low
 //     mark sits 70% from the right, where the fill starts. Then both pages with dir="rtl" on
 //     <html> have no horizontal overflow at 360, 800 and 1360px.
 async function checkRightToLeft(run) {
@@ -4744,6 +4782,9 @@ async function checkRightToLeft(run) {
     const mirrored = chevron.left > 0 && bar.right < bar.left - 40 && /^0(%|px)$/.test(geometry.line) && geometry.closed === '45deg' && geometry.open === '-45deg' && geometry.sheet;
     const mirroredName = 'right to left: select chevron at the left, accent bar on the right, tab line on the left and the selected tab joined to its panel, chevrons turned';
     check(mirrored, mirroredName, JSON.stringify({ chevron, bar, geo: geometry }));
+    const logLines = await page.$$eval('.docs-demo > [dir="rtl"] .cb-log > li', measureLogLineDirections);
+    const logReadsRight = logLines.length > 0 && logLines.every((line) => line.columnsFromRight && line.endPunctuationLast && line.alignedRight);
+    check(logReadsRight, 'right to left: log columns run from the right, and a Latin message keeps its final punctuation at its end, aligned to its level', JSON.stringify(logLines));
     if (hasRulerStrip) {
       const marksFromRight = marks.length === 2 && Math.abs(marks[0] - 0.1) < 0.03 && Math.abs(marks[1] - 0.3) < 0.03;
       check(marksFromRight, 'right to left: the meter marks count from the right, where the fill starts', `marks at ${marks.join(', ')}`);
