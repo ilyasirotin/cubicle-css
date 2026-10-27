@@ -130,7 +130,10 @@ const ACTION_ATTRIBUTES = ['data-cb-copy', 'data-cb-reveal', 'data-cb-download',
 // Check 10: badges and LEDs in the demos.
 const INDICATORS = '.docs-demo :is(.cb-badge, .cb-led)';
 // Check 10: chip frames are measured at these [density, viewport width] pairs.
-const CHIP_FRAME_CASES = [['compact', 1360], ['default', 1360], ['comfortable', 1360], ['default', 360]];
+const CHIP_FRAME_CASES = [
+  ['compact', 1360], ['default', 1360], ['comfortable', 1360],
+  ['compact', 360], ['default', 360], ['comfortable', 360],
+];
 // Check 11: focusable table wrappers and the outline offset each must draw (outside on a sticky
 // table's wrapper, inside on any other).
 const WRAPPER_RING_OFFSETS = [
@@ -1478,21 +1481,51 @@ function measureIndicators(indicators) {
 }
 
 // In-page, at one density: rendered chips whose chip or remove key is off the --cb-row-h-sm
-// frame, how many chips there are, and whether one wraps its value.
+// frame or whose value comes closer to the frame than one line centred in it, how many chips
+// there are, and whether one wraps its value.
 function measureChipFrames(density) {
   if (density === 'default') {
     document.documentElement.removeAttribute('data-cb-density');
   } else {
     document.documentElement.dataset.cbDensity = density;
   }
+
+  // The first and last line boxes of the chip's own text (not its box or key).
+  const textLinesOf = (chip) => {
+    const textNodes = [...chip.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+    if (!textNodes.length) {
+      return null;
+    }
+    const range = document.createRange();
+    range.setStartBefore(textNodes[0]);
+    range.setEndAfter(textNodes[textNodes.length - 1]);
+    const lines = [...range.getClientRects()];
+    return { first: lines[0], last: lines[lines.length - 1] };
+  };
+
   const chips = [...document.querySelectorAll('.cb-chip')].filter((chip) => chip.getClientRects().length);
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const bad = [];
   for (const chip of chips) {
-    const rowHeight = parseFloat(getComputedStyle(chip).getPropertyValue('--cb-row-h-sm')) * rootFontSize;
+    const chipStyle = getComputedStyle(chip);
+    const rowHeight = parseFloat(chipStyle.getPropertyValue('--cb-row-h-sm')) * rootFontSize;
     const chipBox = chip.getBoundingClientRect();
     const removeKey = chip.querySelector(':scope > .cb-chip__remove');
     const label = `"${chip.textContent.trim().slice(0, 24)}"`;
+
+    // One line centred in the frame leaves this much room above and below it; a wrapped value
+    // keeps it too. One pixel of slack covers the text's content box inside its line.
+    const borderWidth = parseFloat(chipStyle.borderTopWidth);
+    const centredRoom = (rowHeight - 2 * borderWidth - parseFloat(chipStyle.lineHeight)) / 2;
+    const lines = textLinesOf(chip);
+    if (lines) {
+      const roomAbove = lines.first.top - chipBox.top - borderWidth;
+      const roomBelow = chipBox.bottom - borderWidth - lines.last.bottom;
+      if (Math.min(roomAbove, roomBelow) < centredRoom - 1) {
+        bad.push(`${label} text ${roomAbove.toFixed(1)}/${roomBelow.toFixed(1)}px from the frame for ${centredRoom.toFixed(1)}`);
+      }
+    }
+
     if (!removeKey) {
       if (Math.abs(chipBox.height - rowHeight) > 0.5) {
         bad.push(`${label} ${chipBox.height.toFixed(1)}px for ${rowHeight}`);
@@ -1543,8 +1576,8 @@ async function checkBadges(run) {
   await calmContext.close();
 
   // Chips: the chip and its square remove key are --cb-row-h-sm tall at every density and share
-  // one frame (the key meets the chip's top, bottom and end edges); at 360px a long value wraps
-  // and keeps the key square at the top. Every key is a <button> named "Remove ..." with its chip's value,
+  // one frame (the key meets the chip's top, bottom and end edges); at 360px a long value wraps,
+  // keeps the key square at the top and keeps the room a centred line has above and below it. Every key is a <button> named "Remove ..." with its chip's value,
   // and every list has a name. The catalogue must show chips.
   const isCatalogue = await page.locator('#accessibility').count();
   if (isCatalogue || await page.locator('.cb-chip').count()) {
@@ -1564,7 +1597,7 @@ async function checkBadges(run) {
     }
     await page.evaluate(() => document.documentElement.removeAttribute('data-cb-density'));
     await page.setViewportSize(DESKTOP_VIEWPORT);
-    check(!frameProblems.length, 'chips: chip and square remove key are --cb-row-h-sm tall in one frame at every density', frameProblems.slice(0, 4).join(' | '));
+    check(!frameProblems.length, 'chips: chip and square remove key are --cb-row-h-sm tall in one frame, text clear of the frame, at every density', frameProblems.slice(0, 4).join(' | '));
 
     const nameProblems = await page.$$eval('.cb-chips, .cb-chip__remove', (elements) => {
       const problems = [];
