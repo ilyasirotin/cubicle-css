@@ -4,6 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cubicle — VPN console example</title>
+  <!-- Docs only: the theme picked on the catalogue's theme tiles, applied before the first paint.
+       It carries over where both pages share an origin (the site, a local server), not always on file://. -->
+  <script>
+    (() => {
+      const THEMES = ['steel', 'industrial', 'monochrome'];
+      let stored = null;
+      try {
+        stored = localStorage.getItem('cubicle-docs-theme');
+      } catch {
+        stored = null;
+      }
+      if (THEMES.includes(stored)) {
+        document.documentElement.dataset.cbTheme = stored;
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="../dist/cubicle.css">
   <script src="../dist/cubicle.js" defer></script>
 </head>

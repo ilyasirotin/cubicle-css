@@ -5802,6 +5802,38 @@ async function checkThemeTiles(run) {
   run.check(hiddenWithoutScript, 'theme tiles: hidden without script; the top-bar link still leads to the themes', JSON.stringify({ shown: withoutScript.shown, target: withoutScript.topBarTarget }));
 }
 
+// In-page: the theme on <html> and whether the page canvas paints that theme's canvas.
+function readPageTheme() {
+  const theme = document.documentElement.dataset.cbTheme ?? '';
+  const probe = document.body.appendChild(document.createElement('i'));
+  probe.dataset.cbTheme = theme || 'glacier';
+  probe.style.backgroundColor = 'var(--cb-bg-canvas)';
+  const expected = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  return { theme, paints: getComputedStyle(document.body).backgroundColor === expected };
+}
+
+// 39c. The example console (a page whose body holds a .cb-app) follows the theme picked in the
+//      catalogue: a stored theme is on <html> after a reload, and the stored default leaves none.
+async function checkExampleFollowsTheme(run) {
+  const isExample = await run.page.locator('body > .cb-app').count() && !await run.page.locator('#tokens-themes').count();
+  if (!run.wants('themes') || !isExample || run.theme) {
+    return;
+  }
+  const examplePage = await run.openPage();
+  const storeAndReload = async (theme) => {
+    await examplePage.evaluate((name) => localStorage.setItem('cubicle-docs-theme', name), theme);
+    await examplePage.reload();
+    return examplePage.evaluate(readPageTheme);
+  };
+  const industrial = await storeAndReload('industrial');
+  const glacier = await storeAndReload('glacier');
+  await examplePage.evaluate(() => localStorage.removeItem('cubicle-docs-theme'));
+  await examplePage.close();
+  const follows = industrial.theme === 'industrial' && industrial.paints && glacier.theme === '' && glacier.paints;
+  run.check(follows, 'example: follows the theme stored by the catalogue (industrial applied, glacier as served)', JSON.stringify({ industrial, glacier }));
+}
+
 // 39. Themes. Inside a [data-cb-theme] subtree, every token built from the palette (focus ring,
 //     shadows, gradients, backdrop) follows the subtree's palette instead of the page's: the ring
 //     takes the subtree accent and each shade differs from the page's. Each named theme exists:
@@ -5916,6 +5948,7 @@ async function runChecks() {
   await checkTokenFields(run);
   await checkThemes(run);
   await checkThemeTiles(run);
+  await checkExampleFollowsTheme(run);
   await checkExampleRefresh(run);
   await checkExampleTreeFilter(run);
 
