@@ -2,20 +2,25 @@
 //
 // Setup:          as scripts/verify-browser.mjs.
 // Run:            node scripts/verify-matrix.mjs [--pages index,example] [--browsers chromium,firefox,webkit]
-//                                                [--min] [--jobs 3] [--only forms,keyboard] [--shots none]
+//                                                [--min] [--themes] [--jobs 3] [--only forms,keyboard]
+//                                                [--shots none]
 //                 Runs scripts/verify-browser.mjs for every page and browser, up to --jobs at a time.
 //                 --pages takes page names in docs/ or paths (both pages by default).
 //                 --browsers takes engines (all three by default).
 //                 --min builds dist/*.min.* first (scripts/build-min.sh) and checks the minified files
 //                 as well as the source.
+//                 --themes adds a Chromium run per page for every theme but the default, with
+//                 --theme <name> and the palette-sensitive groups (THEME_GROUPS); the themes are
+//                 the [data-cb-theme] blocks of dist/cubicle.css, the default the one equal to :root.
+//                 With --min those runs check the minified files.
 //                 --only and --shots none are passed to every run (see verify-browser.mjs).
 // Output:         one line per run as it ends, then every FAIL line. Each run writes its report to
 //                 tmp/verify/<run>.txt and its screenshots to tmp/shots/<run>/, where <run> is
-//                 <page>-<browser>[-min], e.g. index-webkit.
+//                 <page>-<browser>[-min] or <page>-chromium-<theme>[-min], e.g. index-webkit.
 // Exit code:      0 when every run passes, 1 otherwise, 2 on bad arguments.
 
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,6 +33,15 @@ const DEFAULT_BROWSERS = KNOWN_ENGINES.join(',');
 const DEFAULT_JOBS = '3';
 const REPORTS_DIRECTORY = 'tmp/verify';
 const MINIFIED_ARGUMENTS = ['--css', 'dist/cubicle.min.css', '--js', 'dist/cubicle.min.js'];
+// --themes: where the theme blocks are, the engine of the theme runs, and the check groups that
+// depend on the palette.
+const STYLESHEET = 'dist/cubicle.css';
+const THEME_ENGINE = 'chromium';
+const THEME_GROUPS = 'contrast,states,badges,alerts,meters,tables,forced,themes';
+const ROOT_BLOCK_PATTERN = /:root\s*\{([^{}]*)\}/;
+const THEME_BLOCK_PATTERN = /\[data-cb-theme="([a-z-]+)"\]\s*\{([^{}]*)\}/g;
+const TOKEN_DECLARATION_PATTERN = /(--cb-[a-z0-9-]+)\s*:\s*([^;]+);/g;
+const RUN_NAME_WIDTH = 32;
 // The run's own summary line, e.g. "268/269 checks passed (1 skipped as engine limits)".
 const SUMMARY_COUNTS_PATTERN = /\d+\/\d+ checks passed(?: \(\d+ skipped as engine limits\))?/;
 // The first line of an uncaught error, for a run that crashed before its summary.
@@ -64,9 +78,10 @@ function parseArguments(argv) {
   const only = takeOption('--only', null);
   const shots = takeOption('--shots', null);
   const minified = takeFlag('--min');
+  const themes = takeFlag('--themes');
 
   const pages = pageNames.map(toPagePath);
-  return { pages, browsers, jobs, only, shots, minified, unexpected: remaining };
+  return { pages, browsers, jobs, only, shots, minified, themes, unexpected: remaining };
 }
 
 // A bare page name means docs/<name>.html; anything with a slash or an .html suffix is a path.
@@ -75,6 +90,30 @@ function toPagePath(pageName) {
     return pageName;
   }
   return `docs/${pageName}.html`;
+}
+
+// The declarations of a CSS block body as a map of token name to value.
+function readTokens(blockBody) {
+  const tokens = new Map();
+  for (const [, name, value] of blockBody.matchAll(TOKEN_DECLARATION_PATTERN)) {
+    tokens.set(name, value.trim());
+  }
+  return tokens;
+}
+
+// The themes of the stylesheet other than the default (the block whose every token equals :root).
+function readOtherThemes() {
+  const css = readFileSync(resolve(REPOSITORY_ROOT, STYLESHEET), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const rootTokens = readTokens(css.match(ROOT_BLOCK_PATTERN)?.[1] ?? '');
+  const otherThemes = [];
+  for (const [, themeName, blockBody] of css.matchAll(THEME_BLOCK_PATTERN)) {
+    const themeTokens = readTokens(blockBody);
+    const isDefault = [...themeTokens].every(([name, value]) => rootTokens.get(name)?.toLowerCase() === value.toLowerCase());
+    if (!isDefault) {
+      otherThemes.push(themeName);
+    }
+  }
+  return otherThemes;
 }
 
 // Returns the error message for invalid options, or null when they are valid.
@@ -110,6 +149,27 @@ function planRuns(options) {
         }
         runs.push({ name, args: runArguments });
       }
+    }
+  }
+  if (options.themes) {
+    runs.push(...planThemeRuns(options));
+  }
+  return runs;
+}
+
+// With --themes: one run per page and non-default theme, in Chromium, on the palette groups;
+// the minified files with --min.
+function planThemeRuns(options) {
+  const runs = [];
+  for (const page of options.pages) {
+    for (const themeName of readOtherThemes()) {
+      const pageName = basename(page, extname(page));
+      const name = `${pageName}-${THEME_ENGINE}-${themeName}${options.minified ? '-min' : ''}`;
+      const runArguments = [page, '--browser', THEME_ENGINE, '--theme', themeName, '--only', options.only ?? THEME_GROUPS, '--shots', options.shots ?? `tmp/shots/${name}`];
+      if (options.minified) {
+        runArguments.push(...MINIFIED_ARGUMENTS);
+      }
+      runs.push({ name, args: runArguments });
     }
   }
   return runs;
@@ -148,7 +208,7 @@ function executeRun(run, failures) {
       const summaryCounts = summary.match(SUMMARY_COUNTS_PATTERN)?.[0];
       const counts = summaryCounts ?? missingSummary;
       const passed = exitCode === 0 && summaryCounts !== undefined;
-      console.log(`${passed ? 'ok  ' : 'FAIL'}  ${run.name.padEnd(22)} ${counts}  ${secondsSince(startTime)}s`);
+      console.log(`${passed ? 'ok  ' : 'FAIL'}  ${run.name.padEnd(RUN_NAME_WIDTH)} ${counts}  ${secondsSince(startTime)}s`);
 
       if (!passed) {
         for (const line of outputLines) {

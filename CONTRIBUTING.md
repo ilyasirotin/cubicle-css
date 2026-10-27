@@ -88,7 +88,7 @@ node scripts/check-tokens.mjs
 node scripts/verify-matrix.mjs --browsers chromium
 ```
 
-CI runs all of these, with `verify-matrix --min` in place of the Chromium-only run, on Linux for every push and pull request to `master`.
+CI runs all of these, with `verify-matrix --min --themes` in place of the Chromium-only run, on Linux for every push and pull request to `master`.
 
 After a change to engine-specific CSS, form controls, platform features or `cubicle.js`, and before a
 release, run every engine, on the source and on the minified build:
@@ -96,6 +96,10 @@ release, run every engine, on the source and on the minified build:
 ```sh
 node scripts/verify-matrix.mjs --min
 ```
+
+After a change to palette tokens, colour mixes or anything a theme paints, add `--themes`: one
+Chromium run per page for steel, industrial and monochrome on the palette checks. A single theme
+runs with `node scripts/verify-browser.mjs --theme industrial`.
 
 `verify-browser` writes screenshots to `tmp/shots/`, and the matrix to `tmp/shots/<page>-<engine>/`;
 look at them. A line marked `skip` is a known
