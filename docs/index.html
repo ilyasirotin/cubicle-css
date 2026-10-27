@@ -3655,8 +3655,8 @@ async function reloadRows(url) {
           memberships. A list of chips, each with a remove key at its end. The key is a native button,
           24px square at default density, and works without script: it submits a form or triggers the
           host's request. A value that cannot be removed has no key; <code>disabled</code> locks one for
-          now, <code>aria-busy="true"</code> shows the spinner while the server removes it. A long value
-          wraps. To add values as well, use a <a href="#fields-tokens">token field</a>.</p>
+          now, <code>aria-busy="true"</code> shows the spinner while the server removes it (add <code>disabled</code>
+          as well if the removal must not repeat). A long value wraps. To add values as well, use a <a href="#fields-tokens">token field</a>.</p>
         <div class="docs-demo">
           <div class="cb-stack">
             <ul class="cb-chips" aria-label="Granted scopes">
@@ -3778,7 +3778,7 @@ async function reloadRows(url) {
               <tr><th scope="row"><code>.cb-chips</code></th><td><code>&lt;ul&gt;</code> with a name</td><td>A wrapping list of chips, 4px apart</td></tr>
               <tr><th scope="row"><code>.cb-chip</code></th><td><code>&lt;li&gt;</code></td><td>One value on the neutral tag paint, <code>--cb-row-h-sm</code> tall; a long value wraps</td></tr>
               <tr><th scope="row"><code>.cb-chip__remove</code></th><td><code>&lt;button&gt;</code> with <code>.cb-btn .cb-btn--icon</code></td><td>Square remove key attached to the chip's end, 24px at default density; hidden in print</td></tr>
-              <tr><th scope="row"><code>disabled</code> / <code>aria-busy="true"</code></th><td>Remove key</td><td>Locked for now / spinner in place of the cross while the server removes the value</td></tr>
+              <tr><th scope="row"><code>disabled</code> / <code>aria-busy="true"</code></th><td>Remove key</td><td>Locked for now / spinner in place of the cross while the server removes the value; add <code>disabled</code> as well if the removal must not repeat</td></tr>
               <tr><th scope="row"><code>.cb-led--ok</code> / <code>--warn</code> / <code>--danger</code> / <code>--info</code> / <code>--off</code></th><td>LED</td><td>Lamp tone; <code>--off</code> is hollow</td></tr>
             </tbody>
           </table>
