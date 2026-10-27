@@ -5145,25 +5145,45 @@ async function checkTokenFieldBehaviour(run, tokenPage) {
   const tellsOthers = added.sent.includes('10.9.0.0/24') && /Added 10\.9\.0\.0\/24/.test(added.live) && added.changes === 1;
   check(addsChip && tellsOthers, 'token field: Enter adds the value as a chip with its box, its named key and an announcement', JSON.stringify({ before: before.chips.length, ...added }));
 
+  // A real paste through the system clipboard: Firefox empties the data of a synthetic one.
+  const pasteInto = async (entrySelector, text) => {
+    await tokenPage.evaluate((clipboardText) => {
+      const clipboardSource = document.body.appendChild(document.createElement('textarea'));
+      clipboardSource.id = 'vb-clip';
+      clipboardSource.value = clipboardText;
+    }, text);
+    await tokenPage.focus('#vb-clip');
+    await tokenPage.keyboard.press('ControlOrMeta+A');
+    await tokenPage.keyboard.press('ControlOrMeta+C');
+    await tokenPage.evaluate(() => document.getElementById('vb-clip').remove());
+    await tokenPage.focus(entrySelector);
+    await tokenPage.keyboard.press('ControlOrMeta+V');
+    await waitForFrames();
+  };
+
   await tokenPage.keyboard.type('10.10.0.0/16, 10.11.0.0/16 ');
   await waitForFrames();
-  // A real paste through the system clipboard: Firefox empties the data of a synthetic one.
-  await tokenPage.evaluate(() => {
-    const clipboardSource = document.body.appendChild(document.createElement('textarea'));
-    clipboardSource.id = 'vb-clip';
-    clipboardSource.value = '172.16.0.0/12\n192.168.0.0/16\nnot-a-block';
-  });
-  await tokenPage.focus('#vb-clip');
-  await tokenPage.keyboard.press('ControlOrMeta+A');
-  await tokenPage.keyboard.press('ControlOrMeta+C');
-  await tokenPage.evaluate(() => document.getElementById('vb-clip').remove());
-  await tokenPage.focus(entry);
-  await tokenPage.keyboard.press('ControlOrMeta+V');
-  await waitForFrames();
+  await pasteInto(entry, '172.16.0.0/12\n192.168.0.0/16\nnot-a-block');
   const many = await readState();
   const expectedValues = ['10.10.0.0/16', '10.11.0.0/16', '172.16.0.0/12', '192.168.0.0/16'];
   const addsEach = expectedValues.every((value) => many.chips.includes(value)) && many.chips.length === added.chips.length + 4 && many.entry === 'not-a-block';
   check(addsEach, 'token field: separators and a pasted list add each value; one that breaks the pattern stays in the entry', JSON.stringify(many));
+
+  // Several values not added: a field with separators keeps them joined by its first separator,
+  // so the next add splits them again; a field without keeps the first and names the rest.
+  await tokenPage.fill(entry, '');
+  await pasteInto(entry, 'bad-one\nbad-two\n10.13.0.0/16');
+  const keptJoined = await readState();
+  await pasteInto('#tk-scopes', 'peers:read\naudit:read\nbilling:read');
+  const keptFirst = await tokenPage.$eval('#tk-scopes', (field) => ({
+    entry: field.value,
+    added: [...field.closest('.cb-tokens').querySelectorAll('.cb-chip > .cb-check')].some((box) => box.value === 'billing:read'),
+    live: document.querySelector('[role="status"][data-cb-sr]')?.textContent ?? '',
+  }));
+  const joinsWithSeparator = keptJoined.entry === 'bad-one,bad-two' && keptJoined.chips.includes('10.13.0.0/16');
+  const namesTheRest = keptFirst.entry === 'peers:read' && keptFirst.added && /Not added: "audit:read"/.test(keptFirst.live);
+  check(joinsWithSeparator && namesTheRest, 'token field: values not added return joined by the first separator, or the first alone with the rest announced', JSON.stringify({ joined: keptJoined.entry, ...keptFirst }));
+  const settled = await readState();
 
   await tokenPage.fill(entry, '10.8.0.0/24');
   await tokenPage.focus(entry);
@@ -5175,8 +5195,8 @@ async function checkTokenFieldBehaviour(run, tokenPage) {
   await waitForFrames();
   const bad = await readState();
   const invalid = await tokenPage.$eval(entry, (field) => !field.checkValidity());
-  const refusesRepeat = twice.chips.length === many.chips.length && twice.entry === '10.8.0.0/24' && /already in the list/.test(twice.live);
-  const refusesInvalid = bad.chips.length === many.chips.length && bad.entry === '999.1/x' && invalid;
+  const refusesRepeat = twice.chips.length === settled.chips.length && twice.entry === '10.8.0.0/24' && /already in the list/.test(twice.live);
+  const refusesInvalid = bad.chips.length === settled.chips.length && bad.entry === '999.1/x' && invalid;
   check(refusesRepeat && refusesInvalid, 'token field: a repeated value or one that breaks the pattern is not added and stays in the entry', JSON.stringify({ twice: twice.live, bad: bad.entry, invalid }));
 
   await tokenPage.fill(entry, '');
