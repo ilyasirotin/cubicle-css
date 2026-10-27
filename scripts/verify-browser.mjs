@@ -5709,6 +5709,99 @@ async function checkOverridesServed(run, options) {
   run.check(!missed.length, 'command-line overrides were served (--css, --js, --theme)', detail);
 }
 
+// In-page: the catalogue's theme tiles: whether they show, their tops (rows), the theme each
+// window paints (its canvas against a probe of each theme), the checked tile, the page theme and
+// the top-bar name, and the focus ring of the focused radio.
+function readThemeTiles() {
+  const group = document.querySelector('.docs-themes');
+  const tiles = group ? [...group.querySelectorAll('.docs-theme')] : [];
+  const canvasOf = (themeName) => {
+    const probe = document.body.appendChild(document.createElement('i'));
+    probe.dataset.cbTheme = themeName;
+    probe.style.backgroundColor = 'var(--cb-bg-canvas)';
+    const colour = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return colour;
+  };
+  const windows = tiles.map((tile) => {
+    const radio = tile.querySelector('input[type="radio"]');
+    const windowElement = tile.querySelector('.docs-theme__window');
+    return {
+      value: radio?.value ?? '',
+      paintsOwnTheme: Boolean(windowElement) && getComputedStyle(windowElement).backgroundColor === canvasOf(radio?.value ?? ''),
+    };
+  });
+  const focusedRadio = document.activeElement?.closest('.docs-theme') ? document.activeElement : null;
+  return {
+    shown: Boolean(group) && !group.hidden && group.getClientRects().length > 0,
+    tops: tiles.map((tile) => Math.round(tile.getBoundingClientRect().top)),
+    windows,
+    checked: group?.querySelector('input:checked')?.value ?? '',
+    pageTheme: document.documentElement.dataset.cbTheme ?? '',
+    topBarName: document.querySelector('.docs-topbar__theme')?.textContent.trim() ?? '',
+    topBarTarget: document.querySelector('.docs-topbar__theme')?.getAttribute('href') ?? '',
+    ring: focusedRadio ? getComputedStyle(focusedRadio).outlineStyle : 'no focused tile',
+  };
+}
+
+// Part of 39b: arrow keys on the tiles, a reload, and back to the default.
+async function checkThemeTilePicking(run, tilesPage) {
+  // Reach the group by keyboard (Tab out, Shift+Tab back to the checked radio): WebKit shows
+  // :focus-visible only for keyboard focus, and drops it again once an arrow key picks a radio
+  // (any radio group, an engine behaviour), so the ring is read before the arrow.
+  await tilesPage.focus('.docs-themes input:checked');
+  await tilesPage.keyboard.press(run.tabKey);
+  await tilesPage.keyboard.press(run.shiftTabKey);
+  const { ring } = await tilesPage.evaluate(readThemeTiles);
+  await tilesPage.keyboard.press('ArrowRight');
+  const picked = await tilesPage.evaluate(readThemeTiles);
+  await tilesPage.reload();
+  const reloaded = await tilesPage.evaluate(readThemeTiles);
+  await tilesPage.focus('.docs-themes input:checked');
+  await tilesPage.keyboard.press('ArrowLeft');
+  const back = await tilesPage.evaluate(readThemeTiles);
+  await tilesPage.close();
+  const picksSteel = ring === 'solid' && picked.checked === 'steel' && picked.pageTheme === 'steel' && picked.topBarName === 'Theme: Steel';
+  const keeps = reloaded.checked === 'steel' && reloaded.pageTheme === 'steel' && reloaded.topBarName === 'Theme: Steel';
+  const backToDefault = back.checked === 'glacier' && back.pageTheme === '' && back.topBarName === 'Theme: Glacier';
+  const pickDetail = JSON.stringify({ ring, picked, reloaded: [reloaded.checked, reloaded.pageTheme], back: [back.checked, back.pageTheme, back.topBarName] });
+  run.check(picksSteel && keeps && backToDefault, 'theme tiles: arrow keys pick the page theme and the top-bar name, ring on the radio; a reload keeps it; glacier removes the attribute', pickDetail);
+}
+
+// 39b. The catalogue's theme tiles (docs only): four tiles in one row at 1360px and two rows at
+//      360px, each window painted by its own theme; arrow keys pick a theme for the whole page
+//      and the top bar, with the ring on the focused radio; a reload keeps the choice; glacier
+//      removes the attribute; without script the tiles stay hidden.
+async function checkThemeTiles(run) {
+  if (!run.wants('themes') || !await run.page.locator('#tokens-themes').count() || run.theme) {
+    return;
+  }
+  const tilesPage = await run.openPage({ viewport: DESKTOP_VIEWPORT });
+  const wide = await tilesPage.evaluate(readThemeTiles);
+  await tilesPage.setViewportSize({ width: 360, height: 900 });
+  const narrow = await tilesPage.evaluate(readThemeTiles);
+  await tilesPage.setViewportSize(DESKTOP_VIEWPORT);
+  const oneRow = wide.tops.length === THEME_NAMES.length && new Set(wide.tops).size === 1;
+  const twoRows = new Set(narrow.tops).size === 2;
+  const ownThemes = wide.windows.length === THEME_NAMES.length && wide.windows.every((tile) => tile.paintsOwnTheme);
+  const layoutDetail = JSON.stringify({ shown: wide.shown, wide: wide.tops, narrow: narrow.tops, windows: wide.windows });
+  run.check(wide.shown && oneRow && twoRows && ownThemes, 'theme tiles: four in a row at 1360px, two rows at 360px, each window in its own theme', layoutDetail);
+
+  if (!wide.shown) {
+    await tilesPage.close();
+    run.check(false, 'theme tiles: arrow keys pick the page theme and the top-bar name, ring on the radio; a reload keeps it; glacier removes the attribute', 'no tiles shown');
+  } else {
+    await checkThemeTilePicking(run, tilesPage);
+  }
+
+  const noScriptContext = await run.browser.newContext({ ...run.contextOptions, javaScriptEnabled: false });
+  const noScriptPage = await run.openPage({ browserContext: noScriptContext });
+  const withoutScript = await noScriptPage.evaluate(readThemeTiles);
+  await noScriptContext.close();
+  const hiddenWithoutScript = !withoutScript.shown && withoutScript.topBarTarget === '#tokens-themes';
+  run.check(hiddenWithoutScript, 'theme tiles: hidden without script; the top-bar link still leads to the themes', JSON.stringify({ shown: withoutScript.shown, target: withoutScript.topBarTarget }));
+}
+
 // 39. Themes. Inside a [data-cb-theme] subtree, every token built from the palette (focus ring,
 //     shadows, gradients, backdrop) follows the subtree's palette instead of the page's: the ring
 //     takes the subtree accent and each shade differs from the page's. Each named theme exists:
@@ -5822,6 +5915,7 @@ async function runChecks() {
   await checkTargetSize(run);
   await checkTokenFields(run);
   await checkThemes(run);
+  await checkThemeTiles(run);
   await checkExampleRefresh(run);
   await checkExampleTreeFilter(run);
 
