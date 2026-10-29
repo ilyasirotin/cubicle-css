@@ -27,17 +27,17 @@ From the CDN, pinned to a release and checked by Subresource Integrity:
 
 ```html
 <link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.0.0/dist/cubicle.min.css"
-      integrity="sha384-7RV/49mx6TTlcuKA9zK2Jfi+PYsI3q4RJIeEp8PEJ0tzQBAyVgdKIoopWniMhc3F"
+      href="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.1.0/dist/cubicle.min.css"
+      integrity="sha384-VxgBrpR34/dmjoZa+5hZ8Cq0GQMhHZHu1Gkuyp9rpRGum/KDlj1WnI8mZXn0ynXk"
       crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.0.0/dist/cubicle.min.js"
-        integrity="sha384-2qvZb9d/l3Xp2zrAyFO7aSiRHlNokRUHbqPv8xQhXO++v8CHny/FFmxGl1SUgJdx"
+<script src="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.1.0/dist/cubicle.min.js"
+        integrity="sha384-u5vZjhaEGpM1dWR71e7bmovF3hQn1EV/B+YyqQiVwtj9V7nAkkCQAZilWKXEXnQD"
         crossorigin="anonymous" defer></script>
 ```
 
 Or take the files: download the zip from the [latest release](https://github.com/ilyasirotin/cubicle-css/releases/latest)
 (with `checksums.txt`), or copy `dist/cubicle.css` and optionally `dist/cubicle.js` into your
-project. The minified files are 57 KB (10.6 KB gzip) and 12.8 KB (4.6 KB gzip).
+project. The minified files are 59.2 KB (11.1 KB gzip) and 13.0 KB (4.7 KB gzip).
 
 ## Use
 

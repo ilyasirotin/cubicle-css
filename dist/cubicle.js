@@ -1,5 +1,5 @@
 /*!
- * Cubicle v1.0.0 — optional progressive enhancement for dist/cubicle.css.
+ * Cubicle v1.1.0 — optional progressive enhancement for dist/cubicle.css.
  * MIT License. No dependencies. Load with: <script src="cubicle.js" defer></script>
  */
 

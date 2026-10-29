@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-29
+
 ### Added
 
 - **Themes.** `data-cb-theme="glacier"`, `"steel"`, `"industrial"` or `"monochrome"` on `<html>`
@@ -201,5 +203,6 @@ The first release of Cubicle.
     descriptive names.
   - A Claude Code hook that blocks pushes, tags and releases.
 
-[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/ilyasirotin/cubicle-css/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/ilyasirotin/cubicle-css/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/ilyasirotin/cubicle-css/releases/tag/v1.0.0
