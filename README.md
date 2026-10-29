@@ -27,11 +27,11 @@ From the CDN, pinned to a release and checked by Subresource Integrity:
 
 ```html
 <link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.1.0/dist/cubicle.min.css"
-      integrity="sha384-VxgBrpR34/dmjoZa+5hZ8Cq0GQMhHZHu1Gkuyp9rpRGum/KDlj1WnI8mZXn0ynXk"
+      href="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.1.1/dist/cubicle.min.css"
+      integrity="sha384-GB67N8pu9YSCA4Z9zlw4aLfUA+HVDGZa8PIfN/utUbyxLIP3JhdbmPvmsZf3moyN"
       crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.1.0/dist/cubicle.min.js"
-        integrity="sha384-u5vZjhaEGpM1dWR71e7bmovF3hQn1EV/B+YyqQiVwtj9V7nAkkCQAZilWKXEXnQD"
+<script src="https://cdn.jsdelivr.net/gh/ilyasirotin/cubicle-css@v1.1.1/dist/cubicle.min.js"
+        integrity="sha384-FL6GHSvV4slExPp74u0Yt4s4MmfwMUCm/q2D7dv/Ddj7/vZDGiGQtaAxyK8BA1pt"
         crossorigin="anonymous" defer></script>
 ```
 
