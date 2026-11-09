@@ -5,11 +5,11 @@
   "description": "Development-only tools for Cubicle (browser checks, linters, local minified build). Not part of the shipped kit.",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.13.0",
-    "globals": "^17.13.0",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
     "lightningcss-cli": "^1.30.0",
-    "playwright": "^1.56.0",
-    "stylelint": "^17.16.0",
+    "playwright": "^1.65.0",
+    "stylelint": "^18.0.0",
     "terser": "^5.51.2"
   }
 }
